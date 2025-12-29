@@ -29,7 +29,8 @@ export const PUT = withAuth(async (req: NextRequest, user: UserPayload) => {
 
     // 2. Handle File Upload (Manual save)
     if (file && file.size > 0) {
-      const uploadDir = path.join(process.cwd(), "public", "uploads", "branding");
+      // ✅ External persistent directory
+      const uploadDir = "/var/www/uploads/branding";
 
       // Ensure directory exists
       await fs.mkdir(uploadDir, { recursive: true });
@@ -43,7 +44,7 @@ export const PUT = withAuth(async (req: NextRequest, user: UserPayload) => {
       const buffer = Buffer.from(bytes);
       await fs.writeFile(filePath, buffer);
 
-      // Save the path relative to the 'public' folder for web access
+      // URL served via nginx
       logoUrl = `/uploads/branding/${filename}`;
     }
 
