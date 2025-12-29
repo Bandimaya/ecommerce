@@ -1,0 +1,265 @@
+{
+  "navbar": {
+    "home": "Home",
+    "shop": "Shop",
+    "programs": "Programs",
+    "contact": "Contact",
+    "searchPlaceholder": "Search here...",
+    "searchAria": "Search",
+    "cartAria": "Shopping Cart"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "welcome": "Welcome"
+  },
+  "admin": {
+    "nav": {
+      "dashboard": "Dashboard",
+      "brands": "Brands",
+      "programs": "Programs",
+      "categories": "Categories",
+      "products": "Products",
+      "orders": "Orders",
+      "customers": "Customers",
+      "contactInfo": "Contact Info",
+      "customization": "Customization"
+    }
+  },
+  "user": {
+    "settings": "Settings",
+    "myOrders": "My Orders",
+    "profile": "My Profile"
+  },
+  "footer": {
+    "quickLinks": "Quick Links",
+    "programs": "Programs",
+    "shopAll": "Shop All",
+    "stemPrograms": "STEM Programs",
+    "contactUs": "Contact Us",
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms of Service",
+    "shipping": "Shipping",
+    "brandDescription": "Inspiring the next generation of innovators through hands-on STEM education and quality products.",
+    "copyright": "© {year} The STEM Park. All rights reserved."
+  },
+  "common": {
+    "en": "EN",
+    "ar": "AR",
+    "search": "Search",
+    "cart": "Cart"
+  },
+  "language": {
+    "switchToEnglish": "English",
+    "switchToArabic": "العربية"
+  },
+  "chatbot": {
+    "welcome": "Hi! 👋 Welcome to The STEM Park! How can I help you today?",
+    "header": "STEM Park Assistant",
+    "online": "Online",
+    "typeMessage": "Type a message...",
+    "quickReplies": {
+      "browseKits": "Browse STEM Kits",
+      "printerRental": "3D Printer Rental",
+      "programs": "STEM Programs",
+      "trackOrder": "Track Order"
+    },
+    "responses": {
+      "browseKits": "Great choice! 🚀 We have robotics kits, solar kits, drone kits, and more. Visit our Shop page to explore all products!",
+      "printerRental": "Our 3D printer rental starts at $15/hour. You can book time slots online!",
+      "programs": "We offer STEM Clubs for hands-on learning. Check our Programs page for schedules!",
+      "trackOrder": "To track your order, please provide your order number or email.",
+      "default": "Thanks for your message! Our team will get back to you shortly."
+    }
+  },
+  "featured": {
+    "label": "Featured Collection",
+    "headline": {
+      "line1": "Top picks for",
+      "line2": "young innovators"
+    },
+    "description": "Curated STEM kits designed to inspire creativity and innovation",
+    "browseAll": "Browse All Products",
+    "trust": {
+      "guarantee": "30-Day Guarantee",
+      "shipping": "Free Shipping",
+      "educator": "Educator Approved"
+    }
+  },
+  "hero": {
+    "badge": {
+      "featured": "Featured",
+      "subtext": "Inspiring the next generation of innovators"
+    },
+    "title": {
+      "part1": "Build. Learn.",
+      "part2": "Create Amazing Things."
+    },
+    "description": "Premium STEM kits, 3D printer rentals, and hands-on programs designed to spark curiosity and build real-world skills.",
+    "shopNow": "Shop Now",
+    "watchStory": "Watch Our Story",
+    "trust": {
+      "quality": "Quality Guaranteed",
+      "dispatch": "Same Day Dispatch",
+      "learners": "1000+ Happy Learners",
+      "certified": "STEM Certified"
+    }
+  },
+  "breakingJargon": {
+    "badge": "STEM Technology",
+    "levels": {
+      "beginner": "Beginner Friendly"
+    },
+    "learnMore": "Learn More"
+  },
+  "missionVision": {
+    "title": "Leadership Insight",
+    "quote": "Our commitment extends beyond products. We're cultivating ecosystems of curiosity where every experiment, every failure, and every success builds the innovators of tomorrow.",
+    "founderName": "Sarah Chen",
+    "founderTitle": "Founder & CEO, STEM Park",
+    "stats": {
+      "students": "Students Empowered",
+      "partners": "Educational Partners"
+    }
+  },
+  "newsletter": {
+    "label": "Stay Updated",
+    "title": {
+      "line1": "Join the",
+      "line2": "STEM Park Community"
+    },
+    "description": "Get exclusive deals, new product alerts, and STEM learning resources straight to your inbox.",
+    "emailPlaceholder": "Enter your email address",
+    "subscribe": "Subscribe",
+    "privacyNote": "No spam ever. Unsubscribe anytime."
+  },
+  "programs": {
+    "badge": "Our Programs",
+    "title": { "part1": "Beyond", "part2": "Programs" },
+    "description": "Comprehensive learning experiences designed to nurture innovation, creativity, and problem-solving skills in the next generation of STEM leaders.",
+    "header": {
+      "stats": {
+        "learnersValue": "5K+",
+        "learnersLabel": "Active Learners",
+        "programsValue": "200+",
+        "programsLabel": "Programs",
+        "schoolsValue": "50+",
+        "schoolsLabel": "Schools",
+        "satisfactionValue": "98%",
+        "satisfactionLabel": "Satisfaction"
+      }
+    },
+    "list": {
+      "stemClubs": {
+        "title": "STEM Clubs",
+        "subtitle": "Weekly Innovation Sessions",
+        "description": "Hands-on robotics, coding, and engineering projects in collaborative environments designed to foster teamwork and creativity.",
+        "stats": {
+          "activeClubsValue": "50+",
+          "activeClubs": "Active Clubs",
+          "projectsValue": "200+",
+          "projects": "Projects",
+          "ageGroupsValue": "8-18",
+          "ageGroups": "Age Groups"
+        },
+        "features": "Weekly project-based learning|Competition preparation|Industry expert sessions|Portfolio development"
+      },
+      "academicSupport": {
+        "title": "Academic Support",
+        "subtitle": "Personalized Learning Programs",
+        "description": "One-on-one and small group tutoring in STEM subjects with certified educators and customized learning paths.",
+        "stats": {
+          "subjectsValue": "10+",
+          "subjects": "Subjects",
+          "successRateValue": "95%",
+          "successRate": "Success Rate",
+          "tutorsValue": "100+",
+          "tutors": "Tutors"
+        },
+        "features": "Custom curriculum|Progress tracking|Exam preparation|Homework support"
+      },
+      "summerCamps": {
+        "title": "Summer Camps",
+        "subtitle": "Immersive Tech Experiences",
+        "description": "Week-long intensive programs focused on specific technologies like AI, robotics, and game development.",
+        "stats": {
+          "campWeeksValue": "8",
+          "campWeeks": "Camp Weeks",
+          "participantsValue": "500+",
+          "participants": "Participants",
+          "locationsValue": "12",
+          "locations": "Locations"
+        },
+        "features": "Project showcase|Industry field trips|Mentorship program|Certificate of completion"
+      },
+      "teacherTraining": {
+        "title": "Teacher Training",
+        "subtitle": "Professional Development",
+        "description": "Workshops and certification programs for educators to integrate modern STEM tools into their classrooms.",
+        "stats": {
+          "teachersTrainedValue": "1000+",
+          "teachersTrained": "Teachers Trained",
+          "schoolsValue": "250+",
+          "schools": "Schools",
+          "certificationsValue": "5",
+          "certifications": "Certifications"
+        },
+        "features": "Curriculum design|Classroom management|Tech integration|Assessment strategies"
+      }
+    },
+    "buttons": {
+      "learnMore": "Learn More",
+      "enrollNow": "Enroll Now",
+      "exploreAll": "Explore All Programs",
+      "scheduleDemo": "Schedule a Demo",
+      "exploreProgram": "Explore Program"
+    },
+    "cta": {
+      "badge": "Ready to Begin Your Journey?",
+      "titlePrefix": "Transform Learning with",
+      "titleEmphasis": "Hands-on Experience",
+      "description": "Join thousands of students, educators, and institutions already experiencing the future of STEM education.",
+      "note": "Free trial available for schools and institutions • Flexible scheduling • Certified instructors"
+    },
+    "page": {
+      "specializedTracks": "SPECIALIZED TRACKS",
+      "focusedTitle": "Focused Learning Paths",
+      "focusedDescription": "Master specific technologies with our intensive focused programs",
+      "cta": {
+        "title": "Ready to Launch Your STEM Career?",
+        "description": "Join our community of innovators and take the first step toward a future in technology. Our advisors are ready to help you choose the perfect program.",
+        "schedule": "Schedule Free Consultation",
+        "viewAll": "View All Programs",
+        "note": "Limited spots available • Next cohort starts in 2 weeks"
+      }
+    }
+  },
+  "login": {
+    "title": "Login",
+    "email": "Email",
+    "password": "Password",
+    "placeholderEmail": "you@example.com",
+    "submit": "Login",
+    "submitting": "Logging in...",
+    "noAccount": "Don’t have an account?",
+    "register": "Register"
+  },
+  "register": {
+    "title": "Register",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "register": "Register",
+    "registering": "Registering...",
+    "alreadyHave": "Already have an account?",
+    "login": "Login"
+  },
+  "product": {
+    "addedTitle": "Added to cart!",
+    "addedDesc": "{name} added.",
+    "multiOption": "Multi-Option",
+    "from": "From",
+    "shippingTo": "Shipping to",
+    "defaultCategory": "STEM Kit"
+  }
+}
