@@ -24,7 +24,7 @@ export function withAuth(
 
       return handler(req, payload);
     } catch (err: any) {
-      return NextResponse.json({ message: err.message || "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ message: err.message || "Unauthorized" }, { status: 500 });
     }
   };
 }

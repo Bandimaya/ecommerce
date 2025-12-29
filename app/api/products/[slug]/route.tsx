@@ -14,7 +14,7 @@ const saveMedia = async (file: File) => {
   const filename = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
   const buffer = Buffer.from(await file.arrayBuffer());
   await fs.writeFile(path.join(uploadDir, filename), buffer);
-
+  
   return `/uploads/products/${filename}`;
 };
 
@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
   await connectDB();
   try {
     const formData = await req.formData();
-
+    
     // Parse JSON strings from formData
     const name = formData.get("name") as string;
     const description = formData.get("description") as string;
@@ -56,11 +56,11 @@ export async function POST(req: NextRequest) {
     const variants = JSON.parse(formData.get("variants") as string || "[]");
     const categories = JSON.parse(formData.get("categories") as string || "[]");
     const dimensions = JSON.parse(formData.get("dimensions") as string || "{}");
-
+    
     // Handle Media Uploads
     const media: any[] = [];
     const allEntries = Array.from(formData.entries());
-
+    
     for (const [key, value] of allEntries) {
       if (value instanceof File && !key.startsWith("variantMedia_")) {
         const url = await saveMedia(value);
@@ -81,7 +81,6 @@ export async function POST(req: NextRequest) {
       brand: formData.get("brand") || null,
       media,
       isFeatured: formData.get("isFeatured") === "true",
-      discount: Number(formData.get("discount") || 0),
       isActive: formData.get("isActive") === "true",
       isOnlyProduct: formData.get("isOnlyProduct") === "true",
       pricing: pricing.map((p: any) => ({ ...p, originalPrice: Number(p.originalPrice) })),
@@ -98,11 +97,9 @@ export async function POST(req: NextRequest) {
         media
       };
     }
-    
-    console.log("Creating product with data:", productData);
-    
+
     const newProduct = await Product.create(productData);
-    
+
     // Multi-variant Logic
     if (!productData.isOnlyProduct && variants.length > 0) {
       const variantDocs = await Promise.all(variants.map(async (v: any, idx: number) => {
@@ -117,7 +114,7 @@ export async function POST(req: NextRequest) {
       }));
       await Variant.insertMany(variantDocs);
     }
-    
+
     return NextResponse.json(newProduct, { status: 201 });
   } catch (err: any) {
     console.log(err);
@@ -190,7 +187,6 @@ export async function PUT(req: NextRequest) {
     }
     product.description = (formData.get("description") as string) || product.description;
     product.categories = categories;
-    product.discount = Number(formData.get("discount") || 0);
     product.brand = formData.get("brand") || null;
     product.isFeatured = formData.get("isFeatured") === "true";
     product.isActive = formData.get("isActive") === "true";
@@ -218,7 +214,7 @@ export async function PUT(req: NextRequest) {
 
       for (const [idx, vData] of variants.entries()) {
         let currentVariantMedia = vData.media || [];
-
+        
         // Remove media from variant if flagged
         if (removedMedia.length > 0) {
           currentVariantMedia = currentVariantMedia.filter((m: any) => !removedMedia.includes(m.url));
@@ -261,7 +257,7 @@ export async function PUT(req: NextRequest) {
     }
 
     await product.save();
-
+    
     // Return populated product
     const populatedProduct = await Product.findById(product._id)
     // .populate('variants');

@@ -20,6 +20,11 @@ const ProductSchema = new Schema(
       index: true,
     },
 
+    discount: {
+      type: Number,
+      default: 0
+    },
+
     description: {
       type: String,
       required: true,

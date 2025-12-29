@@ -51,8 +51,8 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
       {nodes?.length > 0 && (
         <div className="bg-[var(--primary-50)] p-2 rounded-md border border-[var(--primary-100)] flex items-center gap-4 mb-2">
           <label className="text-[10px] font-black text-[var(--primary-500)] uppercase tracking-widest whitespace-nowrap">
-            {t('admin.variant.level_name', { depth })}
-          </label> 
+            {t('level_name', { depth })}
+          </label>
           <input
             placeholder="e.g. Color, Size, or Fabric"
             className="flex-1 bg-transparent border-b border-[var(--primary-200)] focus:border-[var(--primary-500)] outline-none text-sm font-bold text-[var(--primary-700)]"
@@ -70,7 +70,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
             <div className="flex flex-col md:flex-row gap-4 mb-4 bg-[var(--neutral-50)] p-3 rounded-lg">
               <div className="flex-[2]">
                 <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase tracking-widest">
-                  {node.levelLabel || t('admin.variant.level_default', { depth })} {t('admin.variant.value')}
+                  {node.levelLabel || t('level_default', { depth })} {t('value')}
                 </label>
                 <input
                   placeholder={`e.g. ${depth === 1 ? 'Red' : depth === 2 ? 'Large' : 'Cotton'}`}
@@ -82,13 +82,13 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm(t('admin.variant.delete_confirm', { name: node.name || t('admin.variant.unnamed') }))) {
+                  if (confirm(t('delete_confirm', { name: node.name || t('unnamed') }))) {
                     deleteNodeDeep(currentPath);
                   }
                 }}
                 className="text-[10px] font-bold text-[var(--destructive-500)] uppercase hover:text-[var(--destructive-700)]"
               >
-                {t('common.delete')}
+                {t('delete')}
               </button>
 
             </div>
@@ -98,7 +98,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                 {/* Identification Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('admin.field.sku_required')}</label>
+                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('sku_required')}</label>
                     <input
                       placeholder="SKU-12345"
                       className="w-full p-2 border border-[var(--input)] rounded text-sm font-mono bg-[var(--background)] focus:ring-2 focus:ring-[var(--primary-500)] outline-none text-[var(--foreground)]"
@@ -108,7 +108,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('admin.field.barcode')}</label>
+                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('barcode')}</label>
                     <input
                       placeholder="EAN/UPC"
                       className="w-full p-2 border border-[var(--input)] rounded text-sm bg-[var(--background)] outline-none text-[var(--foreground)]"
@@ -117,7 +117,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('admin.field.weight_kg')}</label>
+                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('weight_kg')}</label>
                     <input
                       type="number"
                       placeholder="0.00"
@@ -131,10 +131,10 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                 <div className="space-y-3 pt-4 border-t border-[var(--neutral-200)]">
                   <div className="flex items-center justify-between">
                     <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase tracking-wider">
-                      {t('admin.variant.market_pricing')}
+                      {t('market_pricing')}
                     </label>
                     <div className="bg-[var(--neutral-50)] p-4 rounded-lg border border-dashed border-[var(--neutral-300)]">
-                      <label className="text-xs font-bold text-[var(--neutral-500)] uppercase block mb-2">{t('admin.variant.add_market')}</label>
+                      <label className="text-xs font-bold text-[var(--neutral-500)] uppercase block mb-2">{t('add_market')}</label>
                       <select
                         value=""
                         onChange={(e) => {
@@ -152,7 +152,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                         }}
                         className="w-full md:w-64 border-[var(--neutral-300)] rounded-lg border p-2 text-sm bg-[var(--background)] focus:ring-2 focus:ring-[var(--primary-500)] outline-none text-[var(--foreground)]"
                       >
-                        <option value="" disabled>{t('admin.variant.select_currency')}</option>
+                        <option value="" disabled>{t('select_currency')}</option>
                         {CURRENCY_OPTIONS.map((curr: any) => (
                           <option
                             key={curr.code}
@@ -356,14 +356,14 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                               ×
                             </button>
                           </div>
-                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[7px] font-bold bg-[var(--primary-600)] px-1 rounded border border-[var(--primary-600)] text-white uppercase">{t('common.new')}</span>
+                          <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[7px] font-bold bg-[var(--primary-600)] px-1 rounded border border-[var(--primary-600)] text-white uppercase">{t('new')}</span>
                         </div>
                       );
                     })}
 
                     <label className="w-16 h-16 flex flex-col items-center justify-center border-2 border-dashed border-[var(--neutral-200)] rounded-lg cursor-pointer hover:border-[var(--primary-400)] hover:bg-[var(--primary-50)] transition-all text-[var(--neutral-400)] hover:text-[var(--primary-500)]">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                      <span className="text-[8px] font-bold mt-1 uppercase">{t('common.add')}</span>
+                      <span className="text-[8px] font-bold mt-1 uppercase">{t('add')}</span>
                       <input
                         type="file"
                         multiple
@@ -412,6 +412,7 @@ export default function Products() {
 
   const [form, setForm]: any = useState({
     name: "",
+    discount: 0,
     description: "",
     shortDescription: "",
     brand: "",
@@ -620,7 +621,7 @@ export default function Products() {
 
   const handleDelete = async (id: any) => {
     if (!confirm(('admin.product.delete_confirm'))) return;
-    await apiFetch(`/products/${id}`, { method: "DELETE" });
+    await apiFetch(`/products/slug/${id}`, { method: "DELETE" });
     setProducts(products.filter((p: any) => p._id !== id));
   };
 
@@ -634,6 +635,7 @@ export default function Products() {
       data.append("description", form.description);
       data.append("shortDescription", form.shortDescription);
       data.append("brand", form.brand);
+      // data.append("discount", form.discount?.toString());
       data.append("categories", JSON.stringify(form.categories));
       data.append("pricing", JSON.stringify(form.pricing));
       data.append("seo", JSON.stringify(form.seo));
@@ -1058,6 +1060,16 @@ export default function Products() {
             <span className="text-sm font-medium text-[var(--neutral-700)]">Single Product (No Variants)</span>
           </label>
         </div>
+{/* 
+        <label className="flex w-50 items-center gap-2 px-3 py-2 bg-[var(--card)] rounded-lg border border-[var(--border)] cursor-pointer hover:border-[var(--primary-300)] transition-all select-none shadow-sm">
+          <span className="text-sm font-medium text-[var(--neutral-700)]">Discount</span>
+          <input
+            min={0}
+            type="number" name="discount" value={form.discount} onChange={handleChange}
+            className="w-full border-[var(--input)] rounded-lg border p-2 pl-7 text-sm text-[var(--success-700)] font-bold focus:ring-1 focus:ring-[var(--success-500)] outline-none bg-[var(--background)]"
+            placeholder="0.00"
+          />
+        </label> */}
 
         {/* Single Product Details */}
         {

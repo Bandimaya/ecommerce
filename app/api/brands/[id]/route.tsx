@@ -8,6 +8,7 @@ export const GET = async (req: Request, { params }: { params: Promise<{ id: stri
 
   try {
     const { id } = await params;
+    console.log('Fetching brand with ID:', params);
 
     const brand = await Brand.findById(id);
     if (!brand) return NextResponse.json({ message: "Brand not found" }, { status: 404 });

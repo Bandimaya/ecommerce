@@ -30,6 +30,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useI18n } from "@/contexts/I18nContext";
+import { useSettings } from "@/contexts/SettingsContext";
 
 interface NavbarProps {
   onLanguageToggle?: (language: string) => void;
@@ -42,6 +43,9 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const { contact } = useSettings()
+
+  console.log("Contact Info:", contact);
 
   const pathname = usePathname();
   const router = useRouter();
@@ -173,30 +177,27 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const LanguageToggleSwitch = ({ mobile = false }) => (
     <div
       onClick={handleLanguageSwitch}
-      className={`relative flex items-center rounded-full cursor-pointer transition-colors duration-300 border border-transparent shadow-inner ${
-        mobile ? "w-20 h-10" : "w-16 h-8"
-      } ${
+      className={`relative flex items-center rounded-full cursor-pointer transition-colors duration-300 border border-transparent shadow-inner ${mobile ? "w-20 h-10" : "w-16 h-8"
+        } ${
         // Gray for English (Off), Primary for Qatar (On)
         isArabic
           ? "bg-primary border-primary/20"
           : "bg-gray-200 border-gray-300"
-      } ${isTransitioning ? "pointer-events-none" : ""}`}
+        } ${isTransitioning ? "pointer-events-none" : ""}`}
       role="button"
       aria-label={isArabic ? t("language.switchToEnglish") : t("language.switchToQatar")}
     >
       {/* Background Labels (Static) */}
       <div className="absolute inset-0 flex justify-between items-center px-2">
         <span
-          className={`font-bold transition-colors duration-300 select-none ${
-            mobile ? "text-xs" : "text-[10px]"
-          } ${isArabic ? "text-white/40" : "text-gray-500"}`}
+          className={`font-bold transition-colors duration-300 select-none ${mobile ? "text-xs" : "text-[10px]"
+            } ${isArabic ? "text-white/40" : "text-gray-500"}`}
         >
           EN
         </span>
         <span
-          className={`font-bold transition-colors duration-300 select-none ${
-            mobile ? "text-xs" : "text-[10px]"
-          } ${isArabic ? "text-white" : "text-gray-400"}`}
+          className={`font-bold transition-colors duration-300 select-none ${mobile ? "text-xs" : "text-[10px]"
+            } ${isArabic ? "text-white" : "text-gray-400"}`}
         >
           QA
         </span>
@@ -221,11 +222,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     <>
       <nav
         ref={navRef}
-        className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${
-          scrolled
-            ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
-            : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
-        }`}
+        className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${scrolled
+          ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
+          : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
+          }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex h-16 md:h-20 items-center justify-between">
@@ -235,14 +235,20 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               className="flex items-center gap-1 group relative z-[70]"
               onClick={() => setIsOpen(false)}
             >
-              <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                <span className="text-primary transition-colors duration-300 group-hover:text-primary/90">
-                  STEM
+              {contact?.logo_url ? (
+                <img
+                  src={contact?.logo_url}
+                  alt="Logo"
+                  width={140}
+                  height={40}
+                  className="px-[12px] object-contain transition-opacity duration-300 group-hover:opacity-90"
+                />) : (
+                <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
+                  <span className="text-primary">STEM</span>
+                  <span className="text-accent">PARK</span>
                 </span>
-                <span className="text-accent transition-colors duration-300 group-hover:text-accent/90">
-                  PARK
-                </span>
-              </span>
+
+              )}
             </Link>
 
             {/* Desktop Navigation */}
@@ -251,11 +257,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 <Link
                   key={link.path}
                   href={link.path}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    isActive(link.path)
-                      ? "bg-primary text-white shadow-sm"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                  }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
                 >
                   {t(link.key)}
                 </Link>
@@ -403,11 +408,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
         {/* Mobile Navigation Overlay (RTL-aware) */}
         <div
-          className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${
-            isOpen
-              ? "translate-x-0 opacity-100 visible"
-              : (isArabic ? "-translate-x-full opacity-0 invisible" : "translate-x-full opacity-0 invisible")
-          }`}
+          className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
+            ? "translate-x-0 opacity-100 visible"
+            : (isArabic ? "-translate-x-full opacity-0 invisible" : "translate-x-full opacity-0 invisible")
+            }`}
           style={{ height: "calc(100vh - 64px)" }}
         >
           <div className="h-full overflow-y-auto bg-white px-4 py-6 flex flex-col">
@@ -430,11 +434,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   key={link.path}
                   href={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${
-                    isActive(link.path)
-                      ? "bg-primary text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-50"
-                  }`}
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${isActive(link.path)
+                    ? "bg-primary text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-50"
+                    }`}
                 >
                   {link.icon}
                   <span className="text-lg">{t(link.key)}</span>

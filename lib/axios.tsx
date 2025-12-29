@@ -1,18 +1,18 @@
 import { apiUrl } from "./constants";
 
 export function getToken() {
-    let user: any = localStorage.getItem('user') || null;
-    try {
-        if (user) {
-            user = JSON.parse(user)
-            console.log(user)
-            if (typeof user === 'object') {
-                return user?.token
-            }
-        }
-    } catch {
-        return null
+  let user: any = localStorage.getItem('user') || null;
+  try {
+    if (user) {
+      user = JSON.parse(user)
+      console.log(user)
+      if (typeof user === 'object') {
+        return user?.token
+      }
     }
+  } catch {
+    return null
+  }
 }
 
 export const apiFetch = async (url: string, options: any = {}) => {
@@ -33,7 +33,18 @@ export const apiFetch = async (url: string, options: any = {}) => {
   });
 
   if (!res.ok) {
-    const error = await res.json();
+    let error: any = {
+      status: res.status,
+      message: "Request failed",
+    };
+
+    try {
+      const json = await res.json();
+      error = json;
+    } catch {
+      error.message = await res.text();
+    }
+
     throw error;
   }
 

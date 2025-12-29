@@ -57,6 +57,11 @@ const VariantSchema = new Schema(
       height: Number,
     },
 
+    discount: {
+      type: Number,
+      default: 0
+    },
+
     // MEDIA
     images: [
       {
