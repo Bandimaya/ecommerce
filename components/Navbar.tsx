@@ -237,7 +237,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
             >
               {contact?.logo_url ? (
                 <img
-                  src={contact?.logo_url}
+                  src={'49.50.83.49' + contact?.logo_url}
                   alt="Logo"
                   width={140}
                   height={40}
