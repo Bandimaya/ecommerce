@@ -65,7 +65,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     }
     setLoading(true);
     try {
-      const res = await apiFetch(`/cart/add`, {
+      const res = await apiFetch(`/cart`, {
         method: "POST",
         data: { ...item, quantity, isIndia },
       });
@@ -81,7 +81,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const updateQuantity = async (productId: string, quantity: number) => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/cart/update`, {
+      const res = await apiFetch(`/cart`, {
         method: "PUT",
         data: { cartItemId: productId, quantity },
       });
@@ -96,7 +96,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const removeFromCart = async (productId: string) => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/cart/remove/${productId}`, {
+      const res = await apiFetch(`/cart?cartItemId=${productId}`, {
         method: "DELETE",
       });
       refreshCart()
@@ -110,7 +110,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const clearCart = async () => {
     setLoading(true);
     try {
-      await apiFetch(`/cart/clear`, {
+      await apiFetch(`/cart`, {
         method: "DELETE",
       });
       setCartItems([]);
