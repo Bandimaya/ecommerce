@@ -26,9 +26,9 @@ export default function ProductCard({ product, index = 0 }: any) {
     : (product.images && product.images.length > 0) ? product.images[0] : null
 
   const isVideo = displayMedia?.type === 'video'
-  const mediaUrl = displayMedia?.url
+  const mediaUrl = 'http://49.50.83.49' + (displayMedia?.url
     ? `/${displayMedia.url}`
-    : '/placeholder.png'
+    : '/placeholder.png')
 
   // 2. Price Logic
   const getPriceData = (pricingArray: any[]) => {
@@ -94,7 +94,7 @@ export default function ProductCard({ product, index = 0 }: any) {
       onMouseLeave={() => setIsHovering(false)}
     >
       <Link href={`/product/${product.slug}`} className="block">
-        <div 
+        <div
           className="bg-[var(--card-bg)] rounded-[2rem] overflow-hidden border-[1.5px] border-[var(--card-border)] 
                      hover:shadow-[0_25px_50px_-12px_var(--card-shadow)] transition-all duration-500"
           style={{
@@ -112,7 +112,7 @@ export default function ProductCard({ product, index = 0 }: any) {
                 --media-bg-to: hsl(var(--muted) / 0.5);
               }
             `}</style>
-            
+
             {/* Animated gradient overlay */}
             {isHovering && (
               <motion.div
@@ -173,7 +173,7 @@ export default function ProductCard({ product, index = 0 }: any) {
                   />
                 </motion.span>
               )}
-              
+
               {hasVariants && (
                 <motion.span
                   initial={{ scale: 0, rotate: 180 }}
@@ -194,7 +194,7 @@ export default function ProductCard({ product, index = 0 }: any) {
             </div>
 
             {/* Add to cart button with enhanced animation */}
-            <motion.div 
+            <motion.div
               className="absolute bottom-4 right-4 z-20"
               initial={{ y: 20, opacity: 0, scale: 0.8 }}
               animate={isHovering ? { y: 0, opacity: 1, scale: 1 } : { y: 20, opacity: 0, scale: 0.8 }}
@@ -223,14 +223,14 @@ export default function ProductCard({ product, index = 0 }: any) {
                     animate={{ x: "100%" }}
                     transition={{ repeat: Infinity, duration: 2, delay: 0.3 }}
                   />
-                  
+
                   {/* Icon */}
                   {hasVariants ? (
                     <Plus className="w-6 h-6 relative z-10" />
                   ) : (
                     <ShoppingCart className="w-6 h-6 relative z-10" />
                   )}
-                  
+
                   {/* Pulsing glow effect */}
                   {isHovering && (
                     <motion.div
@@ -251,12 +251,12 @@ export default function ProductCard({ product, index = 0 }: any) {
                   <motion.div
                     key={i}
                     className="absolute w-1 h-1 bg-white rounded-full"
-                    initial={{ 
-                      x: Math.random() * 100 + '%', 
+                    initial={{
+                      x: Math.random() * 100 + '%',
                       y: '100%',
-                      opacity: 0 
+                      opacity: 0
                     }}
-                    animate={{ 
+                    animate={{
                       y: '-100%',
                       opacity: [0, 1, 0]
                     }}
@@ -273,13 +273,13 @@ export default function ProductCard({ product, index = 0 }: any) {
           </div>
 
           {/* Content Section with enhanced animations */}
-          <motion.div 
+          <motion.div
             className="p-6"
             animate={isHovering ? { backgroundColor: 'hsl(var(--card) / 0.98)' } : {}}
             transition={{ duration: 0.3 }}
           >
             {/* Category label */}
-            <motion.p 
+            <motion.p
               className="text-[10px] font-black text-[var(--category-color)] uppercase tracking-widest mb-1"
               style={{ '--category-color': 'hsl(var(--muted-foreground))' } as React.CSSProperties}
               animate={isHovering ? { x: 5 } : { x: 0 }}
@@ -289,7 +289,7 @@ export default function ProductCard({ product, index = 0 }: any) {
             </motion.p>
 
             {/* Product name */}
-            <motion.h3 
+            <motion.h3
               className="font-bold text-[var(--title-color)] mb-2 line-clamp-1"
               style={{ '--title-color': 'hsl(var(--foreground))' } as React.CSSProperties}
               animate={isHovering ? { color: 'hsl(var(--primary))' } : {}}
@@ -303,7 +303,7 @@ export default function ProductCard({ product, index = 0 }: any) {
               <div className="flex flex-col">
                 {/* Price from label */}
                 {hasVariants && (
-                  <motion.span 
+                  <motion.span
                     className="text-xs font-medium text-[var(--from-text)] mr-1 uppercase"
                     style={{ '--from-text': 'hsl(var(--muted-foreground))' } as React.CSSProperties}
                     animate={isHovering ? { opacity: 0.8 } : { opacity: 0.6 }}
@@ -311,14 +311,14 @@ export default function ProductCard({ product, index = 0 }: any) {
                     {t('product.from')}
                   </motion.span>
                 )}
-                
+
                 {/* Price with animation */}
-                <motion.div 
+                <motion.div
                   className="flex items-baseline gap-1"
                   animate={isHovering ? { scale: 1.05 } : { scale: 1 }}
                   transition={{ type: "spring", stiffness: 200 }}
                 >
-                  <span 
+                  <span
                     className="text-[10px] font-bold text-[var(--currency-color)] mr-0.5"
                     style={{ '--currency-color': 'hsl(var(--muted-foreground))' } as React.CSSProperties}
                   >
@@ -327,10 +327,10 @@ export default function ProductCard({ product, index = 0 }: any) {
                   <span className="text-2xl font-black text-[var(--price-color)]">
                     {price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
-                  
+
                   {/* Original price with strike */}
                   {discount > 0 && (
-                    <motion.span 
+                    <motion.span
                       className="text-sm text-[var(--original-price)] line-through decoration-[var(--strike-color)] ml-2"
                       style={{
                         '--original-price': 'hsl(var(--muted-foreground))',
@@ -347,23 +347,23 @@ export default function ProductCard({ product, index = 0 }: any) {
               </div>
 
               {/* Shipping info with enhanced animation */}
-              <motion.div 
+              <motion.div
                 className="text-right"
                 animate={isHovering ? { x: -5 } : { x: 0 }}
                 transition={{ type: "spring", stiffness: 200 }}
               >
                 <p className="text-[8px] font-black text-[var(--shipping-label)] uppercase"
-                   style={{ '--shipping-label': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
+                  style={{ '--shipping-label': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
                   {t('product.shippingTo')}
                 </p>
                 <motion.div
                   className="flex items-center gap-1 justify-end"
                   whileHover={{ scale: 1.1 }}
                 >
-                  <Sparkles className="w-3 h-3 text-[var(--currency-icon)]" 
-                           style={{ '--currency-icon': 'hsl(var(--emerald-500))' } as React.CSSProperties} />
+                  <Sparkles className="w-3 h-3 text-[var(--currency-icon)]"
+                    style={{ '--currency-icon': 'hsl(var(--emerald-500))' } as React.CSSProperties} />
                   <p className="text-[10px] font-bold text-[var(--currency-code)] uppercase tracking-tighter"
-                     style={{ '--currency-code': 'hsl(var(--emerald-600))' } as React.CSSProperties}>
+                    style={{ '--currency-code': 'hsl(var(--emerald-600))' } as React.CSSProperties}>
                     {currencyCode}
                   </p>
                 </motion.div>
@@ -379,7 +379,7 @@ export default function ProductCard({ product, index = 0 }: any) {
             transition={{ duration: 0.3 }}
           >
             <div className="absolute inset-0 rounded-[2rem] border-2 border-[var(--glow-color)] shadow-[0_0_30px_var(--glow-color)]"
-                 style={{ '--glow-color': 'hsl(var(--primary) / 0.2)' } as React.CSSProperties} />
+              style={{ '--glow-color': 'hsl(var(--primary) / 0.2)' } as React.CSSProperties} />
           </motion.div>
         </div>
       </Link>
