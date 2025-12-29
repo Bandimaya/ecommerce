@@ -4,6 +4,7 @@ import { useI18n } from "@/contexts/I18nContext";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { apiFetch } from "@/lib/axios";
 
 const iconMap: any = {
     Users, BookOpen, Trophy, Calendar, Target, Zap, Shield, TrendingUp,
@@ -20,89 +21,89 @@ const STEM_IMAGES = [
 ];
 
 // Real-world STEM programs with detailed descriptions
-const mainPrograms = [
-    {
-        _id: "1",
-        title: "Robotics Engineering & Automation",
-        subtitle: "FIRST Robotics Competition Track",
-        description: "Design, build, and program competitive robots using industry-standard tools like VEX Robotics and Arduino. Students participate in regional competitions while learning mechanical engineering, electrical systems, and autonomous programming.",
-        features: [
-            "VEX Robotics Competition",
-            "Arduino Programming",
-            "PID Control Systems",
-            "Computer Vision Integration",
-            "3D CAD Design (SolidWorks)",
-            "Team Collaboration & Project Management"
-        ],
-        durationWeeks: 16,
-        ageGroup: "Ages 14-18",
-        prerequisites: "Basic algebra understanding",
-        icon: "Cpu",
-        image: { url: STEM_IMAGES[0] },
-        certification: "FIRST Robotics Certification",
-        equipment: ["VEX Robotics Kit", "3D Printer Access", "Laptops with CAD Software"],
-        learningOutcomes: [
-            "Design functional robotic systems",
-            "Program autonomous behaviors",
-            "Troubleshoot electrical circuits",
-            "Collaborate in engineering teams"
-        ]
-    },
-    {
-        _id: "2",
-        title: "3D Design & Digital Fabrication",
-        subtitle: "MakerSpace Certification Program",
-        description: "Master professional 3D design tools and fabrication techniques. From concept sketches to functional prototypes, students learn CAD modeling, 3D printing, laser cutting, and material science to bring their ideas to life.",
-        features: [
-            "Fusion 360 Professional Certification",
-            "CAD to CAM Workflow",
-            "Material Properties & Selection",
-            "Prototype Testing & Iteration",
-            "Portfolio Development",
-            "Industry Guest Lectures"
-        ],
-        durationWeeks: 12,
-        ageGroup: "Ages 13-17",
-        prerequisites: "None required",
-        icon: "Rocket",
-        image: { url: STEM_IMAGES[1] },
-        certification: "Autodesk Fusion 360 Certified User",
-        equipment: ["Ultimaker S5 3D Printers", "Glowforge Laser Cutter", "Electronics Lab"],
-        learningOutcomes: [
-            "Create manufacturable 3D models",
-            "Operate digital fabrication tools",
-            "Understand material constraints",
-            "Document design processes"
-        ]
-    },
-    {
-        _id: "3",
-        title: "Artificial Intelligence & Machine Learning",
-        subtitle: "Google AI Education Partner Program",
-        description: "Dive into the fundamentals of AI with hands-on projects in computer vision, natural language processing, and predictive modeling. Students build real AI applications using Python and TensorFlow while exploring ethical AI considerations.",
-        features: [
-            "Python Programming for AI",
-            "Neural Networks & Deep Learning",
-            "Computer Vision with OpenCV",
-            "Natural Language Processing",
-            "Ethical AI & Bias Detection",
-            "Real-world Dataset Projects"
-        ],
-        durationWeeks: 14,
-        ageGroup: "Ages 15-19",
-        prerequisites: "Algebra II or equivalent",
-        icon: "Brain",
-        image: { url: STEM_IMAGES[2] },
-        certification: "Google AI Fundamentals Certificate",
-        equipment: ["NVIDIA GPU Workstations", "Robotics Kits with Sensors", "Cloud Computing Credits"],
-        learningOutcomes: [
-            "Train machine learning models",
-            "Implement computer vision algorithms",
-            "Analyze AI ethics and bias",
-            "Deploy AI solutions"
-        ]
-    }
-];
+// const mainPrograms = [
+//     {
+//         _id: "1",
+//         title: "Robotics Engineering & Automation",
+//         subtitle: "FIRST Robotics Competition Track",
+//         description: "Design, build, and program competitive robots using industry-standard tools like VEX Robotics and Arduino. Students participate in regional competitions while learning mechanical engineering, electrical systems, and autonomous programming.",
+//         features: [
+//             "VEX Robotics Competition",
+//             "Arduino Programming",
+//             "PID Control Systems",
+//             "Computer Vision Integration",
+//             "3D CAD Design (SolidWorks)",
+//             "Team Collaboration & Project Management"
+//         ],
+//         durationWeeks: 16,
+//         ageGroup: "Ages 14-18",
+//         prerequisites: "Basic algebra understanding",
+//         icon: "Cpu",
+//         image: { url: STEM_IMAGES[0] },
+//         certification: "FIRST Robotics Certification",
+//         equipment: ["VEX Robotics Kit", "3D Printer Access", "Laptops with CAD Software"],
+//         learningOutcomes: [
+//             "Design functional robotic systems",
+//             "Program autonomous behaviors",
+//             "Troubleshoot electrical circuits",
+//             "Collaborate in engineering teams"
+//         ]
+//     },
+//     {
+//         _id: "2",
+//         title: "3D Design & Digital Fabrication",
+//         subtitle: "MakerSpace Certification Program",
+//         description: "Master professional 3D design tools and fabrication techniques. From concept sketches to functional prototypes, students learn CAD modeling, 3D printing, laser cutting, and material science to bring their ideas to life.",
+//         features: [
+//             "Fusion 360 Professional Certification",
+//             "CAD to CAM Workflow",
+//             "Material Properties & Selection",
+//             "Prototype Testing & Iteration",
+//             "Portfolio Development",
+//             "Industry Guest Lectures"
+//         ],
+//         durationWeeks: 12,
+//         ageGroup: "Ages 13-17",
+//         prerequisites: "None required",
+//         icon: "Rocket",
+//         image: { url: STEM_IMAGES[1] },
+//         certification: "Autodesk Fusion 360 Certified User",
+//         equipment: ["Ultimaker S5 3D Printers", "Glowforge Laser Cutter", "Electronics Lab"],
+//         learningOutcomes: [
+//             "Create manufacturable 3D models",
+//             "Operate digital fabrication tools",
+//             "Understand material constraints",
+//             "Document design processes"
+//         ]
+//     },
+//     {
+//         _id: "3",
+//         title: "Artificial Intelligence & Machine Learning",
+//         subtitle: "Google AI Education Partner Program",
+//         description: "Dive into the fundamentals of AI with hands-on projects in computer vision, natural language processing, and predictive modeling. Students build real AI applications using Python and TensorFlow while exploring ethical AI considerations.",
+//         features: [
+//             "Python Programming for AI",
+//             "Neural Networks & Deep Learning",
+//             "Computer Vision with OpenCV",
+//             "Natural Language Processing",
+//             "Ethical AI & Bias Detection",
+//             "Real-world Dataset Projects"
+//         ],
+//         durationWeeks: 14,
+//         ageGroup: "Ages 15-19",
+//         prerequisites: "Algebra II or equivalent",
+//         icon: "Brain",
+//         image: { url: STEM_IMAGES[2] },
+//         certification: "Google AI Fundamentals Certificate",
+//         equipment: ["NVIDIA GPU Workstations", "Robotics Kits with Sensors", "Cloud Computing Credits"],
+//         learningOutcomes: [
+//             "Train machine learning models",
+//             "Implement computer vision algorithms",
+//             "Analyze AI ethics and bias",
+//             "Deploy AI solutions"
+//         ]
+//     }
+// ];
 
 const additionalPrograms = [
     {
@@ -218,11 +219,21 @@ const successStories = [
 const Programs = () => {
     const { t } = useI18n();
     const [isMobile, setIsMobile] = useState(false);
+    const [programs, setPrograms] = useState<any[]>([]);
+
+    const fetchPrograms = async () => {
+        const res = await apiFetch("/programs");
+        // Handling potential data structure differences
+        setPrograms(Array.isArray(res) ? res : res.data || []);
+    };
+
 
     useEffect(() => {
         const checkMobile = () => {
             setIsMobile(window.innerWidth < 768);
         };
+
+        fetchPrograms();
 
         checkMobile();
         window.addEventListener('resize', checkMobile);
@@ -337,7 +348,7 @@ const Programs = () => {
                     </motion.div>
 
                     <div className="space-y-24">
-                        {mainPrograms.map((program: any, index) => {
+                        {programs.map((program: any, index) => {
                             const Icon = iconMap[program.icon];
                             const isEven = index % 2 === 0;
 
