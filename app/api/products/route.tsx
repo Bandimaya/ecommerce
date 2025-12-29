@@ -7,14 +7,25 @@ import fs from "fs/promises";
 import path from "path";
 
 // Helper to save files to public/uploads
-const saveMedia = async (file: File) => {
-  const uploadDir = path.join(process.cwd(), "public/uploads/products");
+export const saveMedia = async (file: File) => {
+  // ✅ External upload directory
+  const uploadDir = "/var/www/uploads/products";
+
+  // Ensure directory exists
   await fs.mkdir(uploadDir, { recursive: true });
 
-  const filename = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
+  // Sanitize filename
+  const safeName = file.name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9.\-_]/g, "");
+
+  const filename = `${Date.now()}-${safeName}`;
   const buffer = Buffer.from(await file.arrayBuffer());
+
   await fs.writeFile(path.join(uploadDir, filename), buffer);
 
+  // URL served by Nginx
   return `/uploads/products/${filename}`;
 };
 

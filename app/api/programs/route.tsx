@@ -7,14 +7,26 @@ import Program from "@/models/Program";
 import { connectDB } from "@/lib/db";
 
 // Helper for saving files manually
-const saveFile = async (file: File, folder: string) => {
-  const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
-  if (!existsSync(uploadDir)) await fs.mkdir(uploadDir, { recursive: true });
+const BASE_UPLOAD_DIR = "/var/www/uploads"; // 👈 outside Next.js
 
-  const filename = `${Date.now()}-${file.name.replace(/\s+/g, "-")}`;
+export const saveFile = async (file: File, folder: string) => {
+  const uploadDir = path.join(BASE_UPLOAD_DIR, folder);
+
+  if (!existsSync(uploadDir)) {
+    await fs.mkdir(uploadDir, { recursive: true });
+  }
+
+  const safeName = file.name
+    .toLowerCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9.\-_]/g, "");
+
+  const filename = `${Date.now()}-${safeName}`;
   const buffer = Buffer.from(await file.arrayBuffer());
+
   await fs.writeFile(path.join(uploadDir, filename), buffer);
-  
+
+  // URL served via nginx
   return `/uploads/${folder}/${filename}`;
 };
 
