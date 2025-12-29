@@ -10,8 +10,8 @@ export const GET = async (req: Request) => {
   await connectDB();
 
   try {
-    const userId = verifyToken(req);
-    const cart = await Cart.findOne({ userId }).populate(["items.productId", "items.variantId"]);
+    const userId: any = verifyToken(req);
+    const cart = await Cart.findOne({ userId: userId.id }).populate(["items.productId", "items.variantId"]);
 
     if (!cart) return NextResponse.json({ items: [], subtotal: 0 });
 
@@ -52,11 +52,12 @@ export const POST = async (req: Request) => {
   await connectDB();
 
   try {
-    const userId = verifyToken(req);
+    const userId: any = verifyToken(req);
+    console.log('userId:', userId);
     const { productId, variantId, quantity, isIndia, currency } = await req.json();
 
-    let cart = await Cart.findOne({ userId });
-    if (!cart) cart = new Cart({ userId, items: [] });
+    let cart = await Cart.findOne({ userId: userId.id });
+    if (!cart) cart = new Cart({ userId: userId.id, items: [] });
 
     const itemIndex = cart.items.findIndex((item: any) =>
       item.productId.toString() === productId &&
@@ -75,6 +76,7 @@ export const POST = async (req: Request) => {
     await cart.save();
     return NextResponse.json({ message: "Item added to cart", success: true });
   } catch (err: any) {
+    console.log(err)
     return NextResponse.json({ message: "Error adding to cart", error: err.message }, { status: 500 });
   }
 };
@@ -83,10 +85,10 @@ export const PUT = async (req: Request) => {
   await connectDB();
 
   try {
-    const userId = verifyToken(req);
+    const userId: any = verifyToken(req);
     const { cartItemId, quantity } = await req.json();
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId: userId.id });
     if (!cart) return NextResponse.json({ message: "Cart not found" }, { status: 404 });
 
     const item = cart.items.id(cartItemId);
@@ -105,11 +107,11 @@ export const DELETE = async (req: Request) => {
   await connectDB();
 
   try {
-    const userId = verifyToken(req);
+    const userId: any = verifyToken(req);
     const url = new URL(req.url);
     const cartItemId = url.searchParams.get("cartItemId");
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId: userId.id });
     if (!cart) return NextResponse.json({ message: "Cart not found" }, { status: 404 });
 
     if (cartItemId) {
@@ -117,7 +119,7 @@ export const DELETE = async (req: Request) => {
       await cart.save();
       return NextResponse.json(await cart.populate(["items.productId", "items.variantId"]));
     } else {
-      await Cart.findOneAndDelete({ userId });
+      await Cart.findOneAndDelete({ userId: userId.id });
       return NextResponse.json({ message: "Cart cleared successfully", items: [], subtotal: 0 });
     }
   } catch (err: any) {

@@ -9,35 +9,72 @@ import ContactInfo from "@/models/ContactInfo";
 import { UserPayload, withAuth } from "@/lib/withAuth";
 import sendEmail from "@/lib/email";
 
+type Pricing = {
+  region: string;
+  currency: string;
+  originalPrice: number;
+  salePrice?: number | null;
+};
+
+export const getFinalPrice = (
+  pricing: Pricing[],
+  region: string
+) => {
+  const price = pricing.find(p => p.region === region);
+
+  if (!price) {
+    throw new Error(`Pricing not found for region: ${region}`);
+  }
+
+  const hasValidSale =
+    typeof price.salePrice === "number" &&
+    price.salePrice > 0 &&
+    price.salePrice < price.originalPrice;
+
+  return {
+    price: hasValidSale ? price.salePrice : price.originalPrice,
+    currency: price.currency,
+    originalPrice: price.originalPrice,
+    salePrice: hasValidSale ? price.salePrice : null,
+    isOnSale: hasValidSale,
+  };
+};
+
 // ------------------ CREATE ORDER ------------------
 export const POST = withAuth(async (req: NextRequest, user: UserPayload) => {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-
   try {
     const body = await req.json();
     const { shippingAddress, isIndia } = body;
 
     const cart = await Cart.findOne({ userId: user.id })
       .populate("items.productId")
-      .populate("items.variantId")
-      .session(session);
+      .populate("items.variantId");
 
     if (!cart || cart.items.length === 0) {
-      await session.abortTransaction();
       return NextResponse.json({ message: "Cart is empty" }, { status: 400 });
     }
 
-    const orderItems = [];
+    const orderItems: any[] = [];
     let calculatedTotal = 0;
+
     const priceKey = isIndia ? "price" : "priceOverseas";
     const basePriceKey = isIndia ? "basePrice" : "basePriceOverseas";
+
+    // Track stock updates for rollback
+    const stockUpdates: {
+      model: any;
+      id: any;
+      stockPath: string;
+      qty: number;
+    }[] = [];
 
     for (const item of cart.items) {
       const isVariable = !!item.variantId;
       const target = isVariable ? item.variantId : item.productId;
 
-      if (!target) throw new Error(`Item no longer exists.`);
+      if (!target) {
+        throw new Error("Item no longer exists");
+      }
 
       const currentStock = isVariable
         ? target.inventory?.stock
@@ -47,31 +84,50 @@ export const POST = withAuth(async (req: NextRequest, user: UserPayload) => {
         throw new Error(`Insufficient stock for ${item.productId.name}`);
       }
 
-      const finalPrice = isVariable
-        ? (target[priceKey].sale || target[priceKey].regular)
-        : (target[basePriceKey].sale || target[basePriceKey].regular);
+      const region = isIndia ? "Domestic" : "International";
 
-      calculatedTotal += finalPrice * item.quantity;
+      const {
+        price: finalPrice,
+        currency,
+        isOnSale,
+      } = getFinalPrice(target.pricing, region);
+
+      // const finalPrice = isVariable
+      //   ? (target[priceKey].sale || target[priceKey].regular)
+      //   : (target[basePriceKey].sale || target[basePriceKey].regular);
+
+      calculatedTotal += Number(finalPrice) * item.quantity;
 
       orderItems.push({
         productId: item.productId._id,
         variantId: item.variantId?._id || null,
         name: item.productId.name,
-        variantLabel: isVariable ? Object.values(item.variantId.attributes).join(" / ") : "Standard",
+        variantLabel: isVariable
+          ? Object.values(item.variantId.attributes).join(" / ")
+          : "Standard",
         quantity: item.quantity,
         price: finalPrice,
         image: item.productId.images?.[0]?.url,
       });
 
       const Model = isVariable ? Variant : Product;
-      const stockPath = isVariable ? "inventory.stock" : "productData.inventory.stock";
+      const stockPath = isVariable
+        ? "inventory.stock"
+        : "productData.inventory.stock";
 
       await Model.findByIdAndUpdate(target._id, {
-        $inc: { [stockPath]: -item.quantity }
-      }).session(session);
+        $inc: { [stockPath]: -item.quantity },
+      });
+
+      stockUpdates.push({
+        model: Model,
+        id: target._id,
+        stockPath,
+        qty: item.quantity,
+      });
     }
 
-    const order = await Order.create([{
+    const order = await Order.create({
       userId: user.id,
       region: isIndia ? "IN" : "OUT",
       currency: isIndia ? "INR" : "USD",
@@ -79,22 +135,23 @@ export const POST = withAuth(async (req: NextRequest, user: UserPayload) => {
       totalAmount: calculatedTotal,
       paymentStatus: "PENDING",
       orderStatus: "PLACED",
-      shippingAddress
-    }], { session });
+      shippingAddress,
+    });
 
-    await Cart.findOneAndUpdate({ userId: user.id }, { items: [] }, { session });
+    await Cart.findOneAndUpdate(
+      { userId: user.id },
+      { items: [] }
+    );
 
-    await session.commitTransaction();
-    session.endSession();
+    // Async email (non-blocking)
+    sendOrderEmails(order, user).catch(console.error);
 
-    // Async email
-    sendOrderEmails(order[0], user).catch(console.error);
-
-    return NextResponse.json(order[0], { status: 201 });
+    return NextResponse.json(order, { status: 201 });
   } catch (error: any) {
-    if (session.inTransaction()) await session.abortTransaction();
-    session.endSession();
-    return NextResponse.json({ message: error.message }, { status: 500 });
+    return NextResponse.json(
+      { message: error.message || "Order failed" },
+      { status: 500 }
+    );
   }
 });
 
