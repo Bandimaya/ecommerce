@@ -28,7 +28,6 @@ import {
 import { useUser } from "@/contexts/UserContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useLanguage } from "@/contexts/LanguageContext";
 import { useI18n } from "@/contexts/I18nContext";
 import { useSettings } from "@/contexts/SettingsContext";
 
@@ -53,13 +52,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const { user, logout } = useUser();
   const navRef = useRef<HTMLDivElement>(null);
 
-  // Get language controls
-  const { lang, toggleLang } = useLanguage();
   const { t } = useI18n();
-
-  // Determine if currently Arabic/Qatar
-  // This controls the toggle state: False = English (Left), True = Qatar (Right)
-  const isArabic = useMemo(() => lang === "ar" || lang === "qa", [lang]);
 
   // Handle scroll effect
   useEffect(() => {
@@ -105,31 +98,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  // Smooth language switching
-  const handleLanguageSwitch = async () => {
-    if (isTransitioning) return; // Prevent multiple clicks
-
-    setIsTransitioning(true);
-
-    try {
-      // Toggle to 'qa' (Qatar) instead of generic 'ar'
-      const nextLang = isArabic ? "en" : "qa";
-
-      // Set language directly
-      if (toggleLang) toggleLang(nextLang);
-
-      // Inform parent if provided
-      if (onLanguageToggle) onLanguageToggle(nextLang);
-
-      // Close mobile menu
-      setIsOpen(false);
-
-      // Small delay to let DOM updates settle
-      await new Promise((resolve) => setTimeout(resolve, 50));
-    } finally {
-      setTimeout(() => setIsTransitioning(false), 300);
-    }
-  };
 
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
@@ -173,50 +141,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const isActive = (path: string) => pathname === path;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-  // --- Reusable Toggle Switch Component ---
-  const LanguageToggleSwitch = ({ mobile = false }) => (
-    <div
-      onClick={handleLanguageSwitch}
-      className={`relative flex items-center rounded-full cursor-pointer transition-colors duration-300 border border-transparent shadow-inner ${mobile ? "w-20 h-10" : "w-16 h-8"
-        } ${
-        // Gray for English (Off), Primary for Qatar (On)
-        isArabic
-          ? "bg-primary border-primary/20"
-          : "bg-gray-200 border-gray-300"
-        } ${isTransitioning ? "pointer-events-none" : ""}`}
-      role="button"
-      aria-label={isArabic ? t("language.switchToEnglish") : t("language.switchToQatar")}
-    >
-      {/* Background Labels (Static) */}
-      <div className="absolute inset-0 flex justify-between items-center px-2">
-        <span
-          className={`font-bold transition-colors duration-300 select-none ${mobile ? "text-xs" : "text-[10px]"
-            } ${isArabic ? "text-white/40" : "text-gray-500"}`}
-        >
-          EN
-        </span>
-        <span
-          className={`font-bold transition-colors duration-300 select-none ${mobile ? "text-xs" : "text-[10px]"
-            } ${isArabic ? "text-white" : "text-gray-400"}`}
-        >
-          QA
-        </span>
-      </div>
-
-      {/* Sliding Knob (RTL-safe) */}
-      <div
-        className={`absolute bg-white rounded-full shadow-md transition-all duration-300 flex items-center justify-center ${mobile ? "w-8 h-8" : "w-6 h-6"}`}
-        style={isArabic ? { right: mobile ? "0.25rem" : "0.25rem" } : { left: mobile ? "0.25rem" : "0.25rem" }}
-        aria-hidden
-      >
-        <span
-          className={`font-bold ${mobile ? "text-[10px]" : "text-[8px]"} text-primary`}
-        >
-          {isArabic ? "QA" : "EN"}
-        </span>
-      </div>
-    </div>
-  );
 
   return (
     <>
@@ -305,10 +229,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 )}
               </div>
 
-              {/* Desktop Language Toggle (New Switch) */}
-              <div className="hidden sm:block mx-2">
-                <LanguageToggleSwitch />
-              </div>
 
               {/* Cart Button */}
               <Link href="/cart">
@@ -410,7 +330,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         <div
           className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
             ? "translate-x-0 opacity-100 visible"
-            : (isArabic ? "-translate-x-full opacity-0 invisible" : "translate-x-full opacity-0 invisible")
+            : "translate-x-full opacity-0 invisible"
             }`}
           style={{ height: "calc(100vh - 64px)" }}
         >
@@ -446,11 +366,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
             </div>
 
             <div className="mt-auto pt-6 border-t border-gray-100 space-y-4">
-              {/* Mobile Language Toggle (New Switch) */}
-              <div className="flex items-center justify-between px-4 py-4 bg-gray-50 rounded-xl">
-                <span className="font-medium text-gray-700">{t("language.label")}</span>
-                <LanguageToggleSwitch mobile={true} />
-              </div>
 
               {user ? (
                 <div className="grid gap-2">

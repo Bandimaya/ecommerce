@@ -24,6 +24,23 @@
       "customers": "Customers",
       "contactInfo": "Contact Info",
       "customization": "Customization"
+    },
+    "field": {
+      "currency": "Currency",
+      "regular_price": "Regular Price",
+      "sale_price": "Sale Price",
+      "dimensions": "Dimensions"
+    },
+    "stock": {
+      "count": "Count",
+      "reserved": "Reserved",
+      "low_limit": "Low Limit"
+    },
+    "variant": {
+      "media": "Media"
+    },
+    "media": {
+      "hint": "Hint"
     }
   },
   "user": {
@@ -47,7 +64,8 @@
     "en": "EN",
     "ar": "AR",
     "search": "Search",
-    "cart": "Cart"
+    "cart": "Cart",
+    "this": "This"
   },
   "language": {
     "switchToEnglish": "English",
@@ -135,7 +153,10 @@
   },
   "programs": {
     "badge": "Our Programs",
-    "title": { "part1": "Beyond", "part2": "Programs" },
+    "title": {
+      "part1": "Beyond",
+      "part2": "Programs"
+    },
     "description": "Comprehensive learning experiences designed to nurture innovation, creativity, and problem-solving skills in the next generation of STEM leaders.",
     "header": {
       "stats": {
@@ -261,5 +282,109 @@
     "from": "From",
     "shippingTo": "Shipping to",
     "defaultCategory": "STEM Kit"
-  }
+  },
+  "a": "A",
+  "T": "T",
+  "style": "Style",
+  "app-theme-config": "App Theme Config",
+  "/": "/",
+  "value": "Value",
+  "unnamed": "Unnamed",
+  "delete": "Delete",
+  "sku_required": "Sku Required",
+  "barcode": "Barcode",
+  "weight_kg": "Weight Kg",
+  "market_pricing": "Market Pricing",
+  "add_market": "Add Market",
+  " - ": "   ",
+  "select_currency": "Select Currency",
+  "new": "New",
+  "add": "Add",
+
+  ",": ",",
+  "+password": "+password",
+  "page": "Page",
+  "limit": "Limit",
+  "search": "Search",
+  ".": "" ,
+  "cartItemId": "CartItemId",
+  "id": "Id",
+  "email": "Email",
+  "phone": "Phone",
+  "address": "Address",
+  "hours": "Hours",
+  "logo": "Logo",
+  "name": "Name",
+  "description": "Description",
+  "pricing": "Pricing",
+  "variants": "Variants",
+  "categories": "Categories",
+  "dimensions": "Dimensions",
+  "brand": "Brand",
+  "isFeatured": "IsFeatured",
+  "discount": "Discount",
+  "isActive": "IsActive",
+  "isOnlyProduct": "IsOnlyProduct",
+  "sku": "Sku",
+  "stock": "Stock",
+  "lowStockThreshold": "LowStockThreshold",
+  "reserved": "Reserved",
+  "weight": "Weight",
+  "type": "Type",
+  "file": "File",
+  "image": "Image",
+  "title": "Title",
+  "subtitle": "Subtitle",
+  "icon": "Icon",
+  "color": "Color",
+  "durationWeeks": "DurationWeeks",
+  "ageGroup": "AgeGroup",
+  "prerequisites": "Prerequisites",
+  "certification": "Certification",
+  "public": "Public",
+  "-password": " Password",
+  " ": " ",
+  "home": {
+    "breakingJargon": {
+      "badge": "Badge",
+      "levels": {
+        "beginner": "Beginner"
+      },
+      "learnMore": "LearnMore"
+    }
+  },
+  "|": "|",
+  "products": {
+    "not_found": "Not Found",
+    "back_to_shop": "Back To Shop",
+    "out_of_stock": "Out Of Stock",
+    "add_to_cart": "Add To Cart"
+  },
+  "message": {
+    "selection_required_title": "Selection Required Title",
+    "selection_required_desc": "Selection Required Desc",
+    "added_to_cart_title": "Added To Cart Title"
+  },
+  "trust": {
+    "fastDelivery": {
+      "title": "Title",
+      "subtitle": "Subtitle"
+    },
+    "secure": {
+      "title": "Title",
+      "subtitle": "Subtitle"
+    },
+    "returns": {
+      "title": "Title",
+      "subtitle": "Subtitle"
+    }
+  },
+  "site": {
+    "title": "Title",
+    "description": "Description",
+    "welcome": "Welcome"
+  },
+  "Authorization": "Authorization",
+  "authorization": "Authorization",
+  "themereset": "Themereset"
 }

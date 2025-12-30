@@ -339,29 +339,32 @@ export default function ThemeCustomizationPage() {
     try {
       setIsSaving(true);
 
-      // 1. Update the User's persistent preference in DB
-      // Assuming you have an endpoint for user profile updates
-
-      console.log(customThemes[0]?._id, customThemes)
-      if (!customThemes[0]?.id) {
-        await apiFetch("/themes", {
-          method: "PUT",
-          data: { config: finalTheme, id: customThemes[0]?._id }
-        });
+      // 1. Try to update backend if available, but don't fail the whole flow if API is missing
+      try {
+        // Attempt to persist theme on the server if an API exists
+        if (!customThemes[0]?.id) {
+          await apiFetch("/themes", {
+            method: "PUT",
+            data: { config: finalTheme, id: customThemes[0]?._id }
+          });
+        } else {
+          await apiFetch("/themes", {
+            method: "POST",
+            data: { config: finalTheme, name: "Theme", isPublic: true }
+          });
+        }
+      } catch (apiError) {
+        // API not available or failed — log and continue by applying locally
+        console.warn("Themes API unavailable or failed; applying locally.", apiError);
       }
-      else {
-        await apiFetch("/themes", {
-          method: "POST",
-          data: { config: finalTheme, name: "Theme", isPublic: true }
-        });
 
-      }
-      // 2. Update the local Context state
+      // 2. Update the local Context state (always required)
       await setTheme(finalTheme);
 
       setDialog({ type: "success", message: "Theme applied and saved to profile!" });
       setTimeout(() => setDialog(null), 3000);
     } catch (error: any) {
+      console.error("Error during theme apply:", error);
       setDialog({ type: "error", message: "Failed to apply theme preferences" });
     } finally {
       setIsSaving(false);

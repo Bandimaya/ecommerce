@@ -1,10 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useMemo } from "react";
-import { useLanguage } from "./LanguageContext";
 import en from "../locales/en.json";
-import ar from "../locales/ar.json";
-import qa from "../locales/qa.json";
 
 type Messages = Record<string, any>;
 
@@ -16,13 +13,8 @@ interface I18nContextType {
 const I18nContext = createContext<I18nContextType | undefined>(undefined);
 
 export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
-  const { lang } = useLanguage();
-
-  const messages: Messages = useMemo(() => {
-    if (lang === "ar") return ar;
-    if (lang === "qa") return qa;
-    return en;
-  }, [lang]);
+  // Always use English messages (translations removed)
+  const messages: Messages = useMemo(() => en as Messages, []);
 
   const t = (key: string, vars?: Record<string, string | number>) => {
     const parts = key.split(".");
@@ -38,12 +30,27 @@ export const I18nProvider = ({ children }: { children: React.ReactNode }) => {
     return interpolate(String(cur), vars);
   };
 
-  return <I18nContext.Provider value={{ t, locale: lang }}>{children}</I18nContext.Provider>;
+  return <I18nContext.Provider value={{ t, locale: 'en' }}>{children}</I18nContext.Provider>;
 };
 
 export const useI18n = () => {
   const ctx = useContext(I18nContext);
-  if (!ctx) throw new Error("useI18n must be used within I18nProvider");
+  if (!ctx) {
+    // If used outside provider, provide a minimal t implementation
+    return {
+      t: (k: string, vars?: Record<string, string | number>) => {
+        const parts = k.split(".");
+        let cur: any = en as Messages;
+        for (const p of parts) {
+          if (cur && p in cur) cur = cur[p];
+          else return interpolate(k, vars);
+        }
+        if (typeof cur === "string") return interpolate(cur, vars);
+        return interpolate(String(cur), vars);
+      },
+      locale: 'en'
+    };
+  }
   return ctx;
 };
 

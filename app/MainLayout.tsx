@@ -2,9 +2,8 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatBot from "@/components/ChatBot";
+import CircuitBackground from "@/components/background/CircuitBackground";
 import { usePathname } from "next/navigation";
-import { useMemo } from "react";
-import { useLanguage } from "@/contexts/LanguageContext";
 import Providers from "./providers";
 
 export default function MainLayout({ children }: any) {
@@ -19,10 +18,8 @@ export default function MainLayout({ children }: any) {
 }
 
 function RenderLayout({ children }: any) {
-    const { lang } = useLanguage()
-    const isArabic = useMemo(() => lang === 'ar' || lang === 'qa', [lang]);
-
-    return <div dir={isArabic ? "rtl" : "ltr"}>
+    return <div dir={"ltr"}>
+        <CircuitBackground />
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
