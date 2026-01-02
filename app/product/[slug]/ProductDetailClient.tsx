@@ -9,10 +9,9 @@ import { cn } from "@/lib/utils"; // Assuming you have a utility for class mergi
 import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
 import { apiUrl } from "@/lib/constants";
-import { useI18n } from "@/contexts/I18nContext";
+
 
 const ProductDetailClient = ({ product }: any) => {
-    const { t } = useI18n();
     const { addToCart } = useCart();
 
     const [quantity, setQuantity] = useState(1);
@@ -111,7 +110,7 @@ const ProductDetailClient = ({ product }: any) => {
         }
     }, [product, selectedVariant]);
 
-    if (!product) return <div className="text-center py-20">{t('products.not_found')}</div>; 
+    if (!product) return <div className="text-center py-20">Product not found</div>; 
 
     // // Pricing & Stock display logic
     // const displayPrice = selectedVariant
@@ -129,8 +128,8 @@ const ProductDetailClient = ({ product }: any) => {
         // Assuming 'selectedVariant' is the leaf node from your variant tree selection
         if (!selectedVariant && product.variants?.length > 0) {
             return toast({
-                title: t('message.selection_required_title'),
-                description: t('message.selection_required_desc'),
+                title: 'Selection required',
+                description: 'Please select a variant before adding to cart.',
                 variant: "destructive",
             });
         }
@@ -150,8 +149,8 @@ const ProductDetailClient = ({ product }: any) => {
         );
 
         toast({
-            title: t('message.added_to_cart_title'),
-            description: t('message.added_to_cart_desc', { name: product.name, attrs: selectedVariant ? `(${Object.values(selectedVariant.attributes).join(' / ')})` : '' }),
+            title: 'Added to cart',
+            description: `${product.name} added to cart ${selectedVariant ? `(${Object.values(selectedVariant.attributes).join(' / ')})` : ''}`.trim(),
         });
     };
 
@@ -292,7 +291,7 @@ const ProductDetailClient = ({ product }: any) => {
 
                         <div className="space-y-1 text-sm">
                             <p className={cn("font-medium", displayStock > 0 ? "text-green-600" : "text-red-500")}>
-                                {displayStock > 0 ? t('products.in_stock_with_count', { count: displayStock }) : t('products.out_of_stock')}
+                                {displayStock > 0 ? `${displayStock} in stock` : 'Out of stock'}
                             </p>
                             <p className="text-muted-foreground">SKU: {selectedVariant?.sku || product.productData?.sku}</p>
                         </div>
@@ -311,14 +310,14 @@ const ProductDetailClient = ({ product }: any) => {
                                 disabled={displayStock <= 0}
                                 onClick={handleAddToCart}
                             >
-                                <ShoppingCart className="w-5 h-5" /> {t('products.add_to_cart')}
+                                <ShoppingCart className="w-5 h-5" /> Add to cart
                             </Button>
                         </div>
 
                         <div className="grid grid-cols-3 gap-4 pt-6 border-t">
-                            <TrustBadge icon={Truck} title={t('trust.fastDelivery.title')} subtitle={t('trust.fastDelivery.subtitle')} />
-                            <TrustBadge icon={Shield} title={t('trust.secure.title')} subtitle={t('trust.secure.subtitle')} />
-                            <TrustBadge icon={RotateCcw} title={t('trust.returns.title')} subtitle={t('trust.returns.subtitle')} />
+                            <TrustBadge icon={Truck} title={'Fast delivery'} subtitle={'Ships within 24 hours'} />
+                            <TrustBadge icon={Shield} title={'Secure payments'} subtitle={'Your data is safe'} />
+                            <TrustBadge icon={RotateCcw} title={'Easy returns'} subtitle={'30-day return policy'} />
                         </div>
                     </div>
                 </div>

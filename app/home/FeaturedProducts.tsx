@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button"
 import ProductCard from "@/components/ProductCard"
 import { useProducts } from "@/contexts/ProductsContext"
 import Link from "next/link"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import BackgroundDecorations from "./BackgroundDecorations"
-import { useI18n } from "@/contexts/I18nContext";
 
 interface FeaturedProductsProps {
   getCSSVar: (varName: string, fallback?: string) => string
@@ -17,7 +16,6 @@ interface FeaturedProductsProps {
 const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
   const products = useProducts()
   const featuredProducts = products.filter((p: any) => p.isFeatured)
-  const { t } = useI18n();
 
   const cssVars = {
     accent: () => getCSSVar('--accent', '#8b5cf6'),
@@ -30,12 +28,14 @@ const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
     card: () => getCSSVar('--card', '#ffffff'),
   }
 
+  const prefersReducedMotion = useReducedMotion()
+
   return (
     <motion.section
       className="relative py-16 sm:py-20 md:py-24 lg:py-32 overflow-hidden"
       initial={{ opacity: 0 }}
       whileInView={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.8 }}
       viewport={{ once: true, amount: 0.3 }}
       style={{
         backgroundColor: cssVars.background(),
@@ -110,7 +110,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
               className="h-[2px] bg-accent"
             />
             <span className="text-sm sm:text-base font-semibold uppercase tracking-wider text-accent">
-              {t('featured.label')}
+              Featured
             </span>
             <motion.div
               initial={{ width: 0 }}
@@ -136,7 +136,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
               viewport={{ once: true }}
               className="block"
             >
-              {t('featured.headline.line1')}
+              Explore STEM products & programs
             </motion.span>
             <motion.span
               initial={{ y: 30, opacity: 0 }}
@@ -149,7 +149,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
                 WebkitBackgroundClip: 'text',
               }}
             >
-              {t('featured.headline.line2')}
+              Find kits & learning resources
             </motion.span>
           </h2>
 
@@ -162,7 +162,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
             transition={{ delay: 0.3, duration: 0.6 }}
             viewport={{ once: true }}
           >
-            {t('featured.description')}
+            Discover curated kits and programs designed to inspire hands-on learning.
           </motion.p>
         </motion.div>
 
@@ -228,7 +228,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
                 transition={{ duration: 0.6 }}
               />
               <span className="relative flex items-center gap-3">
-                {t('featured.browseAll')}
+                Browse all
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
               </span>
             </Button>
@@ -238,15 +238,15 @@ const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
           <div className="mt-12 flex flex-wrap justify-center gap-6 text-sm font-medium" style={{ color: cssVars.mutedForeground() }}>
             <span className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: '#22c55e' }} />
-              {t('featured.trust.guarantee')}
+              Satisfaction guaranteed
             </span>
             <span className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cssVars.primary() }} />
-              {t('featured.trust.shipping')}
+              Free shipping over $50
             </span>
             <span className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cssVars.accent() }} />
-              {t('featured.trust.educator')}
+              Educator-approved resources
             </span>
           </div>
         </motion.div>
@@ -255,19 +255,19 @@ const FeaturedProducts = ({ getCSSVar, isMobile }: FeaturedProductsProps) => {
       {/* Decorative Glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          className="absolute top-1/4 -left-40 w-96 h-96 rounded-full blur-[100px]"
+          className="absolute top-1/4 -left-40 w-96 h-96 rounded-full blur-[100px] will-change-transform"
           style={{ backgroundColor: `${cssVars.accent()}15` }}
           animate={{
             scale: [1, 1.2, 1],
             opacity: [0.1, 0.2, 0.1],
           }}
-          transition={{ duration: 8, repeat: Infinity }}
+          transition={{ duration: prefersReducedMotion ? 0 : 8, repeat: prefersReducedMotion ? 0 : Infinity }}
         />
         <motion.div
-          className="absolute bottom-1/4 -right-40 w-96 h-96 rounded-full blur-[100px]"
+          className="absolute bottom-1/4 -right-40 w-96 h-96 rounded-full blur-[100px] will-change-transform"
           style={{ backgroundColor: `${cssVars.primary()}10` }}
           animate={{ scale: [1.2, 1, 1.2], opacity: [0.1, 0.15, 0.1] }}
-          transition={{ duration: 10, repeat: Infinity }}
+          transition={{ duration: prefersReducedMotion ? 0 : 10, repeat: prefersReducedMotion ? 0 : Infinity }}
         />
       </div>
     </motion.section>

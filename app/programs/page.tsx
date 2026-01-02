@@ -1,9 +1,8 @@
 "use client"
 import { ArrowRight, Calendar, Users, BookOpen, Trophy, Sparkles, Target, Zap, Shield, TrendingUp, Clock, Star, CheckCircle, Cpu, Rocket, Palette, Database, Wifi, Globe, Code, Bot, Brain, Satellite, Atom, Microscope } from "lucide-react";
-import { useI18n } from "@/contexts/I18nContext";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { apiFetch } from "@/lib/axios";
 
 const iconMap: any = {
@@ -216,8 +215,9 @@ const successStories = [
     }
 ];
 
+
+
 const Programs = () => {
-    const { t } = useI18n();
     const [isMobile, setIsMobile] = useState(false);
     const [programs, setPrograms] = useState<any[]>([]);
 
@@ -240,14 +240,16 @@ const Programs = () => {
         return () => window.removeEventListener('resize', checkMobile);
     }, []);
 
-    // Animation variants
+    // Animation variants (durations standardized to UI range; respect reduced motion)
+    const prefersReducedMotion = useReducedMotion()
+
     const fadeInUp = {
         hidden: { opacity: 0, y: 40 },
         visible: {
             opacity: 1,
             y: 0,
             transition: {
-                duration: 0.6,
+                duration: prefersReducedMotion ? 0 : 0.4,
                 ease: [0.22, 1, 0.36, 1] as const
             }
         }
@@ -258,8 +260,8 @@ const Programs = () => {
         visible: {
             opacity: 1,
             transition: {
-                staggerChildren: 0.15,
-                delayChildren: 0.1
+                staggerChildren: 0.12,
+                delayChildren: 0.08
             }
         }
     };
@@ -270,7 +272,7 @@ const Programs = () => {
             opacity: 1,
             x: 0,
             transition: {
-                duration: 0.7,
+                duration: prefersReducedMotion ? 0 : 0.5,
                 ease: [0.22, 1, 0.36, 1] as const
             }
         }
@@ -282,7 +284,7 @@ const Programs = () => {
             opacity: 1,
             x: 0,
             transition: {
-                duration: 0.7,
+                duration: prefersReducedMotion ? 0 : 0.5,
                 ease: [0.22, 1, 0.36, 1] as const
             }
         }
@@ -294,7 +296,7 @@ const Programs = () => {
             opacity: 1,
             scale: 1,
             transition: {
-                duration: 0.5,
+                duration: prefersReducedMotion ? 0 : 0.4,
                 ease: [0.22, 1, 0.36, 1] as const
             }
         }
@@ -315,7 +317,7 @@ const Programs = () => {
                         <motion.div
                             initial={{ scaleX: 0 }}
                             whileInView={{ scaleX: 1 }}
-                            transition={{ duration: 0.8 }}
+                            transition={{ duration: prefersReducedMotion ? 0 : 0.4 }}
                             viewport={{ once: true }}
                             className="flex justify-center items-center gap-3 mb-4"
                         >
@@ -365,14 +367,14 @@ const Programs = () => {
                                     <div className="w-full lg:w-1/2">
                                         <div className="relative group">
                                             <motion.div
-                                                className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-500"
+                                                className="absolute -inset-4 bg-gradient-to-r from-primary/20 to-accent/20 rounded-3xl blur-xl opacity-0 group-hover:opacity-70 transition-opacity duration-300"
                                                 whileHover={{ scale: 1.02 }}
                                             />
                                             <div className="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-2xl">
                                                 <img
                                                     src={'http://49.50.83.49' + program.image?.url || STEM_IMAGES[index % STEM_IMAGES.length]}
                                                     alt={program.title}
-                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                                 />
                                                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                                                 <div className="absolute bottom-6 left-6 flex flex-col gap-2">
@@ -558,7 +560,7 @@ const Programs = () => {
                         <motion.div
                             initial={{ scaleX: 0 }}
                             whileInView={{ scaleX: 1 }}
-                            transition={{ duration: 0.8 }}
+                            transition={{ duration: prefersReducedMotion ? 0 : 0.4 }}
                             viewport={{ once: true }}
                             className="flex justify-center items-center gap-3 mb-4"
                         >

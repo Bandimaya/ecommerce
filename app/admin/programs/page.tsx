@@ -52,7 +52,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
 import { apiUrl } from "@/lib/constants";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence, Variants, useReducedMotion } from "framer-motion";
 
 const ICONS = [
     // Academic & Engagement
@@ -98,6 +98,11 @@ export default function Programs() {
 
     const [form, setForm] = useState({
         title: "",
+    })
+
+    const prefersReducedMotion = useReducedMotion()
+
+    // (rest of file continues)
         subtitle: "",
         description: "",
         features: "",         // Will be converted to array on submit
@@ -536,11 +541,12 @@ export default function Programs() {
                             <AnimatePresence>
                                 {showFilters && (
                                     <motion.div
-                                        initial={{ opacity: 0, height: 0 }}
-                                        animate={{ opacity: 1, height: "auto" }}
-                                        exit={{ opacity: 0, height: 0 }}
+                                        initial={{ opacity: 0, scaleY: 0.98 }}
+                                        animate={{ opacity: 1, scaleY: 1 }}
+                                        exit={{ opacity: 0, scaleY: 0.98 }}
+                                        transition={{ duration: 0.3 }}
                                         className="mt-6 pt-6 border-t"
-                                        style={{ borderColor: 'hsl(var(--border))' }}
+                                        style={{ borderColor: 'hsl(var(--border))', transformOrigin: 'top' } as React.CSSProperties}
                                     >
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             {/* TYPE FILTER */}
@@ -628,7 +634,7 @@ export default function Programs() {
                             className="w-full max-w-5xl mx-auto px-4 py-8"
                         >
                             <div
-                                className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl border shadow-2xl overflow-hidden transition-all duration-500"
+                                className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl rounded-3xl border shadow-2xl overflow-hidden transition-all duration-300"
                                 style={{
                                     borderColor: editingId ? 'rgb(245 158 11 / 0.3)' : 'rgb(99 102 241 / 0.3)',
                                 }}
@@ -788,7 +794,7 @@ export default function Programs() {
                     <div className="flex justify-center items-center py-20">
                         <motion.div
                             animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                            transition={{ duration: prefersReducedMotion ? 0 : 1, repeat: prefersReducedMotion ? 0 : Infinity, ease: "linear" }}
                             className="w-12 h-12 border-3 border-primary border-t-transparent rounded-full"
                         />
                     </div>
@@ -914,7 +920,7 @@ function ProgramCard({ program, index, onEdit, onDelete }: any) {
                 <img
                     src={'http://49.50.83.49' + program.image?.url}
                     alt={program.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
 
@@ -1044,7 +1050,7 @@ function ProgramRow({ program, index, onEdit, onDelete }: any) {
                 <img
                     src={'http://49.50.83.49' + program.image?.url}
                     alt={program.title}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                 />
             </div>
 

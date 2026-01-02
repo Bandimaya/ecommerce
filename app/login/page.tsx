@@ -6,67 +6,97 @@ import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff } from "lucide-react";
-import { useI18n } from "@/contexts/I18nContext";
+import { Mail, Lock, Eye, EyeOff, Loader2, LogIn, AlertCircle } from "lucide-react";
 
-/**
- * Updated Login component:
- * - Password visibility toggle
- * - Inline validation animation when error occurs
- * - Success transition into /shop
- */
 const Login = () => {
   const { login, loading } = useUser();
   const router = useRouter();
-  const { t } = useI18n();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  // Form State
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  // password visibility state
+  // UI State
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [generalError, setGeneralError] = useState<string | null>(null);
   const [showPwd, setShowPwd] = useState(false);
-
-  // for playing success animation before navigation
   const [success, setSuccess] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear specific error on type
+    if (errors[name]) setErrors((prev) => ({ ...prev, [name]: "" }));
+    if (generalError) setGeneralError(null);
+  };
+
+  const validateForm = () => {
+    const newErrors: { [key: string]: string } = {};
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email";
+    }
+
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setGeneralError(null);
+
+    if (!validateForm()) return;
 
     try {
-      await login(email, password);
+      await login(formData.email, formData.password);
       // Trigger success animation
       setSuccess(true);
-      // After a short delay (match animation), navigate
+      // Delay navigation to allow animation to play
       setTimeout(() => {
         router.push("/shop");
-      }, 360); // ~ matching animation duration
+      }, 300); 
     } catch (err: any) {
-      setError(err.message || "Login failed");
+      setGeneralError(err.message || "Invalid credentials. Please try again.");
     }
   };
 
-  // Animation variants
+  // --- Animations ---
   const cardVariants: Variants = {
-    initial: { opacity: 0, y: 24 },
-    enter: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 260, damping: 24 } },
-    exitSuccess: { opacity: 0, scale: 0.95, transition: { duration: 0.2 } },
+    initial: { opacity: 0, y: 30, scale: 0.95 },
+    enter: { 
+      opacity: 1, 
+      y: 0, 
+      scale: 1, 
+      transition: { type: "spring", stiffness: 260, damping: 24 } 
+    },
+    exitSuccess: { 
+      opacity: 0, 
+      scale: 1.05, 
+      y: -20,
+      filter: "blur(10px)",
+      transition: { duration: 0.4, ease: "backIn" } 
+    },
   };
 
   const shakeVariants = {
-    idle: {},
+    idle: { x: 0 },
     shake: {
-      x: [0, -6, 6, -4, 4, 0],
+      x: [0, -10, 10, -10, 10, 0],
       transition: { duration: 0.4 },
     },
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center"
-      style={{ background: "var(--background)" }}
-    >
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
       <AnimatePresence mode="wait">
         {!success && (
           <motion.div
@@ -75,141 +105,148 @@ const Login = () => {
             initial="initial"
             animate="enter"
             exit="exitSuccess"
-            className="w-full max-w-md p-8 rounded-xl border"
-            style={{
-              background: "var(--card)",
-              borderColor: "var(--border)",
-            }}
+            className="w-full max-w-md bg-card rounded-2xl border border-border/50 shadow-xl overflow-hidden"
           >
-            <motion.h1
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="text-2xl font-bold mb-6 text-center"
-            >
-              {t('login.title')}
-            </motion.h1>
+            {/* Header */}
+            <div className="px-8 pt-8 pb-6 text-center">
+              <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4 text-primary">
+                <LogIn className="w-6 h-6" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight">Welcome Back</h1>
+              <p className="text-sm text-muted-foreground mt-2">
+                Sign in to access your account
+              </p>
+            </div>
 
-            {/* Error message */}
+            {/* Global Error Message */}
             <AnimatePresence>
-              {error && (
-                <motion.p
-                  key="error-msg"
-                  initial={{ opacity: 0, y: -6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -6 }}
-                  transition={{ duration: 0.2 }}
-                  className="mb-4 text-sm text-center"
-                  style={{ color: "var(--destructive)" }}
+              {generalError && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  animate={{ opacity: 1, height: "auto", marginBottom: 16 }}
+                  exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                  className="px-8 overflow-hidden"
                 >
-                  {error}
-                </motion.p>
+                  <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 flex items-center gap-2 text-destructive text-sm">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{generalError}</span>
+                  </div>
+                </motion.div>
               )}
             </AnimatePresence>
 
             {/* Form */}
             <motion.form
               onSubmit={handleSubmit}
-              className="space-y-4"
-              // shake form when error occurs
+              className="px-8 pb-8 space-y-5"
               variants={shakeVariants}
-              animate={error ? "shake" : "idle"}
+              animate={generalError || Object.keys(errors).length > 0 ? "shake" : "idle"}
             >
-              {/* Email */}
+              {/* Email Input */}
               <div className="space-y-1">
-                <label className="text-sm font-medium">{t('login.email')}</label>
-                <div className="relative">
-                  <Mail
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-                    style={{ color: "var(--muted-foreground)" }}
-                  />
+                <div className="relative group">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <input
+                    id="email"
+                    name="email"
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    placeholder={t('login.placeholderEmail')}
-                    className="w-full pl-10 pr-3 py-2 rounded-lg border outline-none transition-all"
-                    style={{
-                      background: "var(--background)",
-                      borderColor: "var(--border)",
-                    }}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--primary)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--border)")
-                    }
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder=" "
+                    className={`peer w-full pl-10 pr-3 pt-5 pb-2 bg-background border-2 rounded-xl outline-none transition-all duration-200
+                      ${errors.email 
+                        ? "border-destructive focus:border-destructive" 
+                        : "border-border/50 focus:border-primary/50 focus:shadow-[0_0_0_4px_rgba(var(--primary),0.1)]"
+                      }`}
                   />
+                  <label
+                    htmlFor="email"
+                    className={`absolute left-10 top-3.5 text-muted-foreground text-sm transition-all duration-200 origin-[0]
+                      peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
+                      peer-focus:scale-75 peer-focus:-translate-y-2.5
+                      peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:-translate-y-2.5
+                      ${errors.email ? "text-destructive" : ""}`}
+                  >
+                    Email Address
+                  </label>
                 </div>
+                {errors.email && (
+                  <p className="text-xs text-destructive ml-1">{errors.email}</p>
+                )}
               </div>
 
-              {/* Password */}
+              {/* Password Input */}
               <div className="space-y-1">
-                <label className="text-sm font-medium">{t('login.password')}</label>
-                <div className="relative">
-                  <Lock
-                    className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4"
-                    style={{ color: "var(--muted-foreground)" }}
-                  />
+                <div className="relative group">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <input
+                    id="password"
+                    name="password"
                     type={showPwd ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder="••••••••"
-                    className="w-full pl-10 pr-10 py-2 rounded-lg border outline-none transition-all"
-                    style={{
-                      background: "var(--background)",
-                      borderColor: "var(--border)",
-                    }}
-                    onFocus={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--primary)")
-                    }
-                    onBlur={(e) =>
-                      (e.currentTarget.style.borderColor = "var(--border)")
-                    }
+                    value={formData.password}
+                    onChange={handleChange}
+                    placeholder=" "
+                    className={`peer w-full pl-10 pr-10 pt-5 pb-2 bg-background border-2 rounded-xl outline-none transition-all duration-200
+                      ${errors.password 
+                        ? "border-destructive focus:border-destructive" 
+                        : "border-border/50 focus:border-primary/50 focus:shadow-[0_0_0_4px_rgba(var(--primary),0.1)]"
+                      }`}
                   />
+                  <label
+                    htmlFor="password"
+                    className={`absolute left-10 top-3.5 text-muted-foreground text-sm transition-all duration-200 origin-[0]
+                      peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
+                      peer-focus:scale-75 peer-focus:-translate-y-2.5
+                      peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:-translate-y-2.5
+                      ${errors.password ? "text-destructive" : ""}`}
+                  >
+                    Password
+                  </label>
+                  
                   <button
                     type="button"
-                    onClick={() => setShowPwd((p) => !p)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1"
-                    style={{ color: "var(--muted-foreground)" }}
+                    onClick={() => setShowPwd(!showPwd)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors outline-none"
                   >
-                    {showPwd ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    {showPwd ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
+                {errors.password && (
+                  <p className="text-xs text-destructive ml-1">{errors.password}</p>
+                )}
               </div>
 
-              {/* Submit */}
+              {/* Submit Button */}
               <motion.div whileTap={{ scale: 0.98 }}>
-                <Button
-                  type="submit"
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 text-base font-medium rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-primary/20" 
                   disabled={loading}
-                  className="w-full mt-2"
-                  style={{
-                    background: "var(--primary)",
-                    color: "var(--primary-foreground)",
-                  }}
                 >
-                  {loading ? t('login.submitting') : t('login.submit')}
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    'Sign In'
+                  )}
                 </Button>
               </motion.div>
             </motion.form>
 
-            <p
-              className="text-sm mt-5 text-center"
-              style={{ color: "var(--muted-foreground)" }}
-            >
-              {t('login.noAccount')}{" "}
-              <Link
-                href="/register"
-                className="font-medium"
-                style={{ color: "var(--primary)" }}
-              >
-                {t('login.register')}
-              </Link>
-            </p>
+            {/* Footer */}
+            <div className="bg-muted/30 p-4 text-center border-t border-border/50">
+              <p className="text-sm text-muted-foreground">
+                Don't have an account?{" "}
+                <Link 
+                  href="/register" 
+                  className="text-primary font-semibold hover:underline decoration-2 underline-offset-4 transition-all"
+                >
+                  Create account
+                </Link>
+              </p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

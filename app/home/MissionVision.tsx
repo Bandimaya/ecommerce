@@ -1,8 +1,7 @@
 "use client"
 
 import { Quote, Target, Award, Sparkles, Rocket, Lightbulb, Users, Globe, BookOpen, Clock } from "lucide-react"
-import { motion } from "framer-motion"
-import { useI18n } from "@/contexts/I18nContext"
+import { motion, useReducedMotion } from "framer-motion"
 import { useState, useEffect } from "react"
 
 interface MissionVisionProps {
@@ -22,7 +21,6 @@ interface StatItem {
 }
 
 const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
-  const { t } = useI18n()
   const [isMobile, setIsMobile] = useState(false)
 
   // Detect mobile viewport
@@ -30,7 +28,7 @@ const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
     }
-    
+
     checkMobile()
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
@@ -82,11 +80,13 @@ const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
     stats: isMobile ? "gap-4" : "gap-6"
   }
 
+  const prefersReducedMotion = useReducedMotion()
+
   return (
     <section className={`relative ${getResponsiveSpacing.section} overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50/30`}>
       {/* Simplified background for mobile */}
       <div className="absolute inset-0 bg-grid-slate-100/50 [mask-image:radial-gradient(ellipse_at_center,white,transparent)]" />
-      
+
       {/* Reduced floating elements on mobile */}
       {!isMobile && (
         <>
@@ -100,7 +100,7 @@ const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.4 }}
           viewport={{ once: true, margin: isMobile ? "-50px" : "-100px" }}
           className="text-center mb-12 md:mb-20"
         >
@@ -108,36 +108,43 @@ const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
           <motion.div
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
             viewport={{ once: true }}
-            className="flex justify-center items-center gap-3 mb-4"
+            className="flex justify-center items-center gap-3 mb-6"
           >
             <motion.div
               initial={{ width: 0 }}
-              whileInView={{ width: isMobile ? '20px' : '40px' }}
+              whileInView={{ width: isMobile ? '24px' : '48px' }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="h-[2px] bg-gradient-to-r from-blue-500 to-purple-500"
+              className="h-[2px]"
+              style={{ backgroundColor: `var(--accent)` }}
             />
-            <span className={`${getResponsiveText.small} font-semibold uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600`}>
+
+            <span
+              className={`${getResponsiveText.small} font-semibold uppercase tracking-widest`}
+              style={{ color: `var(--accent)` }}
+            >
               Our Purpose
             </span>
+
             <motion.div
               initial={{ width: 0 }}
-              whileInView={{ width: isMobile ? '20px' : '40px' }}
+              whileInView={{ width: isMobile ? '24px' : '48px' }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
-              className="h-[2px] bg-gradient-to-r from-purple-500 to-blue-500"
+              className="h-[2px]"
+              style={{ backgroundColor: `var(--accent)` }}
             />
           </motion.div>
-          
+
           {/* Main Heading */}
           <h1 className={`${getResponsiveText.heading} font-bold tracking-tight mb-4 md:mb-6`}>
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
               Mission & Vision
             </span>
           </h1>
-          
+
           {/* Description */}
           <p className={`${getResponsiveText.body} text-slate-600 max-w-2xl md:max-w-3xl mx-auto leading-relaxed px-4 md:px-0`}>
             Driving innovation through education, empowering the next generation of thinkers, creators, and problem solvers.
@@ -150,7 +157,7 @@ const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
           <motion.div
             initial={{ opacity: 0, x: isMobile ? 0 : -30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
             viewport={{ once: true, margin: isMobile ? "-50px" : "-100px" }}
             className="space-y-8 md:space-y-12"
           >
@@ -226,7 +233,7 @@ const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
           <motion.div
             initial={{ opacity: 0, x: isMobile ? 0 : 30 }}
             whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
             viewport={{ once: true, margin: isMobile ? "-50px" : "-100px" }}
             className="space-y-8"
           >

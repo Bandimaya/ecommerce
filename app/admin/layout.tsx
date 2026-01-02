@@ -1,7 +1,6 @@
 "use client";
 
 import { User as UserIcon, LogOut, Settings, LayoutDashboard, ShieldCheck, Menu, X, ChevronLeft, ChevronRight, Package, Phone } from "lucide-react";
-import { useI18n } from "@/contexts/I18nContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -46,18 +45,17 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed }:
   const location = usePathname();
   const { logout } = useUser();
   const router = useRouter();
-  const { t } = useI18n();
   
   const navItems = [
-    { labelKey: "admin.nav.dashboard", path: "/admin", icon: LayoutDashboard },
-    { labelKey: "admin.nav.brands", path: "/admin/brands", icon: ShieldCheck },
-    { labelKey: "admin.nav.programs", path: "/admin/programs", icon: ShieldCheck },
-    { labelKey: "admin.nav.categories", path: "/admin/categories", icon: ShieldCheck },
-    { labelKey: "admin.nav.products", path: "/admin/products", icon: Package },
-    { labelKey: "admin.nav.orders", path: "/admin/orders", icon: ShieldCheck },
-    { labelKey: "admin.nav.customers", path: "/admin/customers", icon: ShieldCheck },
-    { labelKey: "admin.nav.contactInfo", path: "/admin/contact-info", icon: Phone },
-    { labelKey: "admin.nav.customization", path: "/admin/customization", icon: Settings }
+    { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
+    { label: "Brands", path: "/admin/brands", icon: ShieldCheck },
+    { label: "Programs", path: "/admin/programs", icon: ShieldCheck },
+    { label: "Categories", path: "/admin/categories", icon: ShieldCheck },
+    { label: "Products", path: "/admin/products", icon: Package },
+    { label: "Orders", path: "/admin/orders", icon: ShieldCheck },
+    { label: "Customers", path: "/admin/customers", icon: ShieldCheck },
+    { label: "Contact Info", path: "/admin/contact-info", icon: Phone },
+    { label: "Customization", path: "/admin/customization", icon: Settings }
   ];
 
   const handleMobileLogout = () => {
@@ -206,7 +204,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed }:
                       transition={{ duration: 0.2 }}
                       className="whitespace-nowrap font-medium"
                     >
-                      {t(item.labelKey)}
+                      {item.label}
                     </motion.span>
                   )}
                   {isCollapsed && (
@@ -220,7 +218,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed }:
                         color: colors.card
                       }}
                     >
-                      {t(item.labelKey)}
+                      {item.label}
                     </motion.div>
                   )}
                 </Link>
@@ -352,7 +350,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed }:
                         }}
                       >
                         <Icon size={22} />
-                        <span className="font-medium">{t(item.labelKey)}</span>
+                        <span className="font-medium">{item.label}</span>
                       </Link>
                     </motion.div>
                   );
@@ -382,7 +380,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed }:
                   className="text-red-600 hover:text-red-700 hover:bg-red-50"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
-                  {t('auth.logout')}
+                  Log out
                 </Button>
               </div>
             </motion.div>
@@ -403,7 +401,6 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed }: Head
   const { user, logout } = useUser() as { user: AppUser | null; logout: () => void };
   const router = useRouter();
   const pathname = usePathname();
-  const { t } = useI18n();
 
   // Get CSS variables
   const getColors = () => {
@@ -577,7 +574,7 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed }: Head
                 <Link href="/admin/profile" className="flex items-center w-full">
                   <UserIcon className="mr-3 h-4 w-4" style={{ color: colors.mutedForeground }} />
                   <span className="font-medium text-sm" style={{ color: colors.foreground }}>
-                    {t('user.profile')}
+                    Profile
                   </span>
                 </Link>
               </DropdownMenuItem>
@@ -586,7 +583,7 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed }: Head
                 <Link href="/admin/settings" className="flex items-center w-full">
                   <Settings className="mr-3 h-4 w-4" style={{ color: colors.mutedForeground }} />
                   <span className="font-medium text-sm" style={{ color: colors.foreground }}>
-                    {t('user.settings')}
+                    Settings
                   </span>
                 </Link>
               </DropdownMenuItem>
@@ -599,7 +596,7 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed }: Head
                 style={{ color: '#ef4444' }}
               >
                 <LogOut className="mr-3 h-4 w-4" />
-                <span className="font-bold text-sm">{t('auth.logout')}</span>
+                <span className="font-bold text-sm">Log out</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -700,3 +697,5 @@ export default function Layout({ children }: LayoutProps) {
     </div>
   );
 }
+
+// Internationalization helpers removed — labels are hard-coded per project preference.

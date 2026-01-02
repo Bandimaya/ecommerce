@@ -1,24 +1,22 @@
 "use client";
 
 import { useEffect } from "react";
-import { useI18n } from "@/contexts/I18nContext";
 
 const LocalizedHead = () => {
-  const { t } = useI18n();
 
   useEffect(() => {
     try {
-      document.title = t("site.title");
+      document.title = 'STEM PARK — Hands-on STEM kits & programs';
       const desc = document.querySelector('meta[name="description"]');
-      if (desc) desc.setAttribute("content", t("site.description"));
+      if (desc) desc.setAttribute("content", 'Hands-on STEM education resources and kits for curious minds.');
     } catch (e) {
       // no-op if executed in contexts where DOM isn't ready
     }
-  }, [t]);
+  }, []);
 
   return (
     <main>
-      <h1 className="sr-only">{t("site.welcome")}</h1>
+      <h1 className="sr-only">Welcome to STEM PARK</h1>
     </main>
   );
 };

@@ -2,12 +2,26 @@
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
-import { useMemo } from "react";
-import { useI18n } from "@/contexts/I18nContext";
 
 const Footer = () => {
   const { contact } = useSettings();
-  const { t } = useI18n();
+  // Hard-coded strings to avoid global i18n usage (per user request)
+  const brandDescription = 'STEM PARK — hands-on STEM education and kits for curious minds.';
+  const quickLinksTitle = 'Quick Links';
+  const shopAll = 'Shop all';
+  const stemPrograms = 'Programs';
+  const contactUs = 'Contact us';
+  const programsTitle = 'Programs';
+  const programsList = [
+    { href: "/programs", text: 'STEM Clubs' },
+    { href: "/programs", text: 'Academic Support' },
+    { href: "/programs", text: 'Teacher Training' },
+    { href: "/programs", text: 'Summer Camps' },
+  ];
+  const copyrightText = `© ${new Date().getFullYear()} STEM PARK. All rights reserved.`;
+  const privacyPolicy = 'Privacy Policy';
+  const terms = 'Terms & Conditions';
+  const shipping = 'Shipping & Returns';
 
   return (
     <footer
@@ -63,7 +77,7 @@ const Footer = () => {
                 color: 'var(--footer-text-muted)',
               }}
             >
-              {t('footer.brandDescription')}
+              {brandDescription}
             </p>
             <div className="flex gap-3">
               <a
@@ -165,13 +179,13 @@ const Footer = () => {
                 color: 'var(--footer-text)',
               }}
             >
-              {t('footer.quickLinks')}
+              {quickLinksTitle}
             </h4>
             <ul className="space-y-2">
               {[
-                { href: "/shop", text: t('footer.shopAll') },
-                { href: "/programs", text: t('footer.stemPrograms') },
-                { href: "/contact", text: t('footer.contactUs') },
+                { href: "/shop", text: shopAll },
+                { href: "/programs", text: stemPrograms },
+                { href: "/contact", text: contactUs },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -198,15 +212,10 @@ const Footer = () => {
                 color: 'var(--footer-text)',
               }}
             >
-              {t('footer.programs')}
+              {programsTitle}
             </h4>
             <ul className="space-y-2">
-              {[
-                { href: "/programs", text: t('programs.list.stemClubs.title') },
-                { href: "/programs", text: t('programs.list.academicSupport.title') },
-                { href: "/programs", text: t('programs.list.teacherTraining.title') },
-                { href: "/programs", text: t('programs.list.summerCamps.title') },
-              ].map((link, index) => (
+              {programsList.map((link, index) => (
                 <li key={`${link.text}-${index}`}>
                   <Link
                     href={link.href}
@@ -307,16 +316,16 @@ const Footer = () => {
               color: 'var(--footer-text-muted)',
             }}
           >
-            {t('footer.copyright', { year: new Date().getFullYear() })}
+            {copyrightText}
           </p>
           <div className="flex gap-6 text-sm">
             {[
-              { href: "#", text: t('footer.privacyPolicy') },
-              { href: "#", text: t('footer.terms') },
-              { href: "#", text: t('footer.shipping') },
+              { href: "#", text: privacyPolicy },
+              { href: "#", text: terms },
+              { href: "#", text: shipping },
             ].map((link) => (
               <a
-                key={link.text}
+                key={`${link.href}-${link.text}`}
                 href={link.href}
                 className="transition-colors duration-200"
                 style={{

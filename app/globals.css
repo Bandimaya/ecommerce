@@ -98,10 +98,24 @@
   --radius-xl: 2rem;
   --radius-full: 9999px;
   
-  /* ===== TRANSITIONS ===== */
+  /* ===== TRANSITIONS & ANIMATION SCALES ===== */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* Animation duration tokens (use these for consistency) */
+  --anim-micro: 200ms;
+  --anim-ui: 300ms;
+  --anim-deco: 1500ms;
+  --anim-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Performance helpers */
+  .will-change-transform { will-change: transform, opacity; }
+  
+  /* Respect reduced motion preferences */
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+    .will-change-transform { will-change: auto; }
+  }
   
   /* ===== GRADIENTS ===== */
   --gradient-primary: linear-gradient(135deg, hsl(var(--color-primary-400)), hsl(var(--color-primary-600)));
@@ -209,6 +223,10 @@
   }
 
   /* Base Styles */
+  html {
+    scroll-behavior: smooth;
+  }
+
   * {
     border-color: var(--border);
   }
@@ -218,6 +236,8 @@
     background-image: var(--gradient-background);
     color: var(--foreground);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     transition: background-color var(--transition-normal), 
                 color var(--transition-normal),
                 border-color var(--transition-normal);
@@ -760,7 +780,7 @@
 @keyframes fade-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(0.625rem);
   }
   to {
     opacity: 1;
@@ -778,17 +798,35 @@
 }
 
 .animate-gradient {
-  animation: gradient-shift 3s ease infinite;
+  animation: gradient-shift calc(var(--anim-deco)) var(--anim-ease) infinite;
   background-size: 200% 200%;
 }
 
 .animate-fade-in {
-  animation: fade-in var(--transition-normal);
+  /* UI entrance animation - uses shared UI token and appropriate easing */
+  animation: fade-in var(--anim-ui) var(--anim-ease) forwards;
+  will-change: opacity, transform;
 }
 
 .animate-slide-in {
-  animation: slide-in var(--transition-normal);
+  animation: slide-in var(--anim-ui) var(--anim-ease) forwards;
+  will-change: transform;
 }
+
+/* Decorative, slow pulse for background shapes */
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 0.7; }
+}
+.deco-pulse {
+  animation: subtle-pulse var(--anim-deco) var(--anim-ease) infinite;
+  will-change: opacity;
+}
+
+/* Make sure common animations respect reduced-motion where necessary */
+@media (prefers-reduced-motion: reduce) {
+  .animate-gradient, .animate-fade-in, .animate-slide-in, .deco-pulse { animation: none !important; }
+} 
 
 /* =========================================================
    7. SCROLLBAR (THEME-AWARE)
@@ -967,10 +1005,10 @@ input:disabled, textarea:disabled, select:disabled {
 /* Add to your global.css */
 @keyframes float {
   0%, 100% {
-    transform: translateY(0px);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-20px);
+    transform: translateY(-3%);
   }
 }
 
@@ -1023,5 +1061,3 @@ input:disabled, textarea:disabled, select:disabled {
   height: 100%;
   opacity: 0.9;
 }
-
-

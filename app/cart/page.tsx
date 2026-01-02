@@ -11,7 +11,7 @@ import { useUser } from "@/contexts/UserContext"
 import { apiFetch } from "@/lib/axios"
 import Link from "next/link"
 import { apiUrl } from "@/lib/constants"
-import { motion, AnimatePresence, Variants } from "framer-motion"
+import { motion, AnimatePresence, Variants, useReducedMotion } from "framer-motion"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 
@@ -38,6 +38,8 @@ const Cart = () => {
         pincode: "",
         country: isIndia ? "India" : "",
     })
+
+    const prefersReducedMotion = useReducedMotion()
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setAddress({ ...address, [e.target.name]: e.target.value })
@@ -240,7 +242,7 @@ const Cart = () => {
                                         >
                                             <div className="flex gap-6 bg-[var(--card-bg)] rounded-2xl p-6 border-[1.5px] 
                                                          border-[var(--card-border)] hover:shadow-[0_20px_40px_var(--card-shadow)] 
-                                                         transition-all duration-500"
+                                                         transition-all duration-300"
                                                 style={{
                                                     '--card-bg': 'hsl(var(--card))',
                                                     '--card-border': 'hsl(var(--border))',
@@ -267,7 +269,7 @@ const Cart = () => {
                                                         className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"
                                                         initial={{ x: "-100%" }}
                                                         whileHover={{ x: "100%" }}
-                                                        transition={{ duration: 0.8 }}
+                                                        transition={{ duration: prefersReducedMotion ? 0 : 0.8 }}
                                                     />
                                                 </motion.div>
 
@@ -674,7 +676,7 @@ const Cart = () => {
                                     {loading ? (
                                         <motion.div
                                             animate={{ rotate: 360 }}
-                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                            transition={{ duration: prefersReducedMotion ? 0 : 1, repeat: prefersReducedMotion ? 0 : Infinity, ease: "linear" }}
                                             className="w-6 h-6 border-2 border-white border-t-transparent rounded-full mr-2"
                                         />
                                     ) : null}

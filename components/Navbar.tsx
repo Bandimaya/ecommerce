@@ -28,7 +28,6 @@ import {
 import { useUser } from "@/contexts/UserContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useI18n } from "@/contexts/I18nContext";
 import { useSettings } from "@/contexts/SettingsContext";
 
 interface NavbarProps {
@@ -52,7 +51,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const { user, logout } = useUser();
   const navRef = useRef<HTMLDivElement>(null);
 
-  const { t } = useI18n();
+
 
   // Handle scroll effect
   useEffect(() => {
@@ -124,15 +123,15 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   };
 
   const navLinks = [
-    { key: "navbar.home", path: "/", icon: <Home className="w-5 h-5" /> },
-    { key: "navbar.shop", path: "/shop", icon: <Store className="w-5 h-5" /> },
+    { label: "Home", path: "/", icon: <Home className="w-5 h-5" /> },
+    { label: "Shop", path: "/shop", icon: <Store className="w-5 h-5" /> },
     {
-      key: "navbar.programs",
+      label: "Programs",
       path: "/programs",
       icon: <Layers className="w-5 h-5" />,
     },
     {
-      key: "navbar.contact",
+      label: "Contact",
       path: "/contact",
       icon: <Phone className="w-5 h-5" />,
     },
@@ -186,7 +185,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     }`}
                 >
-                  {t(link.key)}
+                  {link.label}
                 </Link>
               ))}
             </div>
@@ -200,7 +199,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   size="icon"
                   className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   onClick={toggleSearch}
-                  aria-label={t("navbar.searchAria")}
+                  aria-label={'Open search'}
                 >
                   <Search className="w-5 h-5" />
                 </Button>
@@ -213,7 +212,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={t("navbar.searchPlaceholder")}
+                        placeholder={'Search products...'}
                         className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                         autoFocus
                       />
@@ -236,7 +235,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   variant="ghost"
                   size="icon"
                   className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  aria-label={t("navbar.cartAria")}
+                  aria-label={'View cart'}
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {totalItems > 0 && (
@@ -274,7 +273,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                           className="w-full flex items-center"
                         >
                           <Settings className="w-4 h-4 mr-2" />
-                          {t("user.settings")}
+                          Settings
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
@@ -283,7 +282,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                           className="w-full flex items-center"
                         >
                           <Package className="w-4 h-4 mr-2" />
-                          {t("user.myOrders")}
+                          My Orders
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
@@ -292,7 +291,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                         className="text-destructive"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
-                        {t("auth.logout")}
+                        Log out
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -302,7 +301,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                       size="sm"
                       className="rounded-full px-6 font-medium bg-primary text-white"
                     >
-                      {t("auth.login")}
+                      Login
                     </Button>
                   </Link>
                 )}
@@ -340,7 +339,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t("navbar.searchPlaceholder")}
+                placeholder={'Search products...'}
                 className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none"
               />
               <Button type="submit" className="bg-primary rounded-xl px-4">
@@ -360,7 +359,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     }`}
                 >
                   {link.icon}
-                  <span className="text-lg">{t(link.key)}</span>
+                  <span className="text-lg">{link.label}</span>
                 </Link>
               ))}
             </div>
@@ -370,7 +369,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               {user ? (
                 <div className="grid gap-2">
                   <div className="px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <p className="text-xs text-gray-500">{t("auth.welcome")}</p>
+                    <p className="text-xs text-gray-500">Welcome</p>
                     <p className="font-bold text-gray-900">
                       {user.name || user.email}
                     </p>
@@ -380,13 +379,13 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     onClick={() => setIsOpen(false)}
                     className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-xl"
                   >
-                    <Settings className="w-5 h-5" /> {t("user.settings")}
+                    <Settings className="w-5 h-5" /> Settings
                   </Link>
                   <button
                     onClick={handleLogout}
                     className="flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl w-full text-left"
                   >
-                    <LogOut className="w-5 h-5" /> {t("auth.logout")}
+                    <LogOut className="w-5 h-5" /> Log out
                   </button>
                 </div>
               ) : (
@@ -395,7 +394,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   onClick={() => setIsOpen(false)}
                   className="block w-full py-4 rounded-xl bg-primary text-white font-bold text-center shadow-lg hover:bg-primary/90 transition-colors"
                 >
-                  {t("auth.login")}
+                  Login
                 </Link>
               )}
             </div>
@@ -410,7 +409,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         @keyframes fadeIn {
           from {
             opacity: 0;
-            transform: translateY(-10px);
+            transform: translateY(-0.625rem);
           }
           to {
             opacity: 1;
@@ -418,8 +417,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
           }
         }
         .animate-fade-in {
-          animation: fadeIn 0.2s ease-out;
+          animation: fadeIn var(--anim-micro) var(--anim-ease) forwards;
+          will-change: opacity, transform;
         }
+        @media (prefers-reduced-motion: reduce) { .animate-fade-in { animation: none !important; } }
 
         /* Prevent layout shift during language transition */
         html[lang="ar"],

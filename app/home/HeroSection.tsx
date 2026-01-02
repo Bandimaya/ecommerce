@@ -3,7 +3,7 @@
   import { ArrowRight, Sparkles, Shield, Clock, Users, Play } from "lucide-react"
   import { Button } from "@/components/ui/button"
   import Link from "next/link"
-  import { motion } from "framer-motion"
+  import { motion, useReducedMotion } from "framer-motion"
   import { useState, useEffect } from "react"
   import BackgroundDecorations from "./BackgroundDecorations"
 
@@ -34,6 +34,8 @@
       fontDisplay: () => getCSSVar('--font-display', 'system-ui, sans-serif'),
     }
 
+    const prefersReducedMotion = useReducedMotion()
+
     return (
       <section className="relative min-h-[90vh] sm:min-h-[85vh] flex items-center overflow-hidden p-2.5 sm:p-5 md:p-10 rounded-t-3xl mx-0 sm:mx-2 md:mx-4 mt-0 sm:mt-2 md:mt-4">
         {/* Grey Shade Background */}
@@ -59,13 +61,13 @@
               backgroundPosition: ['0% 0%', '100% 100%'],
             }}
             transition={{
-              duration: 15,
-              repeat: Infinity,
+              duration: prefersReducedMotion ? 0 : 15,
+              repeat: prefersReducedMotion ? 0 : Infinity,
               repeatType: "reverse"
             }}
             className="absolute inset-0 opacity-10"
             style={{
-              background: `linear-gradient(
+              backgroundImage: `linear-gradient(
             45deg,
             transparent 30%,
             ${cssVars.warning()} 50%,
@@ -83,7 +85,7 @@
         <motion.figure
           initial={{ y: 100 }}
           animate={{ y: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
+          transition={{ duration: prefersReducedMotion ? 0 : 0.6, delay: 0.2 }}
           className="absolute bottom-0 left-0 w-full z-10 pointer-events-none"
         >
           <svg
@@ -96,7 +98,7 @@
             <motion.path
               initial={{ pathLength: 0 }}
               animate={{ pathLength: 1 }}
-              transition={{ duration: 1.6, ease: "easeInOut" }}
+              transition={{ duration: prefersReducedMotion ? 0 : 0.8, ease: "easeInOut" }}
               d="M0,80 L0,20 Q720,80 1440,20 L1440,80 Z"
               fill={cssVars.background()}
               stroke={cssVars.border()}
@@ -112,14 +114,14 @@
               <motion.div
                 initial={{ y: 30, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6 }}
+                transition={{ duration: 0.4 }}
                 className="py-4 sm:py-6 md:py-8"
               >
                 {/* Animated Badge */}
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.3, delay: 0.2 }}
                   className="inline-block bg-white/20 backdrop-blur-lg border border-white/30 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full mb-6 sm:mb-8 max-w-full"
                 >
                   <motion.p
@@ -149,7 +151,7 @@
                 <motion.h1
                   initial={{ y: 40, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  transition={{ duration: 0.7, delay: 0.3 }}
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.5, delay: 0.3 }}
                   className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-4 sm:mb-6 leading-tight sm:leading-tight md:leading-tight drop-shadow-lg px-2 sm:px-0"
                   style={{
                     color: '#ffffff',
@@ -170,7 +172,7 @@
                     <motion.span
                       initial={{ scaleX: 0 }}
                       animate={{ scaleX: 1 }}
-                      transition={{ delay: 0.8, duration: 0.5 }}
+                      transition={{ delay: 0.8, duration: prefersReducedMotion ? 0 : 0.4 }}
                       className="absolute -bottom-2 left-0 w-full h-2 rounded-full"
                       style={{ backgroundColor: cssVars.warning() }}
                     />
@@ -226,8 +228,8 @@
                             x: ['0%', '100%', '100%', '0%'],
                           }}
                           transition={{
-                            duration: 3,
-                            repeat: Infinity,
+                            duration: prefersReducedMotion ? 0 : 3,
+                            repeat: prefersReducedMotion ? 0 : Infinity,
                             ease: "easeInOut",
                             times: [0, 0.5, 0.51, 1]
                           }}
@@ -249,8 +251,8 @@
                             x: ['0%', '200%'],
                           }}
                           transition={{
-                            duration: 2,
-                            repeat: Infinity,
+                            duration: prefersReducedMotion ? 0 : 2,
+                            repeat: prefersReducedMotion ? 0 : Infinity,
                             delay: 0.5
                           }}
                         />
@@ -280,8 +282,8 @@
                       <div className="relative flex-shrink-0">
                         <motion.div
                           animate={{ scale: [1, 1.1, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                          className="absolute inset-0 rounded-full"
+                          transition={{ duration: prefersReducedMotion ? 0 : 2, repeat: prefersReducedMotion ? 0 : Infinity }}
+                          className="absolute inset-0 rounded-full will-change-transform"
                           style={{ backgroundColor: `${cssVars.accent()}40` }}
                         />
                         <div

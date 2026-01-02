@@ -275,7 +275,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
         <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-white/10" />
         
         <div 
-          className="absolute inset-0 opacity-10"
+          className="absolute inset-0 opacity-10 will-change-transform"
           style={{
             background: `linear-gradient(
               90deg,
@@ -285,7 +285,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               ${cssVars.primary()} 75%,
               transparent 100%
             )`,
-            animation: 'shimmer 3s infinite',
+            animation: 'shimmer var(--anim-deco) linear infinite',
           }}
         />
         
@@ -297,22 +297,22 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
         `}</style>
       </div>
 
-      <div className="absolute top-1/4 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-blue-300/10 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-purple-300/10 rounded-full blur-3xl animate-pulse delay-1000" />
+      <div className="absolute top-1/4 left-4 sm:left-10 w-48 sm:w-72 h-48 sm:h-72 bg-blue-300/10 rounded-full blur-3xl deco-pulse" />
+      <div className="absolute bottom-1/4 right-4 sm:right-10 w-64 sm:w-96 h-64 sm:h-96 bg-purple-300/10 rounded-full blur-3xl deco-pulse" />
 
       <div className="container px-4 sm:px-6 mx-auto relative z-10 max-w-7xl">
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={{ duration: 0.4 }}
           viewport={{ once: true }}
           className="text-center mb-12 sm:mb-16 md:mb-24 max-w-4xl mx-auto"
         >
           <motion.div
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
             viewport={{ once: true }}
             className="flex justify-center items-center gap-3 mb-3 sm:mb-4"
           >
@@ -466,11 +466,11 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                   className="h-full"
                 >
                   <Card 
-                    className="group relative h-full overflow-hidden border hover:shadow-lg sm:hover:shadow-xl transition-all duration-500 backdrop-blur-sm"
+                    className="group relative h-full overflow-hidden border hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
                     style={{ backgroundColor: `color-mix(in srgb, ${cssVars.card()} 90%, transparent)`, borderColor: cssVars.border() }}
                   >
                     <div 
-                      className="absolute -inset-2 sm:-inset-4 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-500"
+                      className="absolute -inset-2 sm:-inset-4 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300"
                       style={{ background: `linear-gradient(to bottom right, ${cssVars.primary()}0D, ${cssVars.accent()}0D)` }}
                     />
 
@@ -479,7 +479,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                         <motion.img
                           src={path.image}
                           alt={path.alt}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           animate={hoveredCard === path.id ? { scale: 1.05 } : { scale: 1 }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

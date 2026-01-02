@@ -2,11 +2,10 @@
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
 import { apiUrl, CURRENCY_OPTIONS } from "@/lib/constants";
-import { useI18n } from "@/contexts/I18nContext";
+import { t } from "@/lib/i18n";
 import { apiFetch } from "@/lib/axios";
 
 const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, levelLabels, setForm, deleteNodeDeep }: any) => {
-  const { t } = useI18n();
   const handleLabelChange = (newLabel: any) => {
     setForm((prev: any) => {
       const updatedLabels = [...prev.levelLabels];
@@ -51,7 +50,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
       {nodes?.length > 0 && (
         <div className="bg-[var(--primary-50)] p-2 rounded-md border border-[var(--primary-100)] flex items-center gap-4 mb-2">
           <label className="text-[10px] font-black text-[var(--primary-500)] uppercase tracking-widest whitespace-nowrap">
-            {t('level_name', { depth })}
+            {`Level ${depth}`}
           </label>
           <input
             placeholder="e.g. Color, Size, or Fabric"
@@ -70,7 +69,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
             <div className="flex flex-col md:flex-row gap-4 mb-4 bg-[var(--neutral-50)] p-3 rounded-lg">
               <div className="flex-[2]">
                 <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase tracking-widest">
-                  {node.levelLabel || t('level_default', { depth })} {t('value')}
+                  {node.levelLabel || `Level ${depth}`} Value
                 </label>
                 <input
                   placeholder={`e.g. ${depth === 1 ? 'Red' : depth === 2 ? 'Large' : 'Cotton'}`}
@@ -82,13 +81,13 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm(t('delete_confirm', { name: node.name || t('unnamed') }))) {
+                  if (confirm(`Are you sure you want to delete "${node.name || 'Unnamed'}"?`)) {
                     deleteNodeDeep(currentPath);
                   }
                 }}
                 className="text-[10px] font-bold text-[var(--destructive-500)] uppercase hover:text-[var(--destructive-700)]"
               >
-                {t('delete')}
+                Delete
               </button>
 
             </div>
@@ -98,7 +97,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                 {/* Identification Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('sku_required')}</label>
+                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">SKU (required)</label>
                     <input
                       placeholder="SKU-12345"
                       className="w-full p-2 border border-[var(--input)] rounded text-sm font-mono bg-[var(--background)] focus:ring-2 focus:ring-[var(--primary-500)] outline-none text-[var(--foreground)]"
@@ -108,7 +107,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('barcode')}</label>
+                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">Barcode</label>
                     <input
                       placeholder="EAN/UPC"
                       className="w-full p-2 border border-[var(--input)] rounded text-sm bg-[var(--background)] outline-none text-[var(--foreground)]"
@@ -117,7 +116,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">{t('weight_kg')}</label>
+                    <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">Weight (kg)</label>
                     <input
                       type="number"
                       placeholder="0.00"
@@ -131,10 +130,10 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                 <div className="space-y-3 pt-4 border-t border-[var(--neutral-200)]">
                   <div className="flex items-center justify-between">
                     <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase tracking-wider">
-                      {t('market_pricing')}
+                      Marketplace pricing
                     </label>
                     <div className="bg-[var(--neutral-50)] p-4 rounded-lg border border-dashed border-[var(--neutral-300)]">
-                      <label className="text-xs font-bold text-[var(--neutral-500)] uppercase block mb-2">{t('add_market')}</label>
+                      <label className="text-xs font-bold text-[var(--neutral-500)] uppercase block mb-2">Add market</label>
                       <select
                         value=""
                         onChange={(e) => {

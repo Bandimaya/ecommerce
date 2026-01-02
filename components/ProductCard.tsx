@@ -8,17 +8,20 @@ import { useSettings } from "@/contexts/SettingsContext"
 import { apiUrl, CURRENCY_OPTIONS } from "@/lib/constants"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { motion } from "framer-motion"
+import { motion, useReducedMotion } from "framer-motion"
 import { useState } from "react"
-import { useI18n } from "@/contexts/I18nContext";
+
+
 
 export default function ProductCard({ product, index = 0 }: any) {
   const { addToCart } = useCart()
   const navigate = useRouter()
   const { currencyCode } = useSettings()
   const [isHovering, setIsHovering] = useState(false)
+  // Respect user reduced-motion preference and use faster, transform-based animations for smoothness
+  const prefersReducedMotion = useReducedMotion()
   const hasVariants = product.variants && product.variants.length > 0
-  const { t } = useI18n();
+
 
   // 1. Determine Display Media
   const displayMedia = (product.media && product.media.length > 0)
@@ -72,8 +75,8 @@ export default function ProductCard({ product, index = 0 }: any) {
     }, 1)
 
     toast({
-      title: t('product.addedTitle'),
-      description: t('product.addedDesc', { name: product.name }),
+      title: 'Added to cart',
+      description: `${product.name} added to cart`,
       className: "bg-gradient-to-r from-emerald-500 to-teal-600 text-white",
     })
   }
@@ -88,7 +91,7 @@ export default function ProductCard({ product, index = 0 }: any) {
       whileInView={{ opacity: 1, y: 0 }}
       whileHover={{ y: -8 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.4, delay: index * 0.05 }}
+      transition={{ duration: prefersReducedMotion ? 0 : 0.3, delay: index * 0.05 }}
       className="group"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
@@ -96,7 +99,7 @@ export default function ProductCard({ product, index = 0 }: any) {
       <Link href={`/product/${product.slug}`} className="block">
         <div
           className="bg-[var(--card-bg)] rounded-[2rem] overflow-hidden border-[1.5px] border-[var(--card-border)] 
-                     hover:shadow-[0_25px_50px_-12px_var(--card-shadow)] transition-all duration-500"
+                     hover:shadow-[0_25px_50px_-12px_var(--card-shadow)] transition-all duration-300"
           style={{
             '--card-bg': 'hsl(var(--card))',
             '--card-border': 'hsl(var(--border))',
@@ -127,7 +130,7 @@ export default function ProductCard({ product, index = 0 }: any) {
             {isVideo ? (
               <motion.video
                 src={mediaUrl}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover will-change-transform"
                 muted
                 loop
                 onMouseEnter={(e) => e.currentTarget.play()}
@@ -136,15 +139,15 @@ export default function ProductCard({ product, index = 0 }: any) {
                   e.currentTarget.currentTime = 0
                 }}
                 animate={isHovering ? { scale: 1.1 } : { scale: 1 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: "easeInOut" }}
               />
             ) : (
               <motion.img
                 src={mediaUrl}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover will-change-transform"
                 animate={isHovering ? { scale: 1.1 } : { scale: 1 }}
-                transition={{ duration: 0.7, ease: "easeOut" }}
+                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: "easeInOut" }}
               />
             )}
 
@@ -166,10 +169,10 @@ export default function ProductCard({ product, index = 0 }: any) {
                 >
                   <span className="relative z-10">-{discount}% OFF</span>
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0"
+                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 will-change-transform"
                     initial={{ x: "-100%" }}
                     animate={{ x: "100%" }}
-                    transition={{ repeat: Infinity, duration: 1.5, delay: 0.5 }}
+                    transition={{ repeat: prefersReducedMotion ? 0 : Infinity, duration: prefersReducedMotion ? 0 : 1.5, delay: 0.5 }}
                   />
                 </motion.span>
               )}
@@ -188,7 +191,7 @@ export default function ProductCard({ product, index = 0 }: any) {
                     '--variant-shadow': 'hsl(var(--indigo) / 0.3)',
                   } as React.CSSProperties}
                 >
-                  {t('product.multiOption')}
+                  Multiple options
                 </motion.span>
               )}
             </div>
@@ -218,10 +221,10 @@ export default function ProductCard({ product, index = 0 }: any) {
                 >
                   {/* Shine effect */}
                   <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0"
+                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 will-change-transform"
                     initial={{ x: "-100%" }}
                     animate={{ x: "100%" }}
-                    transition={{ repeat: Infinity, duration: 2, delay: 0.3 }}
+                    transition={{ repeat: prefersReducedMotion ? 0 : Infinity, duration: prefersReducedMotion ? 0 : 2, delay: 0.3 }}
                   />
 
                   {/* Icon */}
@@ -234,10 +237,10 @@ export default function ProductCard({ product, index = 0 }: any) {
                   {/* Pulsing glow effect */}
                   {isHovering && (
                     <motion.div
-                      className="absolute inset-0 rounded-2xl border-2 border-white/30"
+                      className="absolute inset-0 rounded-2xl border-2 border-white/30 will-change-transform"
                       initial={{ scale: 1, opacity: 0.5 }}
                       animate={{ scale: 1.5, opacity: 0 }}
-                      transition={{ repeat: Infinity, duration: 1.5 }}
+                      transition={{ repeat: prefersReducedMotion ? 0 : Infinity, duration: prefersReducedMotion ? 0 : 1.5 }}
                     />
                   )}
                 </Button>
@@ -250,7 +253,7 @@ export default function ProductCard({ product, index = 0 }: any) {
                 {[...Array(3)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="absolute w-1 h-1 bg-white rounded-full"
+                    className="absolute w-1 h-1 bg-white rounded-full will-change-transform"
                     initial={{
                       x: Math.random() * 100 + '%',
                       y: '100%',
@@ -261,10 +264,10 @@ export default function ProductCard({ product, index = 0 }: any) {
                       opacity: [0, 1, 0]
                     }}
                     transition={{
-                      duration: 1.5,
+                      duration: prefersReducedMotion ? 0.8 : 1.2,
                       delay: i * 0.2,
-                      repeat: Infinity,
-                      repeatDelay: 2,
+                      repeat: prefersReducedMotion ? 0 : Infinity,
+                      repeatDelay: prefersReducedMotion ? 0 : 2,
                     }}
                   />
                 ))}
@@ -308,7 +311,7 @@ export default function ProductCard({ product, index = 0 }: any) {
                     style={{ '--from-text': 'hsl(var(--muted-foreground))' } as React.CSSProperties}
                     animate={isHovering ? { opacity: 0.8 } : { opacity: 0.6 }}
                   >
-                    {t('product.from')}
+                    From
                   </motion.span>
                 )}
 
@@ -354,7 +357,7 @@ export default function ProductCard({ product, index = 0 }: any) {
               >
                 <p className="text-[8px] font-black text-[var(--shipping-label)] uppercase"
                   style={{ '--shipping-label': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
-                  {t('product.shippingTo')}
+                  Ships to
                 </p>
                 <motion.div
                   className="flex items-center gap-1 justify-end"
