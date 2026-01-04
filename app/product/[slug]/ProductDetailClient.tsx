@@ -110,7 +110,7 @@ const ProductDetailClient = ({ product }: any) => {
         }
     }, [product, selectedVariant]);
 
-    if (!product) return <div className="text-center py-20">Product not found</div>; 
+    if (!product) return <div className="text-center py-20">Product not found</div>;
 
     // // Pricing & Stock display logic
     // const displayPrice = selectedVariant
@@ -134,31 +134,25 @@ const ProductDetailClient = ({ product }: any) => {
             });
         }
 
-        // 2. Call the context function with the specific Variant ID
         addToCart(
             {
                 productId: product._id,
-                variantId: selectedVariant?._id || null, // Critical: Send the flat Variant ID
+                variantId: selectedVariant?._id || null,
                 name: product.name,
                 price: displayPrice,
                 image: selectedVariant?.media?.[0]?.url || product.media?.[0]?.url,
                 sku: selectedVariant?.sku || product.productData?.sku,
                 currency: currencyCode,
             },
-            1 // Quantity
+            1
         );
-
-        toast({
-            title: 'Added to cart',
-            description: `${product.name} added to cart ${selectedVariant ? `(${Object.values(selectedVariant.attributes).join(' / ')})` : ''}`.trim(),
-        });
     };
 
     return (
         <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-12">
                 <Link href="/shop" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-                    <ArrowLeft className="w-4 h-4" /> {('products.back_to_shop')}
+                    <ArrowLeft className="w-4 h-4" /> Back to Shop
                 </Link>
 
                 <div className="grid lg:grid-cols-2 gap-12">
@@ -311,6 +305,23 @@ const ProductDetailClient = ({ product }: any) => {
                                 onClick={handleAddToCart}
                             >
                                 <ShoppingCart className="w-5 h-5" /> Add to cart
+                            </Button>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="flex items-center border rounded-lg h-12">
+                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-4 h-full hover:bg-muted"><Minus className="w-4 h-4" /></button>
+                                <span className="w-12 text-center font-bold">{quantity}</span>
+                                <button onClick={() => setQuantity(q => Math.min(displayStock, q + 1))} className="px-4 h-full hover:bg-muted"><Plus className="w-4 h-4" /></button>
+                            </div>
+
+                            <Button
+                                size="lg"
+                                className="flex-1 h-12 gap-2"
+                                disabled={displayStock <= 0}
+                                onClick={handleAddToCart}
+                            >
+                                <ShoppingCart className="w-5 h-5" /> Buy now
                             </Button>
                         </div>
 
