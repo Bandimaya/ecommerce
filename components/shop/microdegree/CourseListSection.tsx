@@ -25,7 +25,7 @@ const sampleCourses = [
 export default function CourseListSection() {
   return (
     <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {sampleCourses.map((c) => (
+      {sampleCourses.map((c: any) => (
         <CourseCard key={c.title} course={c} />
       ))}
     </section>

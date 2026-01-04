@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 import { useUser } from "./UserContext";
 import { useSettings } from "./SettingsContext";
 import { apiFetch } from "@/lib/axios";
+import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
 export interface CartItem {
@@ -68,6 +69,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       const res = await apiFetch(`/cart`, {
         method: "POST",
         data: { ...item, quantity, isIndia },
+      });
+      toast({
+        title: 'Added to cart',
+        description: `${item.name} added to cart`,
       });
       refreshCart()
       // setCartItems(data.items || []);
