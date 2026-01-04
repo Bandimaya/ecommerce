@@ -158,7 +158,7 @@ const ProductDetailClient = ({ product }: any) => {
         <div className="min-h-screen bg-background">
             <div className="container mx-auto px-4 py-12">
                 <Link href="/shop" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary mb-8">
-                    <ArrowLeft className="w-4 h-4" /> {t('products.back_to_shop')}
+                    <ArrowLeft className="w-4 h-4" /> {('products.back_to_shop')}
                 </Link>
 
                 <div className="grid lg:grid-cols-2 gap-12">
