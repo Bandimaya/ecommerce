@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect } from "react"
-import { ArrowRight, Sparkles, Users, BookOpen, Target, Zap, Globe, Rocket, ChevronRight, BarChart3, Clock } from "lucide-react"
+import { ArrowRight, Sparkles, Users, BookOpen, Rocket, ChevronRight, BarChart3, Globe } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
@@ -12,26 +12,50 @@ interface ProgramsSectionProps {
 }
 
 // --------------------------------------------------------------------------
+// Animation Variants for Staggered Entrance
+// --------------------------------------------------------------------------
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.15,
+      delayChildren: 0.2
+    }
+  }
+}
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      type: "spring" as const,
+      stiffness: 50,
+      damping: 15
+    }
+  }
+} as const
+
+// --------------------------------------------------------------------------
 // UPDATED: Compact Professional Card
 // --------------------------------------------------------------------------
-const ProgramCard = ({ program, index }: { program: any; index: number }) => {
+const ProgramCard = ({ program }: { program: any }) => {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      className="group flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 overflow-hidden"
+      variants={cardVariants}
+      className="group flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] hover:border-slate-300 transition-all duration-500 overflow-hidden"
     >
-      {/* 1. Compact Header Image Area */}
+      {/* 1. Header Image Area with Hover Zoom */}
       <div className="relative h-48 overflow-hidden">
-        <div className="absolute inset-0 bg-slate-900/10 group-hover:bg-transparent transition-colors z-10" />
+        <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors duration-500 z-10" />
         
-        {/* Floating Category Badge */}
+        {/* Floating Category Badge - Glassmorphism */}
         <div className="absolute top-3 left-3 z-20">
           <span className={cn(
-            "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-white/95 backdrop-blur-sm shadow-sm text-slate-700",
-            "border border-slate-100"
+            "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-md shadow-sm text-slate-700",
+            "border border-white/50 tracking-wide"
           )}>
             <program.icon className={cn("w-3.5 h-3.5", `text-${program.color}-600`)} />
             {program.subtitle}
@@ -39,18 +63,18 @@ const ProgramCard = ({ program, index }: { program: any; index: number }) => {
         </div>
 
         <motion.img
-          whileHover={{ scale: 1.05 }}
-          transition={{ duration: 0.6 }}
+          whileHover={{ scale: 1.08 }}
+          transition={{ duration: 0.7, ease: "easeOut" }}
           src={program.image}
           alt={program.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transform will-change-transform"
         />
       </div>
 
-      {/* 2. Content Body - High Density */}
+      {/* 2. Content Body */}
       <div className="flex flex-col flex-grow p-5">
         <div className="mb-4">
-          <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors mb-2 line-clamp-1">
+          <h3 className="text-lg md:text-xl font-bold text-slate-900 group-hover:text-slate-700 transition-colors mb-2 line-clamp-1">
             {program.title}
           </h3>
           <p className="text-sm text-slate-500 leading-relaxed line-clamp-2">
@@ -58,42 +82,43 @@ const ProgramCard = ({ program, index }: { program: any; index: number }) => {
           </p>
         </div>
 
-        {/* Features as Pills (Space saving) */}
+        {/* Features as Interactive Pills */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {program.features.slice(0, 3).map((feature: string, i: number) => ( // Show top 3 only
+          {program.features.slice(0, 3).map((feature: string, i: number) => (
             <span 
               key={i} 
-              className="px-2 py-1 rounded-md bg-slate-50 border border-slate-100 text-[11px] font-medium text-slate-600 tracking-wide"
+              className="px-2.5 py-1 rounded-md bg-slate-50 border border-slate-100 text-[11px] font-semibold text-slate-600 tracking-wide transition-colors group-hover:bg-slate-100 group-hover:border-slate-200"
             >
               {feature}
             </span>
           ))}
           {program.features.length > 3 && (
-            <span className="px-2 py-1 rounded-md bg-slate-50 border border-slate-100 text-[11px] font-medium text-slate-400">
+            <span className="px-2.5 py-1 rounded-md bg-slate-50 border border-slate-100 text-[11px] font-semibold text-slate-400 group-hover:bg-slate-100">
               +{program.features.length - 3}
             </span>
           )}
         </div>
 
-        {/* Bottom Actions - Pushed to bottom */}
+        {/* Bottom Actions */}
         <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-4">
-             {/* Compact Stats Row */}
-             <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                <Users className="w-3.5 h-3.5" />
+             {/* Stats with subtle Icons */}
+             <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md">
+                <Users className="w-3.5 h-3.5 text-slate-400" />
                 {program.stats[1].value}
              </div>
-             <div className="w-px h-3 bg-slate-200" />
-             <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
-                <BarChart3 className="w-3.5 h-3.5" />
+             <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md">
+                <BarChart3 className="w-3.5 h-3.5 text-slate-400" />
                 {program.stats[0].value}
              </div>
           </div>
 
           <Link href={`/programs/${program.id}`}>
+            {/* Button: Neutral Slate/Black on hover, avoiding primary colors */}
             <div className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300",
-              "bg-slate-50 text-slate-400 group-hover:bg-blue-600 group-hover:text-white"
+              "w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300",
+              "bg-white border border-slate-200 text-slate-400 shadow-sm",
+              "group-hover:bg-slate-900 group-hover:border-slate-900 group-hover:text-white group-hover:shadow-md group-hover:scale-105"
             )}>
               <ArrowRight className="w-4 h-4" />
             </div>
@@ -101,59 +126,6 @@ const ProgramCard = ({ program, index }: { program: any; index: number }) => {
         </div>
       </div>
     </motion.div>
-  )
-}
-
-// --------------------------------------------------------------------------
-// Reusable Section Header (Kept similar but refined spacing)
-// --------------------------------------------------------------------------
-const SectionHeader = ({
-  badge,
-  title,
-  description,
-  align = "center",
-  maxWidth = "4xl", // Reduced max width for tighter reading
-}: any) => {
-  const alignClasses: Record<string, string> = {
-    left: "text-left",
-    center: "text-center mx-auto",
-    right: "text-right ml-auto"
-  };
-
-  return (
-    <div className={cn("mb-12 md:mb-16 relative z-10", alignClasses[align])} style={{ maxWidth }}>
-      {/* Refined Badge */}
-      <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold uppercase tracking-wider mb-4"
-      >
-        <Sparkles className="w-3 h-3" />
-        {badge}
-      </motion.div>
-
-      {/* Tighter Typography */}
-      <motion.h2 
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 mb-4"
-      >
-        <span className="block text-slate-900">{title.part1}</span>
-        <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-violet-600">
-          {title.part2}
-        </span>
-      </motion.h2>
-
-      <motion.p 
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="text-slate-500 text-lg leading-relaxed"
-      >
-        {description}
-      </motion.p>
-    </div>
   )
 }
 
@@ -240,63 +212,87 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
 
       <div className="container px-4 sm:px-6 lg:px-8 mx-auto relative z-10">
         
-           {/* Subtitle */}
-          <motion.div
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            transition={{ duration: prefersReducedMotion ? 0 : 0.5 }}
-            viewport={{ once: true }}
-            className="flex justify-center items-center gap-3 mb-6"
-          >
+        {/* Title Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="flex flex-col items-center justify-center mb-12"
+        >
+          <div className="flex items-center gap-3 mb-4">
             <motion.div
               initial={{ width: 0 }}
-              whileInView={{ width: isMobile ? '24px' : '48px' }}
-              transition={{ duration: 0.5 }}
+              whileInView={{ width: isMobile ? '24px' : '40px' }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
               className="h-[2px]"
               style={{ backgroundColor: `var(--accent)` }}
             />
-
             <span
-              className={`${getResponsiveText.small} font-semibold uppercase tracking-widest`}
+              className={`${getResponsiveText.small} font-bold uppercase tracking-[0.2em]`}
               style={{ color: `var(--accent)` }}
             >
               Our Programs
             </span>
-
             <motion.div
               initial={{ width: 0 }}
-              whileInView={{ width: isMobile ? '24px' : '48px' }}
-              transition={{ duration: 0.5 }}
+              whileInView={{ width: isMobile ? '24px' : '40px' }}
+              transition={{ duration: 0.6, delay: 0.2 }}
               viewport={{ once: true }}
               className="h-[2px]"
               style={{ backgroundColor: `var(--accent)` }}
             />
-          </motion.div>
+          </div>
+          
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900 text-center max-w-2xl">
+            Empowering growth through <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-900">diverse learning paths.</span>
+          </h2>
+        </motion.div>
 
-        {/* Compact Grid - Changed to grid-cols-4 for large screens to emphasize 'Small & Pro' */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 max-w-7xl mx-auto">
-          {programs.map((program, index) => (
-            <ProgramCard key={program.id} program={program} index={index} />
+        {/* Staggered Grid */}
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 max-w-7xl mx-auto"
+        >
+          {programs.map((program) => (
+            <ProgramCard key={program.id} program={program} />
           ))}
-        </div>
+        </motion.div>
 
         {/* Minimalist Footer CTA */}
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-col md:flex-row items-center justify-between gap-6 max-w-5xl mx-auto bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-lg"
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 max-w-5xl mx-auto bg-white rounded-2xl p-8 border border-slate-200 shadow-xl shadow-slate-200/50"
         >
-          <div>
-            <h4 className="text-xl font-bold text-slate-900 mb-1">Not sure where to start?</h4>
-            <p className="text-slate-500 text-sm">Our academic counselors are here to guide you.</p>
+          {/* Subtle decoration */}
+          <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[100px] -z-0 pointer-events-none" />
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-4 h-4 text-slate-400" />
+              <h4 className="text-lg font-bold text-slate-900">Not sure where to start?</h4>
+            </div>
+            <p className="text-slate-500 text-sm max-w-md leading-relaxed">
+              Our academic counselors are here to help you find the perfect path for your goals. Get a personalized roadmap today.
+            </p>
           </div>
-          <div className="flex gap-3 w-full md:w-auto">
-            <Button variant="outline" className="flex-1 md:flex-none border-slate-200 hover:bg-slate-50">
+
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto relative z-10">
+            <Button 
+              variant="outline" 
+              className="flex-1 md:flex-none border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all"
+            >
               View All Programs
             </Button>
-            <Button className="flex-1 md:flex-none bg-slate-900 hover:bg-slate-800 text-white">
+            {/* Primary Action: Neutral Slate-900 Background */}
+            <Button className="flex-1 md:flex-none bg-slate-900 hover:bg-slate-800 text-white shadow-lg hover:shadow-slate-900/20 transition-all font-medium">
               Talk to an Expert <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>

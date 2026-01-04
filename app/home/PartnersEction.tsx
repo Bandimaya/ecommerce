@@ -22,28 +22,28 @@ const PARTNER_IMAGES = [
 
 export default function PartnersSection() {
     return (
-        // Added a custom shadow to the top and bottom of the entire section for separation
-        <section className="relative py-24 bg-white overflow-hidden z-10 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05),0_5px_15px_-5px_rgba(0,0,0,0.05)]">
+        // Theme-aware background and text colors
+        <section className="relative py-24 bg-background overflow-hidden z-10 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05),0_5px_15px_-5px_rgba(0,0,0,0.05)]">
 
             <BackgroundGrid
-                color="rgba(29, 28, 28, 0.05)"
+                color="var(--border)" // Use theme border color for grid lines
                 cellSize={40}
-                className="z-0"
+                className="z-0 opacity-40"
             />
 
-            {/* Decorative Top/Bottom Borders */}
-            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent z-10" />
-            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent z-10" />
+            {/* Decorative Top/Bottom Borders using theme border color */}
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent z-10" />
+            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-border to-transparent z-10" />
 
             {/* Content Container */}
             <div className="relative z-10 container mx-auto px-4 mb-16 text-center">
-                <span className="inline-block py-1 px-3 rounded-full bg-blue-50 text-blue-600 text-sm font-semibold tracking-wide mb-4">
+                <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary text-sm font-semibold tracking-wide mb-4 border border-primary/20">
                     OUR ECOSYSTEM
                 </span>
-                <h2 className="text-3xl md:text-5xl font-bold text-slate-900 mb-6 tracking-tight">
+                <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6 tracking-tight">
                     Trusted by Renowned Institutions
                 </h2>
-                <p className="max-w-2xl mx-auto text-lg text-slate-600">
+                <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
                     We are proud to power innovation labs and STEM learning initiatives for leading governments, tech giants, and educational bodies.
                 </p>
             </div>
@@ -51,9 +51,9 @@ export default function PartnersSection() {
             {/* Marquee Wrapper */}
             <div className="relative z-10 w-full">
 
-                {/* Gradient Fade Masks - Made slightly stronger to cover the new card shadows at edges */}
-                <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-r from-white via-white/95 to-transparent pointer-events-none" />
-                <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-l from-white via-white/95 to-transparent pointer-events-none" />
+                {/* Gradient Fade Masks - Using 'from-background' to match theme */}
+                <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-r from-background via-background/95 to-transparent pointer-events-none" />
+                <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-l from-background via-background/95 to-transparent pointer-events-none" />
 
                 {/* Scrolling Container */}
                 <div className="marquee-container flex overflow-hidden select-none py-4">
@@ -63,8 +63,8 @@ export default function PartnersSection() {
                         {PARTNER_IMAGES.map((src, idx) => (
                             <div
                                 key={`p1-${idx}`}
-                                // Added `shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)]` for a subtle base shadow
-                                className="group relative flex-shrink-0 flex items-center justify-center w-[160px] md:w-[200px] h-[100px] bg-slate-50/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-blue-900/10 hover:-translate-y-1 hover:border-blue-200"
+                                // Theme-aware card styles: bg-card, border-border, hover effects
+                                className="group relative flex-shrink-0 flex items-center justify-center w-[160px] md:w-[200px] h-[100px] bg-card/90 backdrop-blur-sm rounded-xl border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
                             >
                                 <div className="relative w-2/3 h-2/3">
                                     <Image
@@ -72,7 +72,8 @@ export default function PartnersSection() {
                                         alt={`Partner Logo ${idx + 1}`}
                                         fill
                                         sizes="(max-width: 768px) 150px, 200px"
-                                        className="object-contain filter grayscale opacity-60 transition-all duration-300 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110"
+                                        // Removed grayscale, added opacity hover effect
+                                        className="object-contain opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110"
                                     />
                                 </div>
                             </div>
@@ -82,8 +83,7 @@ export default function PartnersSection() {
                         {PARTNER_IMAGES.map((src, idx) => (
                             <div
                                 key={`p2-${idx}`}
-                                // Added the same shadow class here
-                                className="group relative flex-shrink-0 flex items-center justify-center w-[160px] md:w-[200px] h-[100px] bg-slate-50/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.08)] transition-all duration-300 hover:bg-white hover:shadow-xl hover:shadow-blue-900/10 hover:-translate-y-1 hover:border-blue-200"
+                                className="group relative flex-shrink-0 flex items-center justify-center w-[160px] md:w-[200px] h-[100px] bg-card/90 backdrop-blur-sm rounded-xl border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
                             >
                                 <div className="relative w-2/3 h-2/3">
                                     <Image
@@ -91,7 +91,7 @@ export default function PartnersSection() {
                                         alt={`Partner Logo ${idx + 1}`}
                                         fill
                                         sizes="(max-width: 768px) 150px, 200px"
-                                        className="object-contain filter grayscale opacity-60 transition-all duration-300 group-hover:grayscale-0 group-hover:opacity-100 group-hover:scale-110"
+                                        className="object-contain opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110"
                                     />
                                 </div>
                             </div>

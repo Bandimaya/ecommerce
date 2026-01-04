@@ -2,9 +2,9 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus, HelpCircle } from 'lucide-react';
+import { Plus, Minus, HelpCircle, ChevronDown } from 'lucide-react';
 
-// --- Data ---
+// --- Data (Preserved) ---
 const FAQ_DATA = [
   {
     question: 'Why is it important for kids to learn Robotics?',
@@ -33,7 +33,6 @@ const FAQ_DATA = [
 ];
 
 export default function FaqSection() {
-  // Track which item is open (null = all closed)
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
   const toggleIndex = (index: number) => {
@@ -41,27 +40,32 @@ export default function FaqSection() {
   };
 
   return (
-    <section className="py-16 bg-white relative overflow-hidden">
-      {/* Background Decor (Optional) */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-30">
-        <div className="absolute top-[-10%] right-[-5%] w-96 h-96 bg-orange-100 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-[-10%] left-[-5%] w-72 h-72 bg-indigo-50 rounded-full blur-3xl"></div>
+    <section className="py-24 bg-[#fcfcfd] relative overflow-hidden">
+      {/* Refined Background Decor */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-orange-100/40 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-[-10%] w-[400px] h-[400px] bg-blue-100/30 rounded-full blur-[100px]" />
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
+      <div className="max-w-3xl mx-auto px-6 relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-12 space-y-4">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-600 text-sm font-semibold uppercase tracking-wide">
-            <HelpCircle className="w-4 h-4" />
-            <span>Got Questions?</span>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16 space-y-4"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white shadow-sm border border-slate-100 text-orange-600 text-[10px] font-black uppercase tracking-[0.2em]">
+            <HelpCircle className="w-3.5 h-3.5" />
+            <span>Support Center</span>
           </div>
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Frequently Asked Questions
+          <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
+            Common Inquiries
           </h2>
-          <p className="text-lg text-gray-500 max-w-2xl mx-auto">
-            Everything you need to know about our courses, kits, and curriculum.
+          <p className="text-lg text-slate-500 font-medium max-w-xl mx-auto">
+            Find clarity on our pedagogical approach, STEM kits, and the future of your child&apos;s digital literacy.
           </p>
-        </div>
+        </motion.div>
 
         {/* FAQ List */}
         <div className="space-y-4">
@@ -79,52 +83,48 @@ export default function FaqSection() {
   );
 }
 
-// --- Sub Component: Individual FAQ Item ---
 function FaqItem({ item, isOpen, onClick }: { item: any, isOpen: boolean, onClick: () => void }) {
   return (
-    <div 
-      className={`border rounded-xl transition-all duration-300 overflow-hidden
+    <motion.div 
+      layout
+      className={`group rounded-3xl transition-all duration-500 border
       ${isOpen 
-        ? "border-orange-200 bg-orange-50/30 shadow-lg shadow-orange-500/5" 
-        : "border-gray-200 bg-white hover:border-orange-200 hover:shadow-md"
+        ? "border-orange-200 bg-white shadow-[0_20px_40px_rgba(249,115,22,0.08)]" 
+        : "border-slate-100 bg-white/50 hover:bg-white hover:border-orange-100 hover:shadow-xl hover:shadow-slate-200/50"
       }`}
     >
       <button
         onClick={onClick}
-        className="w-full flex items-center justify-between p-5 text-left focus:outline-none"
+        className="w-full flex items-center justify-between p-6 md:p-8 text-left outline-none"
       >
-        <span className={`text-lg font-semibold pr-8 transition-colors ${isOpen ? 'text-orange-900' : 'text-gray-800'}`}>
+        <span className={`text-lg md:text-xl font-bold pr-6 transition-colors duration-300 ${isOpen ? 'text-slate-900' : 'text-slate-700'}`}>
           {item.question}
         </span>
         
-        {/* Animated Icon Container */}
-        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-300 
-          ${isOpen ? 'bg-orange-500 text-white' : 'bg-gray-100 text-gray-500 group-hover:bg-orange-100 group-hover:text-orange-600'}`}>
-          {isOpen ? (
-            <Minus className="w-4 h-4" />
-          ) : (
-            <Plus className="w-4 h-4" />
-          )}
+        {/* Animated Icon Wrapper */}
+        <div className={`flex-shrink-0 w-10 h-10 rounded-2xl flex items-center justify-center transition-all duration-500 
+          ${isOpen ? 'bg-orange-500 text-white rotate-180 shadow-lg shadow-orange-200' : 'bg-slate-100 text-slate-400 group-hover:bg-orange-50 group-hover:text-orange-500'}`}>
+          <ChevronDown className={`w-5 h-5 transition-transform duration-500 ${isOpen ? 'stroke-[3]' : 'stroke-[2]'}`} />
         </div>
       </button>
 
-      {/* Accordion Content */}
-      <AnimatePresence>
+      <AnimatePresence initial={false}>
         {isOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
+            transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
           >
-            <div className="px-5 pb-5 pt-0">
-              <p className="text-gray-600 leading-relaxed">
+            <div className="px-8 pb-8 pt-0 overflow-hidden">
+              <div className="h-px w-full bg-slate-50 mb-6" />
+              <p className="text-slate-500 leading-relaxed text-base md:text-lg font-medium">
                 {item.answer}
               </p>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 }

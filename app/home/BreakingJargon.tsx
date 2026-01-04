@@ -191,7 +191,6 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
 
   return (
     // eslint-disable-next-line react-hooks/rules-of-hooks
-
     <section className="relative w-full py-20 overflow-hidden bg-slate-50">
 
       {/* Background Ambience */}
@@ -221,11 +220,11 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
               whileInView={{ width: '48px' }}
               transition={{ duration: 0.5 }}
               className="h-[2px]"
-              style={{ backgroundColor: `var(--accent)` }}
+              style={{ backgroundColor: `var(--accent, #3b82f6)` }}
             />
             <span
               className="text-xs font-bold uppercase tracking-widest"
-              style={{ color: `var(--accent)` }}
+              style={{ color: `var(--accent, #3b82f6)` }}
             >
               Interactive Jargon Buster
             </span>
@@ -234,9 +233,44 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
               whileInView={{ width: '48px' }}
               transition={{ duration: 0.5 }}
               className="h-[2px]"
-              style={{ backgroundColor: `var(--accent)` }}
+              style={{ backgroundColor: `var(--accent, #3b82f6)` }}
             />
           </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            viewport={{ once: true }}
+            className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight"
+          >
+            Your Guide to{' '}
+            {/* Dynamic Text Coloring based on Active Slide */}
+            <motion.span
+              animate={{ color: JARGON_ITEMS[activeIndex].accentColor }}
+              transition={{ duration: 0.5 }}
+            >
+              AI, Robotics Kits & Coding
+            </motion.span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            viewport={{ once: true }}
+            className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed"
+          >
+            Easy explanations of common terms kickstart your child’s{' '}
+            {/* Dynamic Text Coloring based on Active Slide */}
+            <motion.span
+              animate={{ color: JARGON_ITEMS[activeIndex].accentColor }}
+              transition={{ duration: 0.5 }}
+              className="font-semibold"
+            >
+              innovation journey.
+            </motion.span>
+          </motion.p>
         </div>
 
         {/* --- DESKTOP 3D CAROUSEL --- */}
@@ -385,21 +419,25 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
           </div>
         )}
 
-        {/* Navigation Dots */}
-        <div className="flex justify-center gap-3 mt-12">
+        {/* --- UPDATED NAVIGATION DOTS --- */}
+        <div className="flex justify-center gap-3 mt-12 items-center">
           {JARGON_ITEMS.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              className="group relative flex items-center justify-center w-8 h-8"
+              // Removed the outer 'w-8 h-8' container and absolute positioning
+              // to remove the glow/halo effect. Added padding for clickability.
+              className="group flex items-center justify-center p-1 focus:outline-none"
             >
               <div
-                className={`absolute inset-0 rounded-full opacity-20 transition-all duration-300 ${activeIndex === idx ? 'scale-100' : 'scale-0'}`}
-                style={{ backgroundColor: JARGON_ITEMS[activeIndex].accentColor }}
-              />
-              <div
-                className={`h-2 rounded-full transition-all duration-300 ${activeIndex === idx ? 'w-8' : 'w-2 bg-slate-300'}`}
-                style={{ backgroundColor: activeIndex === idx ? JARGON_ITEMS[activeIndex].accentColor : undefined }}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  activeIndex === idx 
+                    ? 'w-8' // Active state: Wide "Pill"
+                    : 'w-2 bg-slate-300 hover:bg-slate-400' // Inactive state: Small "Dot"
+                }`}
+                style={{ 
+                  backgroundColor: activeIndex === idx ? JARGON_ITEMS[activeIndex].accentColor : undefined 
+                }}
               />
             </button>
           ))}

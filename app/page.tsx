@@ -17,6 +17,13 @@ import CircuitBackground from "@/components/background/CircuitBackground"
 import AwardsSection from "./home/AwardsSection"
 import PartnersSection from "./home/PartnersEction"
 import NewsroomSection from "./home/NewsroomSection"
+import RequestCallBanner from "./home/RequestCallBanner"
+import CompetitionSection from "./home/CompetitionWidget"
+import LeagueResults from "./home/LeagueResults"
+import StarsOfStempark from "./home/StarsOfStempark"
+import WhyAvishkaar from "./home/WhyStempark"
+import WhyStempark from "./home/WhyStempark"
+
 
 const Index = () => {
   const { theme } = useTheme()
@@ -51,12 +58,26 @@ const Index = () => {
       
       {/* Content container with higher z-index but transparent bg */}
       <div className="relative z-10 min-h-screen">
+
         <HeroSection
           getCSSVar={getCSSVar}
           handleWatchVideo={() => setShowVideoModal(true)}
         />
 
-        <TrustBadges getCSSVar={getCSSVar} />
+        <BreakingJargon />
+
+        {/* <TrustBadges getCSSVar={getCSSVar} /> */}
+        <RequestCallBanner />
+
+        <PreferLearn />
+
+        <CompetitionSection />
+
+        <LeagueResults />
+
+        <StarsOfStempark />
+
+        <WhyStempark />
 
         <FeaturedProducts
           getCSSVar={getCSSVar}
@@ -67,21 +88,17 @@ const Index = () => {
 
         <ProgramsSection getCSSVar={getCSSVar} />
 
-        <BreakingJargon />
-
-        <PreferLearn />
-
         <VideoModal
           show={showVideoModal}
           onClose={() => setShowVideoModal(false)}
           getCSSVar={getCSSVar}
         />
 
-        <NewsletterSection getCSSVar={getCSSVar} />
-
         <AwardsSection />
         <PartnersSection />
         <NewsroomSection />
+
+        <NewsletterSection getCSSVar={getCSSVar} />
       </div>
     </div>
   )

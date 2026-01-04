@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, ShoppingCart, Sparkles } from "lucide-react"
+import { Plus, ShoppingCart, Sparkles, Play } from "lucide-react"
 import { Button } from "./ui/button"
 import { toast } from "@/hooks/use-toast"
 import { useCart } from "@/contexts/CartContext"
@@ -11,29 +11,26 @@ import { useRouter } from "next/navigation"
 import { motion, useReducedMotion } from "framer-motion"
 import { useState } from "react"
 
-
-
 export default function ProductCard({ product, index = 0 }: any) {
   const { addToCart } = useCart()
   const navigate = useRouter()
   const { currencyCode } = useSettings()
   const [isHovering, setIsHovering] = useState(false)
-  // Respect user reduced-motion preference and use faster, transform-based animations for smoothness
   const prefersReducedMotion = useReducedMotion()
   const hasVariants = product.variants && product.variants.length > 0
 
-
-  // 1. Determine Display Media
+  // 1. Determine Display Media (Logic Unchanged)
   const displayMedia = (product.media && product.media.length > 0)
     ? product.media[0]
     : (product.images && product.images.length > 0) ? product.images[0] : null
 
   const isVideo = displayMedia?.type === 'video'
+  // Preserving your exact URL logic
   const mediaUrl = 'http://49.50.83.49' + (displayMedia?.url
     ? `/${displayMedia.url}`
     : '/placeholder.png')
 
-  // 2. Price Logic
+  // 2. Price Logic (Logic Unchanged)
   const getPriceData = (pricingArray: any[]) => {
     if (!pricingArray) return null
     return pricingArray.find((p: any) => p.currency === currencyCode) || pricingArray[0]
@@ -54,7 +51,12 @@ export default function ProductCard({ product, index = 0 }: any) {
   const price = currentPriceData?.salePrice || currentPriceData?.originalPrice || 0
   const originalPrice = currentPriceData?.originalPrice || 0
   const currencySymbol = CURRENCY_OPTIONS.find(c => c.code === currencyCode)?.symbol || "$"
+  
+  const discount = originalPrice > price
+    ? Math.round(((originalPrice - price) / originalPrice) * 100)
+    : 0
 
+  // 3. Handlers (Logic Unchanged)
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
@@ -81,314 +83,193 @@ export default function ProductCard({ product, index = 0 }: any) {
     })
   }
 
-  const discount = originalPrice > price
-    ? Math.round(((originalPrice - price) / originalPrice) * 100)
-    : 0
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -8 }}
       viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: prefersReducedMotion ? 0 : 0.3, delay: index * 0.05 }}
-      className="group"
+      transition={{ duration: 0.4, delay: index * 0.05 }}
+      className="relative h-[420px] w-full group cursor-pointer perspective-1000"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      <Link href={`/product/${product.slug}`} className="block">
-        <div
-          className="bg-[var(--card-bg)] rounded-[2rem] overflow-hidden border-[1.5px] border-[var(--card-border)] 
-                     hover:shadow-[0_25px_50px_-12px_var(--card-shadow)] transition-all duration-300"
+      <Link href={`/product/${product.slug}`} className="block w-full h-full">
+        
+        {/* --- LAYER 1: TEXT CARD BASE (Sits Behind) --- */}
+        <motion.div
+          className="absolute inset-0 top-8 rounded-[2rem] border overflow-hidden shadow-sm"
           style={{
-            '--card-bg': 'hsl(var(--card))',
-            '--card-border': 'hsl(var(--border))',
-            '--card-shadow': 'hsl(var(--primary) / 0.1)',
-            '--card-hover-shadow': 'hsl(var(--primary) / 0.2)',
-          } as React.CSSProperties}
+            backgroundColor: 'hsl(var(--card))',
+            borderColor: 'hsl(var(--border))',
+          }}
+          variants={{
+            rest: { y: 0, boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" },
+            hover: { 
+              y: -4, 
+              boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+            }
+          }}
+          animate={isHovering ? "hover" : "rest"}
         >
-          {/* Media Container with enhanced animations */}
-          <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-[var(--media-bg-from)] to-[var(--media-bg-to)]">
-            <style jsx>{`
-              .media-container {
-                --media-bg-from: hsl(var(--muted));
-                --media-bg-to: hsl(var(--muted) / 0.5);
-              }
-            `}</style>
+          {/* Content Container */}
+          <div className="absolute inset-0 flex flex-col justify-end p-6 z-10">
+            <motion.div
+              className="mt-32 space-y-2"
+              animate={isHovering ? { y: -5 } : { y: 10 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            >
+              {/* Category */}
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[10px] font-black uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
+                  {product.categories?.[0]?.title || "Collection"}
+                </span>
+                
+                {/* Discount Badge (Moved here for better layout balance) */}
+                {discount > 0 && (
+                   <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+                     -{discount}%
+                   </span>
+                )}
+              </div>
 
-            {/* Animated gradient overlay */}
-            {isHovering && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent z-10"
-              />
-            )}
+              {/* Title */}
+              <h3 className="text-lg font-bold line-clamp-1" style={{ color: 'hsl(var(--foreground))' }}>
+                {product.name}
+              </h3>
+              
+              {/* Price & Action Row */}
+              <div className="flex items-end justify-between pt-2 border-t border-[hsl(var(--border))] mt-3">
+                <div className="flex flex-col pt-3">
+                   {/* Original Price */}
+                  {discount > 0 && (
+                    <span className="text-xs text-[hsl(var(--muted-foreground))] line-through decoration-red-400/50">
+                      {currencySymbol}{originalPrice.toFixed(2)}
+                    </span>
+                  )}
+                  {/* Current Price */}
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-xs font-bold text-[hsl(var(--muted-foreground))]">{currencySymbol}</span>
+                    <span className="text-xl font-black text-[hsl(var(--primary))]">
+                      {price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
 
-            {/* Media content */}
+                {/* --- ADD TO CART BUTTON (Integrated into layout) --- */}
+                <motion.div
+                   onClick={handleAddToCart} // Keep functionality
+                   whileHover={{ scale: 1.1 }}
+                   whileTap={{ scale: 0.9 }}
+                >
+                  <Button
+                    size="icon"
+                    className="rounded-full w-10 h-10 shadow-lg relative overflow-hidden group/btn"
+                    style={{
+                      backgroundColor: 'hsl(var(--primary))',
+                      color: 'hsl(var(--primary-foreground))'
+                    }}
+                  >
+                     <motion.div 
+                        className="absolute inset-0 bg-white/20"
+                        initial={{ x: "-100%" }}
+                        whileHover={{ x: "100%" }}
+                        transition={{ duration: 0.5 }}
+                     />
+                    {hasVariants ? (
+                      <Plus className="w-5 h-5" />
+                    ) : (
+                      <ShoppingCart className="w-4 h-4" />
+                    )}
+                  </Button>
+                </motion.div>
+              </div>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        {/* --- LAYER 2: FLOATING IMAGE CARD (Sits on Top) --- */}
+        <motion.div
+          className="absolute z-20 overflow-hidden shadow-md bg-white"
+          initial="rest"
+          animate={isHovering ? "hover" : "rest"}
+          variants={{
+            rest: {
+              top: 0, left: 0,
+              width: "100%", height: "65%", // Initial large image
+              borderRadius: "2rem", 
+              y: 0, rotate: 0
+            },
+            hover: {
+              top: -20, left: "50%", x: "-50%",
+              width: "85%", height: "55%", // Shrinks and floats
+              borderRadius: "1.5rem", 
+              y: 0, rotate: 2,
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" 
+            }
+          }}
+          transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        >
+          <div className="relative w-full h-full bg-[hsl(var(--muted))]">
+            
+            {/* Gradient Overlay */}
+            <motion.div
+              className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10 pointer-events-none"
+              animate={{ opacity: isHovering ? 0 : 1 }}
+            />
+
+            {/* Media Content */}
             {isVideo ? (
-              <motion.video
+              <>
+              <video
                 src={mediaUrl}
-                className="w-full h-full object-cover will-change-transform"
+                className="w-full h-full object-cover"
                 muted
                 loop
+                playsInline
                 onMouseEnter={(e) => e.currentTarget.play()}
                 onMouseLeave={(e) => {
                   e.currentTarget.pause()
                   e.currentTarget.currentTime = 0
                 }}
-                animate={isHovering ? { scale: 1.1 } : { scale: 1 }}
-                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: "easeInOut" }}
               />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none opacity-80">
+                 <div className="bg-white/30 backdrop-blur-sm p-3 rounded-full border border-white/50">
+                    <Play className="w-5 h-5 text-white fill-current" />
+                 </div>
+              </div>
+              </>
             ) : (
-              <motion.img
+              <img
                 src={mediaUrl}
                 alt={product.name}
-                className="w-full h-full object-cover will-change-transform"
-                animate={isHovering ? { scale: 1.1 } : { scale: 1 }}
-                transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.2, ease: "easeInOut" }}
+                className="w-full h-full object-cover"
               />
             )}
 
-            {/* Floating badges with enhanced animations */}
-            <div className="absolute top-4 left-4 flex flex-col gap-2">
-              {discount > 0 && (
-                <motion.span
-                  initial={{ scale: 0, rotate: -180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
-                  className="relative overflow-hidden bg-gradient-to-r from-[var(--discount-from)] to-[var(--discount-to)] 
-                           text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-tighter 
-                           shadow-lg shadow-[var(--discount-shadow)]"
-                  style={{
-                    '--discount-from': 'hsl(var(--destructive))',
-                    '--discount-to': 'hsl(var(--destructive) / 0.8)',
-                    '--discount-shadow': 'hsl(var(--destructive) / 0.3)',
-                  } as React.CSSProperties}
-                >
-                  <span className="relative z-10">-{discount}% OFF</span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 will-change-transform"
-                    initial={{ x: "-100%" }}
-                    animate={{ x: "100%" }}
-                    transition={{ repeat: prefersReducedMotion ? 0 : Infinity, duration: prefersReducedMotion ? 0 : 1.5, delay: 0.5 }}
-                  />
-                </motion.span>
-              )}
-
+            {/* Badges (Variants / Shipping) */}
+            <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
               {hasVariants && (
                 <motion.span
-                  initial={{ scale: 0, rotate: 180 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
-                  className="bg-gradient-to-r from-[var(--variant-from)] to-[var(--variant-to)] 
-                           text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase 
-                           tracking-tighter shadow-lg shadow-[var(--variant-shadow)]"
-                  style={{
-                    '--variant-from': 'hsl(var(--indigo-600))',
-                    '--variant-to': 'hsl(var(--indigo-400))',
-                    '--variant-shadow': 'hsl(var(--indigo) / 0.3)',
-                  } as React.CSSProperties}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="bg-black/70 backdrop-blur-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full border border-white/20"
                 >
-                  Multiple options
+                  Options
                 </motion.span>
               )}
             </div>
 
-            {/* Add to cart button with enhanced animation */}
-            <motion.div
-              className="absolute bottom-4 right-4 z-20"
-              initial={{ y: 20, opacity: 0, scale: 0.8 }}
-              animate={isHovering ? { y: 0, opacity: 1, scale: 1 } : { y: 20, opacity: 0, scale: 0.8 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <motion.div
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                <Button
-                  onClick={handleAddToCart}
-                  size="icon"
-                  className="relative overflow-hidden rounded-2xl w-14 h-14 shadow-2xl 
-                           bg-gradient-to-br from-[var(--btn-from)] to-[var(--btn-to)] 
-                           hover:shadow-[0_0_30px_var(--btn-glow)]"
-                  style={{
-                    '--btn-from': 'hsl(var(--primary))',
-                    '--btn-to': 'hsl(var(--primary) / 0.9)',
-                    '--btn-glow': 'hsl(var(--primary) / 0.4)',
-                  } as React.CSSProperties}
-                >
-                  {/* Shine effect */}
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/30 to-white/0 will-change-transform"
-                    initial={{ x: "-100%" }}
-                    animate={{ x: "100%" }}
-                    transition={{ repeat: prefersReducedMotion ? 0 : Infinity, duration: prefersReducedMotion ? 0 : 2, delay: 0.3 }}
-                  />
-
-                  {/* Icon */}
-                  {hasVariants ? (
-                    <Plus className="w-6 h-6 relative z-10" />
-                  ) : (
-                    <ShoppingCart className="w-6 h-6 relative z-10" />
-                  )}
-
-                  {/* Pulsing glow effect */}
-                  {isHovering && (
-                    <motion.div
-                      className="absolute inset-0 rounded-2xl border-2 border-white/30 will-change-transform"
-                      initial={{ scale: 1, opacity: 0.5 }}
-                      animate={{ scale: 1.5, opacity: 0 }}
-                      transition={{ repeat: prefersReducedMotion ? 0 : Infinity, duration: prefersReducedMotion ? 0 : 1.5 }}
-                    />
-                  )}
-                </Button>
-              </motion.div>
-            </motion.div>
-
-            {/* Floating particles effect on hover */}
-            {isHovering && (
-              <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                {[...Array(3)].map((_, i) => {
-                  // Deterministic spread so server/client match
-                  const left = `${(i * 37) % 100}%`
-                  return (
-                    <motion.div
-                      key={`hover-particle-${i}`}
-                      className="absolute w-1 h-1 bg-white rounded-full will-change-transform"
-                      initial={{
-                        x: left,
-                        y: '100%',
-                        opacity: 0
-                      }}
-                      animate={{
-                        y: '-100%',
-                        opacity: [0, 1, 0]
-                      }}
-                      transition={{
-                        duration: prefersReducedMotion ? 0.8 : 1.2,
-                        delay: i * 0.2,
-                        repeat: prefersReducedMotion ? 0 : Infinity,
-                        repeatDelay: prefersReducedMotion ? 0 : 2,
-                      }}
-                    />
-                  )
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Content Section with enhanced animations */}
-          <motion.div
-            className="p-6"
-            animate={isHovering ? { backgroundColor: 'hsl(var(--card) / 0.98)' } : {}}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Category label */}
-            <motion.p
-              className="text-[10px] font-black text-[var(--category-color)] uppercase tracking-widest mb-1"
-              style={{ '--category-color': 'hsl(var(--muted-foreground))' } as React.CSSProperties}
-              animate={isHovering ? { x: 5 } : { x: 0 }}
-              transition={{ type: "spring", stiffness: 300 }}
-            >
-              {product.categories?.[0]?.title || "STEM Kit"}
-            </motion.p>
-
-            {/* Product name */}
-            <motion.h3
-              className="font-bold text-[var(--title-color)] mb-2 line-clamp-1"
-              style={{ '--title-color': 'hsl(var(--foreground))' } as React.CSSProperties}
-              animate={isHovering ? { color: 'hsl(var(--primary))' } : {}}
-              transition={{ duration: 0.2 }}
-            >
-              {product.name}
-            </motion.h3>
-
-            {/* Price and shipping info */}
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                {/* Price from label */}
-                {hasVariants && (
-                  <motion.span
-                    className="text-xs font-medium text-[var(--from-text)] mr-1 uppercase"
-                    style={{ '--from-text': 'hsl(var(--muted-foreground))' } as React.CSSProperties}
-                    animate={isHovering ? { opacity: 0.8 } : { opacity: 0.6 }}
-                  >
-                    From
-                  </motion.span>
-                )}
-
-                {/* Price with animation */}
-                <motion.div
-                  className="flex items-baseline gap-1"
-                  animate={isHovering ? { scale: 1.05 } : { scale: 1 }}
-                  transition={{ type: "spring", stiffness: 200 }}
-                >
-                  <span
-                    className="text-[10px] font-bold text-[var(--currency-color)] mr-0.5"
-                    style={{ '--currency-color': 'hsl(var(--muted-foreground))' } as React.CSSProperties}
-                  >
-                    {currencySymbol}
-                  </span>
-                  <span className="text-2xl font-black text-[var(--price-color)]">
-                    {price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-
-                  {/* Original price with strike */}
-                  {discount > 0 && (
-                    <motion.span
-                      className="text-sm text-[var(--original-price)] line-through decoration-[var(--strike-color)] ml-2"
-                      style={{
-                        '--original-price': 'hsl(var(--muted-foreground))',
-                        '--strike-color': 'hsl(var(--destructive) / 0.5)',
-                      } as React.CSSProperties}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.1 }}
-                    >
-                      {currencySymbol}{originalPrice.toFixed(2)}
-                    </motion.span>
-                  )}
-                </motion.div>
-              </div>
-
-              {/* Shipping info with enhanced animation */}
-              <motion.div
-                className="text-right"
-                animate={isHovering ? { x: -5 } : { x: 0 }}
-                transition={{ type: "spring", stiffness: 200 }}
-              >
-                <p className="text-[8px] font-black text-[var(--shipping-label)] uppercase"
-                  style={{ '--shipping-label': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
-                  Ships to
-                </p>
-                <motion.div
-                  className="flex items-center gap-1 justify-end"
-                  whileHover={{ scale: 1.1 }}
-                >
-                  <Sparkles className="w-3 h-3 text-[var(--currency-icon)]"
-                    style={{ '--currency-icon': 'hsl(var(--emerald-500))' } as React.CSSProperties} />
-                  <p className="text-[10px] font-bold text-[var(--currency-code)] uppercase tracking-tighter"
-                    style={{ '--currency-code': 'hsl(var(--emerald-600))' } as React.CSSProperties}>
-                    {currencyCode}
-                  </p>
-                </motion.div>
-              </motion.div>
+            {/* Shipping Info (Moved to top right of image) */}
+            <div className="absolute top-4 right-4 z-20">
+               <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full shadow-sm">
+                  <Sparkles className="w-3 h-3 text-emerald-600" />
+                  <span className="text-[10px] font-black text-emerald-700">{currencyCode}</span>
+               </div>
             </div>
-          </motion.div>
 
-          {/* Border glow effect on hover */}
-          <motion.div
-            className="absolute inset-0 rounded-[2rem] pointer-events-none"
-            initial={{ opacity: 0 }}
-            animate={isHovering ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            <div className="absolute inset-0 rounded-[2rem] border-2 border-[var(--glow-color)] shadow-[0_0_30px_var(--glow-color)]"
-              style={{ '--glow-color': 'hsl(var(--primary) / 0.2)' } as React.CSSProperties} />
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
+
       </Link>
     </motion.div>
   )

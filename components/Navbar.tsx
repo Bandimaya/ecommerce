@@ -95,6 +95,13 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
+  // Prefetch important routes when the mobile menu opens to reduce perceived navigation delay
+  useEffect(() => {
+    if (isOpen) {
+      ["/", "/shop", "/contact", "/courses"].forEach((p) => router.prefetch(p));
+    }
+  }, [isOpen, router]);
+
 
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
@@ -124,7 +131,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     { label: "Home", path: "/", icon: <Home className="w-5 h-5" /> },
     { label: "Shop", path: "/shop", icon: <Store className="w-5 h-5" /> },
     {
-      label: "Cources",
+      label: "Courses",
       path: "/courses",
       icon: <Layers className="w-5 h-5" />,
     },
@@ -186,6 +193,23 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 <Link
                   key={link.path}
                   href={link.path}
+                  prefetch={true}
+                  onMouseEnter={() => router.prefetch(link.path)}
+                  onFocus={() => router.prefetch(link.path)}
+                  onTouchStart={() => router.prefetch(link.path)}
+                  onPointerDown={(e) => {
+                    // If user used a modifier key or non-left button, let the browser handle it (open in new tab/window)
+                    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                    // Otherwise start navigation immediately to reduce perceived delay
+                    e.preventDefault();
+                    router.push(link.path);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      router.push(link.path);
+                    }
+                  }}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
                     ? "bg-primary text-white shadow-sm"
                     : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
@@ -358,6 +382,25 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 <Link
                   key={link.path}
                   href={link.path}
+                  prefetch={true}
+                  onMouseEnter={() => router.prefetch(link.path)}
+                  onFocus={() => router.prefetch(link.path)}
+                  onTouchStart={() => router.prefetch(link.path)}
+                  onPointerDown={(e) => {
+                    // If user used a modifier key or non-left button, let the browser handle it
+                    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                    // Close menu then navigate immediately for snappy feel
+                    e.preventDefault();
+                    setIsOpen(false);
+                    router.push(link.path);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setIsOpen(false);
+                      router.push(link.path);
+                    }
+                  }}
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${isActive(link.path)
                     ? "bg-primary text-white shadow-md"

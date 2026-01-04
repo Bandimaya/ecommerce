@@ -63,7 +63,8 @@ export default function AwardsSection() {
                 <img
                   src={src}
                   alt={`Award recognition ${idx + 1}`}
-                  className="w-full h-full object-contain filter grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 mix-blend-multiply"
+                  // Removed 'filter grayscale' and 'opacity-80' to maintain full color
+                  className="w-full h-full object-contain mix-blend-multiply transition-all duration-500"
                 />
               </div>
             ))}
@@ -77,7 +78,8 @@ export default function AwardsSection() {
                 <img
                   src={src}
                   alt={`Award recognition ${idx + 1}`}
-                  className="w-full h-full object-contain filter grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500 mix-blend-multiply"
+                  // Removed 'filter grayscale' and 'opacity-80' to maintain full color
+                  className="w-full h-full object-contain mix-blend-multiply transition-all duration-500"
                 />
               </div>
             ))}
