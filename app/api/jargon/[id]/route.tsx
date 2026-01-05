@@ -9,12 +9,13 @@ import { deleteFile, saveFile } from "../../programs/route";
  */
 export async function GET(
     _: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     await connectDB();
 
     try {
-        const jargon = await Jargon.findById(params.id);
+        const {id} = await params;
+        const jargon = await Jargon.findById(id);
 
         if (!jargon) {
             return NextResponse.json(
@@ -110,12 +111,13 @@ export async function PUT(
  */
 export async function DELETE(
     _: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     await connectDB();
 
     try {
-        const deleted = await Jargon.findByIdAndDelete(params.id);
+        const {id} = (await params);
+        const deleted = await Jargon.findByIdAndDelete(id);
 
         if (!deleted) {
             return NextResponse.json(
