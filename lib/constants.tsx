@@ -16,3 +16,5 @@ export const countryToCurrency: Record<string, string> = {
   BH: "BHD", // Bahrain
   AE: "AED", // UAE
 };
+
+export const IMAGE_URL = process.env.IMAGES_BASE_URL;

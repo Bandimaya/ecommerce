@@ -1,7 +1,7 @@
 "use client"
 import { useEffect, useState } from "react";
 import { toast } from "@/hooks/use-toast";
-import { apiUrl, CURRENCY_OPTIONS } from "@/lib/constants";
+import { apiUrl, CURRENCY_OPTIONS, IMAGE_URL } from "@/lib/constants";
 import { t } from "@/lib/i18n";
 import { apiFetch } from "@/lib/axios";
 
@@ -307,7 +307,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                           </div>
                         ) : (
                           <img
-                            src={`${'http://49.50.83.49' + m.url}`}
+                            src={`${IMAGE_URL + m.url}`}
                             alt="Saved"
                             className="w-full h-full object-cover rounded-lg border border-[var(--neutral-200)] shadow-sm"
                           />
@@ -1241,7 +1241,7 @@ export default function Products() {
                   </div>
                 ) : (
                   <img
-                    src={m.url.startsWith('http') || m.url.startsWith('blob') ? 'http://49.50.83.49' + m.url : `${'http://49.50.83.49' + m.url}`}
+                    src={m.url.startsWith('http') || m.url.startsWith('blob') ? IMAGE_URL + m.url : `${IMAGE_URL + m.url}`}
                     alt={m.alt || "Product"}
                     className="w-full h-full object-cover rounded-xl border border-[var(--neutral-200)] shadow-sm"
                   />
@@ -1316,7 +1316,7 @@ export default function Products() {
                       <div className="w-10 h-10 rounded bg-[var(--neutral-100)] flex-shrink-0 flex items-center justify-center border border-[var(--neutral-200)] overflow-hidden">
                         {p.images?.[0]?.url ? (
                           <img
-                            src={`${'http://49.50.83.49' + p.images[0].url}`}
+                            src={`${IMAGE_URL + p.images[0].url}`}
                             alt=""
                             className="w-full h-full object-cover"
                           />

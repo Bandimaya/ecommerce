@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type StemCourse = {
@@ -172,7 +173,7 @@ export default function StemCoursesPage() {
             className="relative bg-white rounded shadow p-4 flex gap-4"
           >
             <img
-              src={c.image}
+              src={IMAGE_URL+ c.image}
               alt={c.title}
               className="w-32 h-20 object-cover rounded"
             />

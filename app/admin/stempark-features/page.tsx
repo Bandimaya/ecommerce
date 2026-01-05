@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 const ICONS = ["Cpu", "Gamepad2", "Microscope", "Zap"];
@@ -146,7 +147,7 @@ export default function StemparkFeaturesPage() {
             className="bg-white p-4 rounded shadow flex gap-4"
           >
             <img
-              src={f.image}
+              src={IMAGE_URL+ f.image}
               className="w-24 h-24 object-cover rounded"
             />
             <div className="flex-1">

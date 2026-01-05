@@ -15,6 +15,7 @@ import {
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { apiFetch } from "@/lib/axios"
+import { IMAGE_URL } from "@/lib/constants"
 
 // --- Types ---
 interface JargonItem {
@@ -329,7 +330,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                     <div className="col-span-5 relative h-full overflow-hidden group">
                       <div className="absolute inset-0 bg-slate-900/10 z-10 transition-colors group-hover:bg-transparent" />
                       <img
-                        src={item.image}
+                        src={IMAGE_URL+ item.image}
                         alt={item.alt}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
@@ -415,7 +416,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
               >
                 <div className="relative h-1/2">
                   <img
-                    src={data?.[activeIndex]?.image}
+                    src={IMAGE_URL+ data?.[activeIndex]?.image}
                     className="w-full h-full object-cover"
                     alt=""
                   />

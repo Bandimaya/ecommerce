@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type Star = {
@@ -114,7 +115,7 @@ export default function StarsPage() {
       <div className="grid gap-4">
         {stars.map((s) => (
           <div key={s._id} className="bg-white p-4 rounded shadow flex gap-4">
-            <img src={s.image} className="w-20 h-20 rounded object-cover" />
+            <img src={IMAGE_URL+  s.image} className="w-20 h-20 rounded object-cover" />
             <div className="flex-1">
               <h3 className="font-semibold">{s.name}</h3>
               <p className="text-sm text-gray-600">{s.role}</p>

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 // Adjust the path to where you saved the component
 import BackgroundGrid from '../home/marqueeBackground/BackgroundGrid';
 import { apiFetch } from '@/lib/axios';
+import { IMAGE_URL } from '@/lib/constants';
 
 // --- Data: Reliable Award Images from Unsplash ---
 const AWARD_IMAGES = [
@@ -73,7 +74,7 @@ export default function AwardsSection() {
                 className="relative group flex-shrink-0 flex items-center justify-center w-[180px] md:w-[240px] aspect-[4/3] bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
               >
                 <img
-                  src={src.image}
+                  src={IMAGE_URL+ src.image}
                   alt={`Award recognition ${idx + 1}`}
                   // Removed 'filter grayscale' and 'opacity-80' to maintain full color
                   className="w-full h-full object-contain mix-blend-multiply transition-all duration-500"
@@ -88,7 +89,7 @@ export default function AwardsSection() {
                 className="relative group flex-shrink-0 flex items-center justify-center w-[180px] md:w-[240px] aspect-[4/3] bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
               >
                 <img
-                  src={src?.image}
+                  src={IMAGE_URL+src?.image}
                   alt={`Award recognition ${idx + 1}`}
                   // Removed 'filter grayscale' and 'opacity-80' to maintain full color
                   className="w-full h-full object-contain mix-blend-multiply transition-all duration-500"

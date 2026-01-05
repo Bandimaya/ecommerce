@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type PartnerImage = {
@@ -87,7 +88,7 @@ export default function PartnerImagesPage() {
             className="relative bg-white rounded shadow p-3 flex items-center justify-center"
           >
             <img
-              src={img.image}
+              src={IMAGE_URL+img.image}
               alt="Partner"
               className="max-h-20 object-contain"
             />

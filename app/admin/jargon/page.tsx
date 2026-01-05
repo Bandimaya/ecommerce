@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 const ICONS = ["Cpu", "Code", "Wifi", "Zap", "Cog", "Brain"];
@@ -160,7 +161,7 @@ export default function JargonPage() {
             className="relative bg-white rounded shadow p-4 flex gap-4"
           >
             <img
-              src={i.image}
+              src={IMAGE_URL+i.image}
               alt={i.alt}
               className="w-32 h-20 object-cover rounded"
             />

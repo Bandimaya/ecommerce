@@ -18,6 +18,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
 import Cropper from "react-easy-crop";
+import { IMAGE_URL } from "@/lib/constants";
 
 // --- Utility: Create an HTML Image Element ---
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -104,7 +105,7 @@ export default function ContactInfo() {
       });
 
       // Assuming your backend serves images correctly
-      setLogoPreview(contact.logo_url ? `http://49.50.83.49${contact.logo_url}` : "");
+      setLogoPreview(contact.logo_url ? `${IMAGE_URL}${contact.logo_url}` : "");
     }
   }, [contact]);
 

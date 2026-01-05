@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 const ICONS = ["rocket", "book", "globe", "users"];
@@ -194,7 +195,7 @@ export default function ProgramsPage() {
             className="relative bg-white rounded shadow p-4 flex gap-4"
           >
             <img
-              src={p.image}
+              src={IMAGE_URL+ p.image}
               alt={p.title}
               className="w-32 h-20 object-cover rounded"
             />

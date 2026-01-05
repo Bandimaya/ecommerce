@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type Project = {
@@ -123,7 +124,7 @@ export default function ProjectsPage() {
             className="relative bg-white rounded shadow overflow-hidden"
           >
             <img
-              src={p.image}
+              src={IMAGE_URL+p.image}
               alt={p.title}
               className="w-full h-32 object-cover"
             />

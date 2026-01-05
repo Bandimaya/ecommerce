@@ -17,7 +17,7 @@ import { MOCK_PRODUCTS, Product } from "../../lib/Data"
 import { apiFetch } from "@/lib/axios"
 import { useSettings } from "@/contexts/SettingsContext"
 import { getDisplayPrice } from "@/lib/utils"
-import { CURRENCY_OPTIONS } from "@/lib/constants"
+import { CURRENCY_OPTIONS, IMAGE_URL } from "@/lib/constants"
 import { toast } from "@/hooks/useToast"
 import { useCart } from "@/contexts/CartContext"
 
@@ -374,7 +374,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                 >
                   <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
                     <img
-                      src={product.image}
+                      src={IMAGE_URL+ product.image}
                       alt={product.name}
                       // fill
                       className="object-cover object-center"
@@ -482,7 +482,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                     }}
                   >
                     <img
-                      src={selectedProduct.image}
+                      src={IMAGE_URL + selectedProduct.image}
                       alt={selectedProduct.name}
                       // fill
                       // priority

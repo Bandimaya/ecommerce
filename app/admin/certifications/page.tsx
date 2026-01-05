@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 const ICONS = [
@@ -134,7 +135,7 @@ export default function CertificationsPage() {
             className="relative bg-white rounded shadow p-4 flex items-center gap-4"
           >
             <img
-              src={c.image}
+              src={IMAGE_URL+c.image}
               alt={c.alt}
               className="w-16 h-10 object-contain"
             />

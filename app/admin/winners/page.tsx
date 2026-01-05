@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type Winner = {
@@ -196,7 +197,7 @@ export default function WinnersPage() {
             className="bg-white rounded shadow p-4 flex gap-4 items-start"
           >
             <img
-              src={winner.image}
+              src={IMAGE_URL+ winner.image}
               alt={winner.team}
               className="w-20 h-20 object-cover rounded"
             />

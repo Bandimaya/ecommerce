@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type NewsItem = {
@@ -97,7 +98,7 @@ export default function NewsPage() {
             className="relative bg-white rounded shadow flex gap-4 p-4"
           >
             <img
-              src={n.image}
+              src={IMAGE_URL+ n.image}
               alt="News"
               className="w-32 h-20 object-cover rounded"
             />

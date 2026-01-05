@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type Benefit = {
@@ -102,7 +103,7 @@ export default function BenefitsPage() {
             className="relative bg-white rounded shadow p-4 flex gap-4"
           >
             <img
-              src={b.image}
+              src={IMAGE_URL+b.image}
               alt={b.alt}
               className="w-16 h-16 object-contain"
             />

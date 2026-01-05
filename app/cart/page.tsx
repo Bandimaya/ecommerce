@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input"
 import { useUser } from "@/contexts/UserContext"
 import { apiFetch } from "@/lib/axios"
 import Link from "next/link"
-import { apiUrl } from "@/lib/constants"
+import { apiUrl, IMAGE_URL } from "@/lib/constants"
 import { motion, AnimatePresence, Variants, useReducedMotion } from "framer-motion"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
@@ -260,7 +260,7 @@ const Cart = () => {
                                                     } as React.CSSProperties}
                                                 >
                                                     <img
-                                                        src={'http://49.50.83.49' + item.productId?.media?.[0]?.url || item.image}
+                                                        src={IMAGE_URL+      item.productId?.media?.[0]?.url || item.image}
                                                         alt={item.productId?.name}
                                                         className="w-full h-full object-cover"
                                                     />

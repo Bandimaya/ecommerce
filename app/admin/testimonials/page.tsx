@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type Testimonial = {
@@ -120,7 +121,7 @@ export default function TestimonialsPage() {
             className="relative bg-white rounded shadow p-4 flex gap-4"
           >
             <img
-              src={t.image}
+              src={IMAGE_URL+ t.image}
               alt={t.name}
               className="w-16 h-16 rounded-full object-cover"
             />

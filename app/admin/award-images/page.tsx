@@ -1,5 +1,6 @@
 "use client";
 
+import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
 type AwardImage = {
@@ -87,7 +88,7 @@ export default function AwardImagesPage() {
             className="relative bg-white rounded shadow"
           >
             <img
-              src={img.image}
+              src={IMAGE_URL+img.image}
               alt="Award"
               className="w-full h-32 object-cover rounded"
             />
