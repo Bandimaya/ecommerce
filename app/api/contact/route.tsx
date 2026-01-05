@@ -30,7 +30,8 @@ export const PUT = withAuth(async (req: NextRequest, user: UserPayload) => {
     // 2. Handle File Upload (Manual save)
     if (file && file.size > 0) {
       // ✅ External persistent directory
-      const uploadDir = "/var/www/uploads/branding";
+      // const uploadDir = "/var/www/uploads/branding";
+      const uploadDir = `${process.env.UPLOADS_DIR}/branding`;
 
       // Ensure directory exists
       await fs.mkdir(uploadDir, { recursive: true });

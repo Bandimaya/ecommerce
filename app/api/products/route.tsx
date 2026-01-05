@@ -9,7 +9,8 @@ import path from "path";
 // Helper to save files to public/uploads
 export const saveMedia = async (file: File) => {
   // ✅ External upload directory
-  const uploadDir = "/var/www/uploads/products";
+  // const uploadDir = "/var/www/uploads/products";
+  const uploadDir = `${process.env.UPLOADS_DIR}/products`;
 
   // Ensure directory exists
   await fs.mkdir(uploadDir, { recursive: true });

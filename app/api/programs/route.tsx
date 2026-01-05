@@ -7,7 +7,7 @@ import Program from "@/models/Program";
 import { connectDB } from "@/lib/db";
 
 // Helper for saving files manually
-const BASE_UPLOAD_DIR = "/var/www/uploads"; // 👈 outside Next.js
+const BASE_UPLOAD_DIR = `${process.env.UPLOADS_DIR}`; // 👈 outside Next.js
 
 export const saveFile = async (file: File, folder: string) => {
   const uploadDir = path.join(BASE_UPLOAD_DIR, folder);
@@ -28,6 +28,29 @@ export const saveFile = async (file: File, folder: string) => {
 
   // URL served via nginx
   return `/uploads/${folder}/${filename}`;
+};
+
+/**
+ * Deletes a file using its public URL
+ * Example input: /uploads/jargon/123-image.png
+ */
+export const deleteFile = async (fileUrl?: string) => {
+  try {
+    if (!fileUrl) return;
+
+    // Ensure it's an uploads path (security check)
+    if (!fileUrl.startsWith("/uploads/")) return;
+
+    const relativePath = fileUrl.replace("/uploads/", "");
+    const filePath = path.join(BASE_UPLOAD_DIR, relativePath);
+
+    if (existsSync(filePath)) {
+      await fs.unlink(filePath);
+      console.log("Deleted file:", filePath);
+    }
+  } catch (error) {
+    console.error("File delete error:", error);
+  }
 };
 
 // ----------------- GET ALL PROGRAMS -----------------

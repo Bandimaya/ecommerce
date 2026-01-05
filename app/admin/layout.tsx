@@ -64,6 +64,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
   // Updated navItems with unique icons
   const navItems = [
     { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
+    { label: "Jargon", path: "/admin/jargon", icon: LayoutDashboard },
     { label: "Brands", path: "/admin/brands", icon: BadgeCheck },
     { label: "Programs", path: "/admin/programs", icon: BookOpen },
     { label: "Categories", path: "/admin/categories", icon: Tags },
