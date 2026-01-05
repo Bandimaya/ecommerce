@@ -12,6 +12,7 @@ import {
     Mail
 } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
+import { apiFetch } from '@/lib/axios';
 
 // Hook to detect prefers-reduced-motion
 const useReducedMotion = () => {
@@ -49,8 +50,6 @@ interface FormData {
 
 const CompetitionWidget = () => {
     const prefersReducedMotion = useReducedMotion();
-
-    // --- Data ---
     const initialEvents: Event[] = [
         {
             id: 'evt_1',
@@ -88,13 +87,23 @@ const CompetitionWidget = () => {
     ];
 
     // --- State ---
-    const [events, setEvents] = useState<Event[]>(initialEvents);
+    const [events, setEvents] = useState<Event[]>([]);
     const [activeIndex, setActiveIndex] = useState<number>(0);
     const [viewState, setViewState] = useState<'idle' | 'form' | 'success'>('idle');
     const [formData, setFormData] = useState<FormData>({ name: '', email: '' });
     const [isMobile, setIsMobile] = useState<boolean>(false);
 
     const activeEvent = events[activeIndex];
+
+    useEffect(() => {
+        apiFetch('/events')
+            .then((data) => {
+                setEvents(data);
+            })
+            .catch(() => {
+                console.log("API fetch failed, using initial events.");
+            });
+    }, [])
 
     // --- Responsive Check ---
     useEffect(() => {
@@ -124,7 +133,7 @@ const CompetitionWidget = () => {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setTimeout(() => {
-            setEvents(prev => prev.map(evt => evt.id === activeEvent.id ? { ...evt, count: evt.count + 1 } : evt));
+            setEvents(prev => prev.map(evt => evt.id === activeEvent?.id ? { ...evt, count: evt.count + 1 } : evt));
             setViewState('success');
         }, 600);
     };
@@ -221,7 +230,7 @@ const CompetitionWidget = () => {
             </motion.div>
 
             {/* --- Dynamic Background --- */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${activeEvent.bgGradient} transition-all duration-1000 ease-in-out`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-br ${activeEvent?.bgGradient} transition-all duration-1000 ease-in-out`}></div>
 
             {/* Decorative Blobs */}
             <div className="absolute top-[-10%] left-[-10%] w-[50vh] h-[50vh] rounded-full bg-white opacity-40 blur-[100px]"></div>
@@ -230,7 +239,7 @@ const CompetitionWidget = () => {
             {/* Internal CSS for Variables */}
             <style jsx>{`
         .theme-wrapper {
-          --primary: ${activeEvent.color};
+          --primary: ${activeEvent?.color};
           --accent: #1e293b;
         }
         .glass-card {
@@ -274,11 +283,11 @@ const CompetitionWidget = () => {
                                     <ChevronRight size={24} className="group-hover:translate-x-0.5 transition-transform" />
                                 </button>
 
-                                {events.map((evt, idx) => {
+                                {events.map((evt: any, idx) => {
                                     const { state, zIndex } = getCardProps(idx);
                                     return (
                                         <motion.div
-                                            key={evt.id}
+                                            key={evt?.['_id']}
                                             variants={variants}
                                             initial="farRight"
                                             animate={state}
@@ -304,7 +313,7 @@ const CompetitionWidget = () => {
                                                 <div>
                                                     <div className="flex items-center gap-2 mb-2 opacity-50">
                                                         <img src={evt.logo} className="w-6 h-6 object-contain grayscale" />
-                                                        <span className="text-xs font-bold tracking-widest">EVENT ID: {evt.id.toUpperCase()}</span>
+                                                        <span className="text-xs font-bold tracking-widest">EVENT ID: {evt.id}</span>
                                                     </div>
                                                     <h2 className="text-2xl font-bold leading-tight text-slate-800">{evt.title}</h2>
                                                     <p className="text-sm font-medium text-[var(--primary)] transition-colors duration-500">{evt.subtitle}</p>
@@ -323,7 +332,7 @@ const CompetitionWidget = () => {
                             // --- Mobile: Simple Stack with Embedded Controls ---
                             <AnimatePresence mode="wait">
                                 <motion.div
-                                    key={activeEvent.id}
+                                    key={activeEvent?.id}
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20 }}
@@ -331,17 +340,17 @@ const CompetitionWidget = () => {
                                     className="w-full h-full rounded-3xl shadow-xl overflow-hidden flex flex-col bg-white"
                                 >
                                     <div className="h-[60%] relative overflow-hidden">
-                                        <img src={activeEvent.thumbnail} alt={activeEvent.title} className="w-full h-full object-cover" />
+                                        <img src={activeEvent?.thumbnail} alt={activeEvent?.title} className="w-full h-full object-cover" />
                                         <div className="absolute top-4 left-4">
                                             <span className="bg-white/90 backdrop-blur text-[var(--accent)] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
-                                                {activeEvent.category}
+                                                {activeEvent?.category}
                                             </span>
                                         </div>
                                     </div>
                                     <div className="flex-1 p-6 flex flex-col justify-between relative bg-white">
                                         <div>
-                                            <h2 className="text-2xl font-bold leading-tight text-slate-800">{activeEvent.title}</h2>
-                                            <p className="text-sm font-medium text-[var(--primary)]">{activeEvent.subtitle}</p>
+                                            <h2 className="text-2xl font-bold leading-tight text-slate-800">{activeEvent?.title}</h2>
+                                            <p className="text-sm font-medium text-[var(--primary)]">{activeEvent?.subtitle}</p>
                                         </div>
 
                                         {/* Updated Mobile Navigation Controls (Inside Card) */}
@@ -410,10 +419,10 @@ const CompetitionWidget = () => {
                                         <span className="text-sm font-semibold text-slate-500 uppercase tracking-widest">Registration Open</span>
                                     </div>
 
-                                    <h2 className="text-4xl lg:text-5xl font-black text-[var(--accent)] mb-2">{activeEvent.title}</h2>
+                                    <h2 className="text-4xl lg:text-5xl font-black text-[var(--accent)] mb-2">{activeEvent?.title}</h2>
                                     <div className="flex items-center gap-2 mb-8">
-                                        <span className="bg-[var(--primary)]/10 text-[var(--primary)] px-3 py-1 rounded text-sm font-bold uppercase tracking-wider">{activeEvent.category}</span>
-                                        <p className="text-lg text-slate-500 font-medium">{activeEvent.subtitle}</p>
+                                        <span className="bg-[var(--primary)]/10 text-[var(--primary)] px-3 py-1 rounded text-sm font-bold uppercase tracking-wider">{activeEvent?.category}</span>
+                                        <p className="text-lg text-slate-500 font-medium">{activeEvent?.subtitle}</p>
                                     </div>
 
                                     {/* Stats Card */}
@@ -423,7 +432,7 @@ const CompetitionWidget = () => {
                                                 <Users size={24} />
                                             </div>
                                             <div>
-                                                <div className="text-3xl font-black text-slate-800 leading-none">{activeEvent.count}</div>
+                                                <div className="text-3xl font-black text-slate-800 leading-none">{activeEvent?.count}</div>
                                                 <div className="text-xs text-slate-500 font-bold uppercase tracking-wide">Participants</div>
                                             </div>
                                         </div>
@@ -465,7 +474,7 @@ const CompetitionWidget = () => {
 
                                     <div className="mb-6">
                                         <h3 className="text-2xl font-bold text-[var(--accent)]">Secure Your Spot</h3>
-                                        <p className="text-slate-500">You are registering for <strong className="text-[var(--primary)] transition-colors duration-500">{activeEvent.title}</strong></p>
+                                        <p className="text-slate-500">You are registering for <strong className="text-[var(--primary)] transition-colors duration-500">{activeEvent?.title}</strong></p>
                                     </div>
 
                                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -547,11 +556,11 @@ const CompetitionWidget = () => {
                                     </div>
 
                                     <h2 className="text-3xl font-black text-[var(--accent)] mb-2">You're In!</h2>
-                                    <p className="text-slate-500 mb-8">Get ready to innovate at {activeEvent.title}. Check your inbox for the pass.</p>
+                                    <p className="text-slate-500 mb-8">Get ready to innovate at {activeEvent?.title}. Check your inbox for the pass.</p>
 
                                     <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm inline-block min-w-[200px]">
                                         <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Count</div>
-                                        <div className="text-5xl font-black text-[var(--primary)] tracking-tighter transition-colors duration-500">{activeEvent.count}</div>
+                                        <div className="text-5xl font-black text-[var(--primary)] tracking-tighter transition-colors duration-500">{activeEvent?.count}</div>
                                     </div>
 
                                     <button

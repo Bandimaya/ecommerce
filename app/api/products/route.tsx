@@ -110,11 +110,11 @@ export async function POST(req: NextRequest) {
         media
       };
     }
-    
+
     console.log("Creating product with data:", productData);
-    
+
     const newProduct = await Product.create(productData);
-    
+
     // Multi-variant Logic
     if (!productData.isOnlyProduct && variants.length > 0) {
       const variantDocs = await Promise.all(variants.map(async (v: any, idx: number) => {
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
       }));
       await Variant.insertMany(variantDocs);
     }
-    
+
     return NextResponse.json(newProduct, { status: 201 });
   } catch (err: any) {
     console.log(err);

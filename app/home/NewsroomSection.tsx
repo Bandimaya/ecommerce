@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import BackgroundGrid from '../home/marqueeBackground/BackgroundGrid';
+import { apiFetch } from '@/lib/axios';
+import { useEffect, useState } from 'react';
 
 // --- Types & Data ---
 interface NewsItem {
@@ -65,9 +67,10 @@ const NEWS_ITEMS: NewsItem[] = [
 
 // --- Sub-component for a single card ---
 const NewsCard = ({ item }: { item: NewsItem }) => (
+
   // Using 'bg-card', 'border-border', 'hover:border-primary' for theming
   <div className="relative group w-[300px] md:w-[350px] flex-shrink-0 bg-card rounded-2xl p-6 border border-border shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary hover:-translate-y-1 h-full flex flex-col justify-between">
-    
+
     {/* Decorative Quote Icon Background (Using primary color with low opacity) */}
     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" className="text-primary/10">
@@ -91,12 +94,12 @@ const NewsCard = ({ item }: { item: NewsItem }) => (
       <p className="text-muted-foreground font-medium leading-relaxed group-hover:text-foreground transition-colors duration-300 text-[15px]">
         "{item.text}"
       </p>
-      
+
       {/* Read More Link (Themed Primary) */}
       <div className="mt-4 flex items-center gap-2 text-sm font-bold text-primary opacity-0 transform translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0 cursor-pointer">
         Read Coverage
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
+          <path d="M5 12h14M12 5l7 7-7 7" />
         </svg>
       </div>
     </div>
@@ -104,12 +107,22 @@ const NewsCard = ({ item }: { item: NewsItem }) => (
 );
 
 export default function NewsroomSection() {
+  const [data, setData] = useState<string[]>([]);
+
+  useEffect(() => {
+    apiFetch('/news')
+      .then((response) => {
+        setData(response);
+      }).catch((error) => {
+        console.error('Error fetching award images:', error);
+      });
+  }, [])
   return (
     // 'bg-background' ensures it adapts to light/dark mode from ThemeProvider
     <section className="relative py-24 bg-background overflow-hidden font-sans">
-      
+
       {/* Background Grid using Border color variable for subtle blend */}
-      <BackgroundGrid 
+      <BackgroundGrid
         color="var(--border)" // Uses theme variable for the grid lines
         cellSize={40}
         className="z-0 opacity-40"
@@ -128,7 +141,7 @@ export default function NewsroomSection() {
 
       {/* Slider Container */}
       <div className="relative z-10 w-full pb-10">
-        
+
         {/* Gradient Fades matching 'bg-background' */}
         <div className="absolute left-0 top-0 bottom-0 w-20 md:w-40 z-20 bg-gradient-to-r from-background to-transparent pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-20 md:w-40 z-20 bg-gradient-to-l from-background to-transparent pointer-events-none" />
@@ -137,13 +150,13 @@ export default function NewsroomSection() {
         <div className="marquee-container flex overflow-hidden">
           <div className="marquee-track flex gap-6 px-4">
             {/* Set 1 */}
-            {NEWS_ITEMS.map((item) => (
-              <NewsCard key={`news-1-${item.id}`} item={item} />
+            {data.map((item: any) => (
+              <NewsCard key={`news-1-${item._id}`} item={item} />
             ))}
-            
+
             {/* Set 2 (Duplicate for Loop) */}
-            {NEWS_ITEMS.map((item) => (
-              <NewsCard key={`news-2-${item.id}`} item={item} />
+            {data.map((item: any) => (
+              <NewsCard key={`news-2-${item._id}`} item={item} />
             ))}
           </div>
         </div>

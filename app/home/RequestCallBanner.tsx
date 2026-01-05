@@ -3,10 +3,10 @@
 import React from "react";
 import { Phone, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { useSettings } from "@/contexts/SettingsContext";
 
 const RequestCallBanner = () => {
-    const phoneNumber = "+919999999999";
-    const whatsappNumber = "919999999999";
+    const { contact } = useSettings()
 
     return (
         <section className="w-full bg-[var(--card)] overflow-hidden">
@@ -100,7 +100,7 @@ const RequestCallBanner = () => {
                             className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start w-full"
                         >
                             <a
-                                href={`tel:${phoneNumber}`}
+                                href={`tel:${contact?.phone}`}
                                 className="group flex items-center justify-center gap-3 rounded-full px-8 py-4 text-sm font-bold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 active:scale-95 bg-[var(--primary)] text-[var(--primary-foreground)]"
                             >
                                 <Phone className="h-5 w-5 fill-current" />
@@ -112,7 +112,7 @@ const RequestCallBanner = () => {
                             </a>
 
                             <a
-                                href={`https://wa.me/${whatsappNumber}`}
+                                href={`https://wa.me/${contact?.whatsapp_number}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center justify-center gap-3 rounded-full px-8 py-4 text-sm font-bold border border-[var(--border)] transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 bg-[var(--background)] text-[var(--foreground)] hover:border-[#25D366] hover:text-[#25D366]"

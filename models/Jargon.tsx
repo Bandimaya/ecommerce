@@ -1,25 +1,20 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose from "mongoose";
 
-export interface IJargon extends Document {
-  title: string;
-  description: string;
-  image: string;
-  alt: string;
-  color: string;
-  accentColor: string;
-}
-
-const JargonSchema = new Schema<IJargon>(
+const jargonItemSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
     image: { type: String, required: true },
     alt: { type: String, required: true },
-    color: { type: String, required: true },
-    accentColor: { type: String, required: true }
+    icon: { type: String, required: true }, // e.g. Cpu, Code
+    color: { type: String, required: true }, // bg-blue-500
+    accentColor: { type: String, required: true }, // #3b82f6
   },
   { timestamps: true }
 );
 
-export default mongoose.models.Jargon ||
-  mongoose.model<IJargon>("Jargon", JargonSchema);
+const JargonItem =
+  mongoose.models.JargonItem ||
+  mongoose.model("JargonItem", jargonItemSchema);
+
+export default JargonItem;

@@ -15,6 +15,10 @@ const ContactInfoSchema = new Schema(
       type: String,
       required: true,
     },
+    whatsapp_number: {
+      type: String,
+      required: true,
+    },
     hours: {
       type: String,
       required: true,

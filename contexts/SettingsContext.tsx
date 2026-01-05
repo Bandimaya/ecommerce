@@ -15,6 +15,7 @@ type ContactType = {
   email: string;
   phone: string;
   logo_url: string;
+  whatsapp_number: string;
   address: string;
   hours: string;
 };

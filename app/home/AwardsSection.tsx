@@ -1,7 +1,9 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 // Adjust the path to where you saved the component
 import BackgroundGrid from '../home/marqueeBackground/BackgroundGrid';
+import { apiFetch } from '@/lib/axios';
 
 // --- Data: Reliable Award Images from Unsplash ---
 const AWARD_IMAGES = [
@@ -18,18 +20,28 @@ const AWARD_IMAGES = [
 ];
 
 export default function AwardsSection() {
+  const [data, setData] = useState<string[]>([]);
+
+  useEffect(() => {
+    apiFetch('/award-images')
+      .then((response) => {
+        setData(response);
+      }).catch((error) => {
+        console.error('Error fetching award images:', error);
+      });
+  }, [])
   return (
     <section className="relative py-20 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
-      
+
       {/* --- REPLACEMENT: Background Component --- */}
-      <BackgroundGrid 
+      <BackgroundGrid
         color="rgba(0, 0, 0, 0.05)" // Or "var(--border-color)"
         cellSize={40}
         className="z-0"
       />
 
       <div className="relative z-10 container mx-auto px-4 mb-12 text-center">
-        
+
         {/* Header Section */}
         <div className="max-w-3xl mx-auto space-y-4">
           <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-600 tracking-tight">
@@ -45,7 +57,7 @@ export default function AwardsSection() {
 
       {/* Marquee Slider Container */}
       <div className="relative z-10 w-full">
-        
+
         {/* Gradient Fades for Smooth Edges */}
         <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 z-10 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none" />
         <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 z-10 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none" />
@@ -53,15 +65,15 @@ export default function AwardsSection() {
         {/* The Sliding Track */}
         <div className="marquee-container flex overflow-hidden select-none">
           <div className="marquee-track flex gap-8 md:gap-16 py-8">
-            
+
             {/* 1. First Set */}
-            {AWARD_IMAGES.map((src, idx) => (
-              <div 
-                key={`set1-${idx}`} 
+            {data.map((src: any, idx) => (
+              <div
+                key={`set1-${idx}`}
                 className="relative group flex-shrink-0 flex items-center justify-center w-[180px] md:w-[240px] aspect-[4/3] bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
               >
                 <img
-                  src={src}
+                  src={src.image}
                   alt={`Award recognition ${idx + 1}`}
                   // Removed 'filter grayscale' and 'opacity-80' to maintain full color
                   className="w-full h-full object-contain mix-blend-multiply transition-all duration-500"
@@ -70,13 +82,13 @@ export default function AwardsSection() {
             ))}
 
             {/* 2. Second Set */}
-            {AWARD_IMAGES.map((src, idx) => (
-              <div 
-                key={`set2-${idx}`} 
+            {data.map((src: any, idx) => (
+              <div
+                key={`set2-${idx}`}
                 className="relative group flex-shrink-0 flex items-center justify-center w-[180px] md:w-[240px] aspect-[4/3] bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
               >
                 <img
-                  src={src}
+                  src={src?.image}
                   alt={`Award recognition ${idx + 1}`}
                   // Removed 'filter grayscale' and 'opacity-80' to maintain full color
                   className="w-full h-full object-contain mix-blend-multiply transition-all duration-500"

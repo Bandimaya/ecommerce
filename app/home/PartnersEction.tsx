@@ -3,6 +3,8 @@
 import Image from 'next/image';
 // Adjust the import path based on where you saved the previous file
 import BackgroundGrid from '../home/marqueeBackground/BackgroundGrid';
+import { apiFetch } from '@/lib/axios';
+import { useEffect, useState } from 'react';
 
 // --- Data ---
 const PARTNER_IMAGES = [
@@ -21,6 +23,16 @@ const PARTNER_IMAGES = [
 ];
 
 export default function PartnersSection() {
+    const [data, setData] = useState<string[]>([]);
+
+    useEffect(() => {
+        apiFetch('/partner-images')
+            .then((response) => {
+                setData(response);
+            }).catch((error) => {
+                console.error('Error fetching award images:', error);
+            });
+    }, [])
     return (
         // Theme-aware background and text colors
         <section className="relative py-24 bg-background overflow-hidden z-10 shadow-[0_-5px_15px_-5px_rgba(0,0,0,0.05),0_5px_15px_-5px_rgba(0,0,0,0.05)]">
@@ -60,7 +72,7 @@ export default function PartnersSection() {
                     <div className="marquee-track flex gap-8 md:gap-12 px-4">
 
                         {/* 1. First Set of Logos */}
-                        {PARTNER_IMAGES.map((src, idx) => (
+                        {data.map((src: any, idx) => (
                             <div
                                 key={`p1-${idx}`}
                                 // Theme-aware card styles: bg-card, border-border, hover effects
@@ -68,7 +80,7 @@ export default function PartnersSection() {
                             >
                                 <div className="relative w-2/3 h-2/3">
                                     <Image
-                                        src={src}
+                                        src={src?.image}
                                         alt={`Partner Logo ${idx + 1}`}
                                         fill
                                         sizes="(max-width: 768px) 150px, 200px"
@@ -80,14 +92,14 @@ export default function PartnersSection() {
                         ))}
 
                         {/* 2. Duplicate Set for Infinite Loop */}
-                        {PARTNER_IMAGES.map((src, idx) => (
+                        {data.map((src: any, idx) => (
                             <div
                                 key={`p2-${idx}`}
                                 className="group relative flex-shrink-0 flex items-center justify-center w-[160px] md:w-[200px] h-[100px] bg-card/90 backdrop-blur-sm rounded-xl border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
                             >
                                 <div className="relative w-2/3 h-2/3">
                                     <Image
-                                        src={src}
+                                        src={src?.image}
                                         alt={`Partner Logo ${idx + 1}`}
                                         fill
                                         sizes="(max-width: 768px) 150px, 200px"

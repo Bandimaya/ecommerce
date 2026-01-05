@@ -14,15 +14,17 @@ import {
   Sparkles
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { apiFetch } from "@/lib/axios"
 
 // --- Types ---
 interface JargonItem {
   id: number
+  _id?: string
   title: string
   description: string
   image: string
   alt: string
-  icon: React.ComponentType<any>
+  icon: React.ComponentType<any> | any
   color: string
   accentColor: string
 }
@@ -32,7 +34,7 @@ interface BreakingJargonProps {
 }
 
 // --- Data ---
-const JARGON_ITEMS: JargonItem[] = [
+const JargonItems: JargonItem[] = [
   {
     id: 1,
     title: "Robotics",
@@ -98,7 +100,16 @@ const JARGON_ITEMS: JargonItem[] = [
 const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
+  const [data, setData] = useState<JargonItem[]>([])
 
+  useEffect(() => {
+    apiFetch('/jargon')
+      .then(response => {
+        setData(response)
+      }).catch(error => {
+        console.error('Error fetching jargon data:', error)
+      })
+  }, [])
   // Handle Resize
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024)
@@ -118,16 +129,16 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
   }, [])
 
   const handleNext = useCallback(() => {
-    setActiveIndex((prev) => (prev + 1) % JARGON_ITEMS.length)
+    setActiveIndex((prev) => (prev + 1) % data.length)
   }, [])
 
   const handlePrev = useCallback(() => {
-    setActiveIndex((prev) => (prev - 1 + JARGON_ITEMS.length) % JARGON_ITEMS.length)
+    setActiveIndex((prev) => (prev - 1 + data.length) % data.length)
   }, [])
 
   // --- Logic for Circular 3D Positioning ---
   const getCardProps = (index: number) => {
-    const length = JARGON_ITEMS.length
+    const length = data.length
 
     // Calculate shortest distance accounting for wrap-around
     let offset = (index - activeIndex) % length
@@ -197,7 +208,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           animate={{
-            backgroundColor: JARGON_ITEMS[activeIndex].accentColor
+            backgroundColor: data?.[activeIndex]?.accentColor
           }}
           transition={{ duration: 1 }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-10 blur-[100px]"
@@ -247,7 +258,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
             Your Guide to{' '}
             {/* Dynamic Text Coloring based on Active Slide */}
             <motion.span
-              animate={{ color: JARGON_ITEMS[activeIndex].accentColor }}
+              animate={{ color: data?.[activeIndex]?.accentColor }}
               transition={{ duration: 0.5 }}
             >
               AI, Robotics Kits & Coding
@@ -264,7 +275,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
             Easy explanations of common terms kickstart your child’s{' '}
             {/* Dynamic Text Coloring based on Active Slide */}
             <motion.span
-              animate={{ color: JARGON_ITEMS[activeIndex].accentColor }}
+              animate={{ color: data?.[activeIndex]?.accentColor }}
               transition={{ duration: 0.5 }}
               className="font-semibold"
             >
@@ -278,14 +289,26 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
           <div className="relative h-[550px] w-full flex items-center justify-center perspective-[1200px]">
 
             {/* Card Iterator */}
-            {JARGON_ITEMS.map((item, index) => {
+            {data.map((item, index) => {
               const { state, zIndex } = getCardProps(index)
-              const Icon = item.icon
+              const ICON_MAP = {
+                Cpu: Cpu,
+                Zap: Zap,
+                Code: Code,
+                Wifi: Wifi,
+                Cog: Cog,
+                Brain: Brain,
+              } as const;
+
+              type IconKey = keyof typeof ICON_MAP;
+
+              const Icon = ICON_MAP[item.icon as IconKey];
+
               const isActive = state === "center"
 
               return (
                 <motion.div
-                  key={item.id}
+                  key={item._id}
                   variants={variants}
                   initial="farRight"
                   animate={state}
@@ -314,7 +337,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                       {/* Floating Icon Overlay */}
                       <div className="absolute top-6 left-6 z-20">
                         <div className={`w-12 h-12 rounded-xl ${item.color} flex items-center justify-center shadow-lg text-white`}>
-                          <Icon size={24} strokeWidth={2.5} />
+                          {Icon && <Icon size={24} strokeWidth={2.5} />}
                         </div>
                       </div>
                     </div>
@@ -324,7 +347,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
 
                       {/* Decorative Background Number */}
                       <div className="absolute top-4 right-6 text-9xl font-black text-slate-50 opacity-[0.04] pointer-events-none select-none">
-                        0{item.id}
+                        0{item._id}
                       </div>
 
                       <div className="relative z-10">
@@ -392,25 +415,25 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
               >
                 <div className="relative h-1/2">
                   <img
-                    src={JARGON_ITEMS[activeIndex].image}
+                    src={data?.[activeIndex]?.image}
                     className="w-full h-full object-cover"
                     alt=""
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                   <div className="absolute bottom-6 left-6 text-white">
-                    <div className={`inline-flex p-2 rounded-lg ${JARGON_ITEMS[activeIndex].color} mb-3`}>
-                      {React.createElement(JARGON_ITEMS[activeIndex].icon, { size: 20 })}
+                    <div className={`inline-flex p-2 rounded-lg ${data?.[activeIndex]?.color} mb-3`}>
+                      {/* {React.createElement(data?.[activeIndex]?.icon, { size: 20 })} */}
                     </div>
-                    <h2 className="text-3xl font-bold">{JARGON_ITEMS[activeIndex].title}</h2>
+                    <h2 className="text-3xl font-bold">{data?.[activeIndex]?.title}</h2>
                   </div>
                 </div>
                 <div className="p-6 h-1/2 flex flex-col justify-between">
                   <p className="text-slate-600 leading-relaxed text-sm sm:text-base">
-                    {JARGON_ITEMS[activeIndex].description}
+                    {data?.[activeIndex]?.description}
                   </p>
                   <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100">
                     <button onClick={handlePrev} className="p-3 bg-slate-100 rounded-full active:scale-95 transition-transform"><ChevronLeft size={20} /></button>
-                    <span className="text-sm font-bold text-slate-400">{activeIndex + 1} / {JARGON_ITEMS.length}</span>
+                    <span className="text-sm font-bold text-slate-400">{activeIndex + 1} / {data.length}</span>
                     <button onClick={handleNext} className="p-3 bg-slate-100 rounded-full active:scale-95 transition-transform"><ChevronRight size={20} /></button>
                   </div>
                 </div>
@@ -421,7 +444,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
 
         {/* --- UPDATED NAVIGATION DOTS --- */}
         <div className="flex justify-center gap-3 mt-12 items-center">
-          {JARGON_ITEMS.map((_, idx) => (
+          {data.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
@@ -430,13 +453,12 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
               className="group flex items-center justify-center p-1 focus:outline-none"
             >
               <div
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  activeIndex === idx 
-                    ? 'w-8' // Active state: Wide "Pill"
-                    : 'w-2 bg-slate-300 hover:bg-slate-400' // Inactive state: Small "Dot"
-                }`}
-                style={{ 
-                  backgroundColor: activeIndex === idx ? JARGON_ITEMS[activeIndex].accentColor : undefined 
+                className={`h-2 rounded-full transition-all duration-300 ${activeIndex === idx
+                  ? 'w-8' // Active state: Wide "Pill"
+                  : 'w-2 bg-slate-300 hover:bg-slate-400' // Inactive state: Small "Dot"
+                  }`}
+                style={{
+                  backgroundColor: activeIndex === idx ? data?.[activeIndex].accentColor : undefined
                 }}
               />
             </button>

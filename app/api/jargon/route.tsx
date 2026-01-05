@@ -1,71 +1,103 @@
 import { NextRequest, NextResponse } from "next/server";
+import JargonItem from "@/models/Jargon";
 import { connectDB } from "@/lib/db";
-import Jargon from "@/models/Jargon";
 import { saveFile } from "../programs/route";
 
-/**
- * CREATE Jargon
- * POST /api/jargon
- */
-export async function POST(req: NextRequest) {
-    await connectDB();
-
-    try {
-        const formData = await req.formData();
-
-        const title = formData.get("title")?.toString();
-        const description = formData.get("description")?.toString();
-        const alt = formData.get("alt")?.toString();
-        const color = formData.get("color")?.toString();
-        const accentColor = formData.get("accentColor")?.toString();
-        const image = formData.get("image") as File | null;
-
-        if (!title || !description || !image) {
-            return NextResponse.json(
-                { message: "Missing required fields" },
-                { status: 400 }
-            );
-        }
-
-        // ⚠️ upload image here (cloudinary / local / s3)
-        const imageUrl = await saveFile(image, "jargon");
-
-        const jargon = await Jargon.create({
-            title,
-            description,
-            alt,
-            color,
-            accentColor,
-            image: imageUrl
-        });
-
-        return NextResponse.json(
-            { success: true, data: jargon },
-            { status: 201 }
-        );
-    } catch (err: any) {
-        console.error("Jargon POST error:", err);
-        return NextResponse.json(
-            { message: err.message },
-            { status: 500 }
-        );
-    }
+/* ===== GET ===== */
+export async function GET() {
+  await connectDB();
+  const items = await JargonItem.find().sort({ createdAt: 1 }).lean();
+  return NextResponse.json(items);
 }
 
-/**
- * READ ALL Jargons
- * GET /api/jargon
- */
-export async function GET() {
-    await connectDB();
+/* ===== POST ===== */
+export async function POST(req: NextRequest) {
+  await connectDB();
+  const contentType = req.headers.get("content-type") || "";
 
-    try {
-        const data = await Jargon.find().sort({ createdAt: -1 });
-        return NextResponse.json({ success: true, data });
-    } catch (error: any) {
-        return NextResponse.json(
-            { message: error.message },
-            { status: 500 }
-        );
+  // ✅ Upload image
+  if (contentType.includes("multipart/form-data")) {
+    const fd = await req.formData();
+
+    const title = fd.get("title")?.toString();
+    const description = fd.get("description")?.toString();
+    const alt = fd.get("alt")?.toString();
+    const icon = fd.get("icon")?.toString();
+    const color = fd.get("color")?.toString();
+    const accentColor = fd.get("accentColor")?.toString();
+    const file = fd.get("image") as File | null;
+
+    if (
+      !title ||
+      !description ||
+      !alt ||
+      !icon ||
+      !color ||
+      !accentColor ||
+      !file
+    ) {
+      return NextResponse.json(
+        { message: "All fields required" },
+        { status: 400 }
+      );
     }
+
+    const imageUrl = await saveFile(file, "jargon");
+
+    const saved = await JargonItem.create({
+      title,
+      description,
+      alt,
+      icon,
+      color,
+      accentColor,
+      image: imageUrl,
+    });
+
+    return NextResponse.json(saved, { status: 201 });
+  }
+
+  // ✅ Image URL
+  const { title, description, alt, icon, color, accentColor, image } =
+    await req.json();
+
+  if (
+    !title ||
+    !description ||
+    !alt ||
+    !icon ||
+    !color ||
+    !accentColor ||
+    !image
+  ) {
+    return NextResponse.json(
+      { message: "All fields required" },
+      { status: 400 }
+    );
+  }
+
+  const saved = await JargonItem.create({
+    title,
+    description,
+    alt,
+    icon,
+    color,
+    accentColor,
+    image,
+  });
+
+  return NextResponse.json(saved, { status: 201 });
+}
+
+/* ===== DELETE ===== */
+export async function DELETE(req: NextRequest) {
+  await connectDB();
+
+  const { id } = await req.json();
+  if (!id) {
+    return NextResponse.json({ message: "ID required" }, { status: 400 });
+  }
+
+  await JargonItem.findByIdAndDelete(id);
+  return NextResponse.json({ message: "Deleted" });
 }

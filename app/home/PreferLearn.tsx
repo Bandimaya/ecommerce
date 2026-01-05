@@ -1,10 +1,11 @@
 "use client"
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Sparkles, Zap, Users, Target, Award, Star, ChevronRight, PlayCircle, Clock, BarChart } from "lucide-react"
+import { apiFetch } from "@/lib/axios"
 
 interface LearningPath {
   id: number
@@ -22,6 +23,7 @@ interface LearningPath {
 
 interface TabContent {
   id: string
+  _id?: string
   label: string
   icon: React.ComponentType<any>
   description: string
@@ -67,13 +69,33 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
     }
   }
 
+  const [sections, setSections] = useState<string[]>([])
+  const [sectionCourses, setSectionCourses] = useState([])
+  const [data, setData] = useState<any>([])
+
+  useEffect(() => {
+    Promise.all([
+      apiFetch('/sections'),
+      apiFetch('/section-courses')
+    ]).then(([sectionsData, setCoursesData]) => {
+      setSections(sectionsData)
+      setSectionCourses(setCoursesData)
+      let mainData: any[] = []
+      sectionsData.forEach((section: any) => {
+        const courses = setCoursesData.filter((item: any) => item.sectionId?._id === section._id)
+        mainData.push({ ...section, paths: courses })
+      })
+      setData(mainData)
+    })
+  }, [])
+
   const tabs: TabContent[] = [
     {
       id: "diy-kits",
       label: "DIY Kits",
       icon: Zap,
       description: "Hands-on kits for practical, self-paced learning",
-      paths: [ 
+      paths: [
         {
           id: 1,
           title: "Robotics Explorer Kit",
@@ -190,7 +212,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
     }
   ]
 
-  const activeTabData = tabs.find(tab => tab.id === activeTab)
+  const activeTabData = data.find((tab: any) => tab._id === activeTab)
 
   return (
     <section
@@ -279,17 +301,18 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               borderColor: v('--border', '#e2e8f0')
             }}
           >
-            {tabs.map((tab) => {
-              const isActive = activeTab === tab.id
+            {data.map((tab: any) => {
+              console.log(tab._id, activeTab);
+              const isActive = activeTab === tab._id
               const Icon = tab.icon
               return (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  key={tab._id}
+                  onClick={() => setActiveTab(tab._id)}
                   className="relative px-6 py-2 rounded-full text-sm sm:text-base font-bold transition-all duration-300 z-10 flex items-center gap-2"
                   style={{ color: isActive ? v('--primary-foreground', '#ffffff') : v('--muted-foreground', '#64748b') }}
                 >
-                  <Icon className="w-4 h-4" />
+                  {/* <Icon className="w-4 h-4" /> */}
                   {tab.label}
                 </button>
               )
@@ -299,9 +322,9 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               layoutId="activeTabBackground"
               initial={false}
               animate={{
-                left: activeTab === tabs[0].id ? '4px' : '50%',
+                left: activeTab === tabs[0]._id ? '4px' : '50%',
                 width: 'calc(50% - 4px)',
-                x: activeTab === tabs[0].id ? 0 : 0
+                x: activeTab === tabs[0]._id ? 0 : 0
               }}
               transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
               style={{
@@ -322,7 +345,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
             layout
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 max-w-6xl mx-auto"
           >
-            {activeTabData?.paths.map((path) => (
+            {activeTabData?.paths.map((path: any) => (
               <motion.div
                 key={path.id}
                 variants={cardVariants}
@@ -364,7 +387,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
 
                     {/* Hover Play Button */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <motion.div 
+                      <motion.div
                         initial={{ scale: 0.8, opacity: 0 }}
                         animate={hoveredCard === path.id ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
                         className="bg-white/20 backdrop-blur-md p-3 rounded-full border border-white/30 shadow-lg"
@@ -398,7 +421,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                     </div>
 
                     <div className="flex flex-wrap gap-1.5 mt-auto">
-                      {path.skills.slice(0, 2).map((skill, i) => (
+                      {path.skills.slice(0, 2).map((skill: any, i: any) => (
                         <span
                           key={i}
                           className="px-2 py-0.5 text-[10px] rounded-md border bg-secondary/50 group-hover:bg-primary/5 group-hover:border-primary/20 transition-colors duration-300"
@@ -450,7 +473,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
           >
             <h4 className="text-lg font-bold mb-4" style={{ color: v('--foreground', '#020817') }}>Why choose our paths?</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02 }}
                 className="flex gap-3 p-3 rounded-xl bg-blue-50/50 border border-blue-100 transition-transform duration-200"
               >
@@ -460,7 +483,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                   <div className="text-xs text-blue-700/80">Keep kits forever, learn at your pace, hands-on.</div>
                 </div>
               </motion.div>
-              <motion.div 
+              <motion.div
                 whileHover={{ scale: 1.02 }}
                 className="flex gap-3 p-3 rounded-xl bg-purple-50/50 border border-purple-100 transition-transform duration-200"
               >
@@ -474,7 +497,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
 
             <div className="mt-6">
               <Button variant="link" className="text-sm gap-1 hover:no-underline group" style={{ color: v('--primary', '#3b82f6') }}>
-                Need help deciding? Book a free call 
+                Need help deciding? Book a free call
                 <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
               </Button>
             </div>

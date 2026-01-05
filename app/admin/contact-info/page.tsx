@@ -77,6 +77,7 @@ export default function ContactInfo() {
     email: "",
     phone: "",
     address: "",
+    whatsapp_number: "",
     hours: "",
   });
 
@@ -97,6 +98,7 @@ export default function ContactInfo() {
       setForm({
         email: contact.email || "",
         phone: contact.phone || "",
+        whatsapp_number: contact.whatsapp_number || "",
         address: contact.address || "",
         hours: contact.hours || "",
       });
@@ -277,6 +279,17 @@ export default function ContactInfo() {
                 <input
                   name="phone"
                   value={form.phone}
+                  onChange={handleChange}
+                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5" /> Whatsapp Number
+                </label>
+                <input
+                  name="whatsapp_number"
+                  value={form.whatsapp_number}
                   onChange={handleChange}
                   className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/20 outline-none"
                 />

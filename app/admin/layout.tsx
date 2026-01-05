@@ -1,21 +1,21 @@
 "use client";
 
-import { 
-  User as UserIcon, 
-  LogOut, 
-  Settings, 
-  LayoutDashboard, 
-  Menu, 
-  X, 
-  Package, 
+import {
+  User as UserIcon,
+  LogOut,
+  Settings,
+  LayoutDashboard,
+  Menu,
+  X,
+  Package,
   Phone,
   // New specific icons imported below
-  BadgeCheck, 
-  BookOpen, 
-  Tags, 
-  ShoppingCart, 
-  Users, 
-  Palette 
+  BadgeCheck,
+  BookOpen,
+  Tags,
+  ShoppingCart,
+  Users,
+  Palette
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -60,11 +60,20 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
       setIsMobileOpen(false);
     }
   }, [isDesktop, isMobileOpen, setIsMobileOpen]);
-  
+
   // Updated navItems with unique icons
   const navItems = [
     { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
     { label: "Jargon", path: "/admin/jargon", icon: LayoutDashboard },
+    { label: "Sections", path: "/admin/sections", icon: Users },
+    { label: "Section Courses", path: "/admin/section-courses", icon: Users },
+    { label: "Events", path: "/admin/events", icon: Users },
+    { label: "Winners", path: "/admin/winners", icon: Users },
+    { label: "Stempark Features", path: "/admin/stempark-features", icon: Users },
+    { label: "Award Images", path: "/admin/award-images", icon: Users },
+    { label: "Partner Images", path: "/admin/partner-images", icon: Users },
+    { label: "News", path: "/admin/news", icon: Users },
+    { label: "Stars", path: "/admin/stars", icon: Users },
     { label: "Brands", path: "/admin/brands", icon: BadgeCheck },
     { label: "Programs", path: "/admin/programs", icon: BookOpen },
     { label: "Categories", path: "/admin/categories", icon: Tags },
@@ -114,7 +123,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
       {/* Desktop Sidebar */}
       <motion.aside
         initial={false}
-        animate={{ 
+        animate={{
           width: isCollapsed ? '80px' : '280px'
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -126,7 +135,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
         }}
       >
         {/* Logo Section */}
-        <div 
+        <div
           className="flex items-center justify-between px-4 py-5 border-b"
           style={{ borderColor: colors.border }}
         >
@@ -140,12 +149,12 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
               <span className="text-xl font-extrabold tracking-tight" style={{ color: colors.primary }}>
                 STEM
               </span>
-              <span className="text-xl font-extrabold tracking-tight" 
+              <span className="text-xl font-extrabold tracking-tight"
                 style={{ color: colors.accent }}>
                 PARK
               </span>
               <span className="text-xs font-bold px-2 py-0.5 rounded-md ml-2"
-                style={{ 
+                style={{
                   backgroundColor: `${colors.primary} / 0.1`,
                   color: colors.primary
                 }}>
@@ -153,7 +162,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
               </span>
             </motion.div>
           )}
-          
+
           {isCollapsed && (
             <motion.div
               initial={{ opacity: 0 }}
@@ -161,7 +170,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
               className="w-full flex justify-center"
             >
               <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-                style={{ 
+                style={{
                   backgroundColor: `${colors.primary} / 0.1`,
                   color: colors.primary
                 }}>
@@ -169,7 +178,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
               </div>
             </motion.div>
           )}
-          
+
           {/* Toggle Button */}
           <motion.button
             onClick={() => setIsCollapsed(!isCollapsed)}
@@ -212,11 +221,11 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
                     color: isActive ? colors.primaryForeground : colors.mutedForeground,
                   }}
                 >
-                  <Icon 
-                    className={`${isCollapsed ? 'mx-auto' : 'mr-3'}`} 
-                    size={20} 
+                  <Icon
+                    className={`${isCollapsed ? 'mx-auto' : 'mr-3'}`}
+                    size={20}
                   />
-                  
+
                   {!isCollapsed && (
                     <motion.span
                       initial={{ opacity: 0, x: -10 }}
@@ -228,7 +237,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
                     </motion.span>
                   )}
                   {isCollapsed && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 0.15 }}
@@ -248,9 +257,9 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
         </nav>
 
         {/* Footer */}
-        <div 
+        <div
           className="px-4 py-4 border-t"
-          style={{ 
+          style={{
             borderColor: colors.border,
             color: colors.mutedForeground
           }}
@@ -289,12 +298,12 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
             style={{ backgroundColor: colors.background }}
           >
             {/* Mobile Header */}
-            <motion.div 
+            <motion.div
               initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
               className="flex items-center justify-between px-6 py-5 border-b"
-              style={{ 
+              style={{
                 backgroundColor: colors.card,
                 borderColor: colors.border
               }}
@@ -302,7 +311,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center"
                   style={{
-                  backgroundColor: `${colors.primary} / 0.1`,
+                    backgroundColor: `${colors.primary} / 0.1`,
                     color: colors.primary
                   }}>
                   <LayoutDashboard size={24} />
@@ -316,7 +325,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
                   </p>
                 </div>
               </div>
-              
+
               {/* Close Button */}
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -332,11 +341,11 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
 
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto px-4 py-2">
-              <motion.h3 
+              <motion.h3
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2 }}
-                className="text-sm font-semibold mb-3 px-2 uppercase tracking-wider" 
+                className="text-sm font-semibold mb-3 px-2 uppercase tracking-wider"
                 style={{ color: colors.mutedForeground }}
               >
                 Admin Sections
@@ -381,12 +390,12 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
             </div>
 
             {/* Bottom Actions */}
-            <motion.div 
+            <motion.div
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
               className="px-4 py-4 border-t"
-              style={{ 
+              style={{
                 borderColor: colors.border,
                 backgroundColor: colors.card
               }}
@@ -447,11 +456,11 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
   };
 
   return (
-    <motion.header 
+    <motion.header
       initial={false}
-      animate={{ 
+      animate={{
         left: isDesktop ? (isCollapsed ? '80px' : '280px') : '0px'
-      }} 
+      }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className="fixed top-0 right-0 z-40 h-16 md:h-20 bg-card/95 backdrop-blur-md shadow-sm border-b border-border"
     >
@@ -480,9 +489,9 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
           >
             <Menu size={20} />
           </motion.button>
-          
+
           <div className="flex flex-col">
-            <motion.h2 
+            <motion.h2
               key={pathname}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -502,7 +511,7 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors group outline-none"
@@ -516,7 +525,7 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
                     )}
                   </div>
                   {hasRole(user, "admin") && (
-                    <motion.div 
+                    <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       className="absolute -top-1 -right-1 border-2 w-3 h-3 rounded-full"
@@ -538,8 +547,8 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
               </motion.button>
             </DropdownMenuTrigger>
 
-            <DropdownMenuContent 
-              align="end" 
+            <DropdownMenuContent
+              align="end"
               className="w-56 p-2 rounded-xl shadow-xl border bg-card border-border">
               <DropdownMenuLabel className="font-normal p-3">
                 <div className="flex flex-col space-y-1">
@@ -613,7 +622,7 @@ export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
 
   useEffect(() => setMounted(true), []);
-  
+
   // Track screen size and auto close/open behaviors
   useEffect(() => {
     const update = () => setIsDesktop(typeof window !== 'undefined' && window.innerWidth >= 1024);
@@ -648,7 +657,7 @@ export default function Layout({ children }: LayoutProps) {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
-      <Sidebar 
+      <Sidebar
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
         isCollapsed={isCollapsed}
@@ -657,9 +666,9 @@ export default function Layout({ children }: LayoutProps) {
       />
 
       {/* Main Content Area */}
-      <motion.div 
+      <motion.div
         initial={false}
-        animate={{ 
+        animate={{
           paddingLeft: isDesktop ? (isCollapsed ? '80px' : '280px') : '0px',
           paddingRight: '0px'
         }}
@@ -667,7 +676,7 @@ export default function Layout({ children }: LayoutProps) {
         className="flex-1 flex flex-col w-full max-lg:!pl-0"
       >
         {/* Header */}
-        <Header 
+        <Header
           isCollapsed={isCollapsed}
           toggleMobileSidebar={toggleMobileSidebar}
           toggleDesktopSidebar={toggleDesktopSidebar}
@@ -678,7 +687,7 @@ export default function Layout({ children }: LayoutProps) {
         <main className="pt-20 pb-10">
           <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
             {/* Breadcrumb */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -694,7 +703,7 @@ export default function Layout({ children }: LayoutProps) {
             </motion.div>
 
             {/* Content Container */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}

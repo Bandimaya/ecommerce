@@ -23,6 +23,7 @@ export const PUT = withAuth(async (req: NextRequest, user: UserPayload) => {
     const phone = formData.get("phone") as string;
     const address = formData.get("address") as string;
     const hours = formData.get("hours") as string;
+    const whatsapp_number = formData.get("whatsapp_number") as string;
     const file = formData.get("logo") as File | null;
 
     let logoUrl = undefined;
@@ -58,6 +59,7 @@ export const PUT = withAuth(async (req: NextRequest, user: UserPayload) => {
       contact.email = email ?? contact.email;
       contact.phone = phone ?? contact.phone;
       contact.address = address ?? contact.address;
+      contact.whatsapp_number = whatsapp_number ?? contact.whatsapp_number;
       contact.hours = hours ?? contact.hours;
       if (logoUrl) contact.logo_url = logoUrl;
     }
