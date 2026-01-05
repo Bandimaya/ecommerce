@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Play, ArrowRight, Trophy, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { apiFetch } from '@/lib/axios';
 
 // --- Types ---
 interface Project {
@@ -39,7 +40,7 @@ const PROJECTS: Project[] = [
     id: 4,
     student: 'Ishita R.',
     title: 'Gesture Control Car',
-    img: 'https://images.unsplash.com/photo-1531297461136-8208e8d8d8d?auto=format&fit=crop&q=80&w=400', 
+    img: 'https://images.unsplash.com/photo-1531297461136-8208e8d8d8d?auto=format&fit=crop&q=80&w=400',
     views: '900'
   },
   {
@@ -73,19 +74,25 @@ const PROJECTS: Project[] = [
 ];
 
 export default function StudentSpotlight() {
+  const [studentProjects, setStudentProjects] = useState<Project[]>([]);
+
+  useEffect(() => {
+    apiFetch('/projects').then((data) => setStudentProjects(data)
+    ).catch((err) => console.error(err))
+  }, [])
   return (
     <section className="py-24 bg-slate-50/50">
       <div className="max-w-7xl mx-auto px-6">
-        
+
         {/* Header Section */}
-                {/* --- Header Section --- */}
-                <div className="flex justify-center items-center gap-3 mb-10 sm:mb-16">
-                  <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
-                  <span className="text-xs font-bold uppercase tracking-widest text-primary">Wall Of Fame</span>
-                  <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
-                </div>
+        {/* --- Header Section --- */}
+        <div className="flex justify-center items-center gap-3 mb-10 sm:mb-16">
+          <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
+          <span className="text-xs font-bold uppercase tracking-widest text-primary">Wall Of Fame</span>
+          <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
+        </div>
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
@@ -97,9 +104,9 @@ export default function StudentSpotlight() {
               Discover the next generation of engineers and creators.
             </p>
           </motion.div>
-          
-          <motion.a 
-            href="#" 
+
+          <motion.a
+            href="#"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             className="group flex items-center gap-2 text-sm font-bold text-slate-900 bg-white px-5 py-3 rounded-full shadow-sm border border-slate-200 hover:border-blue-500 transition-all"
@@ -111,7 +118,7 @@ export default function StudentSpotlight() {
 
         {/* Custom Project Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {PROJECTS.map((project, idx) => (
+          {studentProjects.map((project, idx) => (
             <motion.div
               key={project.id}
               initial={{ opacity: 0, y: 20 }}
@@ -133,21 +140,21 @@ function HoverCard({ project }: { project: Project }) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div 
+    <div
       className="group relative p-2 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 h-full flex flex-col"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container */}
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-slate-100">
-        <motion.img 
-          src={project.img} 
+        <motion.img
+          src={project.img}
           alt={project.title}
           animate={{ scale: isHovered ? 1.1 : 1 }}
           transition={{ duration: 0.6 }}
           className="w-full h-full object-cover"
         />
-        
+
         {/* Animated Gradient Overlay */}
         <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-60'}`} />
 
@@ -173,7 +180,7 @@ function HoverCard({ project }: { project: Project }) {
         {/* Center Play Button Overlay */}
         <AnimatePresence>
           {isHovered && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5 }}
@@ -190,8 +197,8 @@ function HoverCard({ project }: { project: Project }) {
       {/* Footer Info (Light Mode) */}
       <div className="px-3 py-4 mt-auto">
         <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Certified Project</span>
-            <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">Certified Project</span>
+          <div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" />
         </div>
       </div>
     </div>

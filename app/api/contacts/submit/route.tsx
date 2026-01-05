@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { name, email, subject, message } = body;
+        const { name, email, subject, message, phone } = body;
 
         // Validate required fields
         if (!name || !email || !message) {
@@ -23,6 +23,7 @@ export async function POST(req: NextRequest) {
         const newContact = new Contact({
             name,
             email,
+            phone,
             subject,
             message,
         });

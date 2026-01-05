@@ -1,7 +1,8 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
+import { apiFetch } from '@/lib/axios';
 
 const BenefitsSection = () => {
   const benefits = [
@@ -43,6 +44,13 @@ const BenefitsSection = () => {
     }
   ];
 
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    apiFetch(('/benefits')).then((res) => { setData(res) })
+      .catch((err) => { console.error(err); });
+  }, [])
+
   return (
     <section className="relative w-full py-24 bg-[#fcfcfd] overflow-hidden">
       {/* Technical Grid Background Decor */}
@@ -76,7 +84,7 @@ const BenefitsSection = () => {
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {benefits.map((item, index) => (
+          {data.map((item: any, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 30 }}
@@ -105,7 +113,7 @@ const BenefitsSection = () => {
 
                 <img
                   loading="lazy"
-                  src={item.img}
+                  src={item.image}
                   alt={item.alt}
                   className="relative z-10 w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
                 />

@@ -1,76 +1,38 @@
-// models/Program.ts
-import { Schema, model, models } from "mongoose";
+import mongoose from "mongoose";
 
-const ProgramSchema = new Schema(
+const statSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
-      required: true,
-      trim: true,
+    label: { type: String, required: true },
+    value: { type: String, required: true },
+  },
+  { _id: false }
+);
+
+const programSchema = new mongoose.Schema(
+  {
+    programId: { type: String, required: true },
+    title: { type: String, required: true },
+    subtitle: { type: String, required: true },
+    description: { type: String, required: true },
+    icon: { type: String, required: true },
+    color: { type: String, required: true },
+    image: { type: String, required: true },
+
+    // 👇 IMPORTANT
+    stats: {
+      type: Object,
+      default: [],
     },
-    subtitle: {
-      type: String,
-      trim: true,
-    },
-    description: {
-      type: String,
-    },
-    image: {
-      url: { type: String, required: true },
-      alt: String,
-      position: { type: Number, default: 0 },
-    },
+
     features: {
       type: [String],
       default: [],
     },
-    // --- New STEM Fields ---
-    durationWeeks: {
-      type: Number,
-      required: false,
-    },
-    ageGroup: {
-      type: String, // e.g., "Ages 14-18"
-    },
-    prerequisites: {
-      type: String,
-    },
-    certification: {
-      type: String,
-    },
-    equipment: {
-      type: [String], // Array of tools like "3D Printer", "VEX Kit"
-      default: [],
-    },
-    learningOutcomes: {
-      type: [String],
-      default: [],
-    },
-    // -----------------------
-    type: {
-      type: String,
-      enum: ["main", "additional"],
-      default: "main",
-    },
-    icon: {
-      type: String,
-      default: "Cpu",
-    },
-    color: {
-      type: String,
-      default: "#6366f1", // Default Indigo
-    },
-    status: {
-      type: String,
-      enum: ["active", "draft", "archived"],
-      default: "active",
-    },
   },
-  {
-    timestamps: true, // Automatically manages createdAt and updatedAt
-  }
+  { timestamps: true }
 );
 
-const Program = models.Program || model("Program", ProgramSchema);
+const Program =
+  mongoose.models.Program || mongoose.model("Program", programSchema);
 
 export default Program;

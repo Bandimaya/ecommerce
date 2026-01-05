@@ -3,17 +3,23 @@
 import React, { useState, useRef, useEffect } from "react"
 import { ArrowRight, Star, X, ChevronRight, ShoppingCart, Brain, Package } from "lucide-react"
 import Image from "next/image"
-import { 
-  motion, 
-  useReducedMotion, 
-  AnimatePresence, 
-  useMotionValue, 
+import {
+  motion,
+  useReducedMotion,
+  AnimatePresence,
+  useMotionValue,
   useTransform,
   MotionValue
 } from "framer-motion"
 
 // IMPORT DATA
-import { MOCK_PRODUCTS, Product } from "../../lib/Data" 
+import { MOCK_PRODUCTS, Product } from "../../lib/Data"
+import { apiFetch } from "@/lib/axios"
+import { useSettings } from "@/contexts/SettingsContext"
+import { getDisplayPrice } from "@/lib/utils"
+import { CURRENCY_OPTIONS } from "@/lib/constants"
+import { toast } from "@/hooks/useToast"
+import { useCart } from "@/contexts/CartContext"
 
 // ----------------------------------------------------------------------
 // TYPES
@@ -28,7 +34,7 @@ interface FeaturedProductsProps {
 // ----------------------------------------------------------------------
 
 const Button = ({ children, className, style, onClick }: any) => (
-  <button 
+  <button
     onClick={onClick}
     className={`inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${className}`}
     style={style}
@@ -56,8 +62,8 @@ interface MagnifierLensProps {
 }
 
 const MagnifierLens = ({ mouseX, mouseY, imageSrc, containerWidth, containerHeight }: MagnifierLensProps) => {
-  const lensSize = 150; 
-  const zoomLevel = 2.5; 
+  const lensSize = 150;
+  const zoomLevel = 2.5;
 
   const lensX = useTransform(mouseX, (m) => m - lensSize / 2);
   const lensY = useTransform(mouseY, (m) => m - lensSize / 2);
@@ -73,15 +79,15 @@ const MagnifierLens = ({ mouseX, mouseY, imageSrc, containerWidth, containerHeig
       transition={{ duration: 0.2 }}
       style={{
         position: 'absolute',
-        top: 0, 
+        top: 0,
         left: 0,
-        width: lensSize, 
+        width: lensSize,
         height: lensSize,
         borderRadius: '50%',
         border: '4px solid white',
         boxShadow: '0 10px 40px rgba(0,0,0,0.3), inset 0 0 20px rgba(0,0,0,0.1)',
         pointerEvents: 'none',
-        x: lensX, 
+        x: lensX,
         y: lensY,
         zIndex: 60,
         backgroundColor: 'white',
@@ -105,8 +111,15 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
   const [popupContainerDims, setPopupContainerDims] = useState({ width: 0, height: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  
+  const [products, setProducts] = useState<any>([])
+
   const [isMobileWidth, setIsMobileWidth] = useState(false);
+
+  useEffect(() => {
+    apiFetch('/products')
+      .then((data) => setProducts(data))
+      .catch((error) => console.error('Error fetching products:', error));
+  }, [])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -114,14 +127,14 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     // Handle body overflow when modal is open
     if (selectedProduct) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'unset';
     }
-    
+
     return () => {
       window.removeEventListener('resize', checkMobile);
       document.body.style.overflow = 'unset';
@@ -135,7 +148,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
   const mouseY = useMotionValue(0);
 
   // Using the imported data
-  const featuredProducts = MOCK_PRODUCTS;
+  const featuredProducts = products.filter((product: any) => product.isFeatured);
   const prefersReducedMotion = useReducedMotion()
 
   const safeGetVar = (name: string, fallback: string) => {
@@ -164,6 +177,9 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
       setTimeout(() => setIsAnimating(false), 300);
     }
   }, [selectedProduct]);
+  const { countryCode } = useSettings();
+  const { addToCart } = useCart();
+
 
   const handleCardMouseEnter = (e: React.MouseEvent, productId: number) => {
     if (isMobile || isModalOpen || selectedProduct || isAnimating) return;
@@ -202,6 +218,27 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
     }
   }
 
+  const handleAddToCart = (e: React.MouseEvent, product: any) => {
+    e.stopPropagation();
+
+    const price = product.pricing?.[0]?.salePrice || 0;
+    const image = product.media?.[0]?.url;
+
+    addToCart({
+      productId: product._id,
+      name: product.name,
+      price: price,
+      image: image,
+      currency: "USD",
+    }, 1);
+
+    toast({
+      title: 'Added to cart',
+      description: `${product.name} added to cart`,
+      className: "bg-emerald-600 text-white border-none",
+    });
+  };
+
   return (
     <motion.section
       className="relative py-16 sm:py-20 lg:py-32 overflow-hidden w-full"
@@ -225,14 +262,19 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
         {/* --- PRODUCT GRID --- */}
         <div className="flex justify-center px-0 sm:px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-24 w-full max-w-7xl">
-            {featuredProducts.map((product) => (
-              <motion.div
-                key={product.id}
-                layoutId={`product-card-container-${product.id}`}
+            {featuredProducts.map((product: any) => {
+              const { displayPrice, currency }: any = getDisplayPrice(
+                product.pricing,
+                countryCode
+              );
+
+              return <motion.div
+                key={product._id}
+                layoutId={`product-card-container-${product._id}`}
                 className="relative h-[400px] w-full group cursor-pointer perspective-1000"
                 initial="rest"
                 whileHover={isMobile || isModalOpen || isAnimating ? undefined : "hover"}
-                animate={selectedProduct?.id === product.id ? "selected" : "rest"}
+                animate={selectedProduct?.id === product._id ? "selected" : "rest"}
                 variants={{
                   rest: {},
                   hover: {},
@@ -253,7 +295,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                   style={{ borderColor: cssVars.border() }}
                 >
                   <div className="absolute inset-0 flex flex-col justify-end p-8 z-10">
-                    <motion.div 
+                    <motion.div
                       className="mt-24 space-y-4"
                       variants={{
                         rest: { opacity: 0, y: 20 },
@@ -267,14 +309,15 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                           </p>
                           <h3 className="text-xl font-bold leading-tight text-slate-900">{product.name}</h3>
                         </div>
-                        <span className="text-xl font-black text-slate-900">${product.price}</span>
+                        <span className="text-xl font-black text-slate-900">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
                       </div>
-                      
+
                       <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
                         <span className="text-xs font-bold text-slate-400 flex items-center">
                           View Details <ChevronRight className="ml-1 w-3 h-3" />
                         </span>
-                        <button 
+                        <button
+                          onClick={(e) => handleAddToCart(e, product)}
                           className="h-10 w-10 rounded-full bg-blue-600 hover:bg-slate-900 transition-colors shadow-md flex items-center justify-center"
                         >
                           <ShoppingCart className="w-4 h-4 text-white" />
@@ -318,9 +361,9 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                       x: 0
                     }
                   }}
-                  transition={{ 
-                    type: "spring", 
-                    stiffness: 300, 
+                  transition={{
+                    type: "spring",
+                    stiffness: 300,
                     damping: 25,
                     bounce: 0.1
                   }}
@@ -330,39 +373,40 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                   }}
                 >
                   <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
-                    <Image
+                    <img
                       src={product.image}
                       alt={product.name}
-                      fill
+                      // fill
                       className="object-cover object-center"
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
-                    
+
                     {/* Gradients and Labels (Rest State) */}
                     <motion.div
                       className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent pointer-events-none"
-                      variants={{ 
-                        rest: { opacity: 1 }, 
+                      variants={{
+                        rest: { opacity: 1 },
                         hover: { opacity: 0 },
                         selected: { opacity: 0 }
                       }}
                     />
                     <motion.div
                       className="absolute bottom-8 left-8 text-white pointer-events-none"
-                      variants={{ 
-                        rest: { opacity: 1, y: 0 }, 
+                      variants={{
+                        rest: { opacity: 1, y: 0 },
                         hover: { opacity: 0, y: 20 },
                         selected: { opacity: 0 }
                       }}
                     >
                       <p className="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-1">{product.category}</p>
                       <h3 className="text-2xl font-black leading-tight">{product.name}</h3>
-                      <p className="text-white/80 font-bold mt-1">${product.price}</p>
+                      <p className="text-white/80 font-bold mt-1">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
                     </motion.div>
                   </div>
                 </motion.div>
               </motion.div>
-            ))}
+            }
+            )}
           </div>
         </div>
 
@@ -392,9 +436,9 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
               layoutId={`product-card-container-${selectedProduct.id}`}
               className="relative w-full h-[100dvh] sm:h-[85vh] sm:w-[90vw] md:max-w-6xl bg-white sm:rounded-[3rem] overflow-hidden shadow-2xl flex flex-col pointer-events-auto z-[110]"
               onClick={(e) => e.stopPropagation()}
-              transition={{ 
-                type: "spring", 
-                stiffness: 120, 
+              transition={{
+                type: "spring",
+                stiffness: 120,
                 damping: 20,
                 mass: 0.5
               }}
@@ -408,7 +452,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
               </button>
 
               <div className="flex flex-col md:flex-row h-full">
-                
+
                 {/* --- POPUP IMAGE SECTION --- */}
                 <div
                   ref={popupImageContainerRef}
@@ -437,11 +481,11 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                       damping: 25
                     }}
                   >
-                    <Image
+                    <img
                       src={selectedProduct.image}
                       alt={selectedProduct.name}
-                      fill
-                      priority
+                      // fill
+                      // priority
                       className="object-cover object-center"
                       sizes="(max-width: 768px) 100vw, 60vw"
                     />

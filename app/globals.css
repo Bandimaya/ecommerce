@@ -1061,3 +1061,55 @@ input:disabled, textarea:disabled, select:disabled {
   height: 100%;
   opacity: 0.9;
 }
+
+/* Prevent page shift */
+body {
+  top: 0 !important;
+}
+
+/* Hide Google top banner */
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+/* Hide Google branding */
+.goog-logo-link,
+.goog-te-gadget span {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
+}
+
+/* ---- REMOVE GOOGLE TRANSLATE TOP BAR ---- */
+.goog-te-banner-frame {
+  display: none !important;
+}
+
+.goog-te-balloon-frame {
+  display: none !important;
+}
+
+body {
+  top: 0 !important;
+}
+
+/* Hide Google branding */
+.goog-logo-link,
+.goog-te-gadget span {
+  display: none !important;
+}
+
+.goog-te-gadget {
+  color: transparent !important;
+}
+
+/* Prevent page jump */
+html {
+  overflow-x: hidden;
+}
+
+.skiptranslate {
+  display: none !important; 
+}

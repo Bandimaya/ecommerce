@@ -2,20 +2,17 @@ export const apiUrl = "/api";
 
 
 export const CURRENCY_OPTIONS = [
-    { code: "USD", label: "USD - US Dollar", symbol: "$" },
-    { code: "INR", label: "INR - Indian Rupee", symbol: "₹" },
-    { code: "EUR", label: "EUR - Euro", symbol: "€" },
-    { code: "GBP", label: "GBP - British Pound", symbol: "£" },
-    { code: "AED", label: "AED - UAE Dirham", symbol: "د.إ" },
-    { code: "QAR", label: "QAR - Qatari Riyal", symbol: "ر.ق" },
+  { code: "SAR", label: "SAR - Saudi Riyal", symbol: "﷼" },
+  { code: "INR", label: "INR - Indian Rupee", symbol: "₹" },
+  { code: "OMR", label: "OMR - Omani Rial", symbol: "﷼" },
+  { code: "BHD", label: "BHD - Bahraini Dinar", symbol: ".د.ب" },
+  { code: "AED", label: "AED - UAE Dirham", symbol: "د.إ" },
 ];
 
-export const countryToCurrency: any = {
-    "IN": "INR",
-    "QA": "QAR",
-    "US": "USD",
-    "AE": "AED",
-    "GB": "GBP",
-    "DE": "EUR",
-    "FR": "EUR",
+export const countryToCurrency: Record<string, string> = {
+  SA: "SAR", // Saudi Arabia
+  IN: "INR", // India
+  OM: "OMR", // Oman
+  BH: "BHD", // Bahrain
+  AE: "AED", // UAE
 };

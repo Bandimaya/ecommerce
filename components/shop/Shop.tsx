@@ -7,7 +7,7 @@ import {
     Tag, CheckCircle2, Package, Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, getDisplayPrice } from "@/lib/utils";
 import {
     motion,
     AnimatePresence,
@@ -21,6 +21,9 @@ import Image from "next/image";
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
 import { MOCK_PRODUCTS_SHOP, MOCK_CATEGORIES } from "../../lib/Data";
+import { apiFetch } from "@/lib/axios";
+import { useSettings } from "@/contexts/SettingsContext";
+import { CURRENCY_OPTIONS } from "@/lib/constants";
 
 // ----------------------------------------------------------------------
 // HELPER: Magnifier Lens (Fixed & Robust)
@@ -98,8 +101,15 @@ const Shop = () => {
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
 
-    const products = MOCK_PRODUCTS_SHOP;
+    const [products, setProducts] = useState([]);
     const categories = MOCK_CATEGORIES;
+    const { countryCode } = useSettings();
+
+    useEffect(() => {
+        apiFetch('/products')
+            .then((res) => setProducts(res))
+            .catch(() => { console.log("Products fetch failed") })
+    }, [])
 
     // --- EFFECT: Mobile Check & Scroll Lock ---
     useEffect(() => {
@@ -363,7 +373,10 @@ const Shop = () => {
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-24">
                                     {filteredProducts.map((product: any) => {
                                         const displayImage = product.media?.[0]?.url || '/placeholder.png';
-                                        const displayPrice = product.pricing?.[0]?.salePrice || 0;
+                                        const { displayPrice, currency }: any = getDisplayPrice(
+                                            product.pricing,
+                                            countryCode
+                                        );
                                         const displayCategory = product.categories?.[0]?.title || "Item";
                                         const outcomes = product.outcomes || [
                                             "Problem-solving skills",
@@ -403,7 +416,7 @@ const Shop = () => {
                                                     transition={{ duration: 0.4, ease: "easeOut" }}
                                                 >
                                                     <div className="absolute inset-0 flex flex-col justify-end p-8 z-10">
-                                                        <motion.div 
+                                                        <motion.div
                                                             className="mt-24 space-y-4"
                                                             variants={{
                                                                 rest: { opacity: 0, y: 20 },
@@ -417,16 +430,16 @@ const Shop = () => {
                                                                     </p>
                                                                     <h3 className="text-xl font-bold leading-tight text-slate-900">{product.name}</h3>
                                                                 </div>
-                                                                <span className="text-xl font-black text-slate-900">${displayPrice}</span>
+                                                                <span className="text-xl font-black text-slate-900">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
                                                             </div>
-                                                            
+
                                                             <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
                                                                 <span className="text-xs font-bold text-slate-400 flex items-center">
                                                                     View Details <ChevronRight className="ml-1 w-3 h-3" />
                                                                 </span>
-                                                                <Button 
-                                                                    size="icon" 
-                                                                    className="h-10 w-10 rounded-full bg-blue-600 hover:bg-slate-900 transition-colors shadow-md" 
+                                                                <Button
+                                                                    size="icon"
+                                                                    className="h-10 w-10 rounded-full bg-blue-600 hover:bg-slate-900 transition-colors shadow-md"
                                                                     onClick={(e) => handleAddToCart(e, product)}
                                                                 >
                                                                     <ShoppingCart className="w-4 h-4 text-white" />
@@ -470,9 +483,9 @@ const Shop = () => {
                                                             x: 0
                                                         }
                                                     }}
-                                                    transition={{ 
-                                                        type: "spring", 
-                                                        stiffness: 300, 
+                                                    transition={{
+                                                        type: "spring",
+                                                        stiffness: 300,
                                                         damping: 25,
                                                         bounce: 0.1
                                                     }}
@@ -482,34 +495,34 @@ const Shop = () => {
                                                     }}
                                                 >
                                                     <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
-                                                        <Image
+                                                        <img
                                                             src={displayImage}
                                                             alt={product.name}
-                                                            fill
+                                                            // fill
                                                             className="object-cover object-center"
                                                             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                                         />
-                                                        
+
                                                         {/* Gradients and Labels (Rest State) */}
                                                         <motion.div
                                                             className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent pointer-events-none"
-                                                            variants={{ 
-                                                                rest: { opacity: 1 }, 
+                                                            variants={{
+                                                                rest: { opacity: 1 },
                                                                 hover: { opacity: 0 },
                                                                 selected: { opacity: 0 }
                                                             }}
                                                         />
                                                         <motion.div
                                                             className="absolute bottom-8 left-8 text-white pointer-events-none"
-                                                            variants={{ 
-                                                                rest: { opacity: 1, y: 0 }, 
+                                                            variants={{
+                                                                rest: { opacity: 1, y: 0 },
                                                                 hover: { opacity: 0, y: 20 },
                                                                 selected: { opacity: 0 }
                                                             }}
                                                         >
                                                             <p className="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-1">{displayCategory}</p>
                                                             <h3 className="text-2xl font-black leading-tight">{product.name}</h3>
-                                                            <p className="text-white/80 font-bold mt-1">${displayPrice}</p>
+                                                            <p className="text-white/80 font-bold mt-1">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
                                                         </motion.div>
                                                     </div>
                                                 </motion.div>
@@ -574,9 +587,9 @@ const Shop = () => {
                             layoutId={`product-card-container-${selectedProduct._id}`}
                             className="relative w-full h-[100dvh] sm:h-[85vh] sm:w-[90vw] md:max-w-6xl bg-white sm:rounded-[3rem] overflow-hidden shadow-2xl flex flex-col pointer-events-auto z-[110]"
                             onClick={(e) => e.stopPropagation()}
-                            transition={{ 
-                                type: "spring", 
-                                stiffness: 120, 
+                            transition={{
+                                type: "spring",
+                                stiffness: 120,
                                 damping: 20,
                                 mass: 0.5
                             }}
@@ -616,11 +629,11 @@ const Shop = () => {
                                             damping: 25
                                         }}
                                     >
-                                        <Image
+                                        <img
                                             src={selectedProduct.media?.[0]?.url || '/placeholder.png'}
                                             alt={selectedProduct.name}
-                                            fill
-                                            priority
+                                            // fill
+                                            // priority
                                             className="object-cover object-center"
                                             sizes="(max-width: 768px) 100vw, 60vw"
                                         />

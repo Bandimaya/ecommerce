@@ -2,23 +2,24 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  User, 
-  Smile, 
-  Phone, 
-  Mail, 
-  Loader2, 
+import {
+  User,
+  Smile,
+  Phone,
+  Mail,
+  Loader2,
   CheckCircle2,
   Sparkles,
   ArrowRight,
   AlertCircle
 } from 'lucide-react';
+import { apiFetch } from '@/lib/axios';
 
 export default function HeaderLeadForm() {
   // --- State (Functionality unchanged) ---
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     parent: "",
     child: "",
@@ -38,15 +39,15 @@ export default function HeaderLeadForm() {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10}$/; 
+    const phoneRegex = /^\d{10}$/;
 
     if (!formData.parent.trim()) newErrors.parent = "Parent name is required";
     if (!formData.child.trim()) newErrors.child = "Child name is required";
-    
+
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone is required";
     } else if (!phoneRegex.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = "Enter a valid 10-digit number"; 
+      newErrors.phone = "Enter a valid 10-digit number";
     }
 
     if (!formData.email.trim()) {
@@ -65,6 +66,16 @@ export default function HeaderLeadForm() {
 
     setLoading(true);
     try {
+      await apiFetch(`/contacts/submit`, {
+        method: "POST", data: {
+          name: formData.parent,
+          message: `Unlock their future for my child ${formData.child}`,
+          phone: formData.phone,
+          email: formData.email,
+          subject: "Unlock Their Future"
+        }
+      });
+
       await new Promise(resolve => setTimeout(resolve, 1500));
       setSuccess(true);
     } catch (error) {
@@ -96,14 +107,14 @@ export default function HeaderLeadForm() {
           >
             {/* Top Indicator */}
             <div className="bg-orange-500 py-1.5 px-4 flex justify-center items-center gap-2">
-               <span className="flex h-2 w-2 rounded-full bg-white animate-pulse" />
-               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Only 4 Slots Left Today</span>
+              <span className="flex h-2 w-2 rounded-full bg-white animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Only 4 Slots Left Today</span>
             </div>
 
             {/* Header Section */}
             <div className="px-8 pt-8 pb-6 text-center">
               <div className="inline-flex items-center justify-center p-2.5 bg-orange-50 rounded-2xl mb-4">
-                 <Sparkles className="w-6 h-6 text-orange-500 fill-orange-200" />
+                <Sparkles className="w-6 h-6 text-orange-500 fill-orange-200" />
               </div>
               <h2 className="text-2xl font-black tracking-tight text-gray-900 leading-tight mb-2">
                 Unlock Their Future
@@ -120,7 +131,7 @@ export default function HeaderLeadForm() {
               variants={shakeVariants}
               animate={Object.keys(errors).length > 0 ? "shake" : "idle"}
             >
-              <InputField 
+              <InputField
                 id="parent"
                 name="parent"
                 label="Parent's Name"
@@ -130,7 +141,7 @@ export default function HeaderLeadForm() {
                 error={errors.parent}
               />
 
-              <InputField 
+              <InputField
                 id="child"
                 name="child"
                 label="Child's Name"
@@ -141,7 +152,7 @@ export default function HeaderLeadForm() {
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <InputField 
+                <InputField
                   id="phone"
                   name="phone"
                   label="Phone No."
@@ -151,8 +162,8 @@ export default function HeaderLeadForm() {
                   error={errors.phone}
                   type="tel"
                 />
-                
-                <InputField 
+
+                <InputField
                   id="email"
                   name="email"
                   label="Email ID"
@@ -174,7 +185,7 @@ export default function HeaderLeadForm() {
                   shadow-[0_10px_25px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-70"
                 >
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-                  
+
                   {loading ? (
                     <div className="flex items-center gap-3">
                       <Loader2 className="h-6 w-6 animate-spin stroke-[3]" />
@@ -188,8 +199,8 @@ export default function HeaderLeadForm() {
                   )}
                 </button>
                 <div className="flex items-center justify-center gap-2 mt-4 opacity-60">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600">Secure & Confidential</span>
+                  <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600">Secure & Confidential</span>
                 </div>
               </div>
             </motion.form>
@@ -203,18 +214,18 @@ export default function HeaderLeadForm() {
             className="w-full bg-white/80 backdrop-blur-2xl rounded-[2rem] shadow-2xl p-10 text-center border border-white/50"
           >
             <div className="relative w-24 h-24 mx-auto mb-6">
-                <div className="absolute inset-0 bg-green-500/20 rounded-full animate-ping" />
-                <div className="relative w-full h-full bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                  <CheckCircle2 className="w-12 h-12 text-white" />
-                </div>
+              <div className="absolute inset-0 bg-green-500/20 rounded-full animate-ping" />
+              <div className="relative w-full h-full bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                <CheckCircle2 className="w-12 h-12 text-white" />
+              </div>
             </div>
-            
+
             <h2 className="text-3xl font-black text-gray-900 mb-3">Booking Confirmed!</h2>
             <p className="text-gray-500 leading-relaxed text-sm mb-8 px-4">
               Great choice, <strong className="text-gray-900">{formData.parent}</strong>! We've reserved a session for <strong className="text-gray-900">{formData.child}</strong>. Expect a call from our experts within 24 hours.
             </p>
-            
-            <button 
+
+            <button
               onClick={() => {
                 setSuccess(false);
                 setFormData({ parent: "", child: "", phone: "", email: "" });
@@ -230,15 +241,15 @@ export default function HeaderLeadForm() {
   );
 }
 
-const InputField = ({ 
-  id, name, label, icon: Icon, value, onChange, error, type = "text" 
+const InputField = ({
+  id, name, label, icon: Icon, value, onChange, error, type = "text"
 }: any) => (
   <div className="relative">
     <div className="relative group">
       <Icon className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-300 z-10 pointer-events-none
-        ${error ? 'text-red-500' : 'text-gray-400 group-focus-within:text-orange-500 group-focus-within:scale-110'}`} 
+        ${error ? 'text-red-500' : 'text-gray-400 group-focus-within:text-orange-500 group-focus-within:scale-110'}`}
       />
-      
+
       <input
         id={id}
         name={name}
@@ -253,7 +264,7 @@ const InputField = ({
             : "bg-white/40 border-gray-100 focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 hover:border-gray-200"
           }`}
       />
-      
+
       <label
         htmlFor={id}
         className={`absolute left-12 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold transition-all duration-300 origin-[0] pointer-events-none

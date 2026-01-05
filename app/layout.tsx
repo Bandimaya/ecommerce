@@ -1,3 +1,4 @@
+import GoogleTranslate from "@/components/GoogleTranslate";
 import "./globals.css";
 import MainLayout from "./MainLayout";
 import type { Metadata } from "next";
@@ -28,6 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <GoogleTranslate />
         <MainLayout>{children}</MainLayout>
       </body>
     </html>

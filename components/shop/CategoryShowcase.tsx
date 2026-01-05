@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowRight,
@@ -11,6 +11,7 @@ import {
     MonitorPlay,
     Sparkles,
 } from 'lucide-react';
+import { apiFetch } from '@/lib/axios';
 
 // --- Data ---
 const categories = [
@@ -52,7 +53,12 @@ const categories = [
 ];
 
 export default function CategoryShowcase() {
+    const [data, setData] = useState([])
     const [isHovering, setIsHovering] = useState(false);
+
+    useEffect(() => {
+        apiFetch('/categories').then((data) => setData(data)).catch((err) => console.error(err));
+    }, [])
 
     return (
         <section className="relative w-full py-24 overflow-hidden bg-background">
@@ -87,9 +93,9 @@ export default function CategoryShowcase() {
 
                 {/* Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
-                    {categories.map((category, index) => (
+                    {data.map((category: any, index) => (
                         <motion.div
-                            key={category.id}
+                            key={category.id||index}
                             initial={{ opacity: 0, y: 30 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
@@ -116,7 +122,7 @@ export default function CategoryShowcase() {
                             <div className="absolute bottom-0 left-0 w-full h-[35%] bg-card border-t border-border p-6 flex flex-col justify-between">
                                 <div>
                                     <div className="flex items-center gap-2 mb-2">
-                                        <category.icon className="w-4 h-4 text-muted-foreground" />
+                                        {/* <category.icon className="w-4 h-4 text-muted-foreground" /> */}
                                         <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                                             Collection
                                         </span>

@@ -6,6 +6,7 @@ import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import BackgroundDecorations from "./BackgroundDecorations"
+import { apiFetch } from "@/lib/axios"
 
 interface ProgramsSectionProps {
   getCSSVar?: (varName: string, fallback?: string) => string
@@ -27,8 +28,8 @@ const containerVariants = {
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: {
       type: "spring" as const,
@@ -50,14 +51,14 @@ const ProgramCard = ({ program }: { program: any }) => {
       {/* 1. Header Image Area with Hover Zoom */}
       <div className="relative h-48 overflow-hidden">
         <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/5 transition-colors duration-500 z-10" />
-        
+
         {/* Floating Category Badge - Glassmorphism */}
         <div className="absolute top-3 left-3 z-20">
           <span className={cn(
             "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-white/90 backdrop-blur-md shadow-sm text-slate-700",
             "border border-white/50 tracking-wide"
           )}>
-            <program.icon className={cn("w-3.5 h-3.5", `text-${program.color}-600`)} />
+            {/* <program.icon className={cn("w-3.5 h-3.5", `text-${program.color}-600`)} /> */}
             {program.subtitle}
           </span>
         </div>
@@ -85,8 +86,8 @@ const ProgramCard = ({ program }: { program: any }) => {
         {/* Features as Interactive Pills */}
         <div className="flex flex-wrap gap-2 mb-6">
           {program.features.slice(0, 3).map((feature: string, i: number) => (
-            <span 
-              key={i} 
+            <span
+              key={i}
               className="px-2.5 py-1 rounded-md bg-slate-50 border border-slate-100 text-[11px] font-semibold text-slate-600 tracking-wide transition-colors group-hover:bg-slate-100 group-hover:border-slate-200"
             >
               {feature}
@@ -102,15 +103,15 @@ const ProgramCard = ({ program }: { program: any }) => {
         {/* Bottom Actions */}
         <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-4">
-             {/* Stats with subtle Icons */}
-             <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md">
-                <Users className="w-3.5 h-3.5 text-slate-400" />
-                {program.stats[1].value}
-             </div>
-             <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md">
-                <BarChart3 className="w-3.5 h-3.5 text-slate-400" />
-                {program.stats[0].value}
-             </div>
+            {/* Stats with subtle Icons */}
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md">
+              <Users className="w-3.5 h-3.5 text-slate-400" />
+              {program.stats?.[1]?.value}
+            </div>
+            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded-md">
+              <BarChart3 className="w-3.5 h-3.5 text-slate-400" />
+              {program.stats?.[0]?.value}
+            </div>
           </div>
 
           <Link href={`/programs/${program.id}`}>
@@ -206,12 +207,20 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
     }
   ]
 
+  const [programsData, setProgramsData] = useState([])
+
+  useEffect(() => {
+    apiFetch('/programs')
+      .then((data) => setProgramsData(data))
+      .catch((error) => console.error('Error fetching programs:', error))
+  }, [])
+
   return (
     <section className="relative py-20 bg-slate-50/50 overflow-hidden">
       <BackgroundDecorations type="programs" />
 
       <div className="container px-4 sm:px-6 lg:px-8 mx-auto relative z-10">
-        
+
         {/* Title Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -244,27 +253,27 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
               style={{ backgroundColor: `var(--accent)` }}
             />
           </div>
-          
+
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900 text-center max-w-2xl">
             Empowering growth through <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-slate-900">diverse learning paths.</span>
           </h2>
         </motion.div>
 
         {/* Staggered Grid */}
-        <motion.div 
+        <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 max-w-7xl mx-auto"
         >
-          {programs.map((program) => (
-            <ProgramCard key={program.id} program={program} />
+          {programsData.map((program: any) => (
+            <ProgramCard key={program._id} program={program} />
           ))}
         </motion.div>
 
         {/* Minimalist Footer CTA */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -273,7 +282,7 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
         >
           {/* Subtle decoration */}
           <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-[100px] -z-0 pointer-events-none" />
-          
+
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-slate-400" />
@@ -285,8 +294,8 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto relative z-10">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="flex-1 md:flex-none border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all"
             >
               View All Programs

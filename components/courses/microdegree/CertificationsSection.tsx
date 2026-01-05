@@ -1,46 +1,63 @@
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Award, ShieldCheck, Globe } from 'lucide-react';
+import { apiFetch } from '@/lib/axios';
+
+const ICONS_MAP: { [key: string]: React.ReactNode } = {
+  award: <Award className="w-4 h-4" />,
+  shield: <ShieldCheck className="w-4 h-4" />,
+  globe: <Globe className="w-4 h-4" />,
+};
 
 const CertificationsSection = () => {
-  const certifications = [
-    {
-      label: "Curriculum Designed By",
-      img: "https://images.avishkaar.cc/misc/shop/microdegree/certifications-1.png",
-      alt: "Curriculum Design Partner Logo",
-      icon: <Award className="w-4 h-4" />
-    },
-    {
-      label: "Accredited By",
-      img: "https://images.avishkaar.cc/misc/shop/microdegree/certifications-2.png",
-      alt: "Accreditation Partner Logo",
-      icon: <ShieldCheck className="w-4 h-4" />
-    },
-    {
-      label: "Trusted By",
-      img: "https://images.avishkaar.cc/misc/shop/microdegree/certifications-3.png",
-      alt: "Trusted Partner Logo",
-      icon: <Globe className="w-4 h-4" />
+  const [certifications, setCertifications] = React.useState<any>([]);
+
+  useEffect(() => {
+    apiFetch('/certifications').then(data => {
+      setCertifications(data);
     }
-  ];
+    ).catch(() => {
+      console.log(" Failed to fetch certifications")
+    })
+  }, [])
+  // const certifications = [
+  //   {
+  //     label: "Curriculum Designed By",
+  //     img: "https://images.avishkaar.cc/misc/shop/microdegree/certifications-1.png",
+  //     alt: "Curriculum Design Partner Logo",
+  //     icon: <Award className="w-4 h-4" />
+  //   },
+  //   {
+  //     label: "Accredited By",
+  //     img: "https://images.avishkaar.cc/misc/shop/microdegree/certifications-2.png",
+  //     alt: "Accreditation Partner Logo",
+  //     icon: <ShieldCheck className="w-4 h-4" />
+  //   },
+  //   {
+  //     label: "Trusted By",
+  //     img: "https://images.avishkaar.cc/misc/shop/microdegree/certifications-3.png",
+  //     alt: "Trusted Partner Logo",
+  //     icon: <Globe className="w-4 h-4" />
+  //   }
+  // ];
 
   return (
     <section className="w-full py-24 bg-white relative overflow-hidden">
       {/* Subtle background element */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
-      
+
       <div className="max-w-5xl mx-auto px-6 relative z-10">
-        
+
         {/* Section Header */}
-                {/* --- Header Section --- */}
+        {/* --- Header Section --- */}
         <div className="flex justify-center items-center gap-3 mb-10 sm:mb-16">
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
           <span className="text-xs font-bold uppercase tracking-widest text-primary">Verified quality</span>
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
         </div>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -53,8 +70,8 @@ const CertificationsSection = () => {
 
         {/* Grid Container */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {certifications.map((item, index) => (
-            <motion.div 
+          {certifications.map((item: any, index: any) => (
+            <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -71,7 +88,7 @@ const CertificationsSection = () => {
             >
               {/* Category Indicator */}
               <div className="flex items-center gap-2 mb-8 text-slate-400 group-hover:text-blue-500 transition-colors duration-300">
-                {item.icon}
+                {ICONS_MAP?.[item.icon]}
                 <span className="text-[10px] font-black tracking-[0.2em] uppercase">
                   {item.label}
                 </span>
@@ -81,7 +98,7 @@ const CertificationsSection = () => {
               <div className="w-full flex items-center justify-center min-h-[80px]">
                 <img
                   loading="lazy"
-                  src={item.img}
+                  src={item.image}
                   alt={item.alt}
                   className="
                     max-h-14 md:max-h-16 w-auto object-contain 
@@ -91,7 +108,7 @@ const CertificationsSection = () => {
                   "
                 />
               </div>
-              
+
               {/* Subtle hover accent */}
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-1 h-1 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
             </motion.div>
@@ -99,7 +116,7 @@ const CertificationsSection = () => {
         </div>
 
         {/* Bottom Trust Line */}
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.5 }}

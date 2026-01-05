@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { apiFetch } from '@/lib/axios';
 
 const videos = [
   '40imd1I80Sk', 'sWdPUmoBKu8', 'ga-QfywPptQ', 'xENQ4d3RuEs',
@@ -13,7 +14,15 @@ const videos = [
 export default function StemParkShowcase() {
   const [activeIndex, setActiveIndex] = useState(1);
   const [isMobile, setIsMobile] = useState(false);
+  const [videoList, setVideoList] = useState([]);
 
+
+  useEffect(() => {
+    apiFetch('/videos').then((data) => {
+      const ids = data.map((video: any) => video.youtubeId);
+      setVideoList(ids);
+    }).catch((err) => console.error(err));
+  }, [])
   // --- Responsive Check ---
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -101,17 +110,17 @@ export default function StemParkShowcase() {
         }}
       />
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-         <motion.div
-            key={activeIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, backgroundColor: 'var(--primary)' }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full opacity-10 blur-[120px]"
-          />
+        <motion.div
+          key={activeIndex}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, backgroundColor: 'var(--primary)' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full opacity-10 blur-[120px]"
+        />
       </div>
 
       <div className="container relative z-10 mx-auto px-4 max-w-[100%]">
         <div className="text-center mb-10">
-          <motion.div 
+          <motion.div
             initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} transition={{ duration: 0.8 }} viewport={{ once: true }}
             className="flex justify-center items-center gap-3 mb-6"
           >
@@ -119,7 +128,7 @@ export default function StemParkShowcase() {
             <span className="text-xs font-bold uppercase tracking-widest text-primary">Innovation Gallery</span>
             <div className="h-[2px] w-12 bg-primary" />
           </motion.div>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
             className="text-4xl md:text-6xl font-black tracking-tighter text-foreground mb-4"
           >
@@ -130,10 +139,10 @@ export default function StemParkShowcase() {
         {/* --- DESKTOP 3D CAROUSEL --- */}
         {!isMobile ? (
           <div className="relative h-[650px] w-full flex items-center justify-center perspective-[1500px]">
-            {videos.map((id, index) => {
+            {videoList.map((id, index) => {
               const { state, zIndex } = getCardProps(index);
               const isActive = state === "center";
-              if (state.includes('exit') && !isActive) {} // Optional optimization
+              if (state.includes('exit') && !isActive) { } // Optional optimization
 
               return (
                 <motion.div
@@ -144,8 +153,8 @@ export default function StemParkShowcase() {
                   className="absolute w-[340px] aspect-[9/16] rounded-[2.5rem] bg-foreground border-[6px] border-foreground overflow-hidden cursor-pointer"
                   style={{ zIndex, transformStyle: "preserve-3d" }}
                   onClick={() => {
-                     const offset = (index - activeIndex) % videos.length;
-                     if (Math.abs(offset) <= 2) setActiveIndex(index);
+                    const offset = (index - activeIndex) % videoList.length;
+                    if (Math.abs(offset) <= 2) setActiveIndex(index);
                   }}
                 >
                   <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-black shadow-inner">
@@ -171,7 +180,7 @@ export default function StemParkShowcase() {
               </button>
             </div>
             <div className="absolute top-1/2 right-8 md:right-24 -translate-y-1/2 z-50">
-               <button
+              <button
                 onClick={handleNext}
                 className="w-16 h-16 rounded-full bg-background/80 backdrop-blur-md border border-border shadow-2xl flex items-center justify-center text-foreground hover:bg-primary hover:text-primary-foreground hover:scale-110 transition-all active:scale-95"
               >
@@ -180,10 +189,10 @@ export default function StemParkShowcase() {
             </div>
           </div>
         ) : (
-          
+
           /* --- MOBILE VIEW --- */
           <div className="flex flex-col items-center justify-center w-full px-4">
-            
+
             {/* 1. Video Card Container */}
             <div className="relative w-full max-w-[340px] aspect-[9/16] z-20">
               <AnimatePresence mode="popLayout" custom={activeIndex}>
@@ -196,13 +205,13 @@ export default function StemParkShowcase() {
                   className="absolute inset-0 bg-foreground rounded-[2.5rem] p-2 shadow-2xl border-4 border-muted"
                 >
                   <div className="relative w-full h-full rounded-[2rem] overflow-hidden bg-black">
-                     <iframe
-                        className="w-full h-full object-cover"
-                        src={`https://www.youtube.com/embed/${videos[activeIndex]}?modestbranding=1&rel=0&controls=1`}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        loading="lazy"
-                      />
+                    <iframe
+                      className="w-full h-full object-cover"
+                      src={`https://www.youtube.com/embed/${videos[activeIndex]}?modestbranding=1&rel=0&controls=1`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      loading="lazy"
+                    />
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -210,15 +219,15 @@ export default function StemParkShowcase() {
 
             {/* 2. Navigation Keys (Below the video) */}
             <div className="flex gap-8 mt-8 z-20">
-              <button 
-                onClick={handlePrev} 
+              <button
+                onClick={handlePrev}
                 className="w-16 h-16 rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all duration-300 active:scale-95 bg-white text-slate-900 hover:bg-primary hover:text-primary-foreground hover:border-primary"
                 aria-label="Previous Video"
               >
                 <ChevronLeft size={28} />
               </button>
-              <button 
-                onClick={handleNext} 
+              <button
+                onClick={handleNext}
                 className="w-16 h-16 rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all duration-300 active:scale-95 bg-white text-slate-900 hover:bg-primary hover:text-primary-foreground hover:border-primary"
                 aria-label="Next Video"
               >
@@ -231,7 +240,7 @@ export default function StemParkShowcase() {
 
         {/* --- Footer Action --- */}
         <div className="mt-12 text-center">
-           <a
+          <a
             href="https://www.youtube.com/@Avishkaar/shorts"
             target="_blank"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all"

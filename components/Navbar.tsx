@@ -29,6 +29,7 @@ import { useUser } from "@/contexts/UserContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/SettingsContext";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 interface NavbarProps {
   onLanguageToggle?: (language: string) => void;
@@ -258,6 +259,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 )}
               </div>
 
+              <LanguageSwitcher />
 
               {/* Cart Button */}
               <Link href="/cart">
