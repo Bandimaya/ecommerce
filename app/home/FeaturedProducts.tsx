@@ -20,6 +20,7 @@ import { getDisplayPrice } from "@/lib/utils"
 import { CURRENCY_OPTIONS, IMAGE_URL } from "@/lib/constants"
 import { toast } from "@/hooks/useToast"
 import { useCart } from "@/contexts/CartContext"
+import { useRouter } from "next/navigation"
 
 // ----------------------------------------------------------------------
 // TYPES
@@ -145,6 +146,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
 
   const popupImageContainerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
+  const router = useRouter();
   const mouseY = useMotionValue(0);
 
   // Using the imported data
@@ -224,19 +226,26 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
     const price = product.pricing?.[0]?.salePrice || 0;
     const image = product.media?.[0]?.url;
 
-    addToCart({
-      productId: product._id,
-      name: product.name,
-      price: price,
-      image: image,
-      currency: "USD",
-    }, 1);
+    if (product.variants.length === 0) {
 
-    toast({
-      title: 'Added to cart',
-      description: `${product.name} added to cart`,
-      className: "bg-emerald-600 text-white border-none",
-    });
+
+      addToCart({
+        productId: product._id,
+        name: product.name,
+        price: price,
+        image: image,
+        currency: "USD",
+      }, 1);
+
+      toast({
+        title: 'Added to cart',
+        description: `${product.name} added to cart`,
+        className: "bg-emerald-600 text-white border-none",
+      });
+    }
+    else {
+      router.push('/product/' + product.slug);
+    }
   };
 
   return (
@@ -374,7 +383,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                 >
                   <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
                     <img
-                      src={IMAGE_URL+ product.image}
+                      src={IMAGE_URL + product.image}
                       alt={product.name}
                       // fill
                       className="object-cover object-center"

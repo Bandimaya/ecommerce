@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef, use } from "react";
 import {
     Search, LayoutGrid, X, SlidersHorizontal, ChevronRight,
     PackageSearch, Sparkles, Filter, Star, ShoppingCart,
@@ -15,8 +15,6 @@ import {
     useTransform,
     MotionValue
 } from "framer-motion";
-import Image from "next/image";
-
 // --- Context Imports ---
 import { useCart } from "@/contexts/CartContext";
 import { toast } from "@/hooks/use-toast";
@@ -24,6 +22,7 @@ import { MOCK_PRODUCTS_SHOP, MOCK_CATEGORIES } from "../../lib/Data";
 import { apiFetch } from "@/lib/axios";
 import { useSettings } from "@/contexts/SettingsContext";
 import { CURRENCY_OPTIONS } from "@/lib/constants";
+import { useRouter } from "next/navigation";
 
 // ----------------------------------------------------------------------
 // HELPER: Magnifier Lens (Fixed & Robust)
@@ -87,6 +86,7 @@ const Shop = () => {
     const [isHoveringPopup, setIsHoveringPopup] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isAnimating, setIsAnimating] = useState(false);
+    const navigate = useRouter();
 
     // Store exact dimensions for the lens
     const [popupDims, setPopupDims] = useState({ width: 0, height: 0 });
@@ -155,19 +155,24 @@ const Shop = () => {
         const price = product.pricing?.[0]?.salePrice || 0;
         const image = product.media?.[0]?.url;
 
-        addToCart({
-            productId: product._id,
-            name: product.name,
-            price: price,
-            image: image,
-            currency: "USD",
-        }, 1);
+        if (product.variants.length === 0) {
+            addToCart({
+                productId: product._id,
+                name: product.name,
+                price: price,
+                image: image,
+                currency: "USD",
+            }, 1);
 
-        toast({
-            title: 'Added to cart',
-            description: `${product.name} added to cart`,
-            className: "bg-emerald-600 text-white border-none",
-        });
+            toast({
+                title: 'Added to cart',
+                description: `${product.name} added to cart`,
+                className: "bg-emerald-600 text-white border-none",
+            });
+        }
+        else {
+            navigate.push(`/shop/product/${product.slug}`);
+        }
     };
 
     const handlePopupMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
