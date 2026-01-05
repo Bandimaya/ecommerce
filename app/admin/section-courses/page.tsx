@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo, ChangeEvent } from "react";
 import { PlusCircle, Pencil, Trash2, Search, Grid, List } from "lucide-react";
 import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
+import { IMAGE_URL } from "@/lib/constants";
 
 interface SectionCourse {
   _id: string;
@@ -424,7 +425,7 @@ export default function SectionCoursesPage({
                 <option value="">Select a section</option>
                 {sections.map((section: any) => (
                   <option key={section._id} value={section._id}>
-                    {section.name}
+                    {section.label}
                   </option>
                 ))}
               </select>
@@ -478,7 +479,7 @@ export default function SectionCoursesPage({
         {filteredCourses.map((course) => (
           <div key={course._id} className="border p-4 rounded">
             <img
-              src={course.image}
+              src={IMAGE_URL+course.image}
               alt={course.title}
               className="w-full h-40 object-cover rounded"
             />

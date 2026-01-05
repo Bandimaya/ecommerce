@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { apiFetch } from '@/lib/axios';
+import { IMAGE_URL } from '@/lib/constants';
 
 const BenefitsSection = () => {
   const benefits = [
@@ -113,7 +114,7 @@ const BenefitsSection = () => {
 
                 <img
                   loading="lazy"
-                  src={item.image}
+                  src={IMAGE_URL+item.image}
                   alt={item.alt}
                   className="relative z-10 w-full h-full object-contain transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
                 />

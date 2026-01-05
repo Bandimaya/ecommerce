@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { apiFetch } from '@/lib/axios';
+import { IMAGE_URL } from '@/lib/constants';
 
 // Hook to detect prefers-reduced-motion
 const useReducedMotion = () => {
@@ -300,7 +301,7 @@ const CompetitionWidget = () => {
                                         >
                                             {/* Card Image */}
                                             <div className="h-[60%] relative overflow-hidden group">
-                                                <img src={evt.thumbnail} alt={evt.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                                <img src={IMAGE_URL+evt.logo} alt={evt.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                                 <div className="absolute top-4 left-4">
                                                     <span className="bg-white/90 backdrop-blur text-[var(--accent)] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
                                                         {evt.category}
@@ -312,7 +313,7 @@ const CompetitionWidget = () => {
                                             <div className="flex-1 p-6 flex flex-col justify-between relative bg-white">
                                                 <div>
                                                     <div className="flex items-center gap-2 mb-2 opacity-50">
-                                                        <img src={evt.logo} className="w-6 h-6 object-contain grayscale" />
+                                                        <img src={IMAGE_URL+evt.logo} className="w-6 h-6 object-contain grayscale" />
                                                         <span className="text-xs font-bold tracking-widest">EVENT ID: {evt.id}</span>
                                                     </div>
                                                     <h2 className="text-2xl font-bold leading-tight text-slate-800">{evt.title}</h2>
@@ -340,7 +341,7 @@ const CompetitionWidget = () => {
                                     className="w-full h-full rounded-3xl shadow-xl overflow-hidden flex flex-col bg-white"
                                 >
                                     <div className="h-[60%] relative overflow-hidden">
-                                        <img src={activeEvent?.thumbnail} alt={activeEvent?.title} className="w-full h-full object-cover" />
+                                        <img src={IMAGE_URL+activeEvent?.['logo']} alt={activeEvent?.title+'ghjk'} className="w-full h-full object-cover" />
                                         <div className="absolute top-4 left-4">
                                             <span className="bg-white/90 backdrop-blur text-[var(--accent)] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
                                                 {activeEvent?.category}

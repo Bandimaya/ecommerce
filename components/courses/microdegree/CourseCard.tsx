@@ -4,6 +4,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Clock, Users, ShieldCheck, Zap } from 'lucide-react';
 import { CourseProps } from '../../../lib/Data';
+import { IMAGE_URL } from '@/lib/constants';
 
 interface CardProps {
   course: CourseProps;
@@ -25,7 +26,7 @@ export default function ProfessionalCourseCard({ course, compact }: CardProps) {
       {/* Background Image Wrapper */}
       <div className="relative h-full w-full bg-slate-100">
         <img
-          src={course.img}
+          src={IMAGE_URL + course.img}
           alt={course.title}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
         />

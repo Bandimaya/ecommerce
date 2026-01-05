@@ -7,6 +7,7 @@ import { Cpu, Gamepad2, Microscope, Zap, ArrowRight, Sparkles, ChevronDown } fro
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { apiFetch } from '@/lib/axios';
+import { IMAGE_URL } from '@/lib/constants';
 
 // --- Utility ---
 function cn(...inputs: ClassValue[]) {
@@ -183,10 +184,10 @@ export default function WhyStempark() {
                       {/* Right: Image */}
                       <div className="w-full md:w-3/5 h-[55%] md:h-full relative overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-card via-transparent to-transparent z-10" />
-                        <Image
-                          src={feature.image}
+                        <img
+                          src={IMAGE_URL + feature.image}
                           alt={feature.title}
-                          fill
+                          // fill
                           className="object-cover transition-transform duration-[5000ms] scale-105"
                         />
                       </div>

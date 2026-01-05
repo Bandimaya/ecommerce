@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Quote } from "lucide-react";
 import React, { useEffect, useState, useCallback } from "react";
+import { IMAGE_URL } from "@/lib/constants";
 
 // --- Data ---
 const TESTIMONIALS = [
@@ -125,7 +126,7 @@ export const AnimatedTestimonials = ({
                                     className="absolute inset-0 origin-bottom"
                                 >
                                     <img
-                                        src={testimonial?.['image']}
+                                        src={IMAGE_URL + testimonial?.['image']}
                                         alt={testimonial?.name}
                                         draggable={false}
                                         className="h-full w-full rounded-3xl object-cover object-center shadow-xl"

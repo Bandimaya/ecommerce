@@ -6,6 +6,7 @@ import { Trophy, School, ChevronLeft, ChevronRight, Award, Quote } from 'lucide-
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { apiFetch } from '@/lib/axios';
+import { IMAGE_URL } from '@/lib/constants';
 
 // --- Utility ---
 function cn(...inputs: ClassValue[]) {
@@ -187,12 +188,12 @@ export default function LeagueResults() {
               {/* 3. Back Card (Stack visual) */}
               <div className="absolute w-full max-w-[650px] aspect-[16/10] bg-white rounded-[1.5rem] -z-20 -rotate-[4deg] -translate-x-4 translate-y-6 border border-gray-200 shadow-sm overflow-hidden opacity-60">
                 {/* Plain opacity, no fancy blends */}
-                <img src={data?.[(currentIndex + 2) % data.length]?.['image']} alt="" className="w-full h-full object-cover grayscale" />
+                <img src={IMAGE_URL+data?.[(currentIndex + 2) % data.length]?.['image']} alt="" className="w-full h-full object-cover grayscale" />
               </div>
 
               {/* 2. Middle Card (Stack visual) */}
               <div className="absolute w-full max-w-[650px] aspect-[16/10] bg-white rounded-[1.5rem] -z-10 rotate-[3deg] translate-x-4 translate-y-3 border border-gray-200 shadow-md overflow-hidden opacity-80">
-                <img src={data?.[(currentIndex + 1) % data.length]?.['image']} alt="" className="w-full h-full object-cover" />
+                <img src={IMAGE_URL+data?.[(currentIndex + 1) % data.length]?.['image']} alt="" className="w-full h-full object-cover" />
               </div>
 
               {/* 1. Main Card (Animated) */}
@@ -208,7 +209,7 @@ export default function LeagueResults() {
                   className="absolute w-full max-w-[650px] aspect-[16/10] bg-white p-2 rounded-[1.5rem] shadow-xl border border-gray-100 cursor-grab active:cursor-grabbing origin-bottom"
                 >
                   <div className="relative w-full h-full rounded-[1.2rem] overflow-hidden bg-gray-100">
-                    <img src={currentWinner?.image} alt={currentWinner?.team} className="w-full h-full object-cover" />
+                    <img src={IMAGE_URL+currentWinner?.image} alt={currentWinner?.team} className="w-full h-full object-cover" />
 
                     {/* Gradient for text readability only */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>

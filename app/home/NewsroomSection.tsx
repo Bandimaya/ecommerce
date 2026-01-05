@@ -4,6 +4,7 @@ import Image from 'next/image';
 import BackgroundGrid from '../home/marqueeBackground/BackgroundGrid';
 import { apiFetch } from '@/lib/axios';
 import { useEffect, useState } from 'react';
+import { IMAGE_URL } from '@/lib/constants';
 
 // --- Types & Data ---
 interface NewsItem {
@@ -80,8 +81,8 @@ const NewsCard = ({ item }: { item: NewsItem }) => (
 
     {/* Top: Logo (Removed Grayscale) */}
     <div className="h-12 mb-6 relative w-full flex items-center justify-start">
-      <Image
-        src={item.image}
+      <img
+        src={IMAGE_URL + item.image}
         alt="News Source"
         width={140}
         height={50}

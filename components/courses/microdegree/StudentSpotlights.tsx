@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Play, ArrowRight, Trophy, Eye } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { apiFetch } from '@/lib/axios';
+import { IMAGE_URL } from '@/lib/constants';
 
 // --- Types ---
 interface Project {
@@ -148,7 +149,7 @@ function HoverCard({ project }: { project: Project }) {
       {/* Image Container */}
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-slate-100">
         <motion.img
-          src={project.img}
+          src={IMAGE_URL + project.img}
           alt={project.title}
           animate={{ scale: isHovered ? 1.1 : 1 }}
           transition={{ duration: 0.6 }}

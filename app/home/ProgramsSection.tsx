@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "framer-motion"
 import { cn } from "@/lib/utils"
 import BackgroundDecorations from "./BackgroundDecorations"
 import { apiFetch } from "@/lib/axios"
+import { IMAGE_URL } from "@/lib/constants"
 
 interface ProgramsSectionProps {
   getCSSVar?: (varName: string, fallback?: string) => string
@@ -66,7 +67,7 @@ const ProgramCard = ({ program }: { program: any }) => {
         <motion.img
           whileHover={{ scale: 1.08 }}
           transition={{ duration: 0.7, ease: "easeOut" }}
-          src={program.image}
+          src={IMAGE_URL + program.image}
           alt={program.title}
           className="w-full h-full object-cover transform will-change-transform"
         />

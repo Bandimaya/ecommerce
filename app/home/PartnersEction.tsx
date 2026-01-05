@@ -5,6 +5,7 @@ import Image from 'next/image';
 import BackgroundGrid from '../home/marqueeBackground/BackgroundGrid';
 import { apiFetch } from '@/lib/axios';
 import { useEffect, useState } from 'react';
+import { IMAGE_URL } from '@/lib/constants';
 
 // --- Data ---
 const PARTNER_IMAGES = [
@@ -79,10 +80,10 @@ export default function PartnersSection() {
                                 className="group relative flex-shrink-0 flex items-center justify-center w-[160px] md:w-[200px] h-[100px] bg-card/90 backdrop-blur-sm rounded-xl border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
                             >
                                 <div className="relative w-2/3 h-2/3">
-                                    <Image
-                                        src={src?.image}
+                                    <img
+                                        src={IMAGE_URL + src?.image}
                                         alt={`Partner Logo ${idx + 1}`}
-                                        fill
+                                        // fill
                                         sizes="(max-width: 768px) 150px, 200px"
                                         // Removed grayscale, added opacity hover effect
                                         className="object-contain opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110"
@@ -98,10 +99,10 @@ export default function PartnersSection() {
                                 className="group relative flex-shrink-0 flex items-center justify-center w-[160px] md:w-[200px] h-[100px] bg-card/90 backdrop-blur-sm rounded-xl border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50"
                             >
                                 <div className="relative w-2/3 h-2/3">
-                                    <Image
-                                        src={src?.image}
+                                    <img
+                                        src={IMAGE_URL + src?.image}
                                         alt={`Partner Logo ${idx + 1}`}
-                                        fill
+                                        // fill
                                         sizes="(max-width: 768px) 150px, 200px"
                                         className="object-contain opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110"
                                     />

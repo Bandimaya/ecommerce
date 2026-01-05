@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Award, ShieldCheck, Globe } from 'lucide-react';
 import { apiFetch } from '@/lib/axios';
+import { IMAGE_URL } from '@/lib/constants';
 
 const ICONS_MAP: { [key: string]: React.ReactNode } = {
   award: <Award className="w-4 h-4" />,
@@ -98,7 +99,7 @@ const CertificationsSection = () => {
               <div className="w-full flex items-center justify-center min-h-[80px]">
                 <img
                   loading="lazy"
-                  src={item.image}
+                  src={IMAGE_URL+item.image}
                   alt={item.alt}
                   className="
                     max-h-14 md:max-h-16 w-auto object-contain 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Sparkles, Zap, Users, Target, Award, Star, ChevronRight, PlayCircle, Clock, BarChart } from "lucide-react"
 import { apiFetch } from "@/lib/axios"
+import { IMAGE_URL } from "@/lib/constants"
 
 interface LearningPath {
   id: number
@@ -365,7 +366,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                   {/* Compact Image Section */}
                   <div className="relative h-36 overflow-hidden">
                     <motion.img
-                      src={path.image}
+                      src={IMAGE_URL+path.image}
                       alt={path.alt}
                       className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform"
                       animate={hoveredCard === path.id ? { scale: 1.15 } : { scale: 1 }}

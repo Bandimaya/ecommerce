@@ -6,6 +6,7 @@ import { Play, X, Quote, ArrowRight, Star, GraduationCap, ChevronLeft, ChevronRi
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { apiFetch } from '@/lib/axios';
+import { IMAGE_URL } from '@/lib/constants';
 
 // --- Utility ---
 function cn(...inputs: ClassValue[]) {
@@ -177,7 +178,7 @@ export default function StarsOfAvishkaar() {
                                 "w-14 h-14 rounded-full overflow-hidden border-2 transition-all duration-300",
                                 isActive ? "border-transparent scale-100" : "border-muted opacity-60 grayscale hover:grayscale-0 hover:opacity-100"
                             )}>
-                                <img src={star?.image} alt="" className="w-full h-full object-cover" />
+                                <img src={IMAGE_URL + star?.image} alt="" className="w-full h-full object-cover" />
                             </div>
 
                             {/* Active Ring Animation */}
@@ -254,7 +255,7 @@ export default function StarsOfAvishkaar() {
                                 className="relative w-full h-full"
                             >
                                 <img
-                                    src={activeStar?.image}
+                                    src={IMAGE_URL + activeStar?.image}
                                     alt={activeStar?.name}
                                     className="w-full h-full object-cover"
                                 />
