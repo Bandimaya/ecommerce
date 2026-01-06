@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { apiFetch } from "@/lib/axios";
+import { IMAGE_URL } from "@/lib/constants";
 
 const iconMap: any = {
     Users, BookOpen, Trophy, Calendar, Target, Zap, Shield, TrendingUp,
@@ -372,7 +373,7 @@ const Programs = () => {
                                             />
                                             <div className="relative overflow-hidden rounded-2xl aspect-[4/3] shadow-2xl">
                                                 <img
-                                                    src={'http://49.50.83.49' + program.image?.url || STEM_IMAGES[index % STEM_IMAGES.length]}
+                                                    src={IMAGE_URL + program.image?.url || STEM_IMAGES[index % STEM_IMAGES.length]}
                                                     alt={program.title}
                                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                                 />

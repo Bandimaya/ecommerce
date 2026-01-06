@@ -307,7 +307,8 @@ export default function SectionCoursesPage({
                 Age Range
               </label>
               <input
-                type="text"
+                type="number"
+                min={0}
                 id="ageRange"
                 name="ageRange"
                 value={form.ageRange}
@@ -326,6 +327,7 @@ export default function SectionCoursesPage({
                 type="number"
                 id="duration"
                 name="duration"
+                min={1}
                 value={form.duration}
                 onChange={handleChange}
                 className="p-2 border rounded w-full"
@@ -358,6 +360,7 @@ export default function SectionCoursesPage({
                 type="number"
                 id="enrolled"
                 name="enrolled"
+                min={0}
                 value={form.enrolled}
                 onChange={handleChange}
                 className="p-2 border rounded w-full"
@@ -513,7 +516,7 @@ export default function SectionCoursesPage({
                 </button>
                 <button
                   className="text-red-500"
-                  onClick={() => { } /* Delete Logic */}
+                  onClick={() => { }}
                 >
                   <Trash2 size={16} />
                 </button>

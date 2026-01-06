@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast"; // Assuming you have a custom toast hook
 import { apiFetch } from "@/lib/axios";
+import { IMAGE_URL } from "@/lib/constants";
 
 interface EventFormState {
     _id?: string;
@@ -144,16 +145,13 @@ export default function CreateEventForm() {
     // Handle event deletion
     const handleDelete = async (id: string) => {
         try {
-            const response = await fetch(`/api/events/${id}`, {
+            const response = await apiFetch(`/events`, {
                 method: "DELETE",
+                data: { id: id }
             });
 
-            if (response.ok) {
-                toast({ title: "Event deleted successfully", variant: "success" });
-                setEvents(events.filter((event) => event._id !== id)); // Remove event from state
-            } else {
-                toast({ title: "Error deleting event", variant: "destructive" });
-            }
+            toast({ title: "Event deleted successfully", variant: "success" });
+            setEvents(events.filter((event) => event._id !== id)); // Remove event from state
         } catch (error) {
             console.error("Error deleting event:", error);
             toast({ title: "Error deleting event", variant: "destructive" });
@@ -271,6 +269,7 @@ export default function CreateEventForm() {
                     <input
                         type="number"
                         id="count"
+                        min={0}
                         name="count"
                         value={formData.count}
                         onChange={handleChange}
@@ -311,6 +310,7 @@ export default function CreateEventForm() {
                     <div key={event._id} className="p-4 border rounded">
                         <h3 className="text-lg font-semibold">{event.title}</h3>
                         <p className="text-sm">{event.subtitle}</p>
+                        <img src={IMAGE_URL + event?.logo} />
                         <div className="mt-2 flex space-x-4">
                             <button
                                 className="text-blue-500"

@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/axios";
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
@@ -62,6 +63,18 @@ export default function StarsPage() {
   const edit = (s: Star) => {
     setEditingId(s._id);
     setForm({ name: s.name, role: s.role, quote: s.quote });
+  };
+
+  const deleteStar = (s: Star) => {
+    apiFetch("/stars", {
+      method: "DELETE",
+      data: { id: s._id },
+    }).then(() => {
+      fetchStars();
+    })
+      .catch((err) => {
+        console.error("Error deleting star:", err);
+      });
   };
 
   return (
@@ -131,6 +144,9 @@ export default function StarsPage() {
             </div>
             <button onClick={() => edit(s)} className="text-blue-600">
               Edit
+            </button>
+            <button onClick={() => deleteStar(s)} className="text-blue-600">
+              Delete
             </button>
           </div>
         ))}

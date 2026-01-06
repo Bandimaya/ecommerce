@@ -29,6 +29,8 @@ import { useUser } from "@/contexts/UserContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/SettingsContext";
+import LanguageSwitcher from "./LanguageSwitcher";
+import { IMAGE_URL } from "@/lib/constants";
 
 interface NavbarProps {
   onLanguageToggle?: (language: string) => void;
@@ -193,7 +195,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 <div className="flex items-center gap-2">
                   <div className="w-[40px] h-[40px] md:w-[48px] md:h-[48px] overflow-hidden rounded-full border-2 border-white shadow-sm flex-shrink-0">
                     <img
-                      src={"http://49.50.83.49" + contact?.logo_url}
+                      src={IMAGE_URL + contact?.logo_url}
                       alt="Logo"
                       className="w-full h-full object-contain"
                       style={{

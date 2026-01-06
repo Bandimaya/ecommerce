@@ -1,5 +1,6 @@
 "use client";
 
+import { apiFetch } from "@/lib/axios";
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 
@@ -77,6 +78,16 @@ export default function StemparkFeaturesPage() {
     });
   };
 
+  const deleteFeature = (f: Feature) => {
+    apiFetch("/api/stempark-features", {
+      method: "DELETE",
+      data: { id: f._id },
+    }).then(() => fetchFeatures())
+      .catch((err) => {
+        console.error("Error deleting feature:", err);
+      });
+  };
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-2xl font-bold mb-6">STEM Park Features</h1>
@@ -147,7 +158,7 @@ export default function StemparkFeaturesPage() {
             className="bg-white p-4 rounded shadow flex gap-4"
           >
             <img
-              src={IMAGE_URL+ f.image}
+              src={IMAGE_URL + f.image}
               className="w-24 h-24 object-cover rounded"
             />
             <div className="flex-1">
@@ -160,6 +171,9 @@ export default function StemparkFeaturesPage() {
             </div>
             <button onClick={() => edit(f)} className="text-blue-600">
               Edit
+            </button>
+            <button onClick={() => deleteFeature(f)} className="text-blue-600">
+              Delete
             </button>
           </div>
         ))}

@@ -5,7 +5,7 @@ import { Button } from "./ui/button"
 import { toast } from "@/hooks/use-toast"
 import { useCart } from "@/contexts/CartContext"
 import { useSettings } from "@/contexts/SettingsContext"
-import { apiUrl, CURRENCY_OPTIONS } from "@/lib/constants"
+import { apiUrl, CURRENCY_OPTIONS, IMAGE_URL } from "@/lib/constants"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { motion, useReducedMotion } from "framer-motion"
@@ -26,7 +26,7 @@ export default function ProductCard({ product, index = 0 }: any) {
 
   const isVideo = displayMedia?.type === 'video'
   // Preserving your exact URL logic
-  const mediaUrl = 'http://49.50.83.49' + (displayMedia?.url
+  const mediaUrl = IMAGE_URL + (displayMedia?.url
     ? `/${displayMedia.url}`
     : '/placeholder.png')
 

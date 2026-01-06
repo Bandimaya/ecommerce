@@ -119,6 +119,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     <label className="text-[10px] font-bold text-[var(--neutral-400)] uppercase">Weight (kg)</label>
                     <input
                       type="number"
+                      min={0}
                       placeholder="0.00"
                       className="w-full p-2 border border-[var(--input)] rounded text-sm bg-[var(--background)] outline-none text-[var(--foreground)]"
                       value={node.weight || ""}
@@ -205,6 +206,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                                 <span className="absolute left-2 top-1.5 text-[10px] text-[var(--neutral-400)] font-bold">{selectedCurrency.symbol}</span>
                                 <input
                                   type="number"
+                                  min={0}
                                   placeholder="0.00"
                                   className="w-full p-1.5 pl-5 border border-[var(--input)] rounded text-xs outline-none focus:ring-1 focus:ring-[var(--primary-500)] bg-[var(--background)] text-[var(--foreground)]"
                                   value={pGroup.originalPrice}
@@ -219,6 +221,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                                 <span className="absolute left-2 top-1.5 text-[10px] text-[var(--success-500)] font-bold">{selectedCurrency.symbol}</span>
                                 <input
                                   type="number"
+                                  min={0}
                                   placeholder="0.00"
                                   className="w-full p-1.5 pl-5 border border-[var(--input)] rounded text-xs text-[var(--success-700)] font-bold outline-none focus:ring-1 focus:ring-[var(--success-500)] bg-[var(--background)]"
                                   value={pGroup.salePrice}
@@ -238,6 +241,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     <label className="text-[10px] font-bold text-[var(--info-500)] uppercase">{t('admin.stock.count')}</label>
                     <input
                       type="number"
+                      min={0}
                       className="w-full p-2 border border-[var(--info-100)] rounded text-sm bg-[var(--background)] text-[var(--foreground)]"
                       value={node.inventory.stock}
                       onChange={e => updateNodeDeep(currentPath, 'inventory.stock', e.target.value)}
@@ -248,6 +252,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     <input
                       type="number"
                       disabled
+                      min={0}
                       className="w-full p-2 border border-[var(--info-50)] rounded text-sm bg-[var(--neutral-100)] cursor-not-allowed text-[var(--neutral-500)]"
                       value={node.inventory.reserved || 0}
                     />
@@ -256,6 +261,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     <label className="text-[10px] font-bold text-[var(--info-500)] uppercase">{t('admin.stock.low_limit')}</label>
                     <input
                       type="number"
+                      min={0}
                       className="w-full p-2 border border-[var(--info-100)] rounded text-sm bg-[var(--background)] text-[var(--foreground)]"
                       value={node.inventory.lowStockThreshold || 5}
                       onChange={e => updateNodeDeep(currentPath, 'inventory.lowStockThreshold', e.target.value)}
@@ -269,6 +275,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     <input
                       placeholder="L"
                       type="number"
+                      min={0}
                       className="w-1/3 p-2 border border-[var(--input)] rounded text-sm text-center bg-[var(--background)] text-[var(--foreground)]"
                       value={node.dimensions.length}
                       onChange={e => updateNodeDeep(currentPath, 'dimensions.length', e.target.value)}
@@ -276,6 +283,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     <input
                       placeholder="W"
                       type="number"
+                      min={0}
                       className="w-1/3 p-2 border border-[var(--input)] rounded text-sm text-center bg-[var(--background)] text-[var(--foreground)]"
                       value={node.dimensions.width}
                       onChange={e => updateNodeDeep(currentPath, 'dimensions.width', e.target.value)}
@@ -283,6 +291,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                     <input
                       placeholder="H"
                       type="number"
+                      min={0}
                       className="w-1/3 p-2 border border-[var(--input)] rounded text-sm text-center bg-[var(--background)] text-[var(--foreground)]"
                       value={node.dimensions.height}
                       onChange={e => updateNodeDeep(currentPath, 'dimensions.height', e.target.value)}
@@ -1007,6 +1016,7 @@ export default function Products() {
                           <span className="absolute left-3 top-2 text-[var(--neutral-400)] text-xs font-bold">{currencyDetail?.symbol}</span>
                           <input
                             type="number"
+                            min={0}
                             value={priceGroup.originalPrice}
                             onChange={(e) => handlePricingChange(idx, "originalPrice", e.target.value)}
                             className="w-full border-[var(--input)] rounded-lg border p-2 pl-7 text-sm focus:ring-1 focus:ring-[var(--primary-500)] outline-none bg-[var(--background)] text-[var(--foreground)]"
@@ -1021,6 +1031,7 @@ export default function Products() {
                           <span className="absolute left-3 top-2 text-[var(--success-600)] text-xs font-bold">{currencyDetail?.symbol}</span>
                           <input
                             type="number"
+                            min={0}
                             value={priceGroup.salePrice}
                             onChange={(e) => handlePricingChange(idx, "salePrice", e.target.value)}
                             className="w-full border-[var(--input)] rounded-lg border p-2 pl-7 text-sm text-[var(--success-700)] font-bold focus:ring-1 focus:ring-[var(--success-500)] outline-none bg-[var(--background)]"
@@ -1100,6 +1111,7 @@ export default function Products() {
                       <label className="text-xs font-bold text-[var(--neutral-500)] uppercase tracking-wider">Available Stock</label>
                       <input
                         type="number"
+                        min={0}
                         name="stock"
                         value={form.stock}
                         onChange={handleChange}
@@ -1111,6 +1123,7 @@ export default function Products() {
                       <input
                         name="reserved"
                         type="number"
+                        min={0}
                         value={form.reserved}
                         onChange={handleChange}
                         className="w-full border-[var(--input)] rounded-lg shadow-sm sm:text-sm border p-2.5 bg-[var(--neutral-50)] cursor-not-allowed text-[var(--neutral-500)]"
@@ -1126,6 +1139,7 @@ export default function Products() {
                       <input
                         name="lowStockThreshold"
                         type="number"
+                        min={0}
                         value={form.lowStockThreshold}
                         onChange={handleChange}
                         className="w-full border-[var(--input)] rounded-lg shadow-sm focus:ring-[var(--primary-500)] focus:border-[var(--primary-500)] sm:text-sm border p-2.5 bg-[var(--background)] text-[var(--foreground)]"
@@ -1153,6 +1167,7 @@ export default function Products() {
                         <input
                           name="length"
                           type="number"
+                          min={0}
                           value={form.dimensions.length}
                           onChange={(e) => handleDimensionChange("length", e.target.value)}
                           placeholder="L"
@@ -1161,6 +1176,7 @@ export default function Products() {
                         <input
                           name="width"
                           type="number"
+                          min={0}
                           value={form.dimensions.width}
                           onChange={(e) => handleDimensionChange("width", e.target.value)}
                           placeholder="W"
@@ -1168,6 +1184,7 @@ export default function Products() {
                         />
                         <input
                           name="height"
+                          min={0}
                           type="number"
                           value={form.dimensions.height}
                           onChange={(e) => handleDimensionChange("height", e.target.value)}

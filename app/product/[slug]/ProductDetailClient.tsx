@@ -8,7 +8,7 @@ import { useProducts } from "@/contexts/ProductsContext";
 import { cn } from "@/lib/utils"; // Assuming you have a utility for class merging
 import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
-import { apiUrl } from "@/lib/constants";
+import { apiUrl, IMAGE_URL } from "@/lib/constants";
 
 
 const ProductDetailClient = ({ product }: any) => {
@@ -170,7 +170,7 @@ const ProductDetailClient = ({ product }: any) => {
                                 />
                             ) : (
                                 <img
-                                    src={`${'http://49.50.83.49'}${mainImage?.url || mainImage}`} // Fallback for string-only legacy URLs
+                                    src={`${IMAGE_URL}${mainImage?.url || mainImage}`} // Fallback for string-only legacy URLs
                                     alt={product.name}
                                     className="w-full h-full object-cover transition-all duration-300"
                                 />
@@ -206,7 +206,7 @@ const ProductDetailClient = ({ product }: any) => {
                                             </div>
                                         ) : (
                                             <img
-                                                src={`${'http://49.50.83.49'}${m.url}`}
+                                                src={`${IMAGE_URL}${m.url}`}
                                                 className="w-full h-full object-cover"
                                             />
                                         )}
