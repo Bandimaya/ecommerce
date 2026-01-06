@@ -104,11 +104,14 @@ const Shop = () => {
 
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const categories = MOCK_CATEGORIES;
+    const [categories, setCategories] = useState([]);
     const { countryCode } = useSettings();
 
     useEffect(() => {
         setLoading(true);
+        apiFetch('/categories')
+            .then((res) => setCategories(res))
+            .catch(() => { console.log("Categories fetch failed") })
         apiFetch('/products')
             .then((res) => setProducts(res))
             .catch(() => { console.log("Products fetch failed") })
@@ -245,7 +248,13 @@ const Shop = () => {
                             active={selectedCategory === category._id}
                             onClick={() => { setSelectedCategory(category._id); setIsMobileFiltersOpen(false); }}
                             label={category.title}
-                            count={products.filter((p: any) => p.categories?.some((c: any) => c._id === category._id)).length}
+                            count={products.filter((p: any) => p.categories?.some((c: any) => {
+                                console.log(products.filter((p: any) => p.categories?.some((c: any) => {
+                                    console.log
+                                    return c._id === category._id
+                                })), category)
+                                return c._id === category._id
+                            })).length}
                         />
                     ))}
                 </div>
