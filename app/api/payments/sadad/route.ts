@@ -17,18 +17,22 @@ export const POST = withAuth(
 
         const txnDate = new Date().toISOString().replace("T", " ").substring(0, 19);
 
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL!;
+
         const payload: any = {
             merchant_id: "6205111",
-            WEBSITE: "https://unchested-tristin-unbuffeted.ngrok-free.dev",
+
+            WEBSITE: baseUrl,
             ORDER_ID: order._id.toString(),
             TXN_AMOUNT: order.totalAmount.toFixed(2),
             EMAIL: order.shippingAddress.email,
             CURRENCY: "INR",
             MOBILE_NO: order.shippingAddress.phone,
-            CALLBACK_URL: `https://unchested-tristin-unbuffeted.ngrok-free.dev/api/payments/sadad/callback`,
+
+            CALLBACK_URL: `${baseUrl}/api/payments/sadad/callback`,
             txnDate,
 
-            // array → excluded from signature
+            // ❌ excluded from signature
             productdetail: order.items.map((i: any) => ({
                 order_id: i.productId.toString(),
                 amount: i.price,
