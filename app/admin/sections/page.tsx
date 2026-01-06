@@ -109,7 +109,7 @@ export default function SectionsPage() {
     const handleDelete = async (id: string) => {
         if (!confirm("Delete this section?")) return;
         try {
-            await apiFetch(`/sections/${id}`, { method: "DELETE" });
+            await apiFetch(`/sections`, { method: "DELETE", data: { id } });
             setSections(sections.filter(s => s._id !== id));
             toast({ title: "Section deleted" });
         } catch {
@@ -216,7 +216,7 @@ export default function SectionsPage() {
             {/* SECTION LIST */}
             {loading ? (
                 <div className="grid md:grid-cols-3 gap-6">
-                    {[1,2,3].map(i => (
+                    {[1, 2, 3].map(i => (
                         <div key={i} className="border rounded-xl overflow-hidden group p-4">
                             <div className="flex items-center gap-4">
                                 <SkeletonAvatar />

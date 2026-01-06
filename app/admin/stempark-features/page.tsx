@@ -79,7 +79,7 @@ export default function StemparkFeaturesPage() {
   };
 
   const deleteFeature = (f: Feature) => {
-    apiFetch("/api/stempark-features", {
+    apiFetch("/stempark-features", {
       method: "DELETE",
       data: { id: f._id },
     }).then(() => fetchFeatures())

@@ -243,6 +243,18 @@ export default function SectionCoursesPage({
     }
   };
 
+  function handleDelete(id: string) {
+    if (!confirm("Delete this course?")) return;
+    apiFetch(`/section-courses`, { method: "DELETE", data: { id } })
+      .then(() => {
+        setCourses(courses.filter(c => c._id !== id));
+        toast({ title: "Course deleted" });
+      }
+      ).catch(() => {
+        toast({ title: "Failed to delete course", variant: "destructive" });
+      });
+  }
+
 
   return (
     <div>
@@ -516,7 +528,7 @@ export default function SectionCoursesPage({
                 </button>
                 <button
                   className="text-red-500"
-                  onClick={() => { }}
+                  onClick={() => { handleDelete(course._id); }}
                 >
                   <Trash2 size={16} />
                 </button>

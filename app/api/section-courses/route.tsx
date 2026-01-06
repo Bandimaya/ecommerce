@@ -160,7 +160,7 @@ export async function DELETE(req: NextRequest) {
     }
 
     // Delete the section course
-    await sectionCourse.remove();
+    await sectionCourse.deleteOne();
     return NextResponse.json({ message: "SectionCourse deleted successfully" }, { status: 200 });
   } catch (err) {
     return NextResponse.json({ message: "Error deleting section course" }, { status: 500 });

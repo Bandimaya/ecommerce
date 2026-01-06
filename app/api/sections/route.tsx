@@ -93,9 +93,10 @@ export async function DELETE(req: NextRequest) {
     const section = await Section.findById(id);
     if (!section) return NextResponse.json({ message: "Section not found" }, { status: 404 });
 
-    await section.remove();
+    await section.deleteOne();
     return NextResponse.json({ message: "Section deleted successfully" }, { status: 200 });
   } catch (err) {
+    console.log("Section DELETE error:", err);
     return NextResponse.json({ message: "Error deleting section" }, { status: 500 });
   }
 }
