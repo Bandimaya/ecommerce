@@ -1,4 +1,4 @@
-export const apiUrl = "/api";
+export const apiUrl = "http://49.50.83.49:3005/api";
 
 
 export const CURRENCY_OPTIONS = [

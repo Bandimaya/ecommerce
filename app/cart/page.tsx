@@ -22,7 +22,7 @@ const Cart = () => {
     const { user }: any = useUser()
     const [isCheckingOut, setIsCheckingOut] = useState(false)
     const [shippingMethod, setShippingMethod] = useState("standard")
-    
+
     const currencySymbol = isIndia ? "₹" : "$"
     const shippingCost = total >= 50 ? 0 : 5.99
     const grandTotal = total + shippingCost
@@ -66,13 +66,52 @@ const Cart = () => {
                 },
             })
 
-            toast({
-                title: "🎉 Order Placed Successfully!",
-                description: "Your order is being processed.",
-                className: "bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
-            })
-            
-            clearCart()
+            // toast({
+            //     title: "🎉 Order Placed Successfully!",
+            //     description: "Your order is being processed.",
+            //     className: "bg-gradient-to-r from-emerald-500 to-teal-600 text-white"
+            // })
+
+            // clearCart()
+            // const paymentRes = await apiFetch("/payments/sadad", {
+            //     method: "POST",
+            //     data: { orderId: res._id },
+            // });
+
+            const paymentRes = await apiFetch("/payments/sadad", {
+                method: "POST",
+                data: { orderId: res._id },
+            });
+
+            // Create & submit form
+            const form = document.createElement("form");
+            form.method = "POST";
+            form.action = paymentRes.actionUrl;
+
+            Object.entries(paymentRes.payload).forEach(([key, value]) => {
+                if (Array.isArray(value)) {
+                    value.forEach((v, i) => {
+                        Object.entries(v).forEach(([k, val]) => {
+                            const input = document.createElement("input");
+                            input.type = "hidden";
+                            input.name = `productdetail[${i}][${k}]`;
+                            input.value = String(val);
+                            form.appendChild(input);
+                        });
+                    });
+                } else {
+                    const input = document.createElement("input");
+                    input.type = "hidden";
+                    input.name = key;
+                    input.value = String(value);
+                    form.appendChild(input);
+                }
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+            // window.location.href = response.data.redirectUrl;
+
             setIsCheckingOut(false)
             // Could redirect to order confirmation page
         } catch (err: any) {
@@ -131,10 +170,10 @@ const Cart = () => {
                             '--empty-icon-shadow': 'hsl(var(--primary) / 0.1)',
                         } as React.CSSProperties}
                     >
-                        <ShoppingBag className="w-12 h-12 text-[var(--empty-icon-color)]" 
-                                   style={{ '--empty-icon-color': 'hsl(var(--primary))' } as React.CSSProperties} />
+                        <ShoppingBag className="w-12 h-12 text-[var(--empty-icon-color)]"
+                            style={{ '--empty-icon-color': 'hsl(var(--primary))' } as React.CSSProperties} />
                     </motion.div>
-                    
+
                     <motion.h1
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -144,7 +183,7 @@ const Cart = () => {
                     >
                         Your cart is empty
                     </motion.h1>
-                    
+
                     <motion.p
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -154,7 +193,7 @@ const Cart = () => {
                     >
                         Looks like you haven't added any items yet.
                     </motion.p>
-                    
+
                     <motion.div
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
@@ -207,7 +246,7 @@ const Cart = () => {
                             style={{ '--title-color': 'hsl(var(--foreground))' } as React.CSSProperties}>
                             {isCheckingOut ? "Shipping Details" : "Your Cart"}
                         </h1>
-                        
+
                         <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-[var(--badge-from)] 
                                      to-[var(--badge-to)] text-[var(--badge-text)] text-sm font-medium"
                             style={{
@@ -248,7 +287,7 @@ const Cart = () => {
                                                     '--card-border': 'hsl(var(--border))',
                                                     '--card-shadow': 'hsl(var(--primary) / 0.05)',
                                                 } as React.CSSProperties}>
-                                                
+
                                                 {/* Image Container */}
                                                 <motion.div
                                                     whileHover={{ scale: 1.05 }}
@@ -260,7 +299,7 @@ const Cart = () => {
                                                     } as React.CSSProperties}
                                                 >
                                                     <img
-                                                        src={IMAGE_URL+      item.productId?.media?.[0]?.url || item.image}
+                                                        src={IMAGE_URL + item.productId?.media?.[0]?.url || item.image}
                                                         alt={item.productId?.name}
                                                         className="w-full h-full object-cover"
                                                     />
@@ -279,7 +318,7 @@ const Cart = () => {
                                                         <div>
                                                             <p className="text-[10px] text-[var(--category-color)] font-black uppercase 
                                                                        tracking-widest mb-1"
-                                                               style={{ '--category-color': 'hsl(var(--primary))' } as React.CSSProperties}>
+                                                                style={{ '--category-color': 'hsl(var(--primary))' } as React.CSSProperties}>
                                                                 {item.productId?.category?.name || "STEM Kit"}
                                                             </p>
                                                             <h3 className="font-bold text-[var(--product-title)] text-lg mb-1"
@@ -288,12 +327,12 @@ const Cart = () => {
                                                             </h3>
                                                             {item.variantId?.attributes && (
                                                                 <p className="text-sm text-[var(--variant-text)]"
-                                                                   style={{ '--variant-text': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
+                                                                    style={{ '--variant-text': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
                                                                     {Object.values(item.variantId.attributes).join(" / ")}
                                                                 </p>
                                                             )}
                                                         </div>
-                                                        
+
                                                         <motion.button
                                                             whileHover={{ scale: 1.1, rotate: 5 }}
                                                             whileTap={{ scale: 0.9 }}
@@ -311,7 +350,7 @@ const Cart = () => {
 
                                                     <div className="flex items-center justify-between mt-6">
                                                         {/* Quantity Controls */}
-                                                        <motion.div 
+                                                        <motion.div
                                                             className="flex items-center border border-[var(--quantity-border)] 
                                                                      rounded-xl bg-[var(--quantity-bg)] overflow-hidden"
                                                             style={{
@@ -330,7 +369,7 @@ const Cart = () => {
                                                                 <Minus className="w-3 h-3" />
                                                             </motion.button>
                                                             <span className="px-6 font-bold text-[var(--quantity-text)] text-sm min-w-[3rem] text-center"
-                                                                  style={{ '--quantity-text': 'hsl(var(--foreground))' } as React.CSSProperties}>
+                                                                style={{ '--quantity-text': 'hsl(var(--foreground))' } as React.CSSProperties}>
                                                                 {item.quantity}
                                                             </span>
                                                             <motion.button
@@ -344,7 +383,7 @@ const Cart = () => {
 
                                                         {/* Price */}
                                                         <div className="text-right">
-                                                            <motion.p 
+                                                            <motion.p
                                                                 className="font-black text-2xl text-[var(--price-color)] mb-1"
                                                                 style={{ '--price-color': 'hsl(var(--foreground))' } as React.CSSProperties}
                                                                 animate={{ scale: item.quantity > 1 ? 1.05 : 1 }}
@@ -356,7 +395,7 @@ const Cart = () => {
                                                                 })}
                                                             </motion.p>
                                                             <p className="text-xs text-[var(--unit-price)] font-medium"
-                                                               style={{ '--unit-price': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
+                                                                style={{ '--unit-price': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
                                                                 {currencySymbol}{item.livePrice.toFixed(2)} each
                                                             </p>
                                                         </div>
@@ -394,18 +433,18 @@ const Cart = () => {
                                             style={{ '--title-color': 'hsl(var(--foreground))' } as React.CSSProperties}>
                                             Shipping Information
                                         </h2>
-                                        
+
                                         <div className="space-y-6">
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
                                                     <label className="text-sm font-medium text-[var(--label-color)] mb-2 block"
-                                                           style={{ '--label-color': 'hsl(var(--foreground))' } as React.CSSProperties}>
+                                                        style={{ '--label-color': 'hsl(var(--foreground))' } as React.CSSProperties}>
                                                         First Name
                                                     </label>
-                                                    <Input 
-                                                        name="firstName" 
-                                                        value={address.firstName} 
-                                                        placeholder="John" 
+                                                    <Input
+                                                        name="firstName"
+                                                        value={address.firstName}
+                                                        placeholder="John"
                                                         onChange={handleInputChange}
                                                         className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                         style={{
@@ -419,64 +458,64 @@ const Cart = () => {
                                                     <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
                                                         Last Name
                                                     </label>
-                                                    <Input 
-                                                        name="lastName" 
-                                                        value={address.lastName} 
-                                                        placeholder="Doe" 
+                                                    <Input
+                                                        name="lastName"
+                                                        value={address.lastName}
+                                                        placeholder="Doe"
                                                         onChange={handleInputChange}
                                                         className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                     />
                                                 </div>
                                             </div>
-                                            
+
                                             <div>
                                                 <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
                                                     Email Address
                                                 </label>
-                                                <Input 
-                                                    name="email" 
-                                                    value={address.email} 
-                                                    placeholder="john@example.com" 
+                                                <Input
+                                                    name="email"
+                                                    value={address.email}
+                                                    placeholder="john@example.com"
                                                     onChange={handleInputChange}
                                                     className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                 />
                                             </div>
-                                            
+
                                             <div>
                                                 <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
                                                     Phone Number
                                                 </label>
-                                                <Input 
-                                                    name="phone" 
-                                                    value={address.phone} 
-                                                    placeholder="+1 234 567 8900" 
+                                                <Input
+                                                    name="phone"
+                                                    value={address.phone}
+                                                    placeholder="+1 234 567 8900"
                                                     onChange={handleInputChange}
                                                     className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                 />
                                             </div>
-                                            
+
                                             <div>
                                                 <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
                                                     Street Address
                                                 </label>
-                                                <Input 
-                                                    name="addressLine" 
-                                                    value={address.addressLine} 
-                                                    placeholder="123 Main St, Apt 4B" 
+                                                <Input
+                                                    name="addressLine"
+                                                    value={address.addressLine}
+                                                    placeholder="123 Main St, Apt 4B"
                                                     onChange={handleInputChange}
                                                     className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                 />
                                             </div>
-                                            
+
                                             <div className="grid grid-cols-2 gap-4">
                                                 <div>
                                                     <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
                                                         City
                                                     </label>
-                                                    <Input 
-                                                        value={address.city} 
-                                                        name="city" 
-                                                        placeholder="New York" 
+                                                    <Input
+                                                        value={address.city}
+                                                        name="city"
+                                                        placeholder="New York"
                                                         onChange={handleInputChange}
                                                         className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                     />
@@ -485,38 +524,38 @@ const Cart = () => {
                                                     <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
                                                         Postal Code
                                                     </label>
-                                                    <Input 
-                                                        name="pincode" 
-                                                        value={address.pincode} 
-                                                        placeholder="10001" 
+                                                    <Input
+                                                        name="pincode"
+                                                        value={address.pincode}
+                                                        placeholder="10001"
                                                         onChange={handleInputChange}
                                                         className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                     />
                                                 </div>
                                             </div>
-                                            
+
                                             <div>
                                                 <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
                                                     State / Province
                                                 </label>
-                                                <Input 
-                                                    name="state" 
-                                                    placeholder="New York" 
-                                                    value={address.state} 
+                                                <Input
+                                                    name="state"
+                                                    placeholder="New York"
+                                                    value={address.state}
                                                     onChange={handleInputChange}
                                                     className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                 />
                                             </div>
-                                            
+
                                             {!isIndia && (
                                                 <div>
                                                     <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
                                                         Country
                                                     </label>
-                                                    <Input 
-                                                        name="country" 
-                                                        placeholder="United States" 
-                                                        value={address.country} 
+                                                    <Input
+                                                        name="country"
+                                                        placeholder="United States"
+                                                        value={address.country}
                                                         onChange={handleInputChange}
                                                         className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
                                                     />
@@ -525,21 +564,21 @@ const Cart = () => {
 
                                             {/* Shipping Method */}
                                             <div className="pt-6 border-t border-[var(--border-divider)]"
-                                                 style={{ '--border-divider': 'hsl(var(--border))' } as React.CSSProperties}>
+                                                style={{ '--border-divider': 'hsl(var(--border))' } as React.CSSProperties}>
                                                 <h3 className="text-lg font-semibold text-[var(--title-color)] mb-4">
                                                     Shipping Method
                                                 </h3>
-                                                <RadioGroup 
-                                                    value={shippingMethod} 
+                                                <RadioGroup
+                                                    value={shippingMethod}
                                                     onValueChange={setShippingMethod}
                                                     className="space-y-3"
                                                 >
                                                     <div className="flex items-center space-x-3 rounded-xl border-2 border-[var(--radio-border)] 
                                                                  p-4 hover:border-[var(--radio-hover)] transition-colors cursor-pointer"
-                                                         style={{
+                                                        style={{
                                                             '--radio-border': shippingMethod === 'standard' ? 'hsl(var(--primary))' : 'hsl(var(--border))',
                                                             '--radio-hover': 'hsl(var(--primary) / 0.3)',
-                                                         } as React.CSSProperties}>
+                                                        } as React.CSSProperties}>
                                                         <RadioGroupItem value="standard" id="standard" />
                                                         <Label htmlFor="standard" className="flex-1 cursor-pointer">
                                                             <div className="flex items-center justify-between">
@@ -551,12 +590,12 @@ const Cart = () => {
                                                             </div>
                                                         </Label>
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center space-x-3 rounded-xl border-2 border-[var(--radio-border)] 
                                                                  p-4 hover:border-[var(--radio-hover)] transition-colors cursor-pointer"
-                                                         style={{
+                                                        style={{
                                                             '--radio-border': shippingMethod === 'express' ? 'hsl(var(--primary))' : 'hsl(var(--border))',
-                                                         } as React.CSSProperties}>
+                                                        } as React.CSSProperties}>
                                                         <RadioGroupItem value="express" id="express" />
                                                         <Label htmlFor="express" className="flex-1 cursor-pointer">
                                                             <div className="flex items-center justify-between">
@@ -571,9 +610,9 @@ const Cart = () => {
                                                 </RadioGroup>
                                             </div>
 
-                                            <Button 
-                                                variant="ghost" 
-                                                onClick={() => setIsCheckingOut(false)} 
+                                            <Button
+                                                variant="ghost"
+                                                onClick={() => setIsCheckingOut(false)}
                                                 className="w-full mt-4 gap-2 group"
                                             >
                                                 <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
@@ -588,7 +627,7 @@ const Cart = () => {
 
                     {/* Right Column - Order Summary */}
                     <div className="lg:col-span-1">
-                        <motion.div 
+                        <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
@@ -608,16 +647,16 @@ const Cart = () => {
                             <div className="space-y-4 mb-8">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-[var(--text-muted)]"
-                                          style={{ '--text-muted': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
+                                        style={{ '--text-muted': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
                                         Subtotal ({cartItems.length} items)
                                     </span>
                                     <span className="font-medium">{currencySymbol}{total.toFixed(2)}</span>
                                 </div>
-                                
+
                                 <div className="flex justify-between text-sm">
                                     <span className="text-[var(--text-muted)]">Shipping</span>
                                     <span className={`font-medium ${shippingCost === 0 ? 'text-[var(--success)]' : ''}`}
-                                          style={{ '--success': 'hsl(var(--success))' } as React.CSSProperties}>
+                                        style={{ '--success': 'hsl(var(--success))' } as React.CSSProperties}>
                                         {shippingCost === 0 ? "FREE" : `${currencySymbol}${shippingCost.toFixed(2)}`}
                                     </span>
                                 </div>
@@ -635,7 +674,7 @@ const Cart = () => {
                                         } as React.CSSProperties}
                                     >
                                         <p className="text-sm text-[var(--warning-text)] font-medium text-center"
-                                           style={{ '--warning-text': 'hsl(var(--primary))' } as React.CSSProperties}>
+                                            style={{ '--warning-text': 'hsl(var(--primary))' } as React.CSSProperties}>
                                             <Sparkles className="w-3 h-3 inline mr-2" />
                                             Add {currencySymbol}{(50 - total).toFixed(2)} more for free shipping!
                                         </p>
@@ -645,10 +684,10 @@ const Cart = () => {
                                 <div className="border-t border-[var(--border-divider)] pt-4">
                                     <div className="flex justify-between items-center font-bold text-lg">
                                         <span className="text-[var(--total-label)]"
-                                              style={{ '--total-label': 'hsl(var(--foreground))' } as React.CSSProperties}>
+                                            style={{ '--total-label': 'hsl(var(--foreground))' } as React.CSSProperties}>
                                             Total
                                         </span>
-                                        <motion.span 
+                                        <motion.span
                                             key={grandTotal}
                                             initial={{ scale: 1.1 }}
                                             animate={{ scale: 1 }}
@@ -659,7 +698,7 @@ const Cart = () => {
                                         </motion.span>
                                     </div>
                                     <p className="text-xs text-[var(--tax-text)] mt-2"
-                                       style={{ '--tax-text': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
+                                        style={{ '--tax-text': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
                                         Includes all applicable taxes
                                     </p>
                                 </div>
@@ -689,12 +728,12 @@ const Cart = () => {
                                     <ShieldCheck className="w-4 h-4" />
                                     <span>Secure & Encrypted Checkout</span>
                                 </div>
-                                
+
                                 <div className="flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
                                     <CreditCard className="w-3 h-3" />
                                     <span>Powered by Stripe</span>
                                 </div>
-                                
+
                                 <div className="flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
                                     <Truck className="w-3 h-3" />
                                     <span>Free shipping over {currencySymbol}50</span>

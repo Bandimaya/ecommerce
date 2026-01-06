@@ -19,7 +19,6 @@ const OrderSchema = new Schema(
     },
     currency: {
       type: String,
-      enum: ["INR", "USD"],
       required: true,
     },
 

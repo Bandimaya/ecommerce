@@ -26,6 +26,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  console.log(process.env.NEXT_PUBLIC_SADAD_SECRET_KEY, process.env.SADAD_SECRET_KEY)
   return (
     <html lang="en">
       <body>

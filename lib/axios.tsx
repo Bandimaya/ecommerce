@@ -13,20 +13,21 @@ export function getToken() {
   return null;
 }
 
-export const apiFetch = async (url: string, options: any = {}) => {
+export const apiFetch = async (url: string, options: any = {}, isURL = false) => {
   const isAdmin = typeof window !== 'undefined' && window.location.pathname.includes('admin');
   const { data, headers, ...rest } = options;
 
   // Determine if body is FormData
   const isFormData = data instanceof FormData;
 
+  console.log(isURL, "ISHJN")
   let res;
   try {
-    res = await fetch(`${apiUrl}${url}`, {
+    res = await fetch(`${!isURL ? apiUrl : ""}${url}`, {
       ...rest,
       headers: {
-        ...(headers || {}),
         Authorization: `Bearer ${getToken() || ""}`,
+        ...(headers || {}),
         ...(isFormData ? {} : { "Content-Type": "application/json" }),
       },
       body: isFormData ? data : data ? JSON.stringify(data) : undefined,
