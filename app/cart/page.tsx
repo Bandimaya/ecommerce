@@ -240,7 +240,7 @@ const Cart = () => {
                                             variants={itemVariants}
                                             className="group relative"
                                         >
-                                            <div className="flex gap-6 bg-[var(--card-bg)] rounded-2xl p-6 border-[1.5px] 
+                                            <div className="flex gap-6 bg-[white] rounded-2xl p-6 border-[1.5px] 
                                                          border-[var(--card-border)] hover:shadow-[0_20px_40px_var(--card-shadow)] 
                                                          transition-all duration-300"
                                                 style={{
@@ -383,7 +383,7 @@ const Cart = () => {
                                     exit={{ opacity: 0, x: -20 }}
                                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
                                 >
-                                    <div className="bg-[var(--card-bg)] rounded-2xl p-8 border-[1.5px] border-[var(--card-border)] 
+                                    <div className="bg-[white] rounded-2xl p-8 border-[1.5px] border-[var(--card-border)] 
                                                   shadow-[0_20px_40px_var(--card-shadow)]"
                                         style={{
                                             '--card-bg': 'hsl(var(--card))',
@@ -592,7 +592,7 @@ const Cart = () => {
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="bg-[var(--card-bg)] rounded-2xl p-8 border-[1.5px] border-[var(--card-border)] 
+                            className="bg-[white] rounded-2xl p-8 border-[1.5px] border-[var(--card-border)] 
                                      shadow-[0_20px_40px_var(--card-shadow)] sticky top-24"
                             style={{
                                 '--card-bg': 'hsl(var(--card))',

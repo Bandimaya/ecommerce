@@ -1,5 +1,7 @@
 // models/Order.ts
 import { Schema, model, models } from "mongoose";
+import "@/models/User"; // 🔥 REQUIRED FOR POPULATE
+
 
 const OrderSchema = new Schema(
   {

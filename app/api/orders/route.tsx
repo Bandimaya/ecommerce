@@ -178,6 +178,7 @@ export const GET = withAuth(async (req: NextRequest, user: UserPayload) => {
   try {
     const orders = await Order.find({ userId: user.id })
       .populate({ path: 'items.productId' })
+      .populate('userId')
       .sort({ createdAt: -1 });
 
     return NextResponse.json(orders);
