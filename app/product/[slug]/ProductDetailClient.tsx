@@ -1,5 +1,5 @@
 "use client"
-import { ArrowLeft, Star, ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw, Check } from "lucide-react";
+import { ArrowLeft, Star, ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw, Check, Loader2 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -12,7 +12,7 @@ import { apiUrl } from "@/lib/constants";
 
 
 const ProductDetailClient = ({ product }: any) => {
-    const { addToCart } = useCart();
+    const { addToCart, loading: cartLoading } = useCart();
 
     const [quantity, setQuantity] = useState(1);
     const [selectedAttributes, setSelectedAttributes] = useState<any>({});
@@ -301,10 +301,10 @@ const ProductDetailClient = ({ product }: any) => {
                             <Button
                                 size="lg"
                                 className="flex-1 h-12 gap-2"
-                                disabled={displayStock <= 0}
+                                disabled={displayStock <= 0 || cartLoading}
                                 onClick={handleAddToCart}
                             >
-                                <ShoppingCart className="w-5 h-5" /> Add to cart
+                                {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5" />} Add to cart
                             </Button>
                         </div>
 
@@ -318,10 +318,10 @@ const ProductDetailClient = ({ product }: any) => {
                             <Button
                                 size="lg"
                                 className="flex-1 h-12 gap-2"
-                                disabled={displayStock <= 0}
+                                disabled={displayStock <= 0 || cartLoading}
                                 onClick={handleAddToCart}
                             >
-                                <ShoppingCart className="w-5 h-5" /> Buy now
+                                {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5" />} Buy now
                             </Button>
                         </div>
 

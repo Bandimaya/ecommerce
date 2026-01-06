@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useMemo, ChangeEvent } from "react";
-import { PlusCircle, Pencil, Trash2, Search, Grid, List } from "lucide-react";
+import { PlusCircle, Pencil, Trash2, Search, Grid, List, Loader2 } from "lucide-react";
 import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
 import { IMAGE_URL } from "@/lib/constants";
+import { Skeleton, SkeletonText, SkeletonLine } from '@/components/ui/skeleton'
 
 interface SectionCourse {
   _id: string;
@@ -47,6 +48,7 @@ export default function SectionCoursesPage({
   const [courses, setCourses] = useState<SectionCourse[]>([]);
   const [sections, setSections] = useState<Section[]>([]); // For storing sections
   const [loading, setLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -181,6 +183,7 @@ export default function SectionCoursesPage({
     data.append("enrolled", form.enrolled);
     data.append("sectionId", form.sectionId);
 
+    setIsSubmitting(true)
     try {
       let res;
       if (form._id) {
@@ -201,10 +204,12 @@ export default function SectionCoursesPage({
       if (res) {
         toast({ title: "Course saved successfully!", variant: "success" });
         resetForm();
-        fetchCourses(); // Refresh the courses list
+        await fetchCourses(); // Refresh the courses list
       }
     } catch (error) {
       toast({ title: "Failed to save course", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false)
     }
   };
 
@@ -450,9 +455,10 @@ export default function SectionCoursesPage({
             <div className="flex justify-end">
               <button
                 onClick={handleSubmit}
-                className="bg-blue-500 text-white px-4 py-2 rounded"
+                disabled={isSubmitting}
+                className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
               >
-                Save Course
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Save Course
               </button>
               <button
                 onClick={resetForm}
@@ -476,31 +482,45 @@ export default function SectionCoursesPage({
       </div>
 
       <div className={view === "grid" ? "grid grid-cols-3 gap-4" : ""}>
-        {filteredCourses.map((course) => (
-          <div key={course._id} className="border p-4 rounded">
-            <img
-              src={IMAGE_URL+course.image}
-              alt={course.title}
-              className="w-full h-40 object-cover rounded"
-            />
-            <h3 className="font-semibold">{course.title}</h3>
-            <p className="text-sm">{course.description}</p>
-            <div className="mt-2 flex justify-between items-center">
-              <button
-                className="text-yellow-500"
-                onClick={() => handleEdit(course._id)}
-              >
-                <Pencil size={16} />
-              </button>
-              <button
-                className="text-red-500"
-                onClick={() => { } /* Delete Logic */}
-              >
-                <Trash2 size={16} />
-              </button>
+        {loading ? (
+          Array.from({length: 6}).map((_, i) => (
+            <div key={i} className="border p-4 rounded">
+              <Skeleton className="w-full h-40 mb-3 rounded" />
+              <SkeletonText className="w-3/4 mb-2" />
+              <SkeletonLine className="w-full mb-2" />
+              <div className="mt-2 flex justify-between items-center">
+                <Skeleton className="w-6 h-6 rounded" />
+                <Skeleton className="w-6 h-6 rounded" />
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          filteredCourses.map((course) => (
+            <div key={course._id} className="border p-4 rounded">
+              <img
+                src={IMAGE_URL+course.image}
+                alt={course.title}
+                className="w-full h-40 object-cover rounded"
+              />
+              <h3 className="font-semibold">{course.title}</h3>
+              <p className="text-sm">{course.description}</p>
+              <div className="mt-2 flex justify-between items-center">
+                <button
+                  className="text-yellow-500"
+                  onClick={() => handleEdit(course._id)}
+                >
+                  <Pencil size={16} />
+                </button>
+                <button
+                  className="text-red-500"
+                  onClick={() => { } /* Delete Logic */}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

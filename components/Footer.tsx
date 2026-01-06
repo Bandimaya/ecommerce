@@ -84,14 +84,14 @@ const Footer = () => {
                 href="#"
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
                 style={{
-                  backgroundColor: 'var(--background) / 0.1',
+                  backgroundColor: 'rgba(255,255,255,0.06)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = 'var(--primary)';
                   e.currentTarget.style.color = 'var(--primary-foreground)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--background) / 0.1';
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
                   e.currentTarget.style.color = 'var(--footer-text)';
                 }}
               >
@@ -106,14 +106,14 @@ const Footer = () => {
                 href="#"
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
                 style={{
-                  backgroundColor: 'var(--background) / 0.1',
+                  backgroundColor: 'rgba(255,255,255,0.06)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = 'var(--primary)';
                   e.currentTarget.style.color = 'var(--primary-foreground)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--background) / 0.1';
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
                   e.currentTarget.style.color = 'var(--footer-text)';
                 }}
               >
@@ -128,14 +128,14 @@ const Footer = () => {
                 href="#"
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
                 style={{
-                  backgroundColor: 'var(--background) / 0.1',
+                  backgroundColor: 'rgba(255,255,255,0.06)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = 'var(--primary)';
                   e.currentTarget.style.color = 'var(--primary-foreground)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--background) / 0.1';
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
                   e.currentTarget.style.color = 'var(--footer-text)';
                 }}
               >
@@ -150,14 +150,14 @@ const Footer = () => {
                 href="#"
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
                 style={{
-                  backgroundColor: 'var(--background) / 0.1',
+                  backgroundColor: 'rgba(255,255,255,0.06)',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.backgroundColor = 'var(--primary)';
                   e.currentTarget.style.color = 'var(--primary-foreground)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = 'var(--background) / 0.1';
+                  e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.06)';
                   e.currentTarget.style.color = 'var(--footer-text)';
                 }}
               >

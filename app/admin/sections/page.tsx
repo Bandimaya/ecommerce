@@ -5,6 +5,7 @@ import { PlusCircle, Pencil, Trash2, Search, Grid, List, ImageIcon } from "lucid
 import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch } from "@/lib/axios"; // Custom axios hook
 import { toast } from "@/hooks/use-toast"; // Custom toast hook
+import { Skeleton, SkeletonText, SkeletonAvatar, SkeletonCard } from "@/components/ui/skeleton";
 
 interface Section {
     _id: string;
@@ -214,7 +215,19 @@ export default function SectionsPage() {
 
             {/* SECTION LIST */}
             {loading ? (
-                <div className="text-center py-20">Loading...</div>
+                <div className="grid md:grid-cols-3 gap-6">
+                    {[1,2,3].map(i => (
+                        <div key={i} className="border rounded-xl overflow-hidden group p-4">
+                            <div className="flex items-center gap-4">
+                                <SkeletonAvatar />
+                                <div className="flex-1 space-y-2">
+                                    <SkeletonText className="w-3/4" />
+                                    <SkeletonText className="w-1/2" />
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             ) : view === "grid" ? (
                 <div className="grid md:grid-cols-3 gap-6">
                     {filteredSections.map(section => (

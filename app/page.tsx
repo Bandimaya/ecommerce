@@ -23,6 +23,8 @@ import LeagueResults from "./home/LeagueResults"
 import StarsOfStempark from "./home/StarsOfStempark"
 import WhyAvishkaar from "./home/WhyStempark"
 import WhyStempark from "./home/WhyStempark"
+import PaymentSuccess from "@/components/payment/PaymentSuccess"
+import PaymentFailure from "@/components/payment/PaymentFailure"
 
 
 const Index = () => {
@@ -55,10 +57,9 @@ const Index = () => {
     <div className="min-h-screen relative overflow-hidden">
       {/* CircuitBackground will be fixed positioned */}
       <CircuitBackground />
-      
+
       {/* Content container with higher z-index but transparent bg */}
       <div className="relative z-10 min-h-screen">
-
         <HeroSection
           getCSSVar={getCSSVar}
           handleWatchVideo={() => setShowVideoModal(true)}
@@ -71,6 +72,11 @@ const Index = () => {
 
         <PreferLearn />
 
+        <FeaturedProducts
+          getCSSVar={getCSSVar}
+          isMobile={isMobile}
+        />
+
         <CompetitionSection />
 
         <LeagueResults />
@@ -78,11 +84,6 @@ const Index = () => {
         <StarsOfStempark />
 
         <WhyStempark />
-
-        <FeaturedProducts
-          getCSSVar={getCSSVar}
-          isMobile={isMobile}
-        />
 
         <MissionVision getCSSVar={getCSSVar} />
 

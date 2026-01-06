@@ -34,72 +34,10 @@ interface BreakingJargonProps {
   getCSSVar?: (varName: string, fallback?: string) => string
 }
 
-// --- Data ---
-const JargonItems: JargonItem[] = [
-  {
-    id: 1,
-    title: "Robotics",
-    description: "Combines IoT, coding, and mechanical design to create autonomous machines. From assembly lines to Mars rovers, robots perform tasks with superhuman precision.",
-    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=1000",
-    alt: "Robotic Arm",
-    icon: Cpu,
-    color: "bg-blue-500",
-    accentColor: "#3b82f6"
-  },
-  {
-    id: 2,
-    title: "Coding",
-    description: "The language of the future. It is the process of writing instructions that drive machines, mobile apps, websites, and digital infrastructure.",
-    image: "https://images.unsplash.com/photo-1587620962725-abab7fe55159?auto=format&fit=crop&q=80&w=1000",
-    alt: "Code on Screen",
-    icon: Code,
-    color: "bg-purple-500",
-    accentColor: "#8b5cf6"
-  },
-  {
-    id: 3,
-    title: "IoT",
-    description: "Connects everyday devices to the internet. Smart bulbs, thermostats, and sensors communicate data, creating an intelligent ecosystem around us.",
-    image: "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&q=80&w=1000",
-    alt: "Smart Network",
-    icon: Wifi,
-    color: "bg-emerald-500",
-    accentColor: "#10b981"
-  },
-  {
-    id: 4,
-    title: "Electronics",
-    description: "The manipulation of electrons to control information and energy. It is the hardware foundation—the circuits and chips—that makes all software possible.",
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&q=80&w=1000",
-    alt: "Circuit Board",
-    icon: Zap,
-    color: "bg-amber-500",
-    accentColor: "#f59e0b"
-  },
-  {
-    id: 5,
-    title: "Mechanical",
-    description: "Focuses on physical structure and motion. It turns abstract concepts into durable, moving mechanisms using gears, levers, and materials science.",
-    image: "https://images.unsplash.com/photo-1537462713117-1a0ad04543ef?auto=format&fit=crop&q=80&w=1000",
-    alt: "Gears and Blueprints",
-    icon: Cog,
-    color: "bg-red-500",
-    accentColor: "#ef4444"
-  },
-  {
-    id: 6,
-    title: "AI & ML",
-    description: "Artificial Intelligence mimics human cognition. By learning from data, AI systems can solve complex problems and recognize patterns independently.",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=1000",
-    alt: "Neural Network",
-    icon: Brain,
-    color: "bg-pink-500",
-    accentColor: "#ec4899"
-  }
-]
-
 const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
+  // New State: Tracks direction (-1 for prev, 1 for next)
+  const [direction, setDirection] = useState(0) 
   const [isMobile, setIsMobile] = useState(false)
   const [data, setData] = useState<JargonItem[]>([])
 
@@ -111,6 +49,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
         console.error('Error fetching jargon data:', error)
       })
   }, [])
+
   // Handle Resize
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024)
@@ -118,6 +57,19 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
     window.addEventListener('resize', checkMobile)
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
+
+  // --- UPDATED HANDLERS WITH DIRECTION ---
+  const handleNext = useCallback(() => {
+    if (data.length === 0) return
+    setDirection(1) // Set direction to Forward
+    setActiveIndex((prev) => (prev + 1) % data.length)
+  }, [data.length])
+
+  const handlePrev = useCallback(() => {
+    if (data.length === 0) return
+    setDirection(-1) // Set direction to Backward
+    setActiveIndex((prev) => (prev - 1 + data.length) % data.length)
+  }, [data.length])
 
   // Handle Keyboard Navigation
   useEffect(() => {
@@ -127,26 +79,17 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
     }
     window.addEventListener("keydown", handleKeyDown)
     return () => window.removeEventListener("keydown", handleKeyDown)
-  }, [])
+  }, [handleNext, handlePrev])
 
-  const handleNext = useCallback(() => {
-    setActiveIndex((prev) => (prev + 1) % data.length)
-  }, [])
-
-  const handlePrev = useCallback(() => {
-    setActiveIndex((prev) => (prev - 1 + data.length) % data.length)
-  }, [])
-
-  // --- Logic for Circular 3D Positioning ---
+  // --- Logic for Circular 3D Positioning (Desktop) ---
   const getCardProps = (index: number) => {
-    const length = data.length
+    if (data.length === 0) return { state: "center", zIndex: 30 }
 
-    // Calculate shortest distance accounting for wrap-around
+    const length = data.length
     let offset = (index - activeIndex) % length
     if (offset > length / 2) offset -= length
     if (offset < -length / 2) offset += length
 
-    // Determine visual state based on offset
     if (offset === 0) return { state: "center", zIndex: 30 }
     if (offset === 1) return { state: "right", zIndex: 20 }
     if (offset === -1) return { state: "left", zIndex: 20 }
@@ -154,8 +97,8 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
     return { state: "farLeft", zIndex: 10 }
   }
 
-  // --- Animation Variants (Snappy & Clean) ---
-  const variants: any = {
+  // --- Desktop Variants ---
+  const desktopVariants: any = {
     center: {
       x: "0%",
       scale: 1,
@@ -199,6 +142,33 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
       filter: "brightness(0.5)",
       transition: { type: "spring", stiffness: 260, damping: 20 }
     }
+  }
+
+  // --- Mobile Variants (Dynamic Direction) ---
+  const mobileVariants = {
+    enter: (direction: number) => ({
+      x: direction > 0 ? 100 : -100, // If next, enter from right. If prev, enter from left.
+      opacity: 0,
+      scale: 0.9
+    }),
+    center: {
+      x: 0,
+      opacity: 1,
+      scale: 1,
+      transition: {
+        x: { type: "spring" as const, stiffness: 300, damping: 30 },
+        opacity: { duration: 0.2 }
+      }
+    },
+    exit: (direction: number) => ({
+      x: direction > 0 ? -100 : 100, // If next, exit left. If prev, exit right.
+      opacity: 0,
+      scale: 0.9,
+      transition: {
+        x: { type: "spring" as const, stiffness: 300, damping: 30 },
+        opacity: { duration: 0.2 }
+      }
+    })
   }
 
   return (
@@ -257,7 +227,6 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
             className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight"
           >
             Your Guide to{' '}
-            {/* Dynamic Text Coloring based on Active Slide */}
             <motion.span
               animate={{ color: data?.[activeIndex]?.accentColor }}
               transition={{ duration: 0.5 }}
@@ -274,7 +243,6 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
             className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed"
           >
             Easy explanations of common terms kickstart your child’s{' '}
-            {/* Dynamic Text Coloring based on Active Slide */}
             <motion.span
               animate={{ color: data?.[activeIndex]?.accentColor }}
               transition={{ duration: 0.5 }}
@@ -292,50 +260,35 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
             {/* Card Iterator */}
             {data.map((item, index) => {
               const { state, zIndex } = getCardProps(index)
-              const ICON_MAP = {
-                Cpu: Cpu,
-                Zap: Zap,
-                Code: Code,
-                Wifi: Wifi,
-                Cog: Cog,
-                Brain: Brain,
-              } as const;
-
+              const ICON_MAP = { Cpu, Zap, Code, Wifi, Cog, Brain } as const;
               type IconKey = keyof typeof ICON_MAP;
-
               const Icon = ICON_MAP[item.icon as IconKey];
-
-              const isActive = state === "center"
 
               return (
                 <motion.div
                   key={item._id}
-                  variants={variants}
+                  variants={desktopVariants}
                   initial="farRight"
                   animate={state}
                   className="absolute w-[850px] h-[480px] rounded-3xl bg-white shadow-2xl border border-slate-100/50 overflow-hidden cursor-pointer"
                   style={{
                     zIndex,
-                    transformStyle: "preserve-3d" // Essential for the 3D effect
+                    transformStyle: "preserve-3d"
                   }}
                   onClick={() => {
-                    // Click side cards to navigate
                     if (state === 'left') handlePrev();
                     if (state === 'right') handleNext();
                   }}
                 >
                   <div className="grid grid-cols-12 h-full w-full">
-
                     {/* Left: Image Side */}
                     <div className="col-span-5 relative h-full overflow-hidden group">
                       <div className="absolute inset-0 bg-slate-900/10 z-10 transition-colors group-hover:bg-transparent" />
                       <img
-                        src={IMAGE_URL+ item.image}
+                        src={IMAGE_URL + item.image}
                         alt={item.alt}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                       />
-
-                      {/* Floating Icon Overlay */}
                       <div className="absolute top-6 left-6 z-20">
                         <div className={`w-12 h-12 rounded-xl ${item.color} flex items-center justify-center shadow-lg text-white`}>
                           {Icon && <Icon size={24} strokeWidth={2.5} />}
@@ -345,33 +298,20 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
 
                     {/* Right: Content Side */}
                     <div className="col-span-7 p-10 flex flex-col justify-center relative bg-white">
-
-                      {/* Decorative Background Number */}
                       <div className="absolute top-4 right-6 text-9xl font-black text-slate-50 opacity-[0.04] pointer-events-none select-none">
                         0{item._id}
                       </div>
-
                       <div className="relative z-10">
                         <div className="flex items-center gap-2 mb-3">
                           <span className={`h-2 w-2 rounded-full ${item.color}`} />
                           <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Core Concept</span>
                         </div>
-
-                        <h2 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">
-                          {item.title}
-                        </h2>
-
-                        <p className="text-lg text-slate-600 leading-relaxed mb-8">
-                          {item.description}
-                        </p>
-
+                        <h2 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">{item.title}</h2>
+                        <p className="text-lg text-slate-600 leading-relaxed mb-8">{item.description}</p>
                         <div className="flex items-center gap-4 pt-6 border-t border-slate-100">
-                          <button
-                            className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 ${item.color}`}
-                          >
+                          <button className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 ${item.color}`}>
                             Explore Topic <ArrowRight size={18} />
                           </button>
-
                           <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
                             <Sparkles size={16} className="text-amber-400" />
                             <span>Beginner Friendly</span>
@@ -403,27 +343,27 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
           </div>
         ) : (
 
-          /* --- MOBILE CARD STACK --- */
+          /* --- MOBILE CARD STACK (Updated with Direction) --- */
           <div className="relative w-full h-[600px] px-4">
-            <AnimatePresence mode="popLayout" custom={activeIndex}>
+            <AnimatePresence mode="popLayout" custom={direction}>
               <motion.div
                 key={activeIndex}
-                initial={{ opacity: 0, x: 50, scale: 0.9 }}
-                animate={{ opacity: 1, x: 0, scale: 1 }}
-                exit={{ opacity: 0, x: -50, scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                custom={direction} // Pass direction to variants
+                variants={mobileVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
                 className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
               >
                 <div className="relative h-1/2">
                   <img
-                    src={IMAGE_URL+ data?.[activeIndex]?.image}
+                    src={IMAGE_URL + data?.[activeIndex]?.image}
                     className="w-full h-full object-cover"
                     alt=""
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                   <div className="absolute bottom-6 left-6 text-white">
                     <div className={`inline-flex p-2 rounded-lg ${data?.[activeIndex]?.color} mb-3`}>
-                      {/* {React.createElement(data?.[activeIndex]?.icon, { size: 20 })} */}
                     </div>
                     <h2 className="text-3xl font-bold">{data?.[activeIndex]?.title}</h2>
                   </div>
@@ -443,20 +383,18 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
           </div>
         )}
 
-        {/* --- UPDATED NAVIGATION DOTS --- */}
+        {/* --- NAVIGATION DOTS --- */}
         <div className="flex justify-center gap-3 mt-12 items-center">
           {data.map((_, idx) => (
             <button
               key={idx}
               onClick={() => setActiveIndex(idx)}
-              // Removed the outer 'w-8 h-8' container and absolute positioning
-              // to remove the glow/halo effect. Added padding for clickability.
               className="group flex items-center justify-center p-1 focus:outline-none"
             >
               <div
                 className={`h-2 rounded-full transition-all duration-300 ${activeIndex === idx
-                  ? 'w-8' // Active state: Wide "Pill"
-                  : 'w-2 bg-slate-300 hover:bg-slate-400' // Inactive state: Small "Dot"
+                  ? 'w-8'
+                  : 'w-2 bg-slate-300 hover:bg-slate-400'
                   }`}
                 style={{
                   backgroundColor: activeIndex === idx ? data?.[activeIndex].accentColor : undefined

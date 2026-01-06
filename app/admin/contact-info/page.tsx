@@ -19,6 +19,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
 import Cropper from "react-easy-crop";
 import { IMAGE_URL } from "@/lib/constants";
+import { SkeletonAvatar, SkeletonText, SkeletonLine } from "@/components/ui/skeleton";
 
 // --- Utility: Create an HTML Image Element ---
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -193,9 +194,33 @@ export default function ContactInfo() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto p-12 flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
-        <p className="text-gray-500 font-medium">Fetching contact details...</p>
+      <div className="max-w-4xl mx-auto p-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white shadow-xl shadow-blue-900/5 border border-gray-100 rounded-2xl overflow-hidden">
+            <div className="p-6 space-y-6">
+              <div className="space-y-2">
+                <div className="flex items-center gap-4">
+                  <SkeletonAvatar />
+                  <div className="flex-1 space-y-2">
+                    <SkeletonText className="w-1/2" />
+                    <SkeletonLine />
+                    <SkeletonLine />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="bg-white shadow-xl shadow-blue-900/5 border border-gray-100 rounded-2xl overflow-hidden p-6">
+            <SkeletonText className="w-3/4" />
+            <div className="mt-4 space-y-2">
+              <SkeletonLine />
+              <SkeletonLine />
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

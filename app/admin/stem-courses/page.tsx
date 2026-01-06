@@ -2,6 +2,8 @@
 
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import { Loader2 } from 'lucide-react'
+import { Skeleton, SkeletonText, SkeletonLine, SkeletonCircle } from '@/components/ui/skeleton'
 
 type StemCourse = {
   _id: string;
@@ -21,6 +23,9 @@ export default function StemCoursesPage() {
   const [courses, setCourses] = useState<StemCourse[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState("");
+  const [loading, setLoading] = useState<boolean>(true)
+  const [isAdding, setIsAdding] = useState<boolean>(false)
+  const [removingId, setRemovingId] = useState<string | null>(null)
 
   const [form, setForm] = useState({
     courseId: "",
@@ -33,8 +38,15 @@ export default function StemCoursesPage() {
   });
 
   const fetchCourses = async () => {
-    const res = await fetch("/api/stem-courses");
-    setCourses(await res.json());
+    setLoading(true)
+    try {
+      const res = await fetch("/api/stem-courses");
+      setCourses(await res.json());
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setLoading(false)
+    }
   };
 
   useEffect(() => {
@@ -43,42 +55,56 @@ export default function StemCoursesPage() {
 
   const addCourse = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsAdding(true)
 
-    if (file) {
-      const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-      fd.append("image", file);
+    try {
+      if (file) {
+        const fd = new FormData();
+        Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+        fd.append("image", file);
 
-      await fetch("/api/stem-courses", { method: "POST", body: fd });
-    } else if (url) {
-      await fetch("/api/stem-courses", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, image: url }),
+        await fetch("/api/stem-courses", { method: "POST", body: fd });
+      } else if (url) {
+        await fetch("/api/stem-courses", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, image: url }),
+        });
+      }
+
+      setForm({
+        courseId: "",
+        title: "",
+        age: "",
+        description: "",
+        level: "Beginner",
+        duration: "",
+        enrolled: "",
       });
+      setUrl("");
+      setFile(null);
+      await fetchCourses();
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setIsAdding(false)
     }
-
-    setForm({
-      courseId: "",
-      title: "",
-      age: "",
-      description: "",
-      level: "Beginner",
-      duration: "",
-      enrolled: "",
-    });
-    setUrl("");
-    setFile(null);
-    fetchCourses();
   };
 
   const removeCourse = async (id: string) => {
-    await fetch("/api/stem-courses", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    fetchCourses();
+    setRemovingId(id)
+    try {
+      await fetch("/api/stem-courses", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      await fetchCourses();
+    } catch (err) {
+      console.error(err)
+    } finally {
+      setRemovingId(null)
+    }
   };
 
   return (
@@ -160,40 +186,57 @@ export default function StemCoursesPage() {
           className="mt-2"
         />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded mt-3">
-          Add Course
+        <button disabled={isAdding} className="bg-blue-600 text-white px-4 py-2 rounded mt-3 flex items-center justify-center">
+          {isAdding ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Add Course
         </button>
       </form>
 
       {/* LIST */}
       <div className="grid gap-4">
-        {courses.map((c) => (
-          <div
-            key={c._id}
-            className="relative bg-white rounded shadow p-4 flex gap-4"
-          >
-            <img
-              src={IMAGE_URL+ c.image}
-              alt={c.title}
-              className="w-32 h-20 object-cover rounded"
-            />
-            <div className="flex-1">
-              <h3 className="font-semibold">
-                {c.title} ({c.courseId})
-              </h3>
-              <p className="text-sm">{c.description}</p>
-              <p className="text-xs text-gray-500">
-                Age {c.age} • {c.level} • {c.duration} • {c.enrolled}
-              </p>
+        {loading ? (
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="relative bg-white rounded shadow p-4 flex gap-4">
+              <Skeleton className="w-32 h-20 rounded" />
+              <div className="flex-1">
+                <SkeletonText className="w-1/2 mb-2" />
+                <SkeletonLine className="w-full mb-2" />
+                <SkeletonLine className="w-3/4" />
+              </div>
+              <div className="flex items-start">
+                <SkeletonCircle className="w-8 h-8" />
+              </div>
             </div>
-            <button
-              onClick={() => removeCourse(c._id)}
-              className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded"
+          ))
+        ) : (
+          courses.map((c) => (
+            <div
+              key={c._id}
+              className="relative bg-white rounded shadow p-4 flex gap-4"
             >
-              ✕
-            </button>
-          </div>
-        ))}
+              <img
+                src={IMAGE_URL+ c.image}
+                alt={c.title}
+                className="w-32 h-20 object-cover rounded"
+              />
+              <div className="flex-1">
+                <h3 className="font-semibold">
+                  {c.title} ({c.courseId})
+                </h3>
+                <p className="text-sm">{c.description}</p>
+                <p className="text-xs text-gray-500">
+                  Age {c.age} • {c.level} • {c.duration} • {c.enrolled}
+                </p>
+              </div>
+              <button
+                onClick={() => removeCourse(c._id)}
+                disabled={removingId === c._id}
+                className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded flex items-center justify-center"
+              >
+                {removingId === c._id ? <Loader2 className="w-4 h-4 animate-spin" /> : '✕'}
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

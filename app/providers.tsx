@@ -12,6 +12,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import GlobalLoader from "@/components/ui/GlobalLoader";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
                     
                       <Toaster />
                       <Sonner />
+                      {/* Global loader that shows when any main provider is busy */}
+                      <GlobalLoader />
                       {children}
                     
                   </LanguageProvider>

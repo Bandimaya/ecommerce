@@ -1,6 +1,6 @@
 "use client"
 
-import { Plus, ShoppingCart, Sparkles, Play } from "lucide-react"
+import { Plus, ShoppingCart, Sparkles, Play, Loader2 } from "lucide-react"
 import { Button } from "./ui/button"
 import { toast } from "@/hooks/use-toast"
 import { useCart } from "@/contexts/CartContext"
@@ -12,7 +12,7 @@ import { motion, useReducedMotion } from "framer-motion"
 import { useState } from "react"
 
 export default function ProductCard({ product, index = 0 }: any) {
-  const { addToCart } = useCart()
+  const { addToCart, loading: cartLoading } = useCart()
   const navigate = useRouter()
   const { currencyCode } = useSettings()
   const [isHovering, setIsHovering] = useState(false)
@@ -62,12 +62,12 @@ export default function ProductCard({ product, index = 0 }: any) {
     e.stopPropagation()
 
     if (hasVariants) {
-      navigate.push(`/product/${product._id}`)
+      navigate.push(`/product/${product._id || product.id}`)
       return
     }
 
     addToCart({
-      productId: product._id,
+      productId: product._id || product.id,
       variantId: null,
       name: product.name,
       price: price,
@@ -89,7 +89,7 @@ export default function ProductCard({ product, index = 0 }: any) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ duration: 0.4, delay: index * 0.05 }}
-      className="relative h-[420px] w-full group cursor-pointer perspective-1000"
+      className="relative w-full group cursor-pointer perspective-1000 min-h-[360px] md:h-[420px]"
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
@@ -168,6 +168,7 @@ export default function ProductCard({ product, index = 0 }: any) {
                       backgroundColor: 'hsl(var(--primary))',
                       color: 'hsl(var(--primary-foreground))'
                     }}
+                    disabled={cartLoading}
                   >
                      <motion.div 
                         className="absolute inset-0 bg-white/20"
@@ -175,7 +176,9 @@ export default function ProductCard({ product, index = 0 }: any) {
                         whileHover={{ x: "100%" }}
                         transition={{ duration: 0.5 }}
                      />
-                    {hasVariants ? (
+                    {cartLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                    ) : hasVariants ? (
                       <Plus className="w-5 h-5" />
                     ) : (
                       <ShoppingCart className="w-4 h-4" />
@@ -242,6 +245,7 @@ export default function ProductCard({ product, index = 0 }: any) {
               <img
                 src={mediaUrl}
                 alt={product.name}
+                loading="lazy"
                 className="w-full h-full object-cover"
               />
             )}

@@ -12,6 +12,7 @@ import {
     Sparkles,
 } from 'lucide-react';
 import { apiFetch } from '@/lib/axios';
+import { Skeleton, SkeletonText } from '@/components/ui/skeleton';
 
 // --- Data ---
 const categories = [
@@ -55,9 +56,14 @@ const categories = [
 export default function CategoryShowcase() {
     const [data, setData] = useState([])
     const [isHovering, setIsHovering] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        apiFetch('/categories').then((data) => setData(data)).catch((err) => console.error(err));
+        setLoading(true);
+        apiFetch('/categories')
+            .then((data) => setData(data))
+            .catch((err) => console.error(err))
+            .finally(() => setLoading(false));
     }, [])
 
     return (
@@ -92,6 +98,35 @@ export default function CategoryShowcase() {
                 </div>
 
                 {/* Grid */}
+                {loading ? (
+                  <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="group relative h-[400px] rounded-3xl overflow-hidden isolate cursor-pointer">
+                        <div className="absolute inset-0 bg-card border border-border shadow-xl" />
+                        <div className="absolute top-0 left-0 w-full h-[65%] p-6">
+                          <Skeleton className="w-full h-full rounded-md" />
+                        </div>
+                        <div className="absolute bottom-0 left-0 w-full h-[35%] bg-card border-t border-border p-6 flex flex-col justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                                Collection
+                              </span>
+                            </div>
+
+                            <h3 className="text-lg font-bold text-foreground">
+                              <SkeletonText className="w-3/4" />
+                            </h3>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <SkeletonText className="w-1/3" />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
                     {data.map((category: any, index) => (
                         <motion.div
@@ -140,7 +175,9 @@ export default function CategoryShowcase() {
                         </motion.div>
                     ))}
                 </div>
+                )}
             </div>
+            
         </section>
     );
 }

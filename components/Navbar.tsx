@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Menu,
   X,
@@ -29,7 +29,6 @@ import { useUser } from "@/contexts/UserContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/SettingsContext";
-import LanguageSwitcher from "./LanguageSwitcher";
 
 interface NavbarProps {
   onLanguageToggle?: (language: string) => void;
@@ -41,8 +40,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const { contact } = useSettings()
+  const { contact } = useSettings();
+
+  // Language State
+  const [currentLang, setCurrentLang] = useState("en");
 
   const pathname = usePathname();
   const router = useRouter();
@@ -50,7 +51,19 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const { user, logout } = useUser();
   const navRef = useRef<HTMLDivElement>(null);
 
-
+  // Initialize Language based on cookie
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
+      return v ? v[2] : null;
+    };
+    const langCookie = getCookie("googtrans");
+    if (langCookie === "/en/ar" || langCookie === "/auto/ar") {
+      setCurrentLang("ar");
+    } else {
+      setCurrentLang("en");
+    }
+  }, []);
 
   // Handle scroll effect
   useEffect(() => {
@@ -96,13 +109,12 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  // Prefetch important routes when the mobile menu opens to reduce perceived navigation delay
+  // Prefetch important routes
   useEffect(() => {
     if (isOpen) {
       ["/", "/shop", "/contact", "/courses"].forEach((p) => router.prefetch(p));
     }
   }, [isOpen, router]);
-
 
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
@@ -128,6 +140,19 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     setIsOpen(false);
   };
 
+  // --- Custom Language Toggle Logic ---
+  const handleLanguageSwitch = () => {
+    const targetLang = currentLang === "en" ? "ar" : "en";
+    
+    // Set cookie for Google Translate
+    document.cookie = `googtrans=/auto/${targetLang}; path=/; domain=${window.location.hostname}`;
+    document.cookie = `googtrans=/auto/${targetLang}; path=/;`; // Fallback
+
+    // Update state and reload
+    setCurrentLang(targetLang);
+    window.location.reload();
+  };
+
   const navLinks = [
     { label: "Home", path: "/", icon: <Home className="w-5 h-5" /> },
     { label: "Shop", path: "/shop", icon: <Store className="w-5 h-5" /> },
@@ -146,15 +171,15 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const isActive = (path: string) => pathname === path;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-
   return (
     <>
       <nav
         ref={navRef}
-        className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${scrolled
-          ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
-          : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
-          }`}
+        className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${
+          scrolled
+            ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
+            : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
+        }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex h-16 md:h-20 items-center justify-between">
@@ -166,16 +191,21 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
             >
               {contact?.logo_url ? (
                 <div className="flex items-center gap-2">
-                  {/* Circle logo container (fixed pixel sizes so it doesn't scale with global font-size) */}
                   <div className="w-[40px] h-[40px] md:w-[48px] md:h-[48px] overflow-hidden rounded-full border-2 border-white shadow-sm flex-shrink-0">
                     <img
-                      src={'http://49.50.83.49' + contact?.logo_url}
+                      src={"http://49.50.83.49" + contact?.logo_url}
                       alt="Logo"
                       className="w-full h-full object-contain"
-                      style={{ display: 'block', maxWidth: '48px', maxHeight: '48px', width: '48px', height: '48px', objectFit: 'contain' }}
+                      style={{
+                        display: "block",
+                        maxWidth: "48px",
+                        maxHeight: "48px",
+                        width: "48px",
+                        height: "48px",
+                        objectFit: "contain",
+                      }}
                     />
                   </div>
-                  {/* Optional brand name (cap width and prevent overflow) */}
                   <span className="text-[18px] md:text-[22px] font-bold text-gray-900 hidden md:inline-block max-w-[160px] truncate leading-none site-brand">
                     STEM<span className="text-accent">PARK</span>
                   </span>
@@ -199,9 +229,14 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   onFocus={() => router.prefetch(link.path)}
                   onTouchStart={() => router.prefetch(link.path)}
                   onPointerDown={(e) => {
-                    // If user used a modifier key or non-left button, let the browser handle it (open in new tab/window)
-                    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-                    // Otherwise start navigation immediately to reduce perceived delay
+                    if (
+                      e.button !== 0 ||
+                      e.metaKey ||
+                      e.ctrlKey ||
+                      e.shiftKey ||
+                      e.altKey
+                    )
+                      return;
                     e.preventDefault();
                     router.push(link.path);
                   }}
@@ -211,10 +246,11 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                       router.push(link.path);
                     }
                   }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(link.path)
+                      ? "bg-primary text-white shadow-sm"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  }`}
                 >
                   {link.label}
                 </Link>
@@ -230,7 +266,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   size="icon"
                   className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                   onClick={toggleSearch}
-                  aria-label={'Open search'}
+                  aria-label={"Open search"}
                 >
                   <Search className="w-5 h-5" />
                 </Button>
@@ -243,7 +279,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={'Search products...'}
+                        placeholder={"Search products..."}
                         className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
                         autoFocus
                       />
@@ -259,7 +295,25 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 )}
               </div>
 
-              <LanguageSwitcher />
+              {/* Custom Language Toggle (New Implementation) */}
+              <div 
+                className="hidden md:flex items-center bg-gray-100 rounded-full p-1 cursor-pointer notranslate border border-gray-200"
+                onClick={handleLanguageSwitch}
+                title="Switch Language"
+              >
+                <div 
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+                  style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
+                >
+                  EN
+                </div>
+                <div 
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+                  style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
+                >
+                  AR
+                </div>
+              </div>
 
               {/* Cart Button */}
               <Link href="/cart">
@@ -267,7 +321,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   variant="ghost"
                   size="icon"
                   className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  aria-label={'View cart'}
+                  aria-label={"View cart"}
                 >
                   <ShoppingCart className="w-5 h-5" />
                   {totalItems > 0 && (
@@ -291,9 +345,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                         <User className="w-5 h-5 text-primary" />
                       </Button>
                     </DropdownMenuTrigger>
+                    {/* UPDATED: Added z-[100] to popup */}
                     <DropdownMenuContent
                       align="end"
-                      className="w-56 bg-white border border-gray-200 shadow-lg"
+                      className="w-56 bg-white border border-gray-200 shadow-lg z-[100]"
                     >
                       <DropdownMenuLabel>
                         {user.name || user.email}
@@ -359,10 +414,11 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
         {/* Mobile Navigation Overlay (RTL-aware) */}
         <div
-          className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
-            ? "translate-x-0 opacity-100 visible"
-            : "translate-x-full opacity-0 invisible"
-            }`}
+          className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${
+            isOpen
+              ? "translate-x-0 opacity-100 visible"
+              : "translate-x-full opacity-0 invisible"
+          }`}
           style={{ height: "calc(100vh - 64px)" }}
         >
           <div className="h-full overflow-y-auto bg-white px-4 py-6 flex flex-col">
@@ -371,13 +427,34 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={'Search products...'}
+                placeholder={"Search products..."}
                 className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none"
               />
               <Button type="submit" className="bg-primary rounded-xl px-4">
                 <Search className="w-5 h-5" />
               </Button>
             </form>
+            
+            {/* Mobile Language Toggle */}
+            <div 
+              className="flex w-full justify-center mb-6 notranslate"
+              onClick={handleLanguageSwitch}
+            >
+               <div className="flex bg-gray-100 p-1 rounded-lg cursor-pointer">
+                  <div 
+                    className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+                    style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
+                  >
+                    English
+                  </div>
+                  <div 
+                    className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+                    style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
+                  >
+                    العربية
+                  </div>
+               </div>
+            </div>
 
             <div className="space-y-2 flex-1">
               {navLinks.map((link) => (
@@ -389,9 +466,14 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   onFocus={() => router.prefetch(link.path)}
                   onTouchStart={() => router.prefetch(link.path)}
                   onPointerDown={(e) => {
-                    // If user used a modifier key or non-left button, let the browser handle it
-                    if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
-                    // Close menu then navigate immediately for snappy feel
+                    if (
+                      e.button !== 0 ||
+                      e.metaKey ||
+                      e.ctrlKey ||
+                      e.shiftKey ||
+                      e.altKey
+                    )
+                      return;
                     e.preventDefault();
                     setIsOpen(false);
                     router.push(link.path);
@@ -404,10 +486,11 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     }
                   }}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${isActive(link.path)
-                    ? "bg-primary text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${
+                    isActive(link.path)
+                      ? "bg-primary text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
                 >
                   {link.icon}
                   <span className="text-lg">{link.label}</span>
@@ -416,7 +499,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
             </div>
 
             <div className="mt-auto pt-6 border-t border-gray-100 space-y-4">
-
               {user ? (
                 <div className="grid gap-2">
                   <div className="px-4 py-3 bg-gray-50 rounded-xl border border-gray-100">
@@ -457,6 +539,28 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
       <div aria-hidden="true" className="h-16 md:h-20" />
 
       <style jsx global>{`
+        /* Hide Google Translate Toolbar and Icon */
+        .goog-te-banner-frame {
+          display: none !important;
+        }
+        .goog-te-gadget-icon {
+          display: none !important;
+        }
+        .goog-te-gadget-simple {
+          background-color: transparent !important;
+          border: none !important;
+        }
+        #goog-gt-tt {
+          display: none !important;
+        }
+        body {
+          top: 0px !important;
+        }
+        /* Ensure the toggle itself isn't translated */
+        .notranslate {
+          translate: no;
+        }
+
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -471,9 +575,12 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
           animation: fadeIn var(--anim-micro) var(--anim-ease) forwards;
           will-change: opacity, transform;
         }
-        @media (prefers-reduced-motion: reduce) { .animate-fade-in { animation: none !important; } }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-fade-in {
+            animation: none !important;
+          }
+        }
 
-        /* Prevent layout shift during language transition */
         html[lang="ar"],
         html[lang="qa"] {
           direction: rtl;

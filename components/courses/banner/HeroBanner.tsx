@@ -2,14 +2,14 @@
 
 import React from 'react';
 import HeaderLeadForm from './HeaderLeadForm';
-import { ChevronRight, ShieldCheck, Star } from 'lucide-react'; // Using Lucide for trust signals
+import { ChevronRight, ShieldCheck, Star } from 'lucide-react'; 
 import { motion } from 'framer-motion';
 
 export default function HeroBanner() {
   return (
     <div className="relative w-full min-h-[600px] lg:h-[85vh] flex items-center overflow-hidden bg-[#0a0a0a]">
 
-      {/* 1. Background Layer with Improved Depth */}
+      {/* 1. Background Layer */}
       <div className="absolute inset-0 z-0">
         <picture>
           <source
@@ -17,13 +17,12 @@ export default function HeroBanner() {
             srcSet="https://images.avishkaar.cc/misc/shop/microdegree-page-banner.png"
           />
           <img
-            loading="eager" // Hero images should be eager
+            loading="eager" 
             className="w-full h-full object-cover object-center scale-105 animate-slow-zoom"
             src="https://images.avishkaar.cc/misc/shop/microdegree-page-banner-mobile.png"
             alt="Microdegrees - Robotics and Coding for Kids"
           />
         </picture>
-        {/* Multilayered Overlay for readability and depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 lg:bg-gradient-to-r lg:from-black/90 lg:via-black/40 lg:to-transparent"></div>
         <div className="absolute inset-0 bg-blue-500/5 mix-blend-overlay"></div>
       </div>
@@ -32,16 +31,16 @@ export default function HeroBanner() {
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-12 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-          {/* Left Column: Value Proposition (Spans 7 columns) */}
+          {/* Left Column: Value Proposition */}
           <div className="lg:col-span-7 text-white space-y-8 text-center lg:text-left">
 
-            {/* Trust Badge/Top Label */}
-            <div className="inline-flex items-center gap-2  px-4 py-2  animate-fade-in-down">
-              <div className="flex justify-center items-center gap-3 mb-10 sm:mb-16">
-                <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
-                <span className="text-xs font-bold uppercase tracking-widest text-primary">India's Top Rated Robotics Platform</span>
-                <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
-              </div>
+            {/* Trust Badge */}
+            <div className="flex justify-center lg:justify-start items-center gap-3">
+               <motion.div initial={{ width: 0 }} whileInView={{ width: '40px' }} className="h-[2px] bg-orange-500" />
+               <span className="text-xs sm:text-sm font-bold uppercase tracking-widest text-orange-400">
+                 India's Top Rated Robotics Platform
+               </span>
+               <motion.div initial={{ width: 0 }} whileInView={{ width: '40px' }} className="h-[2px] bg-orange-500" />
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-[1.1]">
@@ -56,27 +55,25 @@ export default function HeroBanner() {
             </p>
 
             {/* Feature Quick-Tags */}
-            <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-300">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-6">
+              <div className="flex items-center gap-2 text-sm sm:text-base text-gray-300">
                 <ShieldCheck className="w-5 h-5 text-orange-500" />
                 <span>Certified Instructors</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-gray-300">
-                <ShieldCheck className="w-5 h-5 text-orange-500" />
-                <span>Hands-on Kits</span>
+              <div className="flex items-center gap-2 text-sm sm:text-base text-gray-300">
+                <Star className="w-5 h-5 text-orange-500 fill-orange-500" />
+                <span>4.8/5 Rating</span>
               </div>
             </div>
 
-            {/* Mobile Scroll Indicator or Button (Optional) */}
-            <div className="lg:hidden">
-              <p className="text-sm text-gray-400 animate-bounce">Scroll to get started <ChevronRight className="rotate-90 inline w-4 h-4" /></p>
-            </div>
+            {/* REMOVED: The mobile "HeaderLeadForm" block was deleted here.
+               The form will now only render in the Right Column below.
+            */}
           </div>
 
-          {/* Right Column: Lead Form (Spans 5 columns) */}
-          <div className="lg:col-span-5 flex justify-center lg:justify-end w-full animate-fade-in-up">
-            <div className="w-full max-w-md bg-white/5 backdrop-blur-xl p-1 rounded-2xl border border-white/10 shadow-2xl">
-              {/* Internal padding and logic handled inside HeaderLeadForm */}
+          {/* Right Column: Lead Form (Desktop Only) */}
+          <div className="hidden lg:flex lg:col-span-5 justify-end w-full animate-fade-in-up">
+            <div className="w-full max-w-md">
               <HeaderLeadForm />
             </div>
           </div>
@@ -84,7 +81,7 @@ export default function HeroBanner() {
         </div>
       </div>
 
-      {/* Tailwind Custom Animations (Add to global CSS or tailwind.config) */}
+      {/* Tailwind Custom Animations */}
       <style jsx global>{`
         @keyframes slow-zoom {
           from { transform: scale(1); }

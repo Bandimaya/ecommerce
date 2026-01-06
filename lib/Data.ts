@@ -112,7 +112,8 @@ export const stemResults: StemProduct[] = [
 // lib/data.ts
 
 export interface Product {
-  id: number;
+  id?: number;
+  _id?: string;
   name: string;
   category: string;
   price: number;

@@ -1,4 +1,5 @@
 "use client"
+
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
@@ -36,7 +37,7 @@ interface PreferLearnProps {
 }
 
 const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varName}, ${fallback})` : `var(${varName})` }: PreferLearnProps) => {
-  const [activeTab, setActiveTab] = useState<string>("online-classes")
+  const [activeTab, setActiveTab] = useState<string>("")
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -82,138 +83,24 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
       setSections(sectionsData)
       setSectionCourses(setCoursesData)
       let mainData: any[] = []
-      sectionsData.forEach((section: any) => {
+      
+      sectionsData.forEach((section: any, index: number) => {
         const courses = setCoursesData.filter((item: any) => item.sectionId?._id === section._id)
-        mainData.push({ ...section, paths: courses })
+        // Assigning alternating icons for visual variety if needed
+        const icon = index % 2 === 0 ? Zap : Users; 
+        mainData.push({ ...section, paths: courses, icon: icon, label: section.name || section.label }) 
       })
+      
       setData(mainData)
+
+      if (mainData.length > 0) {
+        setActiveTab(mainData[0]._id)
+      }
     })
   }, [])
 
-  const tabs: TabContent[] = [
-    {
-      id: "diy-kits",
-      label: "DIY Kits",
-      icon: Zap,
-      description: "Hands-on kits for practical, self-paced learning",
-      paths: [
-        {
-          id: 1,
-          title: "Robotics Explorer Kit",
-          ageRange: "8-14 Yrs",
-          image: "https://images.avishkaar.cc/misc/home/path/paths-robotics.webp",
-          alt: "Robotics",
-          description: "Build and program robots with sensors.",
-          duration: "8-12 wks",
-          level: "Beginner",
-          skills: ["Coding", "Robotics"],
-          rating: 4.8,
-          enrolled: 1240
-        },
-        {
-          id: 2,
-          title: "Mechanical Eng.",
-          ageRange: "8+ Yrs",
-          image: "https://images.avishkaar.cc/misc/home/path/paths-mechanical design.webp",
-          alt: "Mechanical Design",
-          description: "Learn mechanics by building models.",
-          duration: "6-10 wks",
-          level: "Beginner",
-          skills: ["3D Design", "Physics"],
-          rating: 4.6,
-          enrolled: 890
-        },
-        {
-          id: 3,
-          title: "Coding Fundamentals",
-          ageRange: "5-10 Yrs",
-          image: "https://images.avishkaar.cc/misc/home/path/paths-coding.webp",
-          alt: "Coding",
-          description: "Intro to visual programming blocks.",
-          duration: "4-8 wks",
-          level: "Beginner",
-          skills: ["Logic", "Creativity"],
-          rating: 4.9,
-          enrolled: 2150
-        },
-        {
-          id: 4,
-          title: "Smart Home IoT",
-          ageRange: "10-16 Yrs",
-          image: "https://images.avishkaar.cc/misc/home/path/paths-iot_electronics.webp",
-          alt: "IoT & Electronics",
-          description: "Create smart devices with sensors.",
-          duration: "10-14 wks",
-          level: "Intermed.",
-          skills: ["IoT", "Electronics"],
-          rating: 4.7,
-          enrolled: 760
-        }
-      ]
-    },
-    {
-      id: "online-classes",
-      label: "Live Classes",
-      icon: Users,
-      description: "Personalized online courses with expert instructors",
-      paths: [
-        {
-          id: 5,
-          title: "Coding Bootcamp",
-          ageRange: "6-12 Yrs",
-          image: "https://images.avishkaar.cc/misc/home/path/paths-coding.webp",
-          alt: "Coding",
-          description: "Live coding sessions & projects.",
-          duration: "12 wks",
-          level: "All Levels",
-          skills: ["Python", "JS"],
-          rating: 4.9,
-          enrolled: 3420
-        },
-        {
-          id: 6,
-          title: "App Development",
-          ageRange: "8-15 Yrs",
-          image: "https://images.avishkaar.cc/misc/home/path/paths-app-dev.webp",
-          alt: "App Dev",
-          description: "Build mobile apps with real utility.",
-          duration: "16 wks",
-          level: "Intermed.",
-          skills: ["UI/UX", "Mobile"],
-          rating: 4.8,
-          enrolled: 1280
-        },
-        {
-          id: 7,
-          title: "Advanced Robotics",
-          ageRange: "8+ Yrs",
-          image: "https://images.avishkaar.cc/misc/home/path/paths-robotics.webp",
-          alt: "Robotics",
-          description: "Master robotics with AI concepts.",
-          duration: "20 wks",
-          level: "Advanced",
-          skills: ["AI", "CV"],
-          rating: 4.7,
-          enrolled: 920
-        },
-        {
-          id: 8,
-          title: "AI & Machine Learning",
-          ageRange: "12+ Yrs",
-          image: "https://images.avishkaar.cc/misc/home/path/paths-ai.webp",
-          alt: "AI",
-          description: "Intro to AI and data science.",
-          duration: "14 wks",
-          level: "Intermed.",
-          skills: ["ML", "Data"],
-          rating: 4.8,
-          enrolled: 1850
-        }
-      ]
-    }
-  ]
-
-  const activeTabData = data.find((tab: any) => tab._id === activeTab)
+  const displayData = data.length > 0 ? data : []
+  const activeTabData = displayData.find((tab: any) => tab._id === activeTab)
 
   return (
     <section
@@ -247,7 +134,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
           viewport={{ once: true }}
           className="text-center mb-10 sm:mb-16"
         >
-          {/* Theme Badge (Centered with Double Lines) */}
+          {/* Theme Badge */}
           <motion.div
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
@@ -255,7 +142,6 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
             viewport={{ once: true }}
             className="flex justify-center items-center gap-4 mb-4"
           >
-            {/* Left Line */}
             <motion.div
               className="h-[2px]"
               initial={{ width: 0 }}
@@ -271,7 +157,6 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               Personalized Learning
             </span>
 
-            {/* Right Line */}
             <motion.div
               className="h-[2px]"
               initial={{ width: 0 }}
@@ -293,172 +178,173 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
           </p>
         </motion.div>
 
-        {/* --- COMPACT TAB SWITCHER --- */}
-        <div className="flex justify-center mb-10">
-          <div
-            className="p-1 rounded-full border shadow-sm backdrop-blur-md relative inline-flex"
-            style={{
-              backgroundColor: `color-mix(in srgb, ${v('--card', '#fff')} 80%, transparent)`,
-              borderColor: v('--border', '#e2e8f0')
-            }}
-          >
-            {data.map((tab: any) => {
-              console.log(tab._id, activeTab);
+        {/* --- DYNAMIC GRID SWITCHER --- */}
+        {/* Changed from Flex to Grid to handle more buttons gracefully */}
+        <div className="flex justify-center mb-10 w-full">
+            <div
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 p-2 rounded-2xl border shadow-sm backdrop-blur-md w-full max-w-5xl"
+                style={{
+                    backgroundColor: `color-mix(in srgb, ${v('--card', '#fff')} 80%, transparent)`,
+                    borderColor: v('--border', '#e2e8f0')
+                }}
+            >
+            {displayData.map((tab: any) => {
               const isActive = activeTab === tab._id
-              const Icon = tab.icon
+              const Icon = tab.icon || Sparkles 
+              
               return (
                 <button
                   key={tab._id}
                   onClick={() => setActiveTab(tab._id)}
-                  className="relative px-6 py-2 rounded-full text-sm sm:text-base font-bold transition-all duration-300 z-10 flex items-center gap-2"
-                  style={{ color: isActive ? v('--primary-foreground', '#ffffff') : v('--muted-foreground', '#64748b') }}
+                  className="relative w-full px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 z-10 flex items-center justify-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-primary overflow-hidden"
+                  style={{
+                    color: isActive ? v('--primary-foreground', '#ffffff') : v('--muted-foreground', '#64748b')
+                  }}
                 >
-                  {/* <Icon className="w-4 h-4" /> */}
-                  {tab.label}
+                  {/* Active Background Pill - Adapts to Grid Cell Size */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTabBackground"
+                      className="absolute inset-0 rounded-xl shadow-md -z-10"
+                      initial={false}
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                      style={{
+                        backgroundColor: v('--primary', '#3b82f6')
+                      }}
+                    />
+                  )}
+                  
+                  <span className="relative z-10 flex items-center gap-2 truncate">
+                     {/* Optional: Add icon back if desired */}
+                     {/* <Icon className="w-4 h-4 shrink-0" /> */}
+                     <span className="truncate">{tab.name || tab.label}</span>
+                  </span>
                 </button>
               )
             })}
-            <motion.div
-              className="absolute top-1 bottom-1 rounded-full shadow-md z-0"
-              layoutId="activeTabBackground"
-              initial={false}
-              animate={{
-                left: activeTab === tabs[0]._id ? '4px' : '50%',
-                width: 'calc(50% - 4px)',
-                x: activeTab === tabs[0]._id ? 0 : 0
-              }}
-              transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
-              style={{
-                background: `linear-gradient(135deg, ${v('--primary', '#3b82f6')}, ${v('--accent', '#8b5cf6')})`
-              }}
-            />
           </div>
         </div>
 
         {/* --- CARDS GRID --- */}
         <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            layout
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 max-w-6xl mx-auto"
-          >
-            {activeTabData?.paths.map((path: any) => (
-              <motion.div
-                key={path.id}
-                variants={cardVariants}
-                className="h-full"
-                layout
-                onMouseEnter={() => setHoveredCard(path.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-                whileHover="hover"
-              >
-                <Card
-                  className="group relative h-full overflow-hidden border transition-all duration-300 flex flex-col hover:shadow-2xl hover:border-primary/20"
-                  style={{
-                    backgroundColor: v('--card', '#ffffff'),
-                    borderColor: v('--border', '#e2e8f0')
-                  }}
+          {activeTabData && (
+            <motion.div
+              key={activeTab}
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 max-w-6xl mx-auto"
+            >
+              {activeTabData.paths?.map((path: any) => (
+                <motion.div
+                  key={path._id || path.id}
+                  variants={cardVariants}
+                  className="h-full"
+                  onMouseEnter={() => setHoveredCard(path.id)}
+                  onMouseLeave={() => setHoveredCard(null)}
+                  whileHover="hover"
                 >
-                  {/* Compact Image Section */}
-                  <div className="relative h-36 overflow-hidden">
-                    <motion.img
-                      src={IMAGE_URL+path.image}
-                      alt={path.alt}
-                      className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform"
-                      animate={hoveredCard === path.id ? { scale: 1.15 } : { scale: 1 }}
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                  <Card
+                    className="group relative h-full overflow-hidden border transition-all duration-300 flex flex-col hover:shadow-2xl hover:border-primary/20"
+                    style={{
+                      backgroundColor: v('--card', '#ffffff'),
+                      borderColor: v('--border', '#e2e8f0')
+                    }}
+                  >
+                    {/* Compact Image Section */}
+                    <div className="relative h-36 overflow-hidden">
+                      <motion.img
+                        src={IMAGE_URL + path.image}
+                        alt={path.alt || path.title}
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform"
+                        animate={hoveredCard === path.id ? { scale: 1.15 } : { scale: 1 }}
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-                    {/* Floating Badge (Top Left) */}
-                    <div className="absolute top-2 left-2">
-                      <Badge className="bg-white/90 text-black backdrop-blur-md text-[10px] px-2 py-0.5 border-0 font-bold shadow-sm">
-                        {path.ageRange}
-                      </Badge>
-                    </div>
-
-                    {/* Floating Rating (Top Right) */}
-                    <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/10">
-                      <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                      <span className="text-[10px] font-bold text-white">{path.rating}</span>
-                    </div>
-
-                    {/* Hover Play Button */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <motion.div
-                        initial={{ scale: 0.8, opacity: 0 }}
-                        animate={hoveredCard === path.id ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
-                        className="bg-white/20 backdrop-blur-md p-3 rounded-full border border-white/30 shadow-lg"
-                      >
-                        <PlayCircle className="w-8 h-8 text-white fill-white/20" />
-                      </motion.div>
-                    </div>
-                  </div>
-
-                  <CardContent className="p-4 flex-grow flex flex-col relative z-10">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-base font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-300" style={{ color: v('--foreground', '#020817') }}>
-                        {path.title}
-                      </h3>
-                    </div>
-
-                    <p className="text-xs mb-3 line-clamp-2 leading-relaxed" style={{ color: v('--muted-foreground', '#64748b') }}>
-                      {path.description}
-                    </p>
-
-                    <div className="flex items-center gap-3 mb-3 text-[11px] font-medium" style={{ color: v('--muted-foreground', '#64748b') }}>
-                      <div className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {path.duration}
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-white/90 text-black backdrop-blur-md text-[10px] px-2 py-0.5 border-0 font-bold shadow-sm">
+                          {path.ageRange || "8+ Yrs"}
+                        </Badge>
                       </div>
-                      <div className="w-[1px] h-3 bg-border" />
-                      <div className="flex items-center gap-1">
-                        <BarChart className="w-3 h-3" />
-                        {path.level}
-                      </div>
-                    </div>
 
-                    <div className="flex flex-wrap gap-1.5 mt-auto">
-                      {path.skills.slice(0, 2).map((skill: any, i: any) => (
-                        <span
-                          key={i}
-                          className="px-2 py-0.5 text-[10px] rounded-md border bg-secondary/50 group-hover:bg-primary/5 group-hover:border-primary/20 transition-colors duration-300"
-                          style={{
-                            borderColor: v('--border', '#e2e8f0'),
-                            color: v('--muted-foreground', '#64748b'),
-                          }}
+                      <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/10">
+                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                        <span className="text-[10px] font-bold text-white">{path.rating || 4.5}</span>
+                      </div>
+
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <motion.div
+                          initial={{ scale: 0.8, opacity: 0 }}
+                          animate={hoveredCard === path.id ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
+                          className="bg-white/20 backdrop-blur-md p-3 rounded-full border border-white/30 shadow-lg"
                         >
-                          {skill}
-                        </span>
-                      ))}
+                          <PlayCircle className="w-8 h-8 text-white fill-white/20" />
+                        </motion.div>
+                      </div>
                     </div>
-                  </CardContent>
 
-                  <CardFooter className="p-4 pt-0">
-                    <Button
-                      className="w-full h-9 text-sm font-medium rounded-lg shadow-md group/btn transition-all duration-300 overflow-hidden relative border-0"
-                      style={{
-                        backgroundColor: v('--primary', '#3b82f6'),
-                        color: v('--primary-foreground', '#ffffff'),
-                      }}
-                    >
-                      <span className="relative z-10 flex items-center justify-center gap-2">
-                        View Details <ChevronRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                      </span>
-                      {/* Button Hover Effect Layer */}
-                      <div className="absolute inset-0 bg-black/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 z-0" />
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
+                    <CardContent className="p-4 flex-grow flex flex-col relative z-10">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-base font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-300" style={{ color: v('--foreground', '#020817') }}>
+                          {path.title || path.name}
+                        </h3>
+                      </div>
+
+                      <p className="text-xs mb-3 line-clamp-2 leading-relaxed" style={{ color: v('--muted-foreground', '#64748b') }}>
+                        {path.description}
+                      </p>
+
+                      <div className="flex items-center gap-3 mb-3 text-[11px] font-medium" style={{ color: v('--muted-foreground', '#64748b') }}>
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {path.duration || "Self Paced"}
+                        </div>
+                        <div className="w-[1px] h-3 bg-border" />
+                        <div className="flex items-center gap-1">
+                          <BarChart className="w-3 h-3" />
+                          {path.level || "Beginner"}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5 mt-auto">
+                        {path.skills?.slice(0, 2).map((skill: any, i: any) => (
+                          <span
+                            key={i}
+                            className="px-2 py-0.5 text-[10px] rounded-md border bg-secondary/50 group-hover:bg-primary/5 group-hover:border-primary/20 transition-colors duration-300"
+                            style={{
+                              borderColor: v('--border', '#e2e8f0'),
+                              color: v('--muted-foreground', '#64748b'),
+                            }}
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </CardContent>
+
+                    <CardFooter className="p-4 pt-0">
+                      <Button
+                        className="w-full h-9 text-sm font-medium rounded-lg shadow-md group/btn transition-all duration-300 overflow-hidden relative border-0"
+                        style={{
+                          backgroundColor: v('--primary', '#3b82f6'),
+                          color: v('--primary-foreground', '#ffffff'),
+                        }}
+                      >
+                        <span className="relative z-10 flex items-center justify-center gap-2">
+                          View Details <ChevronRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                        </span>
+                        <div className="absolute inset-0 bg-black/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 z-0" />
+                      </Button>
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
         </AnimatePresence>
 
-        {/* --- COMPARISON SECTION (Compact) --- */}
+        {/* --- COMPARISON SECTION --- */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

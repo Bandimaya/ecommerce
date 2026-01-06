@@ -7,6 +7,9 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useCart } from '@/contexts/CartContext';
+import { toast } from '@/hooks/use-toast';
+import { Loader2 } from 'lucide-react';
 import {
     motion,
     AnimatePresence,
@@ -105,9 +108,21 @@ const SantaShop = () => {
         }
     }, [selectedProduct]);
 
+    const { addToCart, loading: cartLoading } = useCart();
+
     const handleAddToCart = (e: React.MouseEvent, product: StemProduct) => {
         e.stopPropagation();
-        // Add your cart logic here
+
+
+        addToCart({
+            productId: String(product.id),
+            name: product.title,
+            price: Number(product.price || 0),
+            image: product.image,
+            currency: 'USD',
+        }, 1);
+
+        toast({ title: 'Added to cart', description: `${product.title} added to cart` });
     };
 
     const handlePopupMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -186,8 +201,9 @@ const SantaShop = () => {
                                                 size="icon" 
                                                 className="h-10 w-10 rounded-full bg-blue-600 hover:bg-slate-900 transition-colors shadow-md" 
                                                 onClick={(e) => handleAddToCart(e, product)}
+                                                disabled={cartLoading}
                                             >
-                                                <ShoppingCart className="w-4 h-4 text-white" />
+                                                {cartLoading ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <ShoppingCart className="w-4 h-4 text-white" />}
                                             </Button>
                                         </div>
                                     </motion.div>

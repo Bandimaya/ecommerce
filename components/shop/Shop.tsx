@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect, useRef, use } from "react";
 import {
     Search, LayoutGrid, X, SlidersHorizontal, ChevronRight,
-    PackageSearch, Sparkles, Filter, Star, ShoppingCart,
+    PackageSearch, Sparkles, Filter, Star, ShoppingCart, Loader2,
     Tag, CheckCircle2, Package, Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import { apiFetch } from "@/lib/axios";
 import { useSettings } from "@/contexts/SettingsContext";
 import { CURRENCY_OPTIONS } from "@/lib/constants";
 import { useRouter } from "next/navigation";
+import ProductGridSkeleton from "@/components/ui/ProductGridSkeleton";
 
 // ----------------------------------------------------------------------
 // HELPER: Magnifier Lens (Fixed & Robust)
@@ -94,7 +95,7 @@ const Shop = () => {
     const [isMobileWidth, setIsMobileWidth] = useState(false);
 
     // Contexts
-    const { addToCart } = useCart();
+    const { addToCart, loading: cartLoading } = useCart();
 
     // Refs & Motion Values
     const popupImageContainerRef = useRef<HTMLDivElement>(null);
@@ -102,13 +103,16 @@ const Shop = () => {
     const mouseY = useMotionValue(0);
 
     const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
     const categories = MOCK_CATEGORIES;
     const { countryCode } = useSettings();
 
     useEffect(() => {
+        setLoading(true);
         apiFetch('/products')
             .then((res) => setProducts(res))
             .catch(() => { console.log("Products fetch failed") })
+            .finally(() => setLoading(false))
     }, [])
 
     // --- EFFECT: Mobile Check & Scroll Lock ---
@@ -344,7 +348,7 @@ const Shop = () => {
                     {/* --- CONTENT AREA --- */}
                     <main className="flex-1 min-w-0">
                         {/* Search Bar */}
-                        <div className="sticky top-4 z-40 mb-10">
+                        <div className="sticky top-[70px] z-40 mb-10">
                             <div className="bg-[var(--background)]/80 backdrop-blur-2xl border border-[var(--border)] p-2 rounded-2xl shadow-xl shadow-black/5 flex items-center gap-4">
                                 <div className="relative flex-1 group">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--muted-foreground)] group-focus-within:text-[var(--primary)] transition-colors" />
@@ -374,7 +378,9 @@ const Shop = () => {
 
                         {/* --- PRODUCT GRID --- */}
                         <div className="min-h-[60vh]">
-                            {filteredProducts.length > 0 ? (
+                            {loading ? (
+                                <ProductGridSkeleton columns={3} count={9} />
+                            ) : filteredProducts.length > 0 ? (
                                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-24">
                                     {filteredProducts.map((product: any) => {
                                         const displayImage = product.media?.[0]?.url || '/placeholder.png';
@@ -446,8 +452,9 @@ const Shop = () => {
                                                                     size="icon"
                                                                     className="h-10 w-10 rounded-full bg-blue-600 hover:bg-slate-900 transition-colors shadow-md"
                                                                     onClick={(e) => handleAddToCart(e, product)}
+                                                                    disabled={cartLoading}
                                                                 >
-                                                                    <ShoppingCart className="w-4 h-4 text-white" />
+                                                                    {cartLoading ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <ShoppingCart className="w-4 h-4 text-white" />}
                                                                 </Button>
                                                             </div>
                                                         </motion.div>

@@ -5,13 +5,18 @@ import { STEM_COURSES } from '../../../lib/Data'
 import ProfessionalCourseCard from './CourseCard'
 import { motion } from 'framer-motion'
 import { apiFetch } from '@/lib/axios'
+import { Skeleton, SkeletonCard, SkeletonText, SkeletonLine } from '@/components/ui/skeleton'
 
 export default function CourseBentoGrid() {
   const [courses, setCourses] = useState<any>([])
+  const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
-    apiFetch('/stem-courses').then((data) => setCourses(data)
-    ).catch((err) => console.error(err))
+    setLoading(true)
+    apiFetch('/stem-courses')
+      .then((data) => setCourses(data))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false))
   }, [])
 
   return (
@@ -39,24 +44,41 @@ export default function CourseBentoGrid() {
             Every direct child of the grid needs the 10px radius 
         */}
         <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:auto-rows-[320px]">
-          {courses.slice(0, 6).map((course: any, index: any) => {
-            const layoutClass =
-              index === 0 ? 'md:col-span-2 md:row-span-2' :
-                index === 1 ? 'md:col-span-1 md:row-span-2' :
-                  index === 5 ? 'md:col-span-2 md:row-span-1' : '';
+          {loading ? (
+            Array.from({ length: 6 }).map((_, index) => {
+              const layoutClass =
+                index === 0 ? 'md:col-span-2 md:row-span-2' :
+                  index === 1 ? 'md:col-span-1 md:row-span-2' :
+                    index === 5 ? 'md:col-span-2 md:row-span-1' : '';
 
-            return (
-              <div
-                key={course._id}
-                className={`${layoutClass} rounded-[10px] overflow-hidden`}
-              >
-                <ProfessionalCourseCard
-                  course={course}
-                  compact={index !== 0 && index !== 5}
-                />
-              </div>
-            )
-          })}
+              return (
+                <div key={index} className={`${layoutClass} rounded-[10px] overflow-hidden`}>
+                  <div className="p-4 h-full">
+                    <SkeletonCard className="w-full h-full" />
+                  </div>
+                </div>
+              )
+            })
+          ) : (
+            courses.slice(0, 6).map((course: any, index: any) => {
+              const layoutClass =
+                index === 0 ? 'md:col-span-2 md:row-span-2' :
+                  index === 1 ? 'md:col-span-1 md:row-span-2' :
+                    index === 5 ? 'md:col-span-2 md:row-span-1' : '';
+
+              return (
+                <div
+                  key={course._id}
+                  className={`${layoutClass} rounded-[10px] overflow-hidden`}
+                >
+                  <ProfessionalCourseCard
+                    course={course}
+                    compact={index !== 0 && index !== 5}
+                  />
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
     </section>
