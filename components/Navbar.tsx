@@ -54,18 +54,18 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
 
   // Initialize Language based on cookie
-  useEffect(() => {
-    const getCookie = (name: string) => {
-      const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
-      return v ? v[2] : null;
-    };
-    const langCookie = getCookie("googtrans");
-    if (langCookie === "/en/ar" || langCookie === "/auto/ar") {
-      setCurrentLang("ar");
-    } else {
-      setCurrentLang("en");
-    }
-  }, []);
+  // useEffect(() => {
+  //   const getCookie = (name: string) => {
+  //     const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
+  //     return v ? v[2] : null;
+  //   };
+  //   const langCookie = getCookie("googtrans");
+  //   if (langCookie === "/en/ar" || langCookie === "/auto/ar") {
+  //     setCurrentLang("ar");
+  //   } else {
+  //     setCurrentLang("en");
+  //   }
+  // }, []);
 
   // Handle scroll effect
   useEffect(() => {
