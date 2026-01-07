@@ -11,28 +11,32 @@ const IV = '@@@@&&&&####$$$$'; // The specific IV used in your PHP code
  */
 function decrypt_e(crypt: string, key: string): string {
   try {
-    // FIX: Ensure key is exactly 16 bytes (128 bits) to match AES-128 requirement
-    // PHP openssl_decrypt implicitly takes the first 16 bytes if the key is too long.
-    // We must do this explicitly in Node.js.
-    const validKey = key.length > 16 
-      ? key.substring(0, 16) 
-      : key.padEnd(16, '\0'); // Pad with null bytes if too short (rare)
+    // 1. Validate Key Length (AES-128 requires exactly 16 bytes)
+    // If the key is longer, PHP implicitly uses the first 16 bytes.
+    const validKey = key.length > 16 ? key.substring(0, 16) : key.padEnd(16, '\0');
+
+    // 2. Detect Encoding (Hex vs Base64)
+    // The log shows 'ecea63d0...', which is Hex. We must read it as Hex.
+    const isHex = /^[0-9a-fA-F]+$/.test(crypt);
+    const inputEncoding = isHex ? 'hex' : 'base64';
 
     const decipher = crypto.createDecipheriv('aes-128-cbc', validKey, IV);
     
-    // PHP defaults to Base64 input for the encrypted string
-    let decrypted = decipher.update(crypt, 'base64', 'utf8');
+    // 3. Decrypt
+    // If input is Hex, we tell update to read it as 'hex'
+    let decrypted = decipher.update(crypt, inputEncoding, 'utf8');
     decrypted += decipher.final('utf8');
     
     return decrypted;
   } catch (error) {
-    console.error("Decryption details:", error);
+    console.error("Decryption failed:", error); 
+    // Return null or empty string to indicate failure
     return "";
   }
 }
-/**
- * Verifies the Checksum
- */
+// 
+//  * Verifies the Checksum
+//  */
 export function verifyChecksum(
   dataStr: string, // The JSON string of the response data
   secretKey: string,
