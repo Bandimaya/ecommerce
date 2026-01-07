@@ -158,12 +158,20 @@ function verifySadadChecksum(
   return website_hash === sadad_hash;
 }
 
-
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    const body = await req.json();
+    // ✅ SADAD sends FORM DATA, NOT JSON
+    const formData = await req.formData();
+
+    // Convert FormData → Object
+    const body: Record<string, any> = {};
+    formData.forEach((value, key) => {
+      body[key] = value.toString();
+    });
+
+    console.log("🔥 SADAD CALLBACK BODY:", body);
 
     const {
       ORDERID,
@@ -175,10 +183,11 @@ export async function POST(req: NextRequest) {
     } = body;
 
     if (!ORDERID || !checksumhash) {
+      console.error("❌ Missing ORDERID or checksumhash");
       return NextResponse.json({ success: false }, { status: 400 });
     }
 
-    // Remove checksum before verification (IMPORTANT)
+    // Remove checksum before verification
     const payload = { ...body };
     delete payload.checksumhash;
 
@@ -188,6 +197,8 @@ export async function POST(req: NextRequest) {
       process.env.SADAD_SECRET_KEY!,
       checksumhash
     );
+
+    console.log("🔐 Checksum valid:", isValid);
 
     if (!isValid) {
       return NextResponse.json(
@@ -201,7 +212,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false }, { status: 404 });
     }
 
-    // Amount validation
     if (Number(TXNAMOUNT) !== Number(order.totalAmount)) {
       return NextResponse.json(
         { success: false, message: "Amount mismatch" },
@@ -209,7 +219,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // SADAD response codes
     if (RESPCODE === "1") {
       order.paymentStatus = "PAID";
     } else if (RESPCODE === "400" || RESPCODE === "402") {
@@ -224,10 +233,12 @@ export async function POST(req: NextRequest) {
 
     await order.save();
 
-    // SADAD expects HTTP 200
+    console.log("✅ SADAD CALLBACK PROCESSED");
+
+    // SADAD requires HTTP 200
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("SADAD CALLBACK ERROR", err);
+    console.error("❌ SADAD CALLBACK ERROR:", err);
     return NextResponse.json({ success: false }, { status: 500 });
   }
 }
