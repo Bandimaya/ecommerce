@@ -54,26 +54,65 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const { user, logout } = useUser();
   const navRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const storedLang = localStorage.getItem("preferredLanguage") || 'en';
-    if (storedLang === 'en') {
-      clearTranslateCookies();
-    }
-    setCurrentLang(storedLang);
-  }, [])
-  // Initialize Language based on cookie
+  const clearTranslateCookies = () => {
+    const domains = [
+      window.location.hostname,
+      "." + window.location.hostname,
+    ];
+
+    ["googtrans", "googtrans_opt"].forEach((name) => {
+      domains.forEach((domain) => {
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
+      });
+    });
+  };
+
   // useEffect(() => {
-  //   const getCookie = (name: string) => {
-  //     const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
-  //     return v ? v[2] : null;
-  //   };
-  //   const langCookie = getCookie("googtrans");
-  //   if (langCookie === "/en/ar" || langCookie === "/auto/ar") {
-  //     setCurrentLang("ar");
-  //   } else {
-  //     setCurrentLang("en");
-  //   }
-  // }, []);
+  //   clearTranslateCookies();
+  // }, [])
+
+  const handleLanguageSwitch = () => {
+    const targetLang = currentLang === "en" ? "ar" : "en";
+
+    setCurrentLang(targetLang);
+    localStorage.setItem("preferredLanguage", targetLang);
+
+    // 🔥 ALWAYS clear first
+    clearTranslateCookies();
+
+    if (targetLang === "ar") {
+      // ✅ EN → AR (set cookie)
+      setTimeout(() => {
+        document.cookie = `googtrans=/en/ar; path=/`;
+        document.documentElement.dir = "rtl";
+        window.location.reload();
+      }, 300);
+    } else {
+      // ✅ AR → EN (DO NOT set googtrans again)
+      document.documentElement.dir = "ltr";
+
+      // reload AFTER cookies are cleared
+      setTimeout(() => {
+        window.location.reload();
+      }, 300);
+    }
+  };
+
+  useEffect(() => {
+    const storedLang = localStorage.getItem("preferredLanguage") || "en";
+
+    clearTranslateCookies();
+
+    if (storedLang === "ar") {
+      document.cookie = `googtrans=/en/ar; path=/`;
+      document.documentElement.dir = "rtl";
+    } else {
+      document.documentElement.dir = "ltr";
+    }
+
+    setCurrentLang(storedLang);
+  }, []);
 
   // Handle scroll effect
   useEffect(() => {
@@ -141,52 +180,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const handleLogout = () => {
     logout();
     setIsOpen(false);
-  };
-
-  // --- Custom Language Toggle Logic ---
-  const clearTranslateCookies = () => {
-    const cookies = document.cookie.split(";");
-
-    cookies.forEach((cookie) => {
-      const eqPos = cookie.indexOf("=");
-      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-
-      // if (name.trim().startsWith("googtrans")) {
-      // Clear for current path
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
-
-      // Clear for root domain
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
-
-      // Clear for dot domain (important)
-      document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.${window.location.hostname}`;
-      // }
-    });
-  };
-
-  // useEffect(() => {
-  //   clearTranslateCookies();
-  // }, [])
-
-  const handleLanguageSwitch = () => {
-    const targetLang = currentLang === "en" ? "ar" : "en";
-    setCurrentLang(targetLang);
-    localStorage.setItem("preferredLanguage", targetLang);
-
-    // 🔥 Step 1: clear old Google Translate cookies immediately
-    clearTranslateCookies();
-
-    // 🔥 Step 2: after 3 seconds → set new language cookie
-    setTimeout(() => {
-      alert(targetLang)
-      document.cookie = `googtrans=/en/${targetLang}; path=/;`;
-      document.documentElement.dir = targetLang === "ar" ? "rtl" : "ltr";
-    }, 3000);
-
-    // 🔥 Step 3: after 5 seconds → reload page
-    setTimeout(() => {
-      window.location.reload();
-    }, 5000);
   };
 
   // const handleLanguageSwitch = () => {
