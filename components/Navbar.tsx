@@ -55,7 +55,11 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setCurrentLang(localStorage.getItem("preferredLanguage") || "en");
+    const storedLang = localStorage.getItem("preferredLanguage") || 'en';
+    if (storedLang === 'en') {
+      clearTranslateCookies();
+    }
+    setCurrentLang(storedLang);
   }, [])
   // Initialize Language based on cookie
   // useEffect(() => {
