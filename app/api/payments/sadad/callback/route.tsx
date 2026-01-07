@@ -164,7 +164,6 @@ export async function POST(req: NextRequest) {
 
     // ✅ SADAD sends FORM DATA, NOT JSON
     const formData = await req.formData();
-    return formData;
 
     // Convert FormData → Object
     const body: Record<string, any> = {};
