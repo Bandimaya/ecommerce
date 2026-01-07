@@ -14,11 +14,11 @@ const Index = () => {
             <div>
                 <CategoryShowcase />
 
+                <Shop />
+
                 <StemParkShowcase />
 
                 <SantaShop />
-
-                <Shop />
 
                 <StemParkTestimonials />
             </div>

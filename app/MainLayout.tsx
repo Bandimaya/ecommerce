@@ -18,7 +18,7 @@ export default function MainLayout({ children }: any) {
 }
 
 function RenderLayout({ children }: any) {
-    return <div>
+    return <div className="min-h-screen flex flex-col">
         <CircuitBackground />
         <Navbar />
         <main className="flex-1">{children}</main>

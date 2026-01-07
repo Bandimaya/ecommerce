@@ -28,6 +28,7 @@ type SettingsContextType = {
   countryCode: string;
   currencyCode: string;
   isMobile: boolean;
+  setLocation: (code: string) => void; // Allows user to change detected location manually
 };
 
 const SettingsContext = createContext<SettingsContextType | undefined>(
@@ -41,6 +42,19 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
   const [countryCode, setCountryCode] = useState("");
   const [currencyCode, setCurrencyCode] = useState("");
   const isMobile = useMobile();
+
+  // Setter to allow manual override of detected location
+  const setLocation = (code: string) => {
+    const isInd = code === "IN";
+    setIsIndia(isInd);
+    setCountryCode(code);
+    setCurrencyCode(countryToCurrency?.[code] ?? "USD");
+    try {
+      localStorage.setItem("user-location", code);
+    } catch (e) {
+      console.warn("Failed to persist user-location", e);
+    }
+  };
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -104,8 +118,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         isIndia,
         countryCode,
         currencyCode,
-        isMobile,
-      }}
+        isMobile,        setLocation,      }}
     >
       {children}
     </SettingsContext.Provider>

@@ -30,7 +30,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {/* Option 3: The GTranslate Widget */}
         <GTranslate />
         
         <MainLayout>

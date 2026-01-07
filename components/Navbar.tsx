@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Script from "next/script"; // Import Script
+import Script from "next/script";
 import {
   Menu,
   X,
@@ -31,7 +31,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/SettingsContext";
 import { IMAGE_URL } from "@/lib/constants";
-import { set } from "mongoose";
+// Removed unused 'set' import from mongoose to prevent client-side errors
 
 interface NavbarProps {
   onLanguageToggle?: (language: string) => void;
@@ -45,130 +45,11 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { contact } = useSettings();
 
-  // Language State
-  const [currentLang, setCurrentLang] = useState("en");
-
   const pathname = usePathname();
   const router = useRouter();
   const { cartItems } = useCart();
   const { user, logout } = useUser();
   const navRef = useRef<HTMLDivElement>(null);
-
-  const clearGoogleTranslateHard = () => {
-    // 1️⃣ Remove cookies
-    const cookieNames = ["googtrans", "googtrans_opt"];
-    const domains = [
-      window.location.hostname,
-      "." + window.location.hostname,
-    ];
-
-    cookieNames.forEach((name) => {
-      domains.forEach((domain) => {
-        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`;
-        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
-      });
-    });
-
-    // 2️⃣ Clear storage (safe)
-    try {
-      localStorage.removeItem("googtrans");
-      localStorage.removeItem("preferredLanguage");
-      sessionStorage.clear();
-    } catch { }
-
-    // 3️⃣ Remove Google injected iframe
-    document
-      .querySelectorAll("iframe.goog-te-banner-frame, iframe.goog-te-menu-frame")
-      .forEach((el) => el.remove());
-
-    // 4️⃣ Remove injected styles/scripts
-    document
-      .querySelectorAll(
-        "style[id*='goog'], link[href*='translate'], script[src*='translate.google']"
-      )
-      .forEach((el) => el.remove());
-
-    // 5️⃣ Reset HTML attributes
-    document.documentElement.removeAttribute("lang");
-    document.documentElement.removeAttribute("dir");
-    document.body.style.top = "0px";
-
-    // 6️⃣ Remove translate classes Google adds
-    document.body.classList.remove("goog-te-enabled");
-  };
-
-  // const handleLanguageSwitch = () => {
-  //   const targetLang = currentLang === "en" ? "ar" : "en";
-
-  //   setCurrentLang(targetLang);
-
-  //   // 🔥 FULL RESET FIRST
-  //   clearGoogleTranslateHard();
-
-  //   if (targetLang === "ar") {
-  //     setTimeout(() => {
-  //       document.cookie = `googtrans=/en/ar; path=/`;
-  //       document.documentElement.dir = "rtl";
-  //       localStorage.setItem("preferredLanguage", targetLang);
-  //       location.reload();
-  //     }, 300);
-  //   } else {
-  //     // 🚨 DO NOT set googtrans when switching to EN
-  //     localStorage.setItem("preferredLanguage", targetLang);
-  //     document.documentElement.dir = "ltr";
-
-  //     setTimeout(() => {
-  //       location.reload();
-  //     }, 300);
-  //   }
-  // };
-  const handleLanguageSwitch = () => {
-    if (currentLang === "en") {
-      setCurrentLang("ar");
-      switchToArabic();
-    } else {
-      setCurrentLang("en");
-      switchToEnglish();
-    }
-  };
-
-
-  // useEffect(() => {
-  //   const lang = localStorage.getItem("preferredLanguage") || "en";
-
-  //   if (lang === "ar") {
-  //     document.cookie = `googtrans=/en/ar; path=/`;
-  //     document.documentElement.dir = "rtl";
-  //   } else {
-  //     clearGoogleTranslateHard();
-  //     document.documentElement.dir = "ltr";
-  //   }
-
-  //   setCurrentLang(lang);
-  // }, []);
-  const switchToEnglish = () => {
-    clearGoogleTranslateHard();
-
-    // 🚨 DO NOT SET googtrans AT ALL
-    localStorage.removeItem("preferredLanguage");
-    document.documentElement.dir = "ltr";
-
-    setTimeout(() => {
-      location.reload();
-    }, 200);
-  };
-
-  const switchToArabic = () => {
-    clearGoogleTranslateHard();
-
-    localStorage.setItem("preferredLanguage", "ar");
-
-    setTimeout(() => {
-      document.cookie = "googtrans=/en/ar; path=/";
-      document.documentElement.dir = "rtl";
-      location.reload();
-    }, 200);
-  };
 
   // Handle scroll effect
   useEffect(() => {
@@ -238,12 +119,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     setIsOpen(false);
   };
 
-  // const handleLanguageSwitch = () => {
-  //   const targetLang = currentLang === "en" ? "ar" : "en";
-  //   document.cookie = `googtrans=/en/${targetLang}; path=/;`;
-  //   window.location.reload();
-  // };
-
   const navLinks = [
     { label: "Home", path: "/", icon: <Home className="w-5 h-5" /> },
     { label: "Shop", path: "/shop", icon: <Store className="w-5 h-5" /> },
@@ -254,10 +129,11 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const isActive = (path: string) => pathname === path;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
+
+
   return (
     <>
       {/* 3. HIDDEN GOOGLE TRANSLATE ELEMENTS */}
-      {/* This div is required for the script to attach to, but we hide it */}
       <div id="google_translate_element" style={{ display: "none" }}></div>
 
       {/* Google Translate Init Script */}
@@ -284,10 +160,11 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
       <nav
         ref={navRef}
-        className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${scrolled
-          ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
-          : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
-          }`}
+        className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${
+          scrolled
+            ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
+            : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
+        }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex h-16 md:h-20 items-center justify-between">
@@ -334,35 +211,18 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   href={link.path}
                   prefetch={true}
                   onMouseEnter={() => router.prefetch(link.path)}
-                  onFocus={() => router.prefetch(link.path)}
-                  onTouchStart={() => router.prefetch(link.path)}
-                  onPointerDown={(e) => {
-                    if (
-                      e.button !== 0 ||
-                      e.metaKey ||
-                      e.ctrlKey ||
-                      e.shiftKey ||
-                      e.altKey
-                    )
-                      return;
-                    e.preventDefault();
-                    router.push(link.path);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      router.push(link.path);
-                    }
-                  }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
-                    ? "bg-primary text-white shadow-sm"
-                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    }`}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(link.path)
+                      ? "bg-primary text-white shadow-sm"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  }`}
                 >
                   {link.label}
                 </Link>
               ))}
             </div>
+
+
 
             {/* Right Actions */}
             <div className="flex items-center gap-2 relative z-[70]">
@@ -401,27 +261,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   </div>
                 )}
               </div>
-
-              {/* Custom Language Toggle (New Implementation) */}
-              <div
-                className="hidden md:flex items-center bg-gray-100 rounded-full p-1 cursor-pointer notranslate border border-gray-200"
-                onClick={handleLanguageSwitch}
-                title="Switch Language"
-              >
-                <div
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                  style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
-                >
-                  EN
-                </div>
-                <div
-                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                  style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
-                >
-                  AR
-                </div>
-              </div>
-
               {/* Cart Button */}
               <Link href="/cart">
                 <Button
@@ -471,7 +310,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
                         <Link
-                          href="/account/orders"
+                          href="/orders"
                           className="w-full flex items-center"
                         >
                           <Package className="w-4 h-4 mr-2" />
@@ -520,10 +359,11 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
         {/* Mobile Navigation Overlay */}
         <div
-          className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
-            ? "translate-x-0 opacity-100 visible"
-            : "translate-x-full opacity-0 invisible"
-            }`}
+          className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${
+            isOpen
+              ? "translate-x-0 opacity-100 visible"
+              : "translate-x-full opacity-0 invisible"
+          }`}
           style={{ height: "calc(100vh - 64px)" }}
         >
           <div className="h-full overflow-y-auto bg-white px-4 py-6 flex flex-col">
@@ -539,38 +379,17 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 <Search className="w-5 h-5" />
               </Button>
             </form>
-
-            {/* Mobile Language Toggle */}
-            <div
-              className="flex w-full justify-center mb-6 notranslate"
-              onClick={handleLanguageSwitch}
-            >
-              <div className="flex bg-gray-100 p-1 rounded-lg cursor-pointer">
-                <div
-                  className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                  style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
-                >
-                  English
-                </div>
-                <div
-                  className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                  style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
-                >
-                  العربية
-                </div>
-              </div>
-            </div>
-
             <div className="space-y-2 flex-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   href={link.path}
                   onClick={() => setIsOpen(false)}
-                  className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${isActive(link.path)
-                    ? "bg-primary text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-50"
-                    }`}
+                  className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${
+                    isActive(link.path)
+                      ? "bg-primary text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
                 >
                   {link.icon}
                   <span className="text-lg">{link.label}</span>
