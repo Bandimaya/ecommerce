@@ -18,11 +18,11 @@ export default function MainLayout({ children }: any) {
 }
 
 function RenderLayout({ children }: any) {
-    return <div dir={"ltr"}>
-        <CircuitBackground />
+    return <div>
+        {/* <CircuitBackground /> */}
         <Navbar />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        {/* <main className="flex-1">{children}</main>
+        <Footer /> */}
         <ChatBot />
     </div>
 }
