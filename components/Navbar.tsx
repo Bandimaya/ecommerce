@@ -163,16 +163,20 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
 
-    // 🔥 clear all old Google Translate cookies
+    // 🔥 Step 1: clear old Google Translate cookies immediately
     clearTranslateCookies();
 
-    // 🔥 set new language
-    
-    // 🔁 reload AFTER cookie is set
+    // 🔥 Step 2: after 3 seconds → set new language cookie
     setTimeout(() => {
+      alert(targetLang)
       document.cookie = `googtrans=/en/${targetLang}; path=/;`;
+      document.documentElement.dir = targetLang === "ar" ? "rtl" : "ltr";
+    }, 3000);
+
+    // 🔥 Step 3: after 5 seconds → reload page
+    setTimeout(() => {
       window.location.reload();
-    }, 300);
+    }, 5000);
   };
 
   // const handleLanguageSwitch = () => {
