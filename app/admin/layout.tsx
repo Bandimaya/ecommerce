@@ -49,6 +49,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import GoogleTranslateSafety from "@/components/GoogleTranslate";
 
 // Define User type interface
 interface AppUser {
@@ -82,7 +83,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
   // --- UPDATED NAV ITEMS WITH UNIQUE ICONS ---
   const navItems = [
     { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
-
+    
     // Content Management
     { label: "Jargon", path: "/admin/jargon", icon: Type },
     { label: "Sections", path: "/admin/sections", icon: Layers },
@@ -90,36 +91,35 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
     { label: "Events", path: "/admin/events", icon: CalendarDays },
     { label: "Winners", path: "/admin/winners", icon: Trophy },
     { label: "Stempark Features", path: "/admin/stempark-features", icon: Zap },
-
+    
     // Media & Assets
     { label: "Award Images", path: "/admin/award-images", icon: ImageIcon },
     { label: "Partner Images", path: "/admin/partner-images", icon: Handshake },
     { label: "Videos", path: "/admin/videos", icon: Video },
-
+    
     // Engagement
     { label: "News", path: "/admin/news", icon: Newspaper },
     { label: "Stars", path: "/admin/stars", icon: Star },
     { label: "Benefits", path: "/admin/benefits", icon: Gift },
     { label: "Certifications", path: "/admin/certifications", icon: FileBadge },
     { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquareQuote },
-
+    
     // Academic / Portfolio
     { label: "Stem courses", path: "/admin/stem-courses", icon: Library },
     { label: "Projects", path: "/admin/projects", icon: Rocket },
     { label: "Programs", path: "/admin/programs", icon: BookOpen },
-
+    
     // E-Commerce / Business
     { label: "Brands", path: "/admin/brands", icon: BadgeCheck },
     { label: "Categories", path: "/admin/categories", icon: Tags },
     { label: "Products", path: "/admin/products", icon: Package },
     { label: "Orders", path: "/admin/orders", icon: ShoppingCart },
     { label: "Customers", path: "/admin/customers", icon: Users },
-
+    
     // System
     { label: "Contact Info", path: "/admin/contact-info", icon: Phone },
     { label: "Customization", path: "/admin/customization", icon: Palette }
   ];
-  
 
   const handleMobileLogout = () => {
     logout();
@@ -655,20 +655,9 @@ export default function Layout({ children }: LayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const [selectedLanguage, setSelectedLanguage] = useState("en");
   const pathname = usePathname();
 
   useEffect(() => setMounted(true), []);
-
-  // Initialize the specific cookie logic when the component mounts
-  useEffect(() => {
-    // Check current cookie to set active state
-    const match = document.cookie.match(new RegExp("(^| )googtrans=([^;]+)"));
-    if (match) {
-      const lang = match[2].split("/")[2]; // Extract 'ar' from '/en/ar'
-      setSelectedLanguage(lang || "en");
-    }
-  }, []);
 
   // Track screen size and auto close/open behaviors
   useEffect(() => {
@@ -700,19 +689,6 @@ export default function Layout({ children }: LayoutProps) {
   if (!mounted) {
     return <div className="min-h-screen flex bg-background" />;
   }
-
-  const changeLanguage = (lang: string) => {
-    // 1. Set the cookie that Google Translate looks for
-    // Format: /source_lang/target_lang
-    document.cookie = `googtrans=/en/${lang}; path=/; domain=${window.location.hostname}`;
-    document.cookie = `googtrans=/en/${lang}; path=/;`; // Fallback for localhost
-
-    // 2. Set the state
-    setSelectedLanguage(lang);
-
-    // 3. Reload the page to apply the translation immediately
-    window.location.reload();
-  };
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -769,27 +745,8 @@ export default function Layout({ children }: LayoutProps) {
               transition={{ delay: 0.2 }}
               className="rounded-2xl border bg-card border-border shadow-sm p-6 min-h-[calc(100vh-120px)]"
             >
-              <div className="flex gap-4 p-4">
-                <button
-                  onClick={() => changeLanguage("en")}
-                  className={`px-4 py-2 rounded ${selectedLanguage === "en"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-black"
-                    }`}
-                >
-                  English
-                </button>
-
-                <button
-                  onClick={() => changeLanguage("ar")}
-                  className={`px-4 py-2 rounded ${selectedLanguage === "ar"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-200 text-black"
-                    }`}
-                >
-                   {"tomato"}
-                </button>
-              </div>
+              <GoogleTranslateSafety />
+              {children}
             </motion.div>
           </div>
         </main>

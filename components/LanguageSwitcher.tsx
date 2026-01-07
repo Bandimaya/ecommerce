@@ -4,46 +4,65 @@ import { useEffect, useState } from "react";
 
 type Lang = "en" | "ar";
 
-/* 🔥 SET GOOGLE TRANSLATE COOKIE */
-function setGoogleLang(lang: Lang) {
-    const value = `/en/${lang}`;
+export default function LanguageToggle() {
+  const [lang, setLang] = useState<Lang>("en");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+
+    // 1. Check the actual Google Cookie to determine state
+    // We prefer the cookie over localStorage because the cookie is what actually controls the translation.
+    const match = document.cookie.match(new RegExp("(^| )googtrans=([^;]+)"));
+    if (match) {
+      const cookieValue = match[2]; // e.g., "/en/ar"
+      const currentLang = cookieValue.split("/")[2] as Lang; // Extract 'ar'
+      
+      if (currentLang === "ar") {
+        setLang("ar");
+        document.documentElement.dir = "rtl";
+      } else {
+        setLang("en");
+        document.documentElement.dir = "ltr";
+      }
+    }
+  }, []);
+
+  const toggleLanguage = () => {
+    const nextLang = lang === "en" ? "ar" : "en";
+    const cookieValue = `/en/${nextLang}`;
     const domain = window.location.hostname;
 
-    document.cookie = `googtrans=${value};path=/;domain=${domain}`;
-    document.cookie = `googtrans=${value};path=/`;
-    localStorage.setItem("lang", lang);
+    // 2. Set Cookie (Google Translate requires this)
+    // We set it twice to cover subdomains and localhost scenarios
+    document.cookie = `googtrans=${cookieValue}; path=/; domain=${domain}`;
+    document.cookie = `googtrans=${cookieValue}; path=/;`; // Fallback
 
-    // RTL support
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    // 3. Update State
+    setLang(nextLang);
+    localStorage.setItem("lang", nextLang);
 
-    // Reload to force apply (required)
+    // 4. Reload page to trigger the Google Translate Script
     window.location.reload();
-}
+  };
 
-export default function LanguageToggle() {
-    const [lang, setLang] = useState<Lang>("en");
-
-    useEffect(() => {
-        const saved = localStorage.getItem("lang") as Lang | null;
-        if (saved) {
-            setLang(saved);
-            document.documentElement.dir = saved === "ar" ? "rtl" : "ltr";
-        }
-    }, []);
-
-    const toggleLanguage = () => {
-        const next = lang === "en" ? "ar" : "en";
-        setLang(next);
-        setGoogleLang(next);
-    };
-
+  // Prevent Hydration Mismatch:
+  // Don't render the button text until we know which language is active on the client
+  if (!mounted) {
     return (
-        <button
-            onClick={toggleLanguage}
-            className="px-4 py-2 rounded-full border text-sm font-semibold
-                 hover:bg-gray-100 transition"
-        >
-            {lang === "en" ? "AR" : "EN"}
-        </button>
+      <button className="px-4 py-2 rounded-full border text-sm font-semibold opacity-0">
+        EN
+      </button>
     );
+  }
+
+  return (
+    <button
+      onClick={toggleLanguage}
+      className="px-4 py-2 rounded-full border text-sm font-semibold
+                 hover:bg-gray-100 transition"
+    >
+      {lang === "en" ? "AR" : "EN"}
+    </button>
+  );
 }
