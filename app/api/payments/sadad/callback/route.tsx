@@ -171,6 +171,9 @@ export async function POST(request: Request) {
       body: JSON.stringify(data)
     });
 
+
+    console.log("Sadad Validation Response Status:", validationResponse.status, validationResponse);
+
     const validationResult = await validationResponse.json();
 
     console.log("Sadad Validation Result:", validationResult);
