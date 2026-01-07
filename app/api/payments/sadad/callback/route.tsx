@@ -10,22 +10,26 @@ const IV = '@@@@&&&&####$$$$'; // The specific IV used in your PHP code
  * Decrypts the data using AES-128-CBC to match PHP's openssl_decrypt
  */
 function decrypt_e(crypt: string, key: string): string {
-  // PHP's openssl_encrypt defaults to Base64, so we expect Base64 input
-  // PHP's html_entity_decode(key) suggests the key might have entities, 
-  // but usually, in Node, we pass the raw string. 
-  
   try {
-    const decipher = crypto.createDecipheriv('aes-128-cbc', key, IV);
-    // PHP openssl defaults to padding, Node does too.
+    // FIX: Ensure key is exactly 16 bytes (128 bits) to match AES-128 requirement
+    // PHP openssl_decrypt implicitly takes the first 16 bytes if the key is too long.
+    // We must do this explicitly in Node.js.
+    const validKey = key.length > 16 
+      ? key.substring(0, 16) 
+      : key.padEnd(16, '\0'); // Pad with null bytes if too short (rare)
+
+    const decipher = crypto.createDecipheriv('aes-128-cbc', validKey, IV);
+    
+    // PHP defaults to Base64 input for the encrypted string
     let decrypted = decipher.update(crypt, 'base64', 'utf8');
     decrypted += decipher.final('utf8');
+    
     return decrypted;
   } catch (error) {
-    console.error("Decryption failed:", error);
+    console.error("Decryption details:", error);
     return "";
   }
 }
-
 /**
  * Verifies the Checksum
  */
