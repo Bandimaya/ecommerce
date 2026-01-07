@@ -1,118 +1,129 @@
-import { NextRequest, NextResponse } from "next/server";
-import Order from "@/models/Order";
-import { connectDB } from "@/lib/db";
-import crypto from "crypto";
+
+// app/api/sadad/callback/route.ts
+import { NextResponse } from 'next/server';
+// lib/sadad-utils.ts
+import crypto from 'crypto';
+
+const IV = '@@@@&&&&####$$$$'; // The specific IV used in your PHP code
 
 /**
- * PHP equivalent of:
- * openssl_decrypt($crypt, "AES-128-CBC", $ky, 0, $iv)
+ * Decrypts the data using AES-128-CBC to match PHP's openssl_decrypt
  */
-export function decrypt_e(encrypted: string, ky: string): string {
-  // PHP: html_entity_decode($ky)
-  const decodedKey = ky;
-
-  // IV must be EXACT
-  const iv = Buffer.from("@@@@&&&&####$$$$", "utf8"); // 16 bytes
-
-  // PHP pads key with NULL bytes
-  const key = Buffer.alloc(16);
-  Buffer.from(decodedKey, "utf8").copy(key);
-
-  const decipher = crypto.createDecipheriv(
-    "aes-128-cbc",
-    key,
-    iv
-  );
-
-  // 🔥 IMPORTANT: BASE64, NOT HEX
-  let decrypted = decipher.update(encrypted, "base64", "utf8");
-  decrypted += decipher.final("utf8");
-
-  return decrypted;
-}
-
-
-/**
- * PHP equivalent of:
- * verifychecksum_eFromStr($str, $key, $checksumvalue)
- */
-function verifySadadChecksumV2(
-  payload: Record<string, any>,
-  secretKey: string
-): boolean {
-  // Remove checksumhash
-  const data = { ...payload };
-  const receivedHash = data.checksumhash;
-  delete data.checksumhash;
-
-  // Sort keys alphabetically (important)
-  const sortedKeys = Object.keys(data).sort();
-
-  const dataString = sortedKeys
-    .map((key) => `${key}=${data[key]}`)
-    .join("|");
-
-  const calculatedHash = crypto
-    .createHash("sha256")
-    .update(dataString + secretKey)
-    .digest("hex");
-
-  return calculatedHash === receivedHash;
-}
-
-export async function POST(req: NextRequest) {
+function decrypt_e(crypt: string, key: string): string {
+  // PHP's openssl_encrypt defaults to Base64, so we expect Base64 input
+  // PHP's html_entity_decode(key) suggests the key might have entities, 
+  // but usually, in Node, we pass the raw string. 
+  
   try {
-    await connectDB();
+    const decipher = crypto.createDecipheriv('aes-128-cbc', key, IV);
+    // PHP openssl defaults to padding, Node does too.
+    let decrypted = decipher.update(crypt, 'base64', 'utf8');
+    decrypted += decipher.final('utf8');
+    return decrypted;
+  } catch (error) {
+    console.error("Decryption failed:", error);
+    return "";
+  }
+}
 
-    const formData = await req.formData();
-    const body: Record<string, any> = {};
-    formData.forEach((v, k) => (body[k] = v.toString()));
+/**
+ * Verifies the Checksum
+ */
+export function verifyChecksum(
+  dataStr: string, // The JSON string of the response data
+  secretKey: string,
+  merchantId: string,
+  checksumResponse: string
+): boolean {
+  // Construct the key exactly as the PHP script does: urlencode(secret) . merchantId
+  // Note: encodeURIComponent is the closest JS equivalent to PHP's urlencode, 
+  // but PHP encodes spaces as '+' whereas JS uses '%20'. 
+  // If your secret key has no special chars, this won't matter.
+  const sadad_secrete_key = encodeURIComponent(secretKey)
+      .replace(/%20/g, '+') // Align with PHP urlencode behavior
+      .replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase()); // RFC 3986 compliance to match PHP
 
-    console.log("🔥 SADAD CALLBACK BODY:", body);
+  const key = sadad_secrete_key + merchantId;
 
-    const { checksumhash } = body;
-    if (!checksumhash) {
-      return NextResponse.json({ success: false }, { status: 400 });
+  // 1. Decrypt the checksum provided by Sadad
+  const sadad_hash = decrypt_e(checksumResponse, key);
+
+  if (!sadad_hash) return false;
+
+  // 2. Extract Salt (Last 4 chars)
+  const salt = sadad_hash.slice(-4);
+
+  // 3. Recreate the hash string: JSON Data + | + Salt
+  const finalString = dataStr + "|" + salt;
+
+  // 4. Hash it using SHA256
+  const website_hash_gen = crypto.createHash('sha256').update(finalString).digest('hex');
+
+  // 5. Append salt to the generated hash (to match how it was packed)
+  const website_hash = website_hash_gen + salt;
+
+  // 6. Compare
+  return website_hash === sadad_hash;
+}
+
+export async function POST(request: Request) {
+  try {
+    // 1. Parse the incoming Form Data (Standard for Payment Gateways)
+    const formData = await request.formData();
+    const data: Record<string, any> = {};
+    
+    // Convert FormData to a standard object
+    formData.forEach((value, key) => {
+      data[key] = value;
+    });
+
+    // 2. Extract checksum and Remove it from the data object
+    const checksumHash = data['checksumhash'];
+    delete data['checksumhash'];
+
+    if (!checksumHash) {
+      return NextResponse.json({ error: 'No checksum provided' }, { status: 400 });
     }
 
-    const isValid = verifySadadChecksumV2(
-      body,
-      process.env.NEXT_PUBLIC_SADAD_SECRET_KEY!
-    );
+    // 3. Configuration (Store these in .env)
+    const MERCHANT_ID = process.env.SADAD_MERCHANT_ID || '6205111';
+    const SECRET_KEY = process.env.NEXT_PUBLIC_SADAD_SECRET_KEY || 'SjOwrbhyAI7i9ht1';
 
-    console.log("🔐 Checksum valid:", isValid);
+    // 4. Reconstruct the structure used in PHP for the hash
+    // PHP: $data_repsonse['postData'] = $_POST;
+    // PHP: $data_repsonse['secretKey'] = urlencode($secretKey);
+    const sadad_secrete_key = encodeURIComponent(SECRET_KEY)
+      .replace(/%20/g, '+')
+      .replace(/[!'()*]/g, (c) => '%' + c.charCodeAt(0).toString(16).toUpperCase());
 
-    if (!isValid) {
-      return NextResponse.json(
-        { success: false, message: "Checksum verification failed" },
-        { status: 401 }
-      );
-    }
+    const dataResponse = {
+      postData: data,
+      secretKey: sadad_secrete_key
+    };
 
-    const order = await Order.findById(body.ORDERID);
-    if (!order) {
-      return NextResponse.json({ success: false }, { status: 404 });
-    }
+    // 5. Serialize to JSON
+    // CRITICAL NOTE: PHP's json_encode and JS's JSON.stringify must produce 
+    // the EXACT same string (same order of keys, same spacing) for the hash to match.
+    // If verification fails, it is usually because the key order in 'data' 
+    // differs from what Sadad sent.
+    const jsonString = JSON.stringify(dataResponse);
 
-    if (body.RESPCODE === "1") {
-      order.paymentStatus = "PAID";
-    } else if (body.RESPCODE === "400" || body.RESPCODE === "402") {
-      order.paymentStatus = "PENDING";
+    // 6. Verify
+    const isValid = verifyChecksum(jsonString, SECRET_KEY, MERCHANT_ID, checksumHash);
+
+    if (isValid) {
+      console.log('✅ Sadad Transaction Verified Successfully');
+      
+      // Perform your database updates here (mark order as paid)
+      
+      return NextResponse.json({ status: 'success', message: 'Transaction verified' });
     } else {
-      order.paymentStatus = "FAILED";
+      console.error('❌ Sadad Checksum Verification Failed');
+      return NextResponse.json({ status: 'failed', message: 'Invalid Checksum' }, { status: 400 });
     }
 
-    order.paymentMethod = "SADAD";
-    order.paymentDetails = body;
-    order.transactionId = body.transaction_number;
-
-    await order.save();
-
-    console.log("✅ SADAD PAYMENT VERIFIED & SAVED");
-
-    return NextResponse.json({ success: true });
-  } catch (err) {
-    console.error("❌ SADAD CALLBACK ERROR:", err);
-    return NextResponse.json({ success: false }, { status: 500 });
+  } catch (error) {
+    console.error('API Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
