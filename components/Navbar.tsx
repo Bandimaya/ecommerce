@@ -54,23 +54,48 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const { user, logout } = useUser();
   const navRef = useRef<HTMLDivElement>(null);
 
-  const clearTranslateCookies = () => {
+  const clearGoogleTranslateHard = () => {
+    // 1️⃣ Remove cookies
+    const cookieNames = ["googtrans", "googtrans_opt"];
     const domains = [
       window.location.hostname,
       "." + window.location.hostname,
     ];
 
-    ["googtrans", "googtrans_opt"].forEach((name) => {
+    cookieNames.forEach((name) => {
       domains.forEach((domain) => {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; domain=${domain}`;
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`;
       });
     });
-  };
 
-  // useEffect(() => {
-  //   clearTranslateCookies();
-  // }, [])
+    // 2️⃣ Clear storage (safe)
+    try {
+      localStorage.removeItem("googtrans");
+      localStorage.removeItem("preferredLanguage");
+      sessionStorage.clear();
+    } catch { }
+
+    // 3️⃣ Remove Google injected iframe
+    document
+      .querySelectorAll("iframe.goog-te-banner-frame, iframe.goog-te-menu-frame")
+      .forEach((el) => el.remove());
+
+    // 4️⃣ Remove injected styles/scripts
+    document
+      .querySelectorAll(
+        "style[id*='goog'], link[href*='translate'], script[src*='translate.google']"
+      )
+      .forEach((el) => el.remove());
+
+    // 5️⃣ Reset HTML attributes
+    document.documentElement.removeAttribute("lang");
+    document.documentElement.removeAttribute("dir");
+    document.body.style.top = "0px";
+
+    // 6️⃣ Remove translate classes Google adds
+    document.body.classList.remove("goog-te-enabled");
+  };
 
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
@@ -78,40 +103,37 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     setCurrentLang(targetLang);
     localStorage.setItem("preferredLanguage", targetLang);
 
-    // 🔥 ALWAYS clear first
-    clearTranslateCookies();
+    // 🔥 FULL RESET FIRST
+    clearGoogleTranslateHard();
 
     if (targetLang === "ar") {
-      // ✅ EN → AR (set cookie)
       setTimeout(() => {
         document.cookie = `googtrans=/en/ar; path=/`;
         document.documentElement.dir = "rtl";
-        window.location.reload();
+        location.reload();
       }, 300);
     } else {
-      // ✅ AR → EN (DO NOT set googtrans again)
+      // 🚨 DO NOT set googtrans when switching to EN
       document.documentElement.dir = "ltr";
 
-      // reload AFTER cookies are cleared
       setTimeout(() => {
-        window.location.reload();
+        location.reload();
       }, 300);
     }
   };
 
   useEffect(() => {
-    const storedLang = localStorage.getItem("preferredLanguage") || "en";
+    const lang = localStorage.getItem("preferredLanguage") || "en";
 
-    clearTranslateCookies();
-
-    if (storedLang === "ar") {
+    if (lang === "ar") {
       document.cookie = `googtrans=/en/ar; path=/`;
       document.documentElement.dir = "rtl";
     } else {
+      clearGoogleTranslateHard();
       document.documentElement.dir = "ltr";
     }
 
-    setCurrentLang(storedLang);
+    setCurrentLang(lang);
   }, []);
 
   // Handle scroll effect
