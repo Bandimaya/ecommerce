@@ -158,7 +158,7 @@ export async function POST(request: Request) {
     
     const SADAD_API_URL = 'https://api.sadadqatar.com/api-v4/userbusinesses/validateChecksumv'; 
     const SECRET_KEY = process.env.NEXT_PUBLIC_SADAD_SECRET_KEY || 'YOUR_SECRET_KEY';
-    const REGISTERED_DOMAIN = 'stempark.logybyte.in'; // IMPORTANT: This must match the domain you registered with Sadad
+    const REGISTERED_DOMAIN = process.env.NEXT_PUBLIC_BASE_URL!; // IMPORTANT: This must match the domain you registered with Sadad
 
     // 3. Call Sadad's Validation API
     const validationResponse = await fetch(SADAD_API_URL, {
