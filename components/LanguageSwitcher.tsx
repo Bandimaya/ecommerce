@@ -1,68 +1,130 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Script from "next/script";
 
 type Lang = "en" | "ar";
 
 export default function LanguageToggle() {
   const [lang, setLang] = useState<Lang>("en");
   const [mounted, setMounted] = useState(false);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [scriptError, setScriptError] = useState(false);
 
   useEffect(() => {
     setMounted(true);
 
-    // 1. Check the actual Google Cookie to determine state
-    // We prefer the cookie over localStorage because the cookie is what actually controls the translation.
-    const match = document.cookie.match(new RegExp("(^| )googtrans=([^;]+)"));
-    if (match) {
-      const cookieValue = match[2]; // e.g., "/en/ar"
-      const currentLang = cookieValue.split("/")[2] as Lang; // Extract 'ar'
-      
-      if (currentLang === "ar") {
-        setLang("ar");
-        document.documentElement.dir = "rtl";
-      } else {
-        setLang("en");
-        document.documentElement.dir = "ltr";
+    try {
+      // 1. Check the actual Google Cookie to determine state
+      // We prefer the cookie over localStorage because the cookie is what actually controls the translation.
+      const match = document.cookie.match(new RegExp("(^| )googtrans=([^;]+)"));
+      if (match) {
+        const cookieValue = match[2]; // e.g., "/en/ar"
+        const currentLang = (cookieValue.split("/")[2] as Lang) || "en"; // Extract 'ar' or fallback
+
+        setLang(currentLang);
+        document.documentElement.dir = currentLang === "ar" ? "rtl" : "ltr";
+        return;
       }
+    } catch (e) {
+      // Don't let cookie parsing errors crash the app
+      console.warn("Error reading googtrans cookie", e);
     }
+
+    // Fallback: ensure page direction at least matches our state
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   }, []);
+
+  const initGoogleTranslate = () => {
+    try {
+      const g = (window as any).google;
+      if (!g || !g.translate || !g.translate.TranslateElement) return false;
+
+      const container = document.getElementById("google_translate_element");
+      if (container) container.innerHTML = "";
+
+      new g.translate.TranslateElement(
+        { pageLanguage: "en", includedLanguages: "en,ar", autoDisplay: false },
+        "google_translate_element"
+      );
+
+      // ensure correct direction after init
+      document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+      return true;
+    } catch (e) {
+      console.warn("Google Translate init failed", e);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (scriptLoaded) {
+      if (!initGoogleTranslate()) setTimeout(initGoogleTranslate, 250);
+    }
+  }, [scriptLoaded]);
 
   const toggleLanguage = () => {
     const nextLang = lang === "en" ? "ar" : "en";
     const cookieValue = `/en/${nextLang}`;
-    const domain = window.location.hostname;
 
-    // 2. Set Cookie (Google Translate requires this)
-    // We set it twice to cover subdomains and localhost scenarios
-    document.cookie = `googtrans=${cookieValue}; path=/; domain=${domain}`;
-    document.cookie = `googtrans=${cookieValue}; path=/;`; // Fallback
+    try {
+      const hostname = window.location.hostname;
+      if (hostname && hostname !== "localhost" && hostname.indexOf(".") > -1 && !/:\d+$/.test(hostname)) {
+        document.cookie = `googtrans=${cookieValue}; path=/; domain=${hostname};`;
+      }
+      document.cookie = `googtrans=${cookieValue}; path=/;`;
+    } catch (e) {
+      console.warn("Failed to set googtrans cookie", e);
+    }
 
-    // 3. Update State
     setLang(nextLang);
-    localStorage.setItem("lang", nextLang);
+    try { localStorage.setItem("lang", nextLang); } catch (e) { /* ignore */ }
 
-    // 4. Reload page to trigger the Google Translate Script
-    window.location.reload();
+    if (initGoogleTranslate()) {
+      document.documentElement.dir = nextLang === "ar" ? "rtl" : "ltr";
+      return;
+    }
+
+    try { window.location.reload(); } catch (e) { try { window.location.href = window.location.href; } catch {} }
   };
 
   // Prevent Hydration Mismatch:
-  // Don't render the button text until we know which language is active on the client
   if (!mounted) {
     return (
-      <button className="px-4 py-2 rounded-full border text-sm font-semibold opacity-0">
-        EN
-      </button>
+      <button className="px-4 py-2 rounded-full border text-sm font-semibold opacity-0">EN</button>
     );
   }
 
   return (
-    <button
-      onClick={toggleLanguage}
-      className="px-4 py-2 rounded-full border text-sm font-semibold
-                 hover:bg-gray-100 transition"
-    >
-      {lang === "en" ? "AR" : "EN"}
-    </button>
+    <>
+      {/* Hidden container required by Google Translate */}
+      <div id="google_translate_element" style={{ display: "none" }} />
+
+      <Script
+        src="https://translate.google.com/translate_a/element.js"
+        strategy="afterInteractive"
+        onLoad={() => {
+          setScriptLoaded(true);
+          if (!initGoogleTranslate()) setTimeout(initGoogleTranslate, 250);
+        }}
+        onError={(e) => {
+          setScriptError(true);
+          console.warn("Google Translate script failed to load", e);
+        }}
+      />
+
+      <div className="flex items-center gap-2">
+        <button
+          onClick={toggleLanguage}
+          className="px-4 py-2 rounded-full border text-sm font-semibold hover:bg-gray-100 transition"
+        >
+          {lang === "en" ? "AR" : "EN"}
+        </button>
+
+        {scriptError && (
+          <span className="text-xs text-red-600" title="Translation script failed to load">⚠️ Translation unavailable</span>
+        )}
+      </div>
+    </>
   );
 }
