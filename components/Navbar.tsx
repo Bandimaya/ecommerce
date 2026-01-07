@@ -31,6 +31,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/SettingsContext";
 import { IMAGE_URL } from "@/lib/constants";
+import { set } from "mongoose";
 
 interface NavbarProps {
   onLanguageToggle?: (language: string) => void;
@@ -53,6 +54,9 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const { user, logout } = useUser();
   const navRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    setCurrentLang(localStorage.getItem("preferredLanguage") || "en");
+  }, [])
   // Initialize Language based on cookie
   // useEffect(() => {
   //   const getCookie = (name: string) => {
@@ -163,6 +167,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
     setCurrentLang(targetLang);
+    localStorage.setItem("preferredLanguage", targetLang);
 
     // 🔥 Step 1: clear old Google Translate cookies immediately
     clearTranslateCookies();
