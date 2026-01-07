@@ -156,9 +156,9 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     });
   };
 
-  useEffect(() => {
-    clearTranslateCookies();
-  }, [])
+  // useEffect(() => {
+  //   clearTranslateCookies();
+  // }, [])
 
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
@@ -167,10 +167,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     clearTranslateCookies();
 
     // 🔥 set new language
-    document.cookie = `googtrans=/en/${targetLang}; path=/;`;
-
+    
     // 🔁 reload AFTER cookie is set
     setTimeout(() => {
+      document.cookie = `googtrans=/en/${targetLang}; path=/;`;
       window.location.reload();
     }, 300);
   };
