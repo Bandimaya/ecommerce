@@ -36,62 +36,48 @@ export function decrypt_e(encrypted: string, ky: string): string {
  * PHP equivalent of:
  * verifychecksum_eFromStr($str, $key, $checksumvalue)
  */
-function verifychecksum_eFromStr(
-  str: string,
-  key: string,
-  checksumvalue: string
+function verifySadadChecksumV2(
+  payload: Record<string, any>,
+  secretKey: string
 ): boolean {
-  const sadad_hash = decrypt_e(checksumvalue, key);
+  // Remove checksumhash
+  const data = { ...payload };
+  const receivedHash = data.checksumhash;
+  delete data.checksumhash;
 
-  // Last 4 characters are salt
-  const salt = sadad_hash.slice(-4);
+  // Sort keys alphabetically (important)
+  const sortedKeys = Object.keys(data).sort();
 
-  const finalString = str + "|" + salt;
+  const dataString = sortedKeys
+    .map((key) => `${key}=${data[key]}`)
+    .join("|");
 
-  let website_hash =
-    crypto.createHash("sha256").update(finalString).digest("hex");
+  const calculatedHash = crypto
+    .createHash("sha256")
+    .update(dataString + secretKey)
+    .digest("hex");
 
-  website_hash += salt;
-
-  return website_hash === sadad_hash;
+  return calculatedHash === receivedHash;
 }
 
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    /**
-     * SADAD sends application/x-www-form-urlencoded
-     */
     const formData = await req.formData();
+    const body: Record<string, any> = {};
+    formData.forEach((v, k) => (body[k] = v.toString()));
 
-    // Convert FormData → plain object
-    const postData: Record<string, any> = {};
-    formData.forEach((value, key) => {
-      postData[key] = value.toString();
-    });
+    console.log("🔥 SADAD CALLBACK BODY:", body);
 
-    console.log("🔥 SADAD CALLBACK BODY:", postData);
+    const { checksumhash } = body;
+    if (!checksumhash) {
+      return NextResponse.json({ success: false }, { status: 400 });
+    }
 
-    const checksum_response = postData.checksumhash;
-    delete postData.checksumhash;
-
-    const merchantId = "6205111";
-    const secretKey = process.env.NEXT_PUBLIC_SADAD_SECRET_KEY!;
-
-    const sadad_secrete_key = encodeURIComponent(secretKey);
-
-    const data_response = {
-      postData,
-      secretKey: sadad_secrete_key,
-    };
-
-    const key = sadad_secrete_key + merchantId;
-
-    const isValid = verifychecksum_eFromStr(
-      JSON.stringify(data_response),
-      key,
-      checksum_response
+    const isValid = verifySadadChecksumV2(
+      body,
+      process.env.SADAD_SECRET_KEY!
     );
 
     console.log("🔐 Checksum valid:", isValid);
@@ -103,34 +89,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ✅ VERIFIED — you can safely update order
-    const order = await Order.findById(postData.ORDERID);
+    const order = await Order.findById(body.ORDERID);
     if (!order) {
-      return NextResponse.json(
-        { success: false, message: "Order not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false }, { status: 404 });
     }
 
-    if (postData.RESPCODE === "1") {
+    if (body.RESPCODE === "1") {
       order.paymentStatus = "PAID";
-    } else if (postData.RESPCODE === "400" || postData.RESPCODE === "402") {
+    } else if (body.RESPCODE === "400" || body.RESPCODE === "402") {
       order.paymentStatus = "PENDING";
     } else {
       order.paymentStatus = "FAILED";
     }
 
     order.paymentMethod = "SADAD";
-    order.paymentDetails = postData;
-    order.transactionId = postData.transaction_number;
+    order.paymentDetails = body;
+    order.transactionId = body.transaction_number;
 
     await order.save();
 
     console.log("✅ SADAD PAYMENT VERIFIED & SAVED");
 
-    /**
-     * SADAD requires HTTP 200 always
-     */
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("❌ SADAD CALLBACK ERROR:", err);
