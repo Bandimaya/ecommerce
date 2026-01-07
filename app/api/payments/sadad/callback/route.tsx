@@ -97,8 +97,8 @@ export async function POST(req: NextRequest) {
 
     const isValid = verifySadadChecksum(
       payload,
-      process.env.SADAD_MERCHANT_ID!,
-      process.env.SADAD_SECRET_KEY!,
+      "6205111",
+      process.env.NEXT_PUBLIC_SADAD_SECRET_KEY!,
       checksumhash
     );
 
