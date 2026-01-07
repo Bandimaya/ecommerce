@@ -136,33 +136,46 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   };
 
   // --- Custom Language Toggle Logic ---
+  const clearTranslateCookies = () => {
+    const cookies = document.cookie.split(";");
+
+    cookies.forEach((cookie) => {
+      const eqPos = cookie.indexOf("=");
+      const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+
+      if (name.trim().startsWith("googtrans")) {
+        // Clear for current path
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+
+        // Clear for root domain
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+
+        // Clear for dot domain (important)
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=.${window.location.hostname}`;
+      }
+    });
+  };
+
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
-    const cookieValue = `/en/${targetLang}`;
-    const cookieValueAuto = `/auto/${targetLang}`;
-    const expires = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
-    const secureAndSameSite = window.location.protocol === "https:" ? "; Secure; SameSite=None" : "";
 
-    try {
-      const hostname = window.location.hostname;
+    // 🔥 clear all old Google Translate cookies
+    clearTranslateCookies();
 
-      // Try setting on root domain (with leading dot) and hostname, plus path-only fallback.
-      if (hostname && hostname !== "localhost") {
-        try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=.${hostname};${secureAndSameSite}`; } catch (e) { /* ignore */ }
-        try { document.cookie = `googtrans=${cookieValueAuto}; path=/; ${expires}; domain=.${hostname};${secureAndSameSite}`; } catch (e) { /* ignore */ }
-        try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=${hostname};${secureAndSameSite}`; } catch (e) { /* ignore */ }
-      }
+    // 🔥 set new language
+    document.cookie = `googtrans=/en/${targetLang}; path=/;`;
 
-      // Always set a path-only cookie as a fallback.
-      try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires};${secureAndSameSite}`; } catch (e) { /* ignore */ }
-      try { document.cookie = `googtrans=${cookieValueAuto}; path=/; ${expires};${secureAndSameSite}`; } catch (e) { /* ignore */ }
-    } catch (e) {
-      console.warn("Failed to set googtrans cookie", e);
-    }
-
-    // Give the cookie a moment to be written and then reload so the translate widget reads it on startup.
-    setTimeout(() => { try { window.location.reload(); } catch (e) { /* ignore */ } }, 50);
+    // 🔁 reload AFTER cookie is set
+    setTimeout(() => {
+      window.location.reload();
+    }, 300);
   };
+
+  // const handleLanguageSwitch = () => {
+  //   const targetLang = currentLang === "en" ? "ar" : "en";
+  //   document.cookie = `googtrans=/en/${targetLang}; path=/;`;
+  //   window.location.reload();
+  // };
 
   const navLinks = [
     { label: "Home", path: "/", icon: <Home className="w-5 h-5" /> },
@@ -275,8 +288,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     }
                   }}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
-                      ? "bg-primary text-white shadow-sm"
-                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    ? "bg-primary text-white shadow-sm"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     }`}
                 >
                   {link.label}
