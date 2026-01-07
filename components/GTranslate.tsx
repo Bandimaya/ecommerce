@@ -1,224 +1,167 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 const GTranslate = () => {
   useEffect(() => {
-    // This will run after GTranslate loads
-    const overrideDropdown = () => {
-      // Find and modify the dropdown elements
-      const observer = new MutationObserver(() => {
-        const switcher = document.querySelector('.gt_float_switcher');
-        if (switcher) {
-          // Remove any classes that might indicate bottom positioning
-          switcher.classList.remove('gt_bottom', 'gt_upward');
-          switcher.classList.add('gt_top', 'gt_downward');
-          
-          // Force inline styles
-          const options = switcher.querySelector('.gt_options');
-          if (options) {
-            (options as HTMLElement).style.top = '100%';
-            (options as HTMLElement).style.bottom = 'auto';
-            (options as HTMLElement).style.transform = 'none';
-          }
-          
-          observer.disconnect();
-        }
-      });
-      
-      observer.observe(document.body, { childList: true, subtree: true });
+    const forceFix = () => {
+      document
+        .querySelectorAll(".gt_black_overlay, .gt_cover")
+        .forEach(el => el.remove());
+
+      const wrapper = document.getElementById("gt_float_wrapper");
+      if (wrapper) {
+        const w = wrapper as HTMLElement;
+        w.style.pointerEvents = "none";
+        w.style.width = "auto";
+        w.style.height = "auto";
+      }
+
+      const switcher = document.querySelector(".gt_float_switcher");
+      if (switcher) {
+        (switcher as HTMLElement).style.pointerEvents = "auto";
+      }
     };
 
-    // Run after a delay to ensure GTranslate is loaded
-    setTimeout(overrideDropdown, 2000);
-    
-    // Also run when window loads
-    window.addEventListener('load', overrideDropdown);
-    
+    const interval = setInterval(forceFix, 800);
+    window.addEventListener("load", forceFix);
+
     return () => {
-      window.removeEventListener('load', overrideDropdown);
+      clearInterval(interval);
+      window.removeEventListener("load", forceFix);
     };
   }, []);
 
   return (
     <>
-      <div className="gtranslate_wrapper"></div>
-      
+      <div className="gtranslate_wrapper" />
+
       <style>{`
-        /* Base positioning */
-        .gtranslate_wrapper, #gt_float_wrapper {
+        /* ===============================
+           POSITIONING
+        =============================== */
+        .gtranslate_wrapper,
+        #gt_float_wrapper {
           position: fixed !important;
           top: 70px !important;
           right: 10px !important;
-          z-index: 99999 !important;
-          width: auto !important;
-          display: inline-block !important;
-          float: right !important;
+          z-index: 1000 !important;
+          border-radius: 48px !important;
+          width: 80px !important;
+          pointer-events: none !important;
         }
 
-        /* Reduce button width and font size */
-        .gt_float_switcher {
-          float: right !important;
-          width: auto !important;
-          min-width: 120px !important;
-          max-width: 150px !important;
-          font-size: 12px !important;
+        /* ===============================
+           CLICK SAFETY
+        =============================== */
+        .gt_black_overlay,
+        .gt_cover {
+          display: none !important;
+          pointer-events: none !important;
         }
 
-        /* Button styling - 50px width with 10px border radius */
+        .gt_float_switcher,
+        .gt_float_switcher * {
+          pointer-events: auto !important;
+        }
+
+        /* ===============================
+           BUTTON STYLE
+        =============================== */
         .gt_float_switcher .gt_selected,
         .gt_float_switcher .gt_current {
           width: 50px !important;
-          max-width: 50px !important;
-          min-width: 50px !important;
           height: 30px !important;
-          padding: 6px 10px !important;
-          font-size: 12px !important;
-          line-height: 1.2 !important;
-          white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
           border-radius: 50px !important;
           display: flex !important;
           align-items: center !important;
           justify-content: center !important;
-          text-align: center !important;
-          box-sizing: border-box !important;
+          gap: 4px !important;
+          background: #fff !important;
+          box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+          color: #333 !important;
+          text-transform: uppercase !important;
         }
 
-        /* Dropdown items styling */
-        .gt_float_switcher .gt_options {
-          width: 100% !important;
-          min-width: 120px !important;
-          max-width: 150px !important;
-          font-size: 12px !important;
-          right: 0 !important;
-          left: auto !important;
-          border-radius: 10px !important;
-          overflow: hidden !important;
-          margin-top: 5px !important;
+        /* 🔑 SHOW label ONLY in button */
+        .gt_float_switcher .gt_selected span,
+        .gt_float_switcher .gt_current span {
+          display: inline !important;
         }
 
-        /* Dropdown items */
-        .gt_float_switcher .gt_options a {
-          padding: 6px 10px !important;
-          font-size: 12px !important;
-          line-height: 1.2 !important;
-          white-space: nowrap !important;
-          overflow: hidden !important;
-          text-overflow: ellipsis !important;
+        /* Hide flags */
+        .gt_float_switcher img {
+          display: none !important;
         }
 
-        /* Dropdown items hover */
-        .gt_float_switcher .gt_options a:hover {
-          background-color: #f5f5f5 !important;
+        /* ===============================
+           ARROW
+        =============================== */
+        .gt_float_switcher .gt_selected::after {
+          content: "▼";
+          font-size: 8px;
+          margin-left: 2px;
+          transition: transform 0.3s ease;
         }
 
-        /* Force dropdown direction */
+        .gt_float_switcher:hover .gt_selected::after {
+          transform: rotate(180deg);
+        }
+
+        /* ===============================
+           DROPDOWN
+        =============================== */
         .gt_float_switcher .gt_options {
           top: 100% !important;
-          bottom: auto !important;
-          transform-origin: top center !important;
-          animation-name: dropdown !important;
+          margin-top: 6px !important;
+          border-radius: 12px !important;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+          background: #fff !important;
+          width: 120px !important;
+          left: 50% !important;
+          transform: translateX(-50%) !important;
         }
 
-        /* Override any upward animations */
-        @keyframes dropdown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Hide upward indicators */
-        .gt_float_switcher .gt_options:before {
-          border-bottom-color: #333 !important;
-          border-top: none !important;
-          top: -10px !important;
-          bottom: auto !important;
-          right: 10px !important;
-          left: auto !important;
-        }
-
-        /* Flag image sizing - hide flag to save space */
-        .gt_float_switcher .gt_selected img,
-        .gt_float_switcher .gt_current img {
-          display: none !important;
-        }
-
-        /* Keep flags in dropdown */
-        .gt_float_switcher .gt_options img {
-          width: 20px !important;
-          height: 14px !important;
-          margin-right: 6px !important;
-          display: inline-block !important;
-        }
-
-        /* Arrow icon size */
-        .gt_float_switcher .gt_selected .gt_arrow,
-        .gt_float_switcher .gt_current .gt_arrow {
-          width: 10px !important;
-          height: 10px !important;
-          margin-left: 2px !important;
-        }
-
-        /* Ensure dropdown aligns to the right */
-        .gt_float_switcher {
-          text-align: left !important;
-          direction: ltr !important;
-        }
-
-        /* First dropdown item (selected language) styling */
-        .gt_float_switcher .gt_options a.gt_current {
-          width: auto !important;
-          min-width: auto !important;
-          max-width: none !important;
-          border-radius: 0 !important;
-          background-color: #e8e8e8 !important;
-        }
-
-        /* Hide text in main button, show only flag */
-        .gt_float_switcher .gt_selected span,
-        .gt_float_switcher .gt_current span {
-          display: none !important;
-        }
-
-        /* Alternative: Show abbreviated text (e.g., "EN") */
-        .gt_float_switcher .gt_selected span,
-        .gt_float_switcher .gt_current span {
-          font-size: 10px !important;
-          font-weight: bold !important;
-          display: block !important;
-          width: 100% !important;
+        .gt_float_switcher .gt_options a {
+          padding: 10px 12px !important;
+          font-size: 17px !important;
           text-align: center !important;
+          border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+        }
+
+        .gt_float_switcher .gt_options a:last-child {
+          border-bottom: none !important;
+        }
+
+
+        /* 🚫 HIDE CURRENT LANGUAGE FROM LIST */
+        .gt_float_switcher .gt_options a.gt_current,
+        .gt_float_switcher .gt_options a.selected {
+          display: none !important;
         }
       `}</style>
 
-      <Script 
-        id="gtranslate-settings" 
+      <Script
+        id="gtranslate-settings"
         strategy="afterInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             window.gtranslateSettings = {
               default_language: "en",
-              native_language_names: true,
               detect_browser_language: true,
               wrapper_selector: ".gtranslate_wrapper",
-              flag_style: "3d",
-              alt_flags: { 
-                "en": "usa", 
-                "pt": "brazil", 
-                "es": "mexico" 
-              },
-              languages: ["en", "ar", "es", "fr", "hi", "kn"],
-              float_switcher_open_direction: "bottom"
+              native_language_names: true,
+              float_switcher_open_direction: "bottom",
+              languages: ["en", "ar", "hi", "fr", "es", "kn"]
             };
-          `
+          `,
         }}
       />
 
-      <Script 
-        src="https://cdn.gtranslate.net/widgets/latest/float.js" 
-        strategy="afterInteractive" 
+      <Script
+        src="https://cdn.gtranslate.net/widgets/latest/float.js"
+        strategy="afterInteractive"
       />
     </>
   );

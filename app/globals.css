@@ -1113,3 +1113,17 @@ html {
 .skiptranslate {
   display: none !important; 
 }
+
+
+
+/* Force GTranslate to be on top of everything */
+#gtranslate_wrapper, .gtranslate_wrapper {
+    z-index: 9999 !important;
+    position: relative; 
+}
+
+/* If using the Float widget, ensure the iframe it creates is visible */
+iframe[title="GTranslate"] {
+    z-index: 9999 !important;
+}
+
