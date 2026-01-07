@@ -101,7 +101,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     const targetLang = currentLang === "en" ? "ar" : "en";
 
     setCurrentLang(targetLang);
-    localStorage.setItem("preferredLanguage", targetLang);
 
     // 🔥 FULL RESET FIRST
     clearGoogleTranslateHard();
@@ -110,10 +109,12 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
       setTimeout(() => {
         document.cookie = `googtrans=/en/ar; path=/`;
         document.documentElement.dir = "rtl";
+        localStorage.setItem("preferredLanguage", targetLang);
         location.reload();
       }, 300);
     } else {
       // 🚨 DO NOT set googtrans when switching to EN
+      localStorage.setItem("preferredLanguage", targetLang);
       document.documentElement.dir = "ltr";
 
       setTimeout(() => {
