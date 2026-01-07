@@ -65,17 +65,17 @@ const Index = () => {
           handleWatchVideo={() => setShowVideoModal(true)}
         />
 
-        {/* <BreakingJargon /> */}
+        <BreakingJargon />
 
         {/* <TrustBadges getCSSVar={getCSSVar} /> */}
-        {/* <RequestCallBanner />
+        <RequestCallBanner />
 
         <PreferLearn />
 
         <FeaturedProducts
           getCSSVar={getCSSVar}
           isMobile={isMobile}
-        /> */}
+        />
 
         <CompetitionSection />
 
