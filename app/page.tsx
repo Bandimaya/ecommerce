@@ -77,7 +77,7 @@ const Index = () => {
           isMobile={isMobile}
         /> */}
 
-        {/* <CompetitionSection />
+        <CompetitionSection />
 
         <LeagueResults />
 
@@ -99,7 +99,7 @@ const Index = () => {
         <PartnersSection />
         <NewsroomSection />
 
-        <NewsletterSection getCSSVar={getCSSVar} /> */}
+        <NewsletterSection getCSSVar={getCSSVar} />
       </div>
     </div>
   )
