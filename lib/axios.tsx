@@ -45,7 +45,8 @@ export const apiFetch = async (url: string, options: any = {}, isURL = false) =>
 
     try {
       const json = await res.json();
-      errorBody = json || errorBody;
+      // Merge json with existing errorBody to keep the HTTP status
+      errorBody = { status: res.status, ...(json || {}) };
     } catch {
       try {
         errorBody.message = await res.text();

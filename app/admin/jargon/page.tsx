@@ -2,8 +2,34 @@
 
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import {
+  Cpu,
+  Code,
+  Wifi,
+  Zap,
+  Cog,
+  Brain,
+  Plus,
+  Pencil,
+  Trash2,
+  X,
+  Save,
+  Loader2,
+  LayoutGrid,
+  ImageIcon
+} from "lucide-react";
 
-const ICONS = ["Cpu", "Code", "Wifi", "Zap", "Cog", "Brain"];
+// 1. Icon Mapping: Convert string names to actual React Components
+const ICON_COMPONENTS: Record<string, React.ElementType> = {
+  Cpu,
+  Code,
+  Wifi,
+  Zap,
+  Cog,
+  Brain,
+};
+
+const ICONS = Object.keys(ICON_COMPONENTS);
 
 type JargonItem = {
   _id: string;
@@ -27,69 +53,65 @@ const emptyForm = {
 
 export default function JargonPage() {
   const [items, setItems] = useState<JargonItem[]>([]);
-  const [form, setForm] = useState<any>(emptyForm);
+  const [loading, setLoading] = useState(true);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
+  // Form State
+  const [form, setForm] = useState(emptyForm);
   const [file, setFile] = useState<File | null>(null);
   const [editing, setEditing] = useState<JargonItem | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   /* ---------------- FETCH ---------------- */
   const fetchItems = async () => {
-    const res = await fetch("/api/jargon");
-    setItems(await res.json());
+    try {
+      const res = await fetch("/api/jargon");
+      const data = await res.json();
+      setItems(data);
+    } catch (error) {
+      console.error("Failed to fetch jargon", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchItems();
   }, []);
 
-  /* ---------------- CREATE ---------------- */
-  const addItem = async (e: React.FormEvent) => {
+  /* ---------------- HANDLERS ---------------- */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
 
-    const fd = new FormData();
-    Object.entries(form).forEach(([k, v]: any) => fd.append(k, v));
-    if (file) fd.append("image", file);
+    try {
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      if (file) fd.append("image", file);
 
-    await fetch("/api/jargon", {
-      method: "POST",
-      body: fd,
-    });
+      const url = editing ? `/api/jargon/${editing._id}` : "/api/jargon";
+      const method = editing ? "PUT" : "POST";
 
-    resetForm();
-    fetchItems();
+      const res = await fetch(url, { method, body: fd });
+
+      if (res.ok) {
+        await fetchItems();
+        handleCloseForm();
+      }
+    } catch (error) {
+      console.error("Error saving jargon", error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  /* ---------------- UPDATE ---------------- */
-  const updateItem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editing) return;
-
-    const fd = new FormData();
-    Object.entries(form).forEach(([k, v]: any) => fd.append(k, v));
-    if (file) fd.append("image", file);
-
-    await fetch(`/api/jargon/${editing._id}`, {
-      method: "PUT",
-      body: fd,
-    });
-
-    resetForm();
-    fetchItems();
-  };
-
-  /* ---------------- DELETE ---------------- */
-  const deleteItem = async (id: string) => {
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this item?")) return;
     await fetch(`/api/jargon/${id}`, { method: "DELETE" });
     fetchItems();
   };
 
-  /* ---------------- HELPERS ---------------- */
-  const resetForm = () => {
-    setForm(emptyForm);
-    setFile(null);
-    setEditing(null);
-  };
-
-  const startEdit = (item: JargonItem) => {
+  const handleEdit = (item: JargonItem) => {
     setEditing(item);
     setForm({
       title: item.title,
@@ -99,136 +121,307 @@ export default function JargonPage() {
       color: item.color,
       accentColor: item.accentColor,
     });
+    setFile(null);
+    setIsFormOpen(true);
+    // Smooth scroll to top to see the form
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
+
+  const handleCloseForm = () => {
+    setIsFormOpen(false);
+    setEditing(null);
+    setForm(emptyForm);
+    setFile(null);
+  };
+
+  // Helper to render the currently selected icon in the form
+  const SelectedIcon = ICON_COMPONENTS[form.icon] || Cpu;
 
   /* ---------------- UI ---------------- */
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-4">Jargon CMS</h1>
-
-      {/* FORM */}
-      <form
-        onSubmit={editing ? updateItem : addItem}
-        className="bg-white p-4 rounded shadow mb-6"
-      >
-        <h2 className="font-semibold mb-3">
-          {editing ? "Edit Jargon" : "Add Jargon"}
-        </h2>
-
-        <input
-          placeholder="Title"
-          value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
-          className="border p-2 rounded w-full mb-2"
-          required
-        />
-
-        <textarea
-          placeholder="Description"
-          value={form.description}
-          onChange={(e) =>
-            setForm({ ...form, description: e.target.value })
-          }
-          className="border p-2 rounded w-full mb-2"
-          required
-        />
-
-        <input
-          placeholder="Alt text"
-          value={form.alt}
-          onChange={(e) => setForm({ ...form, alt: e.target.value })}
-          className="border p-2 rounded w-full mb-2"
-          required
-        />
-
-        <div className="grid md:grid-cols-3 gap-2 mb-2">
-          <select
-            value={form.icon}
-            onChange={(e) => setForm({ ...form, icon: e.target.value })}
-            className="border p-2 rounded"
-          >
-            {ICONS.map((i) => (
-              <option key={i}>{i}</option>
-            ))}
-          </select>
-
-          <input
-            placeholder="Tailwind color"
-            value={form.color}
-            onChange={(e) => setForm({ ...form, color: e.target.value })}
-            className="border p-2 rounded"
-          />
-
-          <input
-            placeholder="Accent color"
-            value={form.accentColor}
-            onChange={(e) =>
-              setForm({ ...form, accentColor: e.target.value })
-            }
-            className="border p-2 rounded"
-          />
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[10px] border border-gray-200 shadow-sm">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Jargon Management</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage the technical terms and feature cards displayed on the site.
+          </p>
         </div>
-
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-          className="mb-3"
-        />
-
-        <div className="flex gap-2">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded">
-            {editing ? "Update" : "Add"}
-          </button>
-
-          {editing && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="border px-4 py-2 rounded"
-            >
-              Cancel
-            </button>
-          )}
-        </div>
-      </form>
-
-      {/* LIST */}
-      <div className="grid gap-4">
-        {items.map((i) => (
-          <div
-            key={i._id}
-            className="relative bg-white rounded shadow p-4 flex gap-4"
-          >
-            <img
-              src={IMAGE_URL + i.image}
-              alt={i.alt}
-              className="w-32 h-20 object-cover rounded"
-            />
-
-            <div className="flex-1">
-              <h3 className="font-semibold">{i.title}</h3>
-              <p className="text-sm">{i.description}</p>
-              <span className="text-xs text-gray-500">{i.icon}</span>
-            </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={() => startEdit(i)}
-                className="bg-yellow-500 text-white px-3 py-1 rounded text-xs"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => deleteItem(i._id)}
-                className="bg-red-600 text-white px-3 py-1 rounded text-xs"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        ))}
+        <button
+          onClick={() => setIsFormOpen(true)}
+          disabled={isFormOpen}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+        >
+          <Plus className="w-4 h-4" />
+          Add New Term
+        </button>
       </div>
+
+      {/* Form Section */}
+      {isFormOpen && (
+        <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
+            <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-2">
+              {editing ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+              {editing ? "Edit Jargon Item" : "Create New Jargon"}
+            </h2>
+            <button
+              onClick={handleCloseForm}
+              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-[10px] transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <form onSubmit={handleSubmit} className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Column: Text Inputs */}
+            <div className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Title
+                </label>
+                <input
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  placeholder="e.g. Artificial Intelligence"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Description
+                </label>
+                <textarea
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                  className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 h-32 resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  placeholder="Brief explanation of the term..."
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Alt Text
+                </label>
+                <input
+                  value={form.alt}
+                  onChange={(e) => setForm({ ...form, alt: e.target.value })}
+                  className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                  placeholder="Accessibility text for the image"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Right Column: Visuals */}
+            <div className="space-y-5">
+              <div className="grid grid-cols-2 gap-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Icon
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={form.icon}
+                      onChange={(e) => setForm({ ...form, icon: e.target.value })}
+                      className="w-full border border-gray-300 rounded-[10px] pl-3 pr-10 py-2.5 appearance-none focus:ring-2 focus:ring-blue-500 outline-none shadow-sm bg-white"
+                    >
+                      {ICONS.map((i) => (
+                        <option key={i} value={i}>
+                          {i}
+                        </option>
+                      ))}
+                    </select>
+                    <div className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-600 pointer-events-none">
+                      <SelectedIcon className="w-5 h-5" />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Tailwind Color
+                  </label>
+                  <input
+                    value={form.color}
+                    onChange={(e) => setForm({ ...form, color: e.target.value })}
+                    className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                    placeholder="e.g. bg-blue-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Accent Hex Color
+                </label>
+                <div className="flex items-center gap-3">
+                  <input
+                    type="color"
+                    value={form.accentColor}
+                    onChange={(e) =>
+                      setForm({ ...form, accentColor: e.target.value })
+                    }
+                    className="h-11 w-14 rounded-[10px] border border-gray-300 p-1 cursor-pointer shadow-sm"
+                  />
+                  <input
+                    value={form.accentColor}
+                    onChange={(e) =>
+                      setForm({ ...form, accentColor: e.target.value })
+                    }
+                    className="flex-1 border border-gray-300 rounded-[10px] px-3 py-2.5 font-mono uppercase focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                  Image Upload
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-[10px] p-6 hover:bg-gray-50 transition-colors text-center cursor-pointer relative group">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setFile(e.target.files?.[0] || null)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <div className="flex flex-col items-center justify-center text-gray-500 group-hover:text-gray-700 transition-colors">
+                    {file ? (
+                      <>
+                        <ImageIcon className="w-8 h-8 mb-2 text-blue-500" />
+                        <span className="text-sm font-medium text-blue-600">
+                          {file.name}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <LayoutGrid className="w-8 h-8 mb-2 text-gray-400" />
+                        <span className="text-sm">
+                          Click to upload or drag and drop
+                        </span>
+                        <span className="text-xs text-gray-400 mt-1">
+                          PNG, JPG up to 5MB
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="md:col-span-2 flex justify-end gap-3 pt-4 border-t border-gray-100">
+              <button
+                type="button"
+                onClick={handleCloseForm}
+                className="px-5 py-2.5 text-gray-700 font-medium hover:bg-gray-100 rounded-[10px] transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-70 shadow-sm"
+              >
+                {submitting ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                {editing ? "Update Item" : "Save Item"}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Grid List */}
+      {loading ? (
+        // Skeleton Loader
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map((n) => (
+            <div
+              key={n}
+              className="bg-white p-4 rounded-[10px] shadow-sm border border-gray-200 h-72 flex flex-col animate-pulse"
+            >
+              <div className="h-40 bg-gray-100 rounded-[10px] mb-4 w-full"></div>
+              <div className="h-6 bg-gray-100 rounded-[10px] w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-100 rounded-[10px] w-full mb-1"></div>
+              <div className="h-4 bg-gray-100 rounded-[10px] w-2/3"></div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        // Actual Content Grid
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {items.map((item) => {
+            const ItemIcon = ICON_COMPONENTS[item.icon] || Cpu;
+            return (
+              <div
+                key={item._id}
+                className="group bg-white rounded-[10px] shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col"
+              >
+                {/* Image Section */}
+                <div className="relative h-48 bg-gray-100 overflow-hidden">
+                  {item.image ? (
+                    <img
+                      src={IMAGE_URL + item.image}
+                      alt={item.alt}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+                      <LayoutGrid className="w-12 h-12 opacity-50" />
+                    </div>
+                  )}
+                  {/* Floating Icon */}
+                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-md p-2 rounded-[10px] shadow-sm border border-black/5">
+                    <ItemIcon
+                      className="w-5 h-5"
+                      style={{ color: item.accentColor }}
+                    />
+                  </div>
+                </div>
+
+                {/* Content Section */}
+                <div className="p-5 flex-1 flex flex-col">
+                  <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
+                    {item.description}
+                  </p>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
+                    <span className="text-xs font-mono font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-[10px] border border-gray-100">
+                      {item.icon}
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(item)}
+                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors"
+                        title="Edit Term"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item._id)}
+                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors"
+                        title="Delete Term"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

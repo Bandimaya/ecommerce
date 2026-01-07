@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Script from "next/script"; // Import Script
 import {
   Menu,
   X,
@@ -29,7 +30,6 @@ import { useUser } from "@/contexts/UserContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/SettingsContext";
-import LanguageSwitcher from "./LanguageSwitcher";
 import { IMAGE_URL } from "@/lib/constants";
 
 interface NavbarProps {
@@ -54,18 +54,18 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const navRef = useRef<HTMLDivElement>(null);
 
   // Initialize Language based on cookie
-  // useEffect(() => {
-  //   const getCookie = (name: string) => {
-  //     const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
-  //     return v ? v[2] : null;
-  //   };
-  //   const langCookie = getCookie("googtrans");
-  //   if (langCookie === "/en/ar" || langCookie === "/auto/ar") {
-  //     setCurrentLang("ar");
-  //   } else {
-  //     setCurrentLang("en");
-  //   }
-  // }, []);
+  useEffect(() => {
+    const getCookie = (name: string) => {
+      const v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
+      return v ? v[2] : null;
+    };
+    const langCookie = getCookie("googtrans");
+    if (langCookie === "/en/ar" || langCookie === "/auto/ar") {
+      setCurrentLang("ar");
+    } else {
+      setCurrentLang("en");
+    }
+  }, []);
 
   // Handle scroll effect
   useEffect(() => {
@@ -111,13 +111,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
-  // Prefetch important routes
-  useEffect(() => {
-    if (isOpen) {
-      ["/", "/shop", "/contact", "/courses"].forEach((p) => router.prefetch(p));
-    }
-  }, [isOpen, router]);
-
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
     if (!isSearchOpen) {
@@ -143,31 +136,23 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   };
 
   // --- Custom Language Toggle Logic ---
-  // const handleLanguageSwitch = () => {
-  //   const targetLang = currentLang === "en" ? "ar" : "en";
+  const handleLanguageSwitch = () => {
+    const targetLang = currentLang === "en" ? "ar" : "en";
+    
+    // Set cookie for Google Translate
+    document.cookie = `googtrans=/auto/${targetLang}; path=/; domain=${window.location.hostname}`;
+    document.cookie = `googtrans=/auto/${targetLang}; path=/;`; // Fallback
 
-  //   // Set cookie for Google Translate
-  //   document.cookie = `googtrans=/auto/${targetLang}; path=/; domain=${window.location.hostname}`;
-  //   document.cookie = `googtrans=/auto/${targetLang}; path=/;`; // Fallback
-
-  //   // Update state and reload
-  //   setCurrentLang(targetLang);
-  //   window.location.reload();
-  // };
+    // Update state and reload
+    setCurrentLang(targetLang);
+    window.location.reload();
+  };
 
   const navLinks = [
     { label: "Home", path: "/", icon: <Home className="w-5 h-5" /> },
     { label: "Shop", path: "/shop", icon: <Store className="w-5 h-5" /> },
-    {
-      label: "Courses",
-      path: "/courses",
-      icon: <Layers className="w-5 h-5" />,
-    },
-    {
-      label: "Contact",
-      path: "/contact",
-      icon: <Phone className="w-5 h-5" />,
-    },
+    { label: "Courses", path: "/courses", icon: <Layers className="w-5 h-5" /> },
+    { label: "Contact", path: "/contact", icon: <Phone className="w-5 h-5" /> },
   ];
 
   const isActive = (path: string) => pathname === path;
@@ -175,6 +160,32 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
   return (
     <>
+      {/* 3. HIDDEN GOOGLE TRANSLATE ELEMENTS */}
+      {/* This div is required for the script to attach to, but we hide it */}
+      <div id="google_translate_element" style={{ display: "none" }}></div>
+
+      {/* Google Translate Init Script */}
+      <Script id="google-translate-init" strategy="afterInteractive">
+        {`
+          function googleTranslateElementInit() {
+            new google.translate.TranslateElement(
+              {
+                pageLanguage: 'en',
+                includedLanguages: 'en,ar',
+                autoDisplay: false
+              },
+              'google_translate_element'
+            );
+          }
+        `}
+      </Script>
+
+      {/* Google Translate External Script */}
+      <Script
+        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
+        strategy="afterInteractive"
+      />
+
       <nav
         ref={navRef}
         className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${scrolled
@@ -247,7 +258,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                       router.push(link.path);
                     }
                   }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    isActive(link.path)
                       ? "bg-primary text-white shadow-sm"
                       : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     }`}
@@ -296,18 +308,18 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               </div>
 
               {/* Custom Language Toggle (New Implementation) */}
-              <div
+              <div 
                 className="hidden md:flex items-center bg-gray-100 rounded-full p-1 cursor-pointer notranslate border border-gray-200"
-                // onClick={handleLanguageSwitch}
+                onClick={handleLanguageSwitch}
                 title="Switch Language"
               >
-                <div
+                <div 
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
                   style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
                 >
                   EN
                 </div>
-                <div
+                <div 
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
                   style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
                 >
@@ -345,7 +357,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                         <User className="w-5 h-5 text-primary" />
                       </Button>
                     </DropdownMenuTrigger>
-                    {/* UPDATED: Added z-[100] to popup */}
                     <DropdownMenuContent
                       align="end"
                       className="w-56 bg-white border border-gray-200 shadow-lg z-[100]"
@@ -412,7 +423,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
           </div>
         </div>
 
-        {/* Mobile Navigation Overlay (RTL-aware) */}
+        {/* Mobile Navigation Overlay */}
         <div
           className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
               ? "translate-x-0 opacity-100 visible"
@@ -433,26 +444,26 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 <Search className="w-5 h-5" />
               </Button>
             </form>
-
+            
             {/* Mobile Language Toggle */}
-            <div
+            <div 
               className="flex w-full justify-center mb-6 notranslate"
-            // onClick={handleLanguageSwitch}
+              onClick={handleLanguageSwitch}
             >
-              <div className="flex bg-gray-100 p-1 rounded-lg cursor-pointer">
-                <div
-                  className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                  style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
-                >
-                  English
-                </div>
-                <div
-                  className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                  style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
-                >
-                  العربية
-                </div>
-              </div>
+               <div className="flex bg-gray-100 p-1 rounded-lg cursor-pointer">
+                  <div 
+                    className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+                    style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
+                  >
+                    English
+                  </div>
+                  <div 
+                    className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+                    style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
+                  >
+                    العربية
+                  </div>
+               </div>
             </div>
 
             <div className="space-y-2 flex-1">
@@ -460,30 +471,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 <Link
                   key={link.path}
                   href={link.path}
-                  prefetch={true}
-                  onMouseEnter={() => router.prefetch(link.path)}
-                  onFocus={() => router.prefetch(link.path)}
-                  onTouchStart={() => router.prefetch(link.path)}
-                  onPointerDown={(e) => {
-                    if (
-                      e.button !== 0 ||
-                      e.metaKey ||
-                      e.ctrlKey ||
-                      e.shiftKey ||
-                      e.altKey
-                    )
-                      return;
-                    e.preventDefault();
-                    setIsOpen(false);
-                    router.push(link.path);
-                  }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setIsOpen(false);
-                      router.push(link.path);
-                    }
-                  }}
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${isActive(link.path)
                       ? "bg-primary text-white shadow-md"
@@ -536,8 +523,9 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
       {/* Spacer to prevent content overlap with fixed navbar */}
       <div aria-hidden="true" className="h-16 md:h-20" />
 
+      {/* 6. GLOBAL CSS TO HIDE GOOGLE WIDGETS */}
       <style jsx global>{`
-        /* Hide Google Translate Toolbar and Icon */
+        /* Hide Google Translate Toolbar and Icon completely */
         .goog-te-banner-frame {
           display: none !important;
         }
@@ -551,14 +539,17 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         #goog-gt-tt {
           display: none !important;
         }
+        /* Remove the top margin Google adds to the body */
         body {
           top: 0px !important;
         }
+        
         /* Ensure the toggle itself isn't translated */
         .notranslate {
           translate: no;
         }
 
+        /* Animation Keyframes */
         @keyframes fadeIn {
           from {
             opacity: 0;
@@ -579,6 +570,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
           }
         }
 
+        /* RTL Handling for Arabic */
         html[lang="ar"],
         html[lang="qa"] {
           direction: rtl;
@@ -588,10 +580,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
           direction: ltr;
         }
 
-        /* Keep navbar structure LTR to avoid clipping/half-width on RTL pages */
+        /* Navbar Layout Fixes for RTL */
         html[lang="ar"] nav,
         html[lang="qa"] nav {
-          direction: ltr;
+          direction: ltr; /* Keep navbar layout LTR */
         }
 
         /* Allow nav items to still display RTL text properly */

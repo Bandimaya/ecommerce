@@ -364,13 +364,15 @@ export default function ContactInfo() {
                 }`}
               >
                 {saving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Saving…
-                  </>
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Saving…</span>
+                  </span>
                 ) : (
-                  <>
-                    <Save className="w-4 h-4" /> Save Changes
-                  </>
+                  <span className="flex items-center gap-2">
+                    <Save className="w-4 h-4" />
+                    <span>Save Changes</span>
+                  </span>
                 )}
               </button>
             </div>

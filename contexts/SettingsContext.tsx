@@ -48,7 +48,16 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         const res = await apiFetch("/contact");
         setContact(res);
       } catch (err: any) {
-        console.error("Failed to load settings", err?.message ? `${err.message} (${err.status ?? ''})` : JSON.stringify(err));
+        // If settings are missing (404), treat as not-found and warn instead of error
+        const errMsg = err?.message ? `${err.message}${err.status ? ` (${err.status})` : ''}` : JSON.stringify(err);
+
+        if (err?.status === 404) {
+          // Contact not found is an expected situation in some setups — clear contact and warn
+          setContact(null);
+          console.warn("Settings not found", errMsg);
+        } else {
+          console.error("Failed to load settings", errMsg);
+        }
       } finally {
         setLoading(false);
       }

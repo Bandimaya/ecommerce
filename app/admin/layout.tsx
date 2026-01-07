@@ -1,21 +1,39 @@
 "use client";
 
 import {
-  User as UserIcon,
-  LogOut,
-  Settings,
+  // Navigation & UI Icons
   LayoutDashboard,
   Menu,
   X,
+  LogOut,
+  Settings,
+  User as UserIcon,
+  // E-commerce & Core Icons
   Package,
-  Phone,
-  // New specific icons imported below
-  BadgeCheck,
-  BookOpen,
-  Tags,
   ShoppingCart,
   Users,
-  Palette
+  Tags,
+  BadgeCheck,
+  Palette,
+  Phone,
+  BookOpen,
+  // NEW Specific Icons added below
+  Type,           // Jargon
+  Layers,         // Sections
+  GraduationCap,  // Section Courses
+  CalendarDays,   // Events
+  Trophy,         // Winners
+  Zap,            // Features
+  Image as ImageIcon, // Images
+  Handshake,      // Partners
+  Newspaper,      // News
+  Star,           // Stars
+  Gift,           // Benefits
+  FileBadge,      // Certifications
+  Library,        // STEM Courses
+  MessageSquareQuote, // Testimonials
+  Rocket,         // Projects
+  Video,          // Videos
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -26,7 +44,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/contexts/UserContext";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -61,31 +79,43 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
     }
   }, [isDesktop, isMobileOpen, setIsMobileOpen]);
 
-  // Updated navItems with unique icons
+  // --- UPDATED NAV ITEMS WITH UNIQUE ICONS ---
   const navItems = [
     { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
-    { label: "Jargon", path: "/admin/jargon", icon: LayoutDashboard },
-    { label: "Sections", path: "/admin/sections", icon: Users },
-    { label: "Section Courses", path: "/admin/section-courses", icon: Users },
-    { label: "Events", path: "/admin/events", icon: Users },
-    { label: "Winners", path: "/admin/winners", icon: Users },
-    { label: "Stempark Features", path: "/admin/stempark-features", icon: Users },
-    { label: "Award Images", path: "/admin/award-images", icon: Users },
-    { label: "Partner Images", path: "/admin/partner-images", icon: Users },
-    { label: "News", path: "/admin/news", icon: Users },
-    { label: "Stars", path: "/admin/stars", icon: Users },
-    { label: "Benefits", path: "/admin/benefits", icon: Users },
-    { label: "Certifications", path: "/admin/certifications", icon: Users },
-    { label: "Stem courses", path: "/admin/stem-courses", icon: Users },
-    { label: "Testimonials", path: "/admin/testimonials", icon: Users },
-    { label: "Projects", path: "/admin/projects", icon: Users },
-    { label: "Videos", path: "/admin/videos", icon: Users },
-    { label: "Brands", path: "/admin/brands", icon: BadgeCheck },
+    
+    // Content Management
+    { label: "Jargon", path: "/admin/jargon", icon: Type },
+    { label: "Sections", path: "/admin/sections", icon: Layers },
+    { label: "Section Courses", path: "/admin/section-courses", icon: GraduationCap },
+    { label: "Events", path: "/admin/events", icon: CalendarDays },
+    { label: "Winners", path: "/admin/winners", icon: Trophy },
+    { label: "Stempark Features", path: "/admin/stempark-features", icon: Zap },
+    
+    // Media & Assets
+    { label: "Award Images", path: "/admin/award-images", icon: ImageIcon },
+    { label: "Partner Images", path: "/admin/partner-images", icon: Handshake },
+    { label: "Videos", path: "/admin/videos", icon: Video },
+    
+    // Engagement
+    { label: "News", path: "/admin/news", icon: Newspaper },
+    { label: "Stars", path: "/admin/stars", icon: Star },
+    { label: "Benefits", path: "/admin/benefits", icon: Gift },
+    { label: "Certifications", path: "/admin/certifications", icon: FileBadge },
+    { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquareQuote },
+    
+    // Academic / Portfolio
+    { label: "Stem courses", path: "/admin/stem-courses", icon: Library },
+    { label: "Projects", path: "/admin/projects", icon: Rocket },
     { label: "Programs", path: "/admin/programs", icon: BookOpen },
+    
+    // E-Commerce / Business
+    { label: "Brands", path: "/admin/brands", icon: BadgeCheck },
     { label: "Categories", path: "/admin/categories", icon: Tags },
     { label: "Products", path: "/admin/products", icon: Package },
     { label: "Orders", path: "/admin/orders", icon: ShoppingCart },
     { label: "Customers", path: "/admin/customers", icon: Users },
+    
+    // System
     { label: "Contact Info", path: "/admin/contact-info", icon: Phone },
     { label: "Customization", path: "/admin/customization", icon: Palette }
   ];
@@ -195,13 +225,12 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
             aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             aria-expanded={!isCollapsed}
           >
-            {/* Chevron icons removed per request; keep accessible label */}
             <span className="sr-only">{isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}</span>
           </motion.button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto custom-scrollbar">
           {navItems.map((item) => {
             const loc = (location || '').replace(/\/$/, '');
             const path = item.path.replace(/\/$/, '');

@@ -1,11 +1,27 @@
 "use client";
 
 import { useEffect, useState, useMemo, ChangeEvent } from "react";
-import { PlusCircle, Pencil, Trash2, Search, Grid, List, Loader2 } from "lucide-react";
+import { 
+  PlusCircle, 
+  Pencil, 
+  Trash2, 
+  Search, 
+  Grid, 
+  List, 
+  Loader2, 
+  X, 
+  Save, 
+  ImageIcon, 
+  Upload, 
+  Clock, 
+  Users, 
+  BarChart,
+  Star
+} from "lucide-react";
 import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
 import { IMAGE_URL } from "@/lib/constants";
-import { Skeleton, SkeletonText, SkeletonLine } from '@/components/ui/skeleton'
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SectionCourse {
   _id: string;
@@ -18,26 +34,27 @@ interface SectionCourse {
   skills: string[];
   rating: number;
   sectionId: string;
+  enrolled: number; // Changed to number for strict typing
+  alt: string;
 }
 
 interface Section {
   _id: string;
-  name: string;
+  label: string;
 }
 
 interface FormState {
-  title: string;
   _id?: string;
+  title: string;
   description: string;
   ageRange: string;
   duration: string;
-  enrolled: string;
+  enrolled: number | ""; // Allow empty string for input field handling
   alt: string;
   level: string;
-  image: File | null;
-  sectionId: string; // For section selection
-  skills: string[]; // For storing skills
-  rating: number; // For storing rating
+  sectionId: string;
+  skills: string[];
+  rating: number | ""; // Allow empty string for input field handling
 }
 
 export default function SectionCoursesPage({
@@ -46,32 +63,35 @@ export default function SectionCoursesPage({
   sectionId: string;
 }) {
   const [courses, setCourses] = useState<SectionCourse[]>([]);
-  const [sections, setSections] = useState<Section[]>([]); // For storing sections
+  const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
 
+  // Form & File State
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>({
     title: "",
     description: "",
     ageRange: "",
     duration: "",
     level: "",
-    image: null,
     enrolled: "",
     alt: "",
-    sectionId: "",
+    sectionId: sectionId || "",
     skills: [],
-    rating: 0, // Default rating is 0
+    rating: 5,
   });
 
-  /* ---------------- FETCH COURSES ---------------- */
+  /* ---------------- FETCH DATA ---------------- */
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      const res = await apiFetch(`/section-courses?sectionId=${sectionId}`);
+      const url = sectionId ? `/section-courses?sectionId=${sectionId}` : `/section-courses`;
+      const res = await apiFetch(url);
       setCourses(res);
     } catch {
       toast({ title: "Failed to load courses", variant: "destructive" });
@@ -80,11 +100,10 @@ export default function SectionCoursesPage({
     }
   };
 
-  /* ---------------- FETCH SECTIONS ---------------- */
   const fetchSections = async () => {
     try {
       const res = await apiFetch(`/sections`);
-      setSections(res); // Set fetched sections
+      setSections(res);
     } catch {
       toast({ title: "Failed to load sections", variant: "destructive" });
     }
@@ -92,7 +111,7 @@ export default function SectionCoursesPage({
 
   useEffect(() => {
     fetchCourses();
-    fetchSections(); // Fetch sections when the component mounts
+    fetchSections();
   }, [sectionId]);
 
   /* ---------------- FILTER ---------------- */
@@ -108,30 +127,37 @@ export default function SectionCoursesPage({
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    
+    // Handle numeric fields strictly
+    if (type === "number") {
+      setForm((prev) => ({ 
+        ...prev, 
+        [name]: value === "" ? "" : Number(value) 
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files?.[0]) {
-      setForm((prev) => ({ ...prev, image: e.target.files![0] }));
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({ title: "Image too large (max 5MB)", variant: "destructive" });
+        return;
+      }
+      setImageFile(file);
+      setPreview(URL.createObjectURL(file));
     }
   };
 
   const handleSkillsChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    setForm((prev) => {
-      const updatedSkills = value.split(",").map((skill) => skill.trim());
-      return { ...prev, skills: updatedSkills };
-    });
+    setForm((prev) => ({ ...prev, skills: value.split(",").map(s => s.trim()) }));
   };
 
-  const handleRatingChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target;
-    setForm((prev) => ({ ...prev, rating: Number(value) }));
-  };
-
-  const resetForm = () => {
+  const handleCloseForm = () => {
     setShowForm(false);
     setForm({
       title: "",
@@ -141,86 +167,17 @@ export default function SectionCoursesPage({
       level: "",
       enrolled: "",
       alt: "",
-      image: null,
-      sectionId: "",
+      sectionId: sectionId || "",
       skills: [],
-      rating: 0,
+      rating: 5,
     });
+    setImageFile(null);
+    setPreview(null);
   };
-
-  /* ---------------- SUBMIT ---------------- */
-  const handleSubmit = async () => {
-    if (!form.title.trim()) {
-      return toast({
-        title: "Title is required",
-        variant: "destructive",
-      });
-    }
-
-    if (!form.image) {
-      return toast({
-        title: "Image is required",
-        variant: "destructive",
-      });
-    }
-
-    if (!form.sectionId) {
-      return toast({
-        title: "Section is required",
-        variant: "destructive",
-      });
-    }
-
-    const data = new FormData();
-    data.append("title", form.title);
-    data.append("description", form.description);
-    data.append("ageRange", form.ageRange);
-    data.append("duration", form.duration);
-    data.append("level", form.level);
-    if (typeof form.image !== 'string')
-      data.append("image", form.image);
-    data.append("alt", form.alt);
-    data.append("enrolled", form.enrolled);
-    data.append("sectionId", form.sectionId);
-
-    setIsSubmitting(true)
-    try {
-      let res;
-      if (form._id) {
-        // Update existing course
-        data.append("id", form._id);
-        res = await apiFetch(`/section-courses`, {
-          method: "PUT",
-          data: data,
-        });
-      } else {
-        // Create new course
-        res = await apiFetch("/section-courses", {
-          method: "POST",
-          data: data,
-        });
-      }
-
-      if (res) {
-        toast({ title: "Course saved successfully!", variant: "success" });
-        resetForm();
-        await fetchCourses(); // Refresh the courses list
-      }
-    } catch (error) {
-      toast({ title: "Failed to save course", variant: "destructive" });
-    } finally {
-      setIsSubmitting(false)
-    }
-  };
-
 
   const handleEdit = async (courseId: string) => {
     try {
-      // Fetch the existing course data from your backend
-      const res = await apiFetch(`/section-courses/${courseId}`);
-      const course = res; // Assuming the response contains the course data
-
-      // Populate the form with the existing data
+      const course = await apiFetch(`/section-courses/${courseId}`);
       setForm({
         _id: course._id,
         title: course.title,
@@ -228,315 +185,464 @@ export default function SectionCoursesPage({
         ageRange: course.ageRange,
         duration: course.duration,
         level: course.level,
-        enrolled: course.enrolled,
+        enrolled: Number(course.enrolled) || 0,
         alt: course.alt,
-        image: course.image,
         skills: course.skills,
-        rating: course.rating,
+        rating: Number(course.rating) || 5,
         sectionId: course.sectionId,
       });
-
-      // Set showForm to true to display the form in edit mode
+      setPreview(course.image ? IMAGE_URL + course.image : null);
       setShowForm(true);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       toast({ title: "Failed to load course details", variant: "destructive" });
     }
   };
 
-  function handleDelete(id: string) {
+  const handleDelete = async (id: string) => {
     if (!confirm("Delete this course?")) return;
-    apiFetch(`/section-courses`, { method: "DELETE", data: { id } })
-      .then(() => {
-        setCourses(courses.filter(c => c._id !== id));
-        toast({ title: "Course deleted" });
-      }
-      ).catch(() => {
-        toast({ title: "Failed to delete course", variant: "destructive" });
-      });
-  }
+    try {
+      await apiFetch(`/section-courses`, { method: "DELETE", data: { id } });
+      setCourses(courses.filter(c => c._id !== id));
+      toast({ title: "Course deleted successfully" });
+    } catch {
+      toast({ title: "Failed to delete course", variant: "destructive" });
+    }
+  };
 
+  /* ---------------- SUBMIT ---------------- */
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // --- VALIDATIONS ---
+    if (!form.title.trim()) return toast({ title: "Title is required", variant: "destructive" });
+    if (!form._id && !imageFile) return toast({ title: "Image is required", variant: "destructive" });
+    if (!form.sectionId) return toast({ title: "Section is required", variant: "destructive" });
+    
+    // Number validations
+    if (form.rating === "" || form.rating < 0 || form.rating > 5) {
+      return toast({ title: "Rating must be a number between 0 and 5", variant: "destructive" });
+    }
+    if (form.enrolled === "" || form.enrolled < 0) {
+      return toast({ title: "Enrolled count must be a valid positive number", variant: "destructive" });
+    }
+
+    setIsSubmitting(true);
+    const data = new FormData();
+    
+    // Append fields
+    Object.entries(form).forEach(([key, value]) => {
+      if (key === 'skills') {
+        data.append(key, JSON.stringify(value));
+      } else if (key !== '_id') {
+        data.append(key, String(value));
+      }
+    });
+
+    if (imageFile) data.append("image", imageFile);
+    if (form._id) data.append("id", form._id);
+
+    try {
+      let res;
+      if (form._id) {
+        res = await apiFetch(`/section-courses`, { method: "PUT", data });
+        toast({ title: "Course updated successfully" });
+      } else {
+        res = await apiFetch("/section-courses", { method: "POST", data });
+        toast({ title: "Course created successfully" });
+      }
+      handleCloseForm();
+      fetchCourses();
+    } catch (error) {
+      toast({ title: "Failed to save course", variant: "destructive" });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
-    <div>
-      <div className="flex justify-between mb-4">
-        <div className="flex items-center">
-          <Search className="mr-2" size={16} onChange={(e: any) => setSearch(e.target.value)} />
-          <input
-            type="text"
-            placeholder="Search courses"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="p-2 rounded"
-          />
+    <div className="space-y-8">
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[10px] border border-gray-200 shadow-sm">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Course Management</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage educational courses, curriculum details, and enrollment stats.
+          </p>
         </div>
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center text-blue-500"
+          disabled={showForm}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
         >
-          <PlusCircle className="mr-2" size={18} />
-          Add Course
+          <PlusCircle className="w-4 h-4" />
+          Add New Course
         </button>
       </div>
 
-      {showForm && (
-        <div className="p-4 border rounded mb-4">
-          <h2 className="text-lg font-semibold">Add Course</h2>
-          <form onSubmit={(e) => e.preventDefault()}>
-            {/* Title Input */}
-            <div className="mb-4">
-              <label htmlFor="title" className="block text-sm font-medium">
-                Title
-              </label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                value={form.title}
-                onChange={handleChange}
-                className="p-2 border rounded w-full"
-                placeholder="Course Title"
-              />
-            </div>
+      {/* FORM AREA */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden mb-8">
+              <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
+                <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-2">
+                  {form._id ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
+                  {form._id ? "Edit Course" : "Create New Course"}
+                </h2>
+                <button onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px]">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
 
-            {/* Description Input */}
-            <div className="mb-4">
-              <label htmlFor="description" className="block text-sm font-medium">
-                Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={form.description}
-                onChange={handleChange}
-                className="p-2 border rounded w-full"
-                placeholder="Course Description"
-              />
-            </div>
+              <form onSubmit={handleSubmit} className="p-6">
+                <div className="grid md:grid-cols-3 gap-8">
+                  {/* Left Column: Form Inputs */}
+                  <div className="md:col-span-2 space-y-5">
+                    <div className="grid md:grid-cols-2 gap-5">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Title</label>
+                        <input
+                          name="title"
+                          value={form.title}
+                          onChange={handleChange}
+                          placeholder="e.g. Introduction to Robotics"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          required
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                        <textarea
+                          name="description"
+                          value={form.description}
+                          onChange={handleChange}
+                          placeholder="Detailed overview of the course..."
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 h-24 resize-none focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        />
+                      </div>
 
-            {/* Age Range Input */}
-            <div className="mb-4">
-              <label htmlFor="ageRange" className="block text-sm font-medium">
-                Age Range
-              </label>
-              <input
-                type="number"
-                min={0}
-                id="ageRange"
-                name="ageRange"
-                value={form.ageRange}
-                onChange={handleChange}
-                className="p-2 border rounded w-full"
-                placeholder="Age Range"
-              />
-            </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Section</label>
+                        <select
+                          name="sectionId"
+                          value={form.sectionId}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          required
+                        >
+                          <option value="">Select Section</option>
+                          {sections.map((s) => (
+                            <option key={s._id} value={s._id}>{s.label || s._id}</option>
+                          ))}
+                        </select>
+                      </div>
 
-            {/* Duration Input */}
-            <div className="mb-4">
-              <label htmlFor="duration" className="block text-sm font-medium">
-                Duration
-              </label>
-              <input
-                type="number"
-                id="duration"
-                name="duration"
-                min={1}
-                value={form.duration}
-                onChange={handleChange}
-                className="p-2 border rounded w-full"
-                placeholder="Duration"
-              />
-            </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Level</label>
+                        <select
+                           name="level"
+                           value={form.level}
+                           onChange={handleChange}
+                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        >
+                          <option value="">Select Level</option>
+                          <option value="Beginner">Beginner</option>
+                          <option value="Intermediate">Intermediate</option>
+                          <option value="Advanced">Advanced</option>
+                        </select>
+                      </div>
 
-            {/* Level Input */}
-            <div className="mb-4">
-              <label htmlFor="level" className="block text-sm font-medium">
-                Level
-              </label>
-              <input
-                type="text"
-                id="level"
-                name="level"
-                value={form.level}
-                onChange={handleChange}
-                className="p-2 border rounded w-full"
-                placeholder="Level"
-              />
-            </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Age Range</label>
+                        <input
+                          name="ageRange"
+                          value={form.ageRange}
+                          onChange={handleChange}
+                          placeholder="e.g. 8-12 Years"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        />
+                      </div>
 
-            {/* Enrolled Input */}
-            <div className="mb-4">
-              <label htmlFor="enrolled" className="block text-sm font-medium">
-                Enrolled
-              </label>
-              <input
-                type="number"
-                id="enrolled"
-                name="enrolled"
-                min={0}
-                value={form.enrolled}
-                onChange={handleChange}
-                className="p-2 border rounded w-full"
-                placeholder="Enrolled"
-              />
-            </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Duration</label>
+                        <input
+                          name="duration"
+                          value={form.duration}
+                          onChange={handleChange}
+                          placeholder="e.g. 4 Weeks"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        />
+                      </div>
 
-            {/* Alt Input */}
-            <div className="mb-4">
-              <label htmlFor="alt" className="block text-sm font-medium">
-                Alt Text
-              </label>
-              <input
-                type="text"
-                id="alt"
-                name="alt"
-                value={form.alt}
-                onChange={handleChange}
-                className="p-2 border rounded w-full"
-                placeholder="Alt Text"
-              />
-            </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Enrolled Count (Number)</label>
+                        <input
+                          type="number"
+                          name="enrolled"
+                          value={form.enrolled}
+                          onChange={handleChange}
+                          min="0"
+                          placeholder="e.g. 150"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        />
+                      </div>
 
-            {/* Skills Input */}
-            <div className="mb-4">
-              <label htmlFor="skills" className="block text-sm font-medium">
-                Skills
-              </label>
-              <input
-                type="text"
-                id="skills"
-                name="skills"
-                value={form.skills.join(", ")} // Display skills as a comma-separated string
-                onChange={handleSkillsChange}
-                className="p-2 border rounded w-full"
-                placeholder="Enter skills separated by commas"
-              />
-            </div>
+                      <div>
+                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Rating (0-5)</label>
+                         <input
+                           type="number"
+                           name="rating"
+                           value={form.rating}
+                           onChange={handleChange}
+                           min="0"
+                           max="5"
+                           step="0.1"
+                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                         />
+                      </div>
 
-            {/* Rating Input */}
-            <div className="mb-4">
-              <label htmlFor="rating" className="block text-sm font-medium">
-                Rating
-              </label>
-              <input
-                type="number"
-                id="rating"
-                name="rating"
-                value={form.rating}
-                onChange={handleRatingChange}
-                className="p-2 border rounded w-full"
-                placeholder="Course Rating (1-5)"
-                min={1}
-                max={5}
-              />
-            </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Skills (Comma separated)</label>
+                        <input
+                          name="skills"
+                          value={form.skills.join(", ")}
+                          onChange={handleSkillsChange}
+                          placeholder="e.g. Coding, Logic, Electronics"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        />
+                      </div>
+                      
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Image Alt Text</label>
+                        <input
+                          name="alt"
+                          value={form.alt}
+                          onChange={handleChange}
+                          placeholder="Description for accessibility"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        />
+                      </div>
+                    </div>
+                  </div>
 
-            {/* Section Select */}
-            <div className="mb-4">
-              <label htmlFor="sectionId" className="block text-sm font-medium">
-                Section
-              </label>
-              <select
-                id="sectionId"
-                name="sectionId"
-                value={form.sectionId}
-                onChange={handleChange}
-                className="p-2 border rounded w-full"
-              >
-                <option value="">Select a section</option>
-                {sections.map((section: any) => (
-                  <option key={section._id} value={section._id}>
-                    {section.label}
-                  </option>
-                ))}
-              </select>
-            </div>
+                  {/* Right Column: Image Upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Course Image</label>
+                    <label className="block border-2 border-dashed border-gray-300 rounded-[10px] p-4 cursor-pointer hover:bg-gray-50 transition-colors h-64 md:h-full max-h-[400px] relative group">
+                      <input type="file" hidden accept="image/*" onChange={handleImageChange} />
+                      
+                      {preview ? (
+                        <div className="w-full h-full flex items-center justify-center relative">
+                          <img src={preview} alt="Preview" className="max-h-full max-w-full object-contain rounded-[10px]" />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-[10px]">
+                            <span className="text-white text-sm font-medium flex items-center gap-2">
+                              <Pencil className="w-4 h-4" /> Change
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
+                          <Upload className="w-10 h-10 opacity-50" />
+                          <span className="text-sm font-medium">Upload Image</span>
+                          <span className="text-xs text-gray-300 text-center">PNG, JPG up to 5MB</span>
+                        </div>
+                      )}
+                    </label>
+                  </div>
+                </div>
 
-            {/* Image Input */}
-            <div className="mb-4">
-              <label htmlFor="image" className="block text-sm font-medium">
-                Image
-              </label>
-              <input
-                type="file"
-                id="image"
-                name="image"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="p-2"
-              />
+                <div className="flex justify-end gap-3 pt-6 mt-4 border-t border-gray-100">
+                  <button
+                    type="button"
+                    onClick={handleCloseForm}
+                    className="px-5 py-2.5 text-gray-700 font-medium hover:bg-gray-100 rounded-[10px] transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-70 shadow-sm"
+                  >
+                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                    {form._id ? "Update Course" : "Save Course"}
+                  </button>
+                </div>
+              </form>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            {/* Submit and Cancel Buttons */}
-            <div className="flex justify-end">
-              <button
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-                className="bg-blue-500 text-white px-4 py-2 rounded flex items-center"
-              >
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Save Course
-              </button>
-              <button
-                onClick={resetForm}
-                className="ml-2 bg-gray-500 text-white px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
+      {/* TOOLBAR */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-[10px] border border-gray-200 shadow-sm">
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            placeholder="Search courses..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-[10px] border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+          />
+        </div>
+        <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
+          <button
+            onClick={() => setView("grid")}
+            className={`p-2 rounded-[10px] transition-all ${
+              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <Grid className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setView("list")}
+            className={`p-2 rounded-[10px] transition-all ${
+              view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            <List className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
+      {/* CONTENT */}
+      {loading ? (
+        <div className="grid md:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white border border-gray-200 rounded-[10px] overflow-hidden animate-pulse">
+              <div className="h-48 bg-gray-100"></div>
+              <div className="p-4 space-y-3">
+                <div className="h-4 bg-gray-100 rounded-[10px] w-3/4"></div>
+                <div className="h-3 bg-gray-100 rounded-[10px] w-full"></div>
+                <div className="h-3 bg-gray-100 rounded-[10px] w-2/3"></div>
+              </div>
             </div>
-          </form>
+          ))}
+        </div>
+      ) : filteredCourses.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50 rounded-[10px] border border-dashed border-gray-200">
+          <Grid className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+          <p className="text-gray-500 font-medium">No courses found</p>
+          <p className="text-sm text-gray-400">Try creating a new one or adjust your search.</p>
+        </div>
+      ) : view === "grid" ? (
+        // GRID VIEW
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredCourses.map(course => (
+            <div
+              key={course._id}
+              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden"
+            >
+              <div className="relative h-48 bg-gray-100 overflow-hidden">
+                {course.image ? (
+                  <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-300">
+                    <ImageIcon className="w-12 h-12" />
+                  </div>
+                )}
+                <div className="absolute top-3 right-3 flex gap-2">
+                   <span className="bg-white/90 backdrop-blur-md px-2 py-1 rounded-[10px] text-xs font-bold shadow-sm text-gray-700 border border-black/5">
+                     {course.level}
+                   </span>
+                </div>
+              </div>
+              
+              <div className="p-5 flex-1 flex flex-col">
+                 <h3 className="font-bold text-gray-900 mb-2 line-clamp-1" title={course.title}>{course.title}</h3>
+                 <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
+                   {course.description}
+                 </p>
+                 
+                 <div className="flex flex-wrap gap-2 mb-4">
+                    {course.ageRange && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-[10px] border border-gray-100">
+                            <Users className="w-3 h-3" /> {course.ageRange}
+                        </div>
+                    )}
+                    {course.duration && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-[10px] border border-gray-100">
+                            <Clock className="w-3 h-3" /> {course.duration}
+                        </div>
+                    )}
+                    {course.rating > 0 && (
+                        <div className="flex items-center gap-1 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-[10px] border border-amber-100">
+                            <Star className="w-3 h-3 fill-amber-600" /> {course.rating}
+                        </div>
+                    )}
+                 </div>
+
+                 <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
+                    <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
+                        <BarChart className="w-3 h-3" />
+                        {course.enrolled || "0"} Enrolled
+                    </span>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleEdit(course._id)}
+                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(course._id)}
+                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                 </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        // LIST VIEW
+        <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
+          {filteredCourses.map(course => (
+            <div key={course._id} className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group">
+              <div className="w-full md:w-24 h-24 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200">
+                {course.image ? (
+                  <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <ImageIcon className="w-6 h-6 text-gray-300" />
+                  </div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-gray-900">{course.title}</h3>
+                    <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-[10px] border border-blue-100 font-medium">
+                        {course.level}
+                    </span>
+                </div>
+                <p className="text-sm text-gray-500 line-clamp-1 mb-2">{course.description}</p>
+                <div className="flex flex-wrap gap-4 text-xs text-gray-400">
+                    {course.ageRange && <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {course.ageRange}</span>}
+                    {course.duration && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {course.duration}</span>}
+                    {course.enrolled && <span className="flex items-center gap-1"><BarChart className="w-3 h-3" /> {course.enrolled}</span>}
+                </div>
+              </div>
+              <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => handleEdit(course._id)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors">
+                  <Pencil className="w-4 h-4" />
+                </button>
+                <button onClick={() => handleDelete(course._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors">
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
-
-      {/* Course Grid/List View */}
-      <div className="mb-4 flex justify-end">
-        <button
-          onClick={() => setView(view === "grid" ? "list" : "grid")}
-          className="bg-gray-200 p-2 rounded"
-        >
-          {view === "grid" ? <List size={20} /> : <Grid size={20} />}
-        </button>
-      </div>
-
-      <div className={view === "grid" ? "grid grid-cols-3 gap-4" : ""}>
-        {loading ? (
-          Array.from({length: 6}).map((_, i) => (
-            <div key={i} className="border p-4 rounded">
-              <Skeleton className="w-full h-40 mb-3 rounded" />
-              <SkeletonText className="w-3/4 mb-2" />
-              <SkeletonLine className="w-full mb-2" />
-              <div className="mt-2 flex justify-between items-center">
-                <Skeleton className="w-6 h-6 rounded" />
-                <Skeleton className="w-6 h-6 rounded" />
-              </div>
-            </div>
-          ))
-        ) : (
-          filteredCourses.map((course) => (
-            <div key={course._id} className="border p-4 rounded">
-              <img
-                src={IMAGE_URL+course.image}
-                alt={course.title}
-                className="w-full h-40 object-cover rounded"
-              />
-              <h3 className="font-semibold">{course.title}</h3>
-              <p className="text-sm">{course.description}</p>
-              <div className="mt-2 flex justify-between items-center">
-                <button
-                  className="text-yellow-500"
-                  onClick={() => handleEdit(course._id)}
-                >
-                  <Pencil size={16} />
-                </button>
-                <button
-                  className="text-red-500"
-                  onClick={() => { handleDelete(course._id); }}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
     </div>
   );
 }
