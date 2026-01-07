@@ -69,10 +69,24 @@ export default function LanguageToggle() {
 
     try {
       const hostname = window.location.hostname;
-      if (hostname && hostname !== "localhost" && hostname.indexOf(".") > -1 && !/:\d+$/.test(hostname)) {
-        document.cookie = `googtrans=${cookieValue}; path=/; domain=${hostname};`;
+      const expires = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
+
+      // Set cookie for root domain (with leading dot) and hostname, plus fallback.
+      if (hostname && hostname !== "localhost") {
+        try {
+          document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=.${hostname};`;
+        } catch (e) {
+          // ignore and continue
+        }
+        try {
+          document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=${hostname};`;
+        } catch (e) {
+          // ignore and continue
+        }
       }
-      document.cookie = `googtrans=${cookieValue}; path=/;`;
+
+      // Always set a path-only cookie as well so both scopes are covered.
+      document.cookie = `googtrans=${cookieValue}; path=/; ${expires};`;
     } catch (e) {
       console.warn("Failed to set googtrans cookie", e);
     }
@@ -80,8 +94,16 @@ export default function LanguageToggle() {
     setLang(nextLang);
     try { localStorage.setItem("lang", nextLang); } catch (e) { /* ignore */ }
 
+    // Re-init the translate element to apply the new cookie immediately.
     if (initGoogleTranslate()) {
       document.documentElement.dir = nextLang === "ar" ? "rtl" : "ltr";
+
+      // Some versions of the translate widget re-apply a previous state asynchronously.
+      // Re-run init shortly after to ensure the new cookie is respected.
+      setTimeout(() => {
+        try { initGoogleTranslate(); } catch (e) { /* ignore */ }
+      }, 300);
+
       return;
     }
 
