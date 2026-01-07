@@ -81,6 +81,8 @@ export async function POST(request: Request) {
       data[key] = value;
     });
 
+    console.log('Received Sadad Callback Data:', data);
+
     // 2. Extract checksum and Remove it from the data object
     const checksumHash = data['checksumhash'];
     delete data['checksumhash'];
