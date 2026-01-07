@@ -138,14 +138,30 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   // --- Custom Language Toggle Logic ---
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
+    const cookieValue = `/en/${targetLang}`;
+    const cookieValueAuto = `/auto/${targetLang}`;
+    const expires = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
+    const secureAndSameSite = window.location.protocol === "https:" ? "; Secure; SameSite=None" : "";
 
-    // ✅ Correct cookie format (NO auto)
-    document.cookie = `googtrans=/en/${targetLang}; path=/;`;
+    try {
+      const hostname = window.location.hostname;
 
-    // ❌ Do NOT set React state here
-    // ❌ Do NOT touch DOM
+      // Try setting on root domain (with leading dot) and hostname, plus path-only fallback.
+      if (hostname && hostname !== "localhost") {
+        try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=.${hostname};${secureAndSameSite}`; } catch (e) { /* ignore */ }
+        try { document.cookie = `googtrans=${cookieValueAuto}; path=/; ${expires}; domain=.${hostname};${secureAndSameSite}`; } catch (e) { /* ignore */ }
+        try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=${hostname};${secureAndSameSite}`; } catch (e) { /* ignore */ }
+      }
 
-    window.location.reload();
+      // Always set a path-only cookie as a fallback.
+      try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires};${secureAndSameSite}`; } catch (e) { /* ignore */ }
+      try { document.cookie = `googtrans=${cookieValueAuto}; path=/; ${expires};${secureAndSameSite}`; } catch (e) { /* ignore */ }
+    } catch (e) {
+      console.warn("Failed to set googtrans cookie", e);
+    }
+
+    // Give the cookie a moment to be written and then reload so the translate widget reads it on startup.
+    setTimeout(() => { try { window.location.reload(); } catch (e) { /* ignore */ } }, 50);
   };
 
   const navLinks = [

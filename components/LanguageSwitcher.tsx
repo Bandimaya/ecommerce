@@ -1,22 +1,47 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Script from "next/script";
 
 type Lang = "en" | "ar";
+
+function loadGoogleScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    try {
+      const w = window as any;
+      if (w.google && w.google.translate && w.google.translate.TranslateElement) {
+        resolve();
+        return;
+      }
+
+      // If script already present (but not ready) listen for onload
+      const existing = document.querySelector("script[src*='translate_a/element.js']");
+      if (existing) {
+        existing.addEventListener('load', () => resolve());
+        existing.addEventListener('error', () => reject());
+        return;
+      }
+
+      const s = document.createElement("script");
+      s.src = "https://translate.google.com/translate_a/element.js";
+      s.async = true;
+      s.defer = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject();
+      document.head.appendChild(s);
+    } catch (e) { reject(e); }
+  });
+}
 
 export default function LanguageToggle() {
   const [lang, setLang] = useState<Lang>("en");
   const [mounted, setMounted] = useState(false);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
   const [scriptError, setScriptError] = useState(false);
 
   useEffect(() => {
     setMounted(true);
 
     try {
-      // 1. Check the actual Google Cookie to determine state
-      // We prefer the cookie over localStorage because the cookie is what actually controls the translation.
+      // Read cookie to reflect current state in UI (but we do NOT auto-init translation on mount)
       const match = document.cookie.match(new RegExp("(^| )googtrans=([^;]+)"));
       if (match) {
         const cookieValue = match[2]; // e.g., "/en/ar"
@@ -27,11 +52,10 @@ export default function LanguageToggle() {
         return;
       }
     } catch (e) {
-      // Don't let cookie parsing errors crash the app
       console.warn("Error reading googtrans cookie", e);
     }
 
-    // Fallback: ensure page direction at least matches our state
+    // fallback
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
   }, []);
 
@@ -48,7 +72,6 @@ export default function LanguageToggle() {
         "google_translate_element"
       );
 
-      // ensure correct direction after init
       document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
       return true;
     } catch (e) {
@@ -57,36 +80,21 @@ export default function LanguageToggle() {
     }
   };
 
-  useEffect(() => {
-    if (scriptLoaded) {
-      if (!initGoogleTranslate()) setTimeout(initGoogleTranslate, 250);
-    }
-  }, [scriptLoaded]);
-
-  const toggleLanguage = () => {
+  const toggleLanguage = async () => {
     const nextLang = lang === "en" ? "ar" : "en";
     const cookieValue = `/en/${nextLang}`;
+    const expires = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
 
     try {
       const hostname = window.location.hostname;
-      const expires = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
 
-      // Set cookie for root domain (with leading dot) and hostname, plus fallback.
       if (hostname && hostname !== "localhost") {
-        try {
-          document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=.${hostname};`;
-        } catch (e) {
-          // ignore and continue
-        }
-        try {
-          document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=${hostname};`;
-        } catch (e) {
-          // ignore and continue
-        }
+        try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=.${hostname};`; } catch (e) { /* ignore */ }
+        try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires}; domain=${hostname};`; } catch (e) { /* ignore */ }
       }
 
-      // Always set a path-only cookie as well so both scopes are covered.
-      document.cookie = `googtrans=${cookieValue}; path=/; ${expires};`;
+      // path-only fallback
+      try { document.cookie = `googtrans=${cookieValue}; path=/; ${expires};`; } catch (e) { /* ignore */ }
     } catch (e) {
       console.warn("Failed to set googtrans cookie", e);
     }
@@ -94,20 +102,20 @@ export default function LanguageToggle() {
     setLang(nextLang);
     try { localStorage.setItem("lang", nextLang); } catch (e) { /* ignore */ }
 
-    // Re-init the translate element to apply the new cookie immediately.
-    if (initGoogleTranslate()) {
-      document.documentElement.dir = nextLang === "ar" ? "rtl" : "ltr";
+    // Lazy load script and init only on user action (prevents auto-translate on page load)
+    try {
+      await loadGoogleScript();
+      if (!initGoogleTranslate()) {
+        // allow some time for the widget to become ready, then try again
+        setTimeout(() => { try { initGoogleTranslate(); } catch (e) {} }, 250);
+      }
+    } catch (e) {
+      setScriptError(true);
+      console.warn("Failed to load Google Translate script", e);
 
-      // Some versions of the translate widget re-apply a previous state asynchronously.
-      // Re-run init shortly after to ensure the new cookie is respected.
-      setTimeout(() => {
-        try { initGoogleTranslate(); } catch (e) { /* ignore */ }
-      }, 300);
-
-      return;
+      // If script cannot be loaded, fallback to page reload so server-side or other logic can handle it.
+      try { window.location.reload(); } catch (e) { try { window.location.href = window.location.href; } catch {} }
     }
-
-    try { window.location.reload(); } catch (e) { try { window.location.href = window.location.href; } catch {} }
   };
 
   // Prevent Hydration Mismatch:
@@ -121,19 +129,6 @@ export default function LanguageToggle() {
     <>
       {/* Hidden container required by Google Translate */}
       <div id="google_translate_element" style={{ display: "none" }} />
-
-      <Script
-        src="https://translate.google.com/translate_a/element.js"
-        strategy="afterInteractive"
-        onLoad={() => {
-          setScriptLoaded(true);
-          if (!initGoogleTranslate()) setTimeout(initGoogleTranslate, 250);
-        }}
-        onError={(e) => {
-          setScriptError(true);
-          console.warn("Google Translate script failed to load", e);
-        }}
-      />
 
       <div className="flex items-center gap-2">
         <button
