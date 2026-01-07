@@ -3,49 +3,70 @@ import crypto from "crypto";
 import Order from "@/models/Order";
 import { connectDB } from "@/lib/db";
 
-/* ------------------------------------------------------------------ */
-/* 🔐 SADAD CRYPTO HELPERS (1:1 PHP COMPATIBLE) */
-/* ------------------------------------------------------------------ */
+/* =========================================================
+   🔐 SADAD CRYPTO HELPERS (PHP-COMPATIBLE)
+   ========================================================= */
 
-// SADAD uses AES-128-CBC → key MUST be 16 bytes
-function getSadadKey(secretKey: string, merchantId: string) {
+/**
+ * PHP openssl_encrypt behavior:
+ * - Uses AES-128-CBC
+ * - Key is NULL-padded (NOT truncated)
+ * - IV is fixed
+ */
+function getSadadKey(secretKey: string, merchantId: string): Buffer {
   const rawKey = encodeURIComponent(secretKey) + merchantId;
-  return Buffer.from(rawKey).subarray(0, 16); // 🔥 IMPORTANT
+
+  // PHP pads with NULL bytes to 16 bytes
+  const key = Buffer.alloc(16);
+  Buffer.from(rawKey, "utf8").copy(key);
+
+  return key;
 }
 
+/**
+ * Decrypt checksumhash (HEX, NOT base64)
+ */
 function decrypt_e(
-  encrypted: string,
+  encryptedHex: string,
   secretKey: string,
   merchantId: string
-) {
+): string {
   const iv = Buffer.from("@@@@&&&&####$$$$", "utf8"); // 16 bytes
   const key = getSadadKey(secretKey, merchantId);
 
   const decipher = crypto.createDecipheriv("aes-128-cbc", key, iv);
 
-  let decrypted = decipher.update(encrypted, "base64", "utf8");
+  let decrypted = decipher.update(encryptedHex, "hex", "utf8");
   decrypted += decipher.final("utf8");
 
   return decrypted;
 }
 
+/**
+ * Verify SADAD checksum (exact PHP port)
+ */
 function verifySadadChecksum(
   payload: Record<string, any>,
   merchantId: string,
   secretKey: string,
   checksumhash: string
 ): boolean {
-  // PHP logic:
-  // $data_repsonse['postData'] = $_POST;
-  // $data_repsonse['secretKey'] = urlencode($secretKey);
-
+  /**
+   * PHP logic:
+   * $data['postData'] = $_POST;
+   * $data['secretKey'] = urlencode($secretKey);
+   */
   const data_response = {
     postData: payload,
     secretKey: encodeURIComponent(secretKey),
   };
 
-  // AES decrypt checksumhash
-  const sadad_hash = decrypt_e(checksumhash, secretKey, merchantId);
+  // Decrypt checksum
+  const sadad_hash = decrypt_e(
+    checksumhash,
+    secretKey,
+    merchantId
+  );
 
   // Last 4 chars = salt
   const salt = sadad_hash.slice(-4);
@@ -58,18 +79,21 @@ function verifySadadChecksum(
   return website_hash === sadad_hash;
 }
 
-/* ------------------------------------------------------------------ */
-/* 📥 SADAD CALLBACK API */
-/* ------------------------------------------------------------------ */
+/* =========================================================
+   📥 SADAD CALLBACK API
+   ========================================================= */
 
 export async function POST(req: NextRequest) {
   try {
     await connectDB();
 
-    // 🔴 SADAD sends application/x-www-form-urlencoded
+    /**
+     * SADAD sends:
+     * Content-Type: application/x-www-form-urlencoded
+     */
     const formData = await req.formData();
 
-    // Convert FormData → Object
+    // Convert FormData → plain object
     const body: Record<string, any> = {};
     formData.forEach((value, key) => {
       body[key] = value.toString();
@@ -91,7 +115,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false }, { status: 400 });
     }
 
-    // Remove checksum before verification
+    // Remove checksumhash before verification
     const payload = { ...body };
     delete payload.checksumhash;
 
@@ -111,6 +135,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Fetch order
     const order = await Order.findById(ORDERID);
     if (!order) {
       return NextResponse.json(
@@ -144,14 +169,13 @@ export async function POST(req: NextRequest) {
 
     console.log("✅ SADAD CALLBACK PROCESSED");
 
-    // 🔴 SADAD REQUIRES HTTP 200
-    return NextResponse.json({ success: true
-    }, { status: 200 });;
+    /**
+     * IMPORTANT:
+     * SADAD REQUIRES HTTP 200 ALWAYS
+     */
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("❌ SADAD CALLBACK ERROR:", error);
-    return NextResponse.json(
-      { success: false, message: "Internal server error" },
-      { status: 500 }
-    );
-  } 
+    return NextResponse.json({ success: false }, { status: 500 });
+  }
 }
