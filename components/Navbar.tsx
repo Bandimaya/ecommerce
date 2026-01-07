@@ -162,6 +162,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
+    setCurrentLang(targetLang);
 
     // 🔥 Step 1: clear old Google Translate cookies immediately
     clearTranslateCookies();
