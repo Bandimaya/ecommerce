@@ -19,7 +19,7 @@ export default function MainLayout({ children }: any) {
 
 function RenderLayout({ children }: any) {
     return <div>
-        {/* <CircuitBackground /> */}
+        <CircuitBackground />
         <Navbar />
         {/* <main className="flex-1">{children}</main>
         <Footer /> */}
