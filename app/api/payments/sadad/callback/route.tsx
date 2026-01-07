@@ -7,27 +7,30 @@ import crypto from "crypto";
  * PHP equivalent of:
  * openssl_decrypt($crypt, "AES-128-CBC", $ky, 0, $iv)
  */
-function decrypt_e(encryptedHex: string, key: string): string {
+export function decrypt_e(encrypted: string, ky: string): string {
+  // PHP: html_entity_decode($ky)
+  const decodedKey = ky;
+
+  // IV must be EXACT
   const iv = Buffer.from("@@@@&&&&####$$$$", "utf8"); // 16 bytes
 
-  /**
-   * PHP pads / trims key internally.
-   * We must replicate it exactly.
-   */
-  const keyBuf = Buffer.alloc(16);
-  Buffer.from(key, "utf8").copy(keyBuf);
+  // PHP pads key with NULL bytes
+  const key = Buffer.alloc(16);
+  Buffer.from(decodedKey, "utf8").copy(key);
 
   const decipher = crypto.createDecipheriv(
     "aes-128-cbc",
-    keyBuf,
+    key,
     iv
   );
 
-  let decrypted = decipher.update(encryptedHex, "hex", "utf8");
+  // 🔥 IMPORTANT: BASE64, NOT HEX
+  let decrypted = decipher.update(encrypted, "base64", "utf8");
   decrypted += decipher.final("utf8");
 
   return decrypted;
 }
+
 
 /**
  * PHP equivalent of:
