@@ -65,19 +65,19 @@ const Index = () => {
           handleWatchVideo={() => setShowVideoModal(true)}
         />
 
-        <BreakingJargon />
+        {/* <BreakingJargon /> */}
 
         {/* <TrustBadges getCSSVar={getCSSVar} /> */}
-        <RequestCallBanner />
+        {/* <RequestCallBanner />
 
         <PreferLearn />
 
         <FeaturedProducts
           getCSSVar={getCSSVar}
           isMobile={isMobile}
-        />
+        /> */}
 
-        <CompetitionSection />
+        {/* <CompetitionSection />
 
         <LeagueResults />
 
@@ -99,7 +99,7 @@ const Index = () => {
         <PartnersSection />
         <NewsroomSection />
 
-        <NewsletterSection getCSSVar={getCSSVar} />
+        <NewsletterSection getCSSVar={getCSSVar} /> */}
       </div>
     </div>
   )

@@ -21,7 +21,7 @@ function RenderLayout({ children }: any) {
     return <div>
         <CircuitBackground />
         <Navbar />
-        {/* <main className="flex-1">{children}</main>*/}
+        <main className="flex-1">{children}</main>
         <Footer />
         <ChatBot />
     </div>
