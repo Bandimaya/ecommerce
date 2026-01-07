@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     const isValid = verifySadadChecksumV2(
       body,
-      process.env.SADAD_SECRET_KEY!
+      process.env.NEXT_PUBLIC_SADAD_SECRET_KEY!
     );
 
     console.log("🔐 Checksum valid:", isValid);
