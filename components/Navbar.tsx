@@ -97,45 +97,78 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     document.body.classList.remove("goog-te-enabled");
   };
 
+  // const handleLanguageSwitch = () => {
+  //   const targetLang = currentLang === "en" ? "ar" : "en";
+
+  //   setCurrentLang(targetLang);
+
+  //   // 🔥 FULL RESET FIRST
+  //   clearGoogleTranslateHard();
+
+  //   if (targetLang === "ar") {
+  //     setTimeout(() => {
+  //       document.cookie = `googtrans=/en/ar; path=/`;
+  //       document.documentElement.dir = "rtl";
+  //       localStorage.setItem("preferredLanguage", targetLang);
+  //       location.reload();
+  //     }, 300);
+  //   } else {
+  //     // 🚨 DO NOT set googtrans when switching to EN
+  //     localStorage.setItem("preferredLanguage", targetLang);
+  //     document.documentElement.dir = "ltr";
+
+  //     setTimeout(() => {
+  //       location.reload();
+  //     }, 300);
+  //   }
+  // };
   const handleLanguageSwitch = () => {
-    const targetLang = currentLang === "en" ? "ar" : "en";
-
-    setCurrentLang(targetLang);
-
-    // 🔥 FULL RESET FIRST
-    clearGoogleTranslateHard();
-
-    if (targetLang === "ar") {
-      setTimeout(() => {
-        document.cookie = `googtrans=/en/ar; path=/`;
-        document.documentElement.dir = "rtl";
-        localStorage.setItem("preferredLanguage", targetLang);
-        location.reload();
-      }, 300);
+    if (currentLang === "en") {
+      setCurrentLang("ar");
+      switchToArabic();
     } else {
-      // 🚨 DO NOT set googtrans when switching to EN
-      localStorage.setItem("preferredLanguage", targetLang);
-      document.documentElement.dir = "ltr";
-
-      setTimeout(() => {
-        location.reload();
-      }, 300);
+      setCurrentLang("en");
+      switchToEnglish();
     }
   };
 
-  useEffect(() => {
-    const lang = localStorage.getItem("preferredLanguage") || "en";
 
-    if (lang === "ar") {
-      document.cookie = `googtrans=/en/ar; path=/`;
+  // useEffect(() => {
+  //   const lang = localStorage.getItem("preferredLanguage") || "en";
+
+  //   if (lang === "ar") {
+  //     document.cookie = `googtrans=/en/ar; path=/`;
+  //     document.documentElement.dir = "rtl";
+  //   } else {
+  //     clearGoogleTranslateHard();
+  //     document.documentElement.dir = "ltr";
+  //   }
+
+  //   setCurrentLang(lang);
+  // }, []);
+  const switchToEnglish = () => {
+    clearGoogleTranslateHard();
+
+    // 🚨 DO NOT SET googtrans AT ALL
+    localStorage.removeItem("preferredLanguage");
+    document.documentElement.dir = "ltr";
+
+    setTimeout(() => {
+      location.reload();
+    }, 200);
+  };
+
+  const switchToArabic = () => {
+    clearGoogleTranslateHard();
+
+    localStorage.setItem("preferredLanguage", "ar");
+
+    setTimeout(() => {
+      document.cookie = "googtrans=/en/ar; path=/";
       document.documentElement.dir = "rtl";
-    } else {
-      clearGoogleTranslateHard();
-      document.documentElement.dir = "ltr";
-    }
-
-    setCurrentLang(lang);
-  }, []);
+      location.reload();
+    }, 200);
+  };
 
   // Handle scroll effect
   useEffect(() => {
