@@ -18,7 +18,7 @@ export default function MainLayout({ children }: any) {
 }
 
 function RenderLayout({ children }: any) {
-    return <div dir={"ltr"}>
+    return <div>
         <CircuitBackground />
         <Navbar />
         <main className="flex-1">{children}</main>

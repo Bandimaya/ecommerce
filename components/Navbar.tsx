@@ -138,13 +138,13 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   // --- Custom Language Toggle Logic ---
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
-    
-    // Set cookie for Google Translate
-    document.cookie = `googtrans=/auto/${targetLang}; path=/; domain=${window.location.hostname}`;
-    document.cookie = `googtrans=/auto/${targetLang}; path=/;`; // Fallback
 
-    // Update state and reload
-    setCurrentLang(targetLang);
+    // ✅ Correct cookie format (NO auto)
+    document.cookie = `googtrans=/en/${targetLang}; path=/;`;
+
+    // ❌ Do NOT set React state here
+    // ❌ Do NOT touch DOM
+
     window.location.reload();
   };
 
@@ -189,8 +189,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
       <nav
         ref={navRef}
         className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${scrolled
-            ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
-            : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
+          ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
+          : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
           }`}
       >
         <div className="container mx-auto px-4">
@@ -258,8 +258,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                       router.push(link.path);
                     }
                   }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    isActive(link.path)
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
                       ? "bg-primary text-white shadow-sm"
                       : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                     }`}
@@ -308,18 +307,18 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               </div>
 
               {/* Custom Language Toggle (New Implementation) */}
-              <div 
+              <div
                 className="hidden md:flex items-center bg-gray-100 rounded-full p-1 cursor-pointer notranslate border border-gray-200"
                 onClick={handleLanguageSwitch}
                 title="Switch Language"
               >
-                <div 
+                <div
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
                   style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
                 >
                   EN
                 </div>
-                <div 
+                <div
                   className={`px-3 py-1 rounded-full text-xs font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
                   style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
                 >
@@ -426,8 +425,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         {/* Mobile Navigation Overlay */}
         <div
           className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
-              ? "translate-x-0 opacity-100 visible"
-              : "translate-x-full opacity-0 invisible"
+            ? "translate-x-0 opacity-100 visible"
+            : "translate-x-full opacity-0 invisible"
             }`}
           style={{ height: "calc(100vh - 64px)" }}
         >
@@ -444,26 +443,26 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 <Search className="w-5 h-5" />
               </Button>
             </form>
-            
+
             {/* Mobile Language Toggle */}
-            <div 
+            <div
               className="flex w-full justify-center mb-6 notranslate"
               onClick={handleLanguageSwitch}
             >
-               <div className="flex bg-gray-100 p-1 rounded-lg cursor-pointer">
-                  <div 
-                    className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                    style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
-                  >
-                    English
-                  </div>
-                  <div 
-                    className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
-                    style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
-                  >
-                    العربية
-                  </div>
-               </div>
+              <div className="flex bg-gray-100 p-1 rounded-lg cursor-pointer">
+                <div
+                  className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'en' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+                  style={{ color: currentLang === 'en' ? 'var(--primary)' : undefined }}
+                >
+                  English
+                </div>
+                <div
+                  className={`px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 ${currentLang === 'ar' ? 'bg-white shadow-sm' : 'text-gray-500'}`}
+                  style={{ color: currentLang === 'ar' ? 'var(--primary)' : undefined }}
+                >
+                  العربية
+                </div>
+              </div>
             </div>
 
             <div className="space-y-2 flex-1">
@@ -473,8 +472,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   href={link.path}
                   onClick={() => setIsOpen(false)}
                   className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${isActive(link.path)
-                      ? "bg-primary text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-50"
+                    ? "bg-primary text-white shadow-md"
+                    : "text-gray-700 hover:bg-gray-50"
                     }`}
                 >
                   {link.icon}
