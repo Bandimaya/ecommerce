@@ -156,6 +156,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     });
   };
 
+  useEffect(() => {
+    clearTranslateCookies();
+  }, [])
+
   const handleLanguageSwitch = () => {
     const targetLang = currentLang === "en" ? "ar" : "en";
 
