@@ -156,7 +156,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         }`}
       >
         <div className="container mx-auto px-4">
-          <div className="flex h-16 md:h-20 items-center justify-between">
+          <div className="flex h-16 md:h-20 md:px-1 items-gap-20 items-center justify-between">
             {/* Logo Section - Left Side */}
             <Link
               href="/"

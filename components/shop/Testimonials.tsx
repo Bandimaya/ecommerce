@@ -99,7 +99,7 @@ const AnimatedTestimonials = ({
                     />
                     <button 
                       onClick={() => setIsPlaying(false)}
-                      className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black transition-colors"
+                      className="absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full hover:bg-black transition-colors cursor-pointer"
                     >
                       <X size={20} />
                     </button>
@@ -114,7 +114,7 @@ const AnimatedTestimonials = ({
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors flex items-center justify-center">
                       <button 
                         onClick={toggleVideo}
-                        className="w-20 h-20 bg-orange-500 text-white rounded-full flex items-center justify-center shadow-2xl transform transition-transform hover:scale-110 active:scale-95"
+                        className="w-20 h-20 bg-orange-500 text-white rounded-full flex items-center justify-center shadow-2xl transform transition-transform hover:scale-110 active:scale-95 cursor-pointer"
                       >
                         <Play className="fill-current ml-1" size={32} />
                       </button>
@@ -162,13 +162,13 @@ const AnimatedTestimonials = ({
           <div className="flex gap-6 mt-12">
             <button 
               onClick={handlePrev} 
-              className="h-14 w-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all active:scale-95"
+              className="h-14 w-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all active:scale-95 cursor-pointer"
             >
               <ArrowLeft size={24} />
             </button>
             <button 
               onClick={handleNext} 
-              className="h-14 w-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all active:scale-95"
+              className="h-14 w-14 rounded-2xl bg-white border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:bg-orange-500 hover:text-white hover:border-orange-500 transition-all active:scale-95 cursor-pointer"
             >
               <ArrowRight size={24} />
             </button>

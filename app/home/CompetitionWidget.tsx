@@ -199,7 +199,7 @@ const CompetitionWidget = () => {
     };
 
     return (
-        <div className="relative w-full h-screen font-sans overflow-hidden transition-colors duration-700 bg-slate-50 theme-wrapper">
+        <div className="relative w-full min-h-screen font-sans transition-colors duration-700 lg:h-screen lg:overflow-hidden bg-slate-50 theme-wrapper">
             {/* Header Section */}
             <motion.div
                 initial={{ scaleX: 0 }}
@@ -255,10 +255,10 @@ const CompetitionWidget = () => {
             <div className="relative z-10 w-full h-full flex flex-col lg:flex-row">
 
                 {/* === LEFT SECTION: 3D SLIDER === */}
-                <div className="w-full lg:w-[60%] flex flex-col justify-center items-center relative p-6 lg:p-12 h-[50%] lg:h-full">
+                <div className="w-full lg:w-[60%] flex flex-col justify-center items-center relative px-6 pt-32 pb-12 lg:p-12 lg:h-full">
 
                     {/* Header */}
-                    <div className="absolute top-6 left-6 lg:top-12 lg:left-12 z-30">
+                    <div className="absolute top-16 left-6 lg:top-12 lg:left-12 z-30">
                         <h1 className="text-xl lg:text-2xl font-black tracking-tighter text-[var(--accent)] flex items-center gap-2">
                             STEM PARK <span className="bg-[var(--primary)] text-white px-2 py-0.5 rounded text-sm transition-colors duration-500">LIVE</span>
                         </h1>
@@ -272,14 +272,14 @@ const CompetitionWidget = () => {
                                 {/* Navigation Arrows: Positioned Absolute Center Left/Right */}
                                 <button
                                     onClick={handlePrev}
-                                    className="absolute left-4 lg:left-0 z-40 w-12 h-12 rounded-full bg-white/50 hover:bg-white backdrop-blur-md shadow-lg flex items-center justify-center text-[var(--accent)] transition-all active:scale-95 group"
+                                    className="absolute left-4 lg:left-0 z-40 w-12 h-12 rounded-full bg-white/50 hover:bg-white backdrop-blur-md shadow-lg flex items-center justify-center text-[var(--accent)] transition-all active:scale-95 group cursor-pointer"
                                 >
                                     <ChevronLeft size={24} className="group-hover:-translate-x-0.5 transition-transform" />
                                 </button>
 
                                 <button
                                     onClick={handleNext}
-                                    className="absolute right-4 lg:right-0 z-40 w-12 h-12 rounded-full bg-white/50 hover:bg-white backdrop-blur-md shadow-lg flex items-center justify-center text-[var(--accent)] transition-all active:scale-95 group"
+                                    className="absolute right-4 lg:right-0 z-40 w-12 h-12 rounded-full bg-white/50 hover:bg-white backdrop-blur-md shadow-lg flex items-center justify-center text-[var(--accent)] transition-all active:scale-95 group cursor-pointer"
                                 >
                                     <ChevronRight size={24} className="group-hover:translate-x-0.5 transition-transform" />
                                 </button>
@@ -385,7 +385,7 @@ const CompetitionWidget = () => {
                                 <button
                                     key={i}
                                     onClick={() => { setActiveIndex(i); setViewState('idle'); }}
-                                    className={`transition-all duration-300 rounded-full ${i === activeIndex
+                                    className={`transition-all duration-300 rounded-full cursor-pointer ${i === activeIndex
                                         ? 'w-8 h-2 bg-[var(--primary)]' // Active: Colored Pill
                                         : 'w-2 h-2 bg-slate-300'       // Inactive: Grey Dot
                                         }`}
@@ -396,7 +396,7 @@ const CompetitionWidget = () => {
                 </div>
 
                 {/* === RIGHT SECTION: INTERACTIVE PANEL === */}
-                <div className="w-full lg:w-[40%] h-[50%] lg:h-full bg-white/60 backdrop-blur-xl border-t lg:border-t-0 lg:border-l border-white/50 flex flex-col justify-center p-6 lg:p-16 relative transition-colors duration-500 overflow-hidden">
+                <div className="w-full lg:w-[40%] lg:h-full bg-white/60 backdrop-blur-xl border-t lg:border-t-0 lg:border-l border-white/50 flex flex-col justify-center px-6 py-16 lg:p-16 relative transition-colors duration-500 overflow-hidden">
 
                     {/* Background Text Faded */}
                     <div className="absolute top-10 right-10 text-9xl font-black text-slate-900/5 select-none pointer-events-none overflow-hidden">

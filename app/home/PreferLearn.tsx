@@ -5,32 +5,9 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ArrowRight, Sparkles, Zap, Users, Target, Award, Star, ChevronRight, PlayCircle, Clock, BarChart } from "lucide-react"
+import { Sparkles, Zap, Users, Star, ChevronRight, PlayCircle, Clock, BarChart } from "lucide-react"
 import { apiFetch } from "@/lib/axios"
 import { IMAGE_URL } from "@/lib/constants"
-
-interface LearningPath {
-  id: number
-  title: string
-  ageRange: string
-  image: string
-  alt: string
-  description: string
-  duration: string
-  level: string
-  skills: string[]
-  rating: number
-  enrolled: number
-}
-
-interface TabContent {
-  id: string
-  _id?: string
-  label: string
-  icon: React.ComponentType<any>
-  description: string
-  paths: LearningPath[]
-}
 
 interface PreferLearnProps {
   getCSSVar?: (varName: string, fallback?: string) => string
@@ -38,64 +15,50 @@ interface PreferLearnProps {
 
 const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varName}, ${fallback})` : `var(${varName})` }: PreferLearnProps) => {
   const [activeTab, setActiveTab] = useState<string>("")
-  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const [hoveredCard, setHoveredCard] = useState<string | number | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
 
   // Helper to access CSS variables cleanly
   const v = (name: string, fb: string) => getCSSVar(name, fb)
 
-  // Animation Variants for Staggered Entrance
+  // Animation Variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.1
-      }
+      transition: { staggerChildren: 0.1, delayChildren: 0.1 }
     },
     exit: { opacity: 0, transition: { duration: 0.2 } }
   }
 
   const cardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
+    hidden: { opacity: 0, y: 30, scale: 0.95, transition: { duration: 0.2 } },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       transition: { type: "spring" as const, stiffness: 120, damping: 20 }
     },
-    hover: {
-      y: -8,
-      transition: { duration: 0.3, ease: "easeOut" as const }
-    }
+    hover: { y: -8, transition: { duration: 0.3 } }
   }
 
-  const [sections, setSections] = useState<string[]>([])
-  const [sectionCourses, setSectionCourses] = useState([])
-  const [data, setData] = useState<any>([])
+  const [data, setData] = useState<any[]>([])
 
   useEffect(() => {
     Promise.all([
       apiFetch('/sections'),
       apiFetch('/section-courses')
     ]).then(([sectionsData, setCoursesData]) => {
-      setSections(sectionsData)
-      setSectionCourses(setCoursesData)
       let mainData: any[] = []
       
       sectionsData.forEach((section: any, index: number) => {
         const courses = setCoursesData.filter((item: any) => item.sectionId?._id === section._id)
-        // Assigning alternating icons for visual variety if needed
         const icon = index % 2 === 0 ? Zap : Users; 
         mainData.push({ ...section, paths: courses, icon: icon, label: section.name || section.label }) 
       })
       
       setData(mainData)
-
-      if (mainData.length > 0) {
-        setActiveTab(mainData[0]._id)
-      }
+      if (mainData.length > 0) setActiveTab(mainData[0]._id)
     })
   }, [])
 
@@ -149,14 +112,12 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               transition={{ duration: 0.5, delay: 0.2 }}
               style={{ backgroundColor: v('--primary', '#3b82f6') }}
             />
-
             <span
               className="text-xs sm:text-sm font-bold uppercase tracking-widest whitespace-nowrap"
               style={{ color: v('--primary', '#3b82f6') }}
             >
               Personalized Learning
             </span>
-
             <motion.div
               className="h-[2px]"
               initial={{ width: 0 }}
@@ -172,53 +133,39 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               Prefer to Learn?
             </span>
           </h2>
-
-          <p className="text-sm sm:text-base max-w-2xl mx-auto" style={{ color: v('--muted-foreground', '#64748b') }}>
-            Choose the perfect learning method. Both paths lead to mastery.
-          </p>
         </motion.div>
 
-        {/* --- DYNAMIC GRID SWITCHER --- */}
-        {/* Changed from Flex to Grid to handle more buttons gracefully */}
+        {/* --- DYNAMIC TOGGLE SWITCHER --- */}
         <div className="flex justify-center mb-10 w-full">
             <div
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 p-2 rounded-2xl border shadow-sm backdrop-blur-md w-full max-w-5xl"
-                style={{
-                    backgroundColor: `color-mix(in srgb, ${v('--card', '#fff')} 80%, transparent)`,
-                    borderColor: v('--border', '#e2e8f0')
-                }}
+              className="flex flex-wrap justify-center gap-2 p-2 rounded-2xl border shadow-sm backdrop-blur-md w-full max-w-fit"
+              style={{
+                  backgroundColor: `color-mix(in srgb, ${v('--card', '#fff')} 80%, transparent)`,
+                  borderColor: v('--border', '#e2e8f0')
+              }}
             >
             {displayData.map((tab: any) => {
               const isActive = activeTab === tab._id
-              const Icon = tab.icon || Sparkles 
-              
               return (
                 <button
                   key={tab._id}
                   onClick={() => setActiveTab(tab._id)}
-                  className="relative w-full px-3 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 z-10 flex items-center justify-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-primary overflow-hidden"
+                  // Added cursor-pointer explicit class here
+                  className="relative cursor-pointer px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 z-10 flex items-center justify-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-primary min-w-[120px]"
                   style={{
                     color: isActive ? v('--primary-foreground', '#ffffff') : v('--muted-foreground', '#64748b')
                   }}
                 >
-                  {/* Active Background Pill - Adapts to Grid Cell Size */}
                   {isActive && (
                     <motion.div
                       layoutId="activeTabBackground"
                       className="absolute inset-0 rounded-xl shadow-md -z-10"
                       initial={false}
                       transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                      style={{
-                        backgroundColor: v('--primary', '#3b82f6')
-                      }}
+                      style={{ backgroundColor: v('--primary', '#3b82f6') }}
                     />
                   )}
-                  
-                  <span className="relative z-10 flex items-center gap-2 truncate">
-                     {/* Optional: Add icon back if desired */}
-                     {/* <Icon className="w-4 h-4 shrink-0" /> */}
-                     <span className="truncate">{tab.name || tab.label}</span>
-                  </span>
+                  <span className="truncate">{tab.name || tab.label}</span>
                 </button>
               )
             })}
@@ -234,112 +181,133 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               initial="hidden"
               animate="visible"
               exit="exit"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 max-w-6xl mx-auto"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 max-w-7xl mx-auto"
             >
-              {activeTabData.paths?.map((path: any) => (
-                <motion.div
-                  key={path._id || path.id}
-                  variants={cardVariants}
-                  className="h-full"
-                  onMouseEnter={() => setHoveredCard(path.id)}
-                  onMouseLeave={() => setHoveredCard(null)}
-                  whileHover="hover"
-                >
-                  <Card
-                    className="group relative h-full overflow-hidden border transition-all duration-300 flex flex-col hover:shadow-2xl hover:border-primary/20"
-                    style={{
-                      backgroundColor: v('--card', '#ffffff'),
-                      borderColor: v('--border', '#e2e8f0')
-                    }}
+              {activeTabData.paths?.map((path: any) => {
+                const isHovered = hoveredCard === (path._id || path.id);
+
+                return (
+                  <motion.div
+                    key={path._id || path.id}
+                    variants={cardVariants}
+                    className="h-full"
+                    onMouseEnter={() => setHoveredCard(path._id || path.id)}
+                    onMouseLeave={() => setHoveredCard(null)}
+                    whileHover="hover"
                   >
-                    {/* Compact Image Section */}
-                    <div className="relative h-36 overflow-hidden">
-                      <motion.img
-                        src={IMAGE_URL + path.image}
-                        alt={path.alt || path.title}
-                        className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform"
-                        animate={hoveredCard === path.id ? { scale: 1.15 } : { scale: 1 }}
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <Card
+                      className="group relative h-[400px] w-full overflow-hidden border transition-all duration-500 flex flex-col hover:shadow-2xl hover:border-primary/50 cursor-pointer"
+                      style={{
+                        backgroundColor: v('--card', '#ffffff'),
+                        borderColor: v('--border', '#e2e8f0')
+                      }}
+                    >
+                      {/* --- BACKGROUND IMAGE ANIMATION --- */}
+                      <motion.div 
+                        className="absolute top-0 left-0 w-full z-0 overflow-hidden"
+                        // Changed default to "50%" to ensure half space by default
+                        initial={{ height: "50%" }} 
+                        animate={{ height: isHovered ? "100%" : "50%" }}
+                        transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
+                      >
+                         <img
+                          src={IMAGE_URL + path.image}
+                          alt={path.alt || path.title}
+                          className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-110"
+                        />
+                        {/* Overlay Gradient: Essential for reading white text over image */}
+                        <motion.div 
+                          className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: isHovered ? 1 : 0 }}
+                          transition={{ duration: 0.3 }}
+                        />
+                      </motion.div>
 
-                      <div className="absolute top-2 left-2">
-                        <Badge className="bg-white/90 text-black backdrop-blur-md text-[10px] px-2 py-0.5 border-0 font-bold shadow-sm">
-                          {path.ageRange || "8+ Yrs"}
-                        </Badge>
-                      </div>
-
-                      <div className="absolute top-2 right-2 flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/10">
-                        <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                        <span className="text-[10px] font-bold text-white">{path.rating || 4.5}</span>
-                      </div>
-
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                        <motion.div
-                          initial={{ scale: 0.8, opacity: 0 }}
-                          animate={hoveredCard === path.id ? { scale: 1, opacity: 1 } : { scale: 0.8, opacity: 0 }}
-                          className="bg-white/20 backdrop-blur-md p-3 rounded-full border border-white/30 shadow-lg"
-                        >
-                          <PlayCircle className="w-8 h-8 text-white fill-white/20" />
-                        </motion.div>
-                      </div>
-                    </div>
-
-                    <CardContent className="p-4 flex-grow flex flex-col relative z-10">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="text-base font-bold leading-tight line-clamp-2 group-hover:text-primary transition-colors duration-300" style={{ color: v('--foreground', '#020817') }}>
-                          {path.title || path.name}
-                        </h3>
-                      </div>
-
-                      <p className="text-xs mb-3 line-clamp-2 leading-relaxed" style={{ color: v('--muted-foreground', '#64748b') }}>
-                        {path.description}
-                      </p>
-
-                      <div className="flex items-center gap-3 mb-3 text-[11px] font-medium" style={{ color: v('--muted-foreground', '#64748b') }}>
-                        <div className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          {path.duration || "Self Paced"}
+                      {/* --- CONTENT CONTAINER --- */}
+                      <div className="relative z-10 flex flex-col h-full w-full">
+                        
+                        {/* Top Badges (Always stay at top) */}
+                        <div className="p-3 flex justify-between items-start w-full absolute top-0 left-0 z-20">
+                            <Badge className="bg-white/90 text-black backdrop-blur-md text-[10px] px-2 py-0.5 border-0 font-bold shadow-sm">
+                              {path.ageRange || "8+ Yrs"}
+                            </Badge>
+                            <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/10">
+                              <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                              <span className="text-[10px] font-bold text-white">{path.rating || 4.5}</span>
+                            </div>
                         </div>
-                        <div className="w-[1px] h-3 bg-border" />
-                        <div className="flex items-center gap-1">
-                          <BarChart className="w-3 h-3" />
-                          {path.level || "Beginner"}
-                        </div>
-                      </div>
 
-                      <div className="flex flex-wrap gap-1.5 mt-auto">
-                        {path.skills?.slice(0, 2).map((skill: any, i: any) => (
-                          <span
-                            key={i}
-                            className="px-2 py-0.5 text-[10px] rounded-md border bg-secondary/50 group-hover:bg-primary/5 group-hover:border-primary/20 transition-colors duration-300"
+                        {/* Spacer div to push content to bottom half */}
+                        <div className="mt-auto" />
+
+                        {/* Text Content */}
+                        <CardContent className="p-5 pt-2 flex flex-col gap-2 relative">
+                           {/* Play Button (Appears only on hover) */}
+                           {/* Positioning calculation: top -50px from content start to sit near image center when collapsed, or center when expanded */}
+                            <motion.div 
+                              className="absolute -top-12 right-4"
+                              animate={{ 
+                                opacity: isHovered ? 1 : 0, 
+                                y: isHovered ? 0 : 10,
+                                scale: isHovered ? 1 : 0.8 
+                              }}
+                            >
+                               <div className="bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/30 shadow-lg">
+                                  <PlayCircle className="w-8 h-8 text-white fill-white/20" />
+                               </div>
+                            </motion.div>
+
+                          <div className="flex justify-between items-start mt-2">
+                            <h3 
+                              className="text-lg font-bold leading-tight line-clamp-2 transition-colors duration-300"
+                              style={{ color: isHovered ? '#ffffff' : v('--foreground', '#020817') }}
+                            >
+                              {path.title || path.name}
+                            </h3>
+                          </div>
+
+                          <p 
+                            className="text-xs line-clamp-2 leading-relaxed transition-colors duration-300" 
+                            style={{ color: isHovered ? '#e2e8f0' : v('--muted-foreground', '#64748b') }}
+                          >
+                            {path.description}
+                          </p>
+
+                          <div 
+                            className="flex items-center gap-3 mt-2 text-[11px] font-medium transition-colors duration-300"
+                            style={{ color: isHovered ? '#cbd5e1' : v('--muted-foreground', '#64748b') }}
+                          >
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {path.duration || "Self Paced"}
+                            </div>
+                            <div className="w-[1px] h-3 bg-current opacity-30" />
+                            <div className="flex items-center gap-1">
+                              <BarChart className="w-3 h-3" />
+                              {path.level || "Beginner"}
+                            </div>
+                          </div>
+                        </CardContent>
+
+                        <CardFooter className="p-5 pt-0">
+                          <Button
+                            className="w-full h-10 text-sm font-medium rounded-lg shadow-md group/btn transition-all duration-300 overflow-hidden relative border-0"
                             style={{
-                              borderColor: v('--border', '#e2e8f0'),
-                              color: v('--muted-foreground', '#64748b'),
+                              backgroundColor: isHovered ? '#ffffff' : v('--primary', '#3b82f6'),
+                              color: isHovered ? '#000000' : v('--primary-foreground', '#ffffff'),
                             }}
                           >
-                            {skill}
-                          </span>
-                        ))}
+                            <span className="relative z-10 flex items-center justify-center gap-2">
+                              View Details <ChevronRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
+                            </span>
+                          </Button>
+                        </CardFooter>
                       </div>
-                    </CardContent>
-
-                    <CardFooter className="p-4 pt-0">
-                      <Button
-                        className="w-full h-9 text-sm font-medium rounded-lg shadow-md group/btn transition-all duration-300 overflow-hidden relative border-0"
-                        style={{
-                          backgroundColor: v('--primary', '#3b82f6'),
-                          color: v('--primary-foreground', '#ffffff'),
-                        }}
-                      >
-                        <span className="relative z-10 flex items-center justify-center gap-2">
-                          View Details <ChevronRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                        </span>
-                        <div className="absolute inset-0 bg-black/10 translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300 z-0" />
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                </motion.div>
-              ))}
+                    </Card>
+                  </motion.div>
+                )
+              })}
             </motion.div>
           )}
         </AnimatePresence>
@@ -380,13 +348,6 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                   <div className="text-xs text-purple-700/80">Expert mentorship, social learning, structure.</div>
                 </div>
               </motion.div>
-            </div>
-
-            <div className="mt-6">
-              <Button variant="link" className="text-sm gap-1 hover:no-underline group" style={{ color: v('--primary', '#3b82f6') }}>
-                Need help deciding? Book a free call
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-              </Button>
             </div>
           </div>
         </motion.div>

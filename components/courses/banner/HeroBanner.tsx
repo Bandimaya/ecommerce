@@ -66,16 +66,11 @@ export default function HeroBanner() {
               </div>
             </div>
 
-            {/* REMOVED: The mobile "HeaderLeadForm" block was deleted here.
-               The form will now only render in the Right Column below.
-            */}
-          </div>
-
-          {/* Right Column: Lead Form (Desktop Only) */}
-          <div className="hidden lg:flex lg:col-span-5 justify-end w-full animate-fade-in-up">
-            <div className="w-full max-w-md">
+            {/* Lead Form */}
+            <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up">
               <HeaderLeadForm />
             </div>
+
           </div>
 
         </div>

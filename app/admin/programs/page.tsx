@@ -2,6 +2,7 @@
 
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import AdminButton from "@/components/admin/AdminButton";
 
 const ICONS = ["rocket", "book", "globe", "users"];
 const COLORS = ["purple", "amber", "blue", "emerald"];
@@ -34,6 +35,8 @@ export default function ProgramsPage() {
     stats: [{ label: "", value: "" }],
     features: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const fetchItems = async () => {
     const res = await fetch("/api/programs");
@@ -46,51 +49,68 @@ export default function ProgramsPage() {
 
   const addProgram = async (e: React.FormEvent) => {
     e.preventDefault();
-
     const payload = {
       ...form,
       stats: form.stats,
       features: form.features.split(",").map((f) => f.trim()),
     };
 
-    if (file) {
-      const fd = new FormData();
-      Object.entries(payload).forEach(([k, v]) =>
-        fd.append(k, JSON.stringify(v))
-      );
-      fd.append("image", file);
-
-      await fetch("/api/programs", { method: "POST", body: fd });
-    } else if (url) {
-      await fetch("/api/programs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...payload, image: url }),
-      });
+    if (file && file.size > 5 * 1024 * 1024) {
+      alert("Image too large (max 5MB)");
+      return;
     }
 
-    setForm({
-      programId: "",
-      title: "",
-      subtitle: "",
-      description: "",
-      icon: "rocket",
-      color: "purple",
-      stats: [{ label: "", value: "" }],
-      features: "",
-    });
-    setUrl("");
-    setFile(null);
-    fetchItems();
+    setSubmitting(true);
+    try {
+      if (file) {
+        const fd = new FormData();
+        Object.entries(payload).forEach(([k, v]) => fd.append(k, JSON.stringify(v)));
+        fd.append("image", file);
+
+        await fetch("/api/programs", { method: "POST", body: fd });
+      } else if (url) {
+        await fetch("/api/programs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...payload, image: url }),
+        });
+      }
+
+      setForm({
+        programId: "",
+        title: "",
+        subtitle: "",
+        description: "",
+        icon: "rocket",
+        color: "purple",
+        stats: [{ label: "", value: "" }],
+        features: "",
+      });
+      setUrl("");
+      setFile(null);
+      await fetchItems();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const removeProgram = async (id: string) => {
-    await fetch("/api/programs", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    fetchItems();
+    if (!confirm("Delete this program?")) return;
+    setRemovingId(id);
+    try {
+      await fetch("/api/programs", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      await fetchItems();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   return (
@@ -182,9 +202,9 @@ export default function ProgramsPage() {
           className="mb-2"
         />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">
+        <AdminButton type="submit" loading={submitting} className="px-4 py-2 rounded">
           Add Program
-        </button>
+        </AdminButton>
       </form>
 
       {/* LIST */}
@@ -206,12 +226,14 @@ export default function ProgramsPage() {
                 {p.icon} • {p.color}
               </p>
             </div>
-            <button
+            <AdminButton
+              variant="danger"
+              loading={removingId === p._id}
               onClick={() => removeProgram(p._id)}
-              className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded"
+              className="absolute top-2 right-2 text-xs px-2 py-1 rounded"
             >
               ✕
-            </button>
+            </AdminButton>
           </div>
         ))}
       </div>

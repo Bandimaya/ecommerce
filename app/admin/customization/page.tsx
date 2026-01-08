@@ -864,7 +864,7 @@ export default function ThemeCustomizationPage() {
                     key={theme.id}
                     whileHover={{ y: -4 }}
                     whileTap={{ scale: 0.98 }}
-                    className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/40 transition-colors"
+                    className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/40 transition-colors cursor-pointer"
                   >
                     <button
                       onClick={() => handleDeleteCustomTheme(theme.id)}
@@ -1197,7 +1197,7 @@ export default function ThemeCustomizationPage() {
                 <div className="relative">
                   <button
                     onClick={() => setShowFontDropdown(!showFontDropdown)}
-                    className="w-full px-4 py-3.5 rounded-xl border border-border bg-white hover:border-primary/40 transition-colors flex items-center justify-between group"
+                    className="w-full px-4 py-3.5 rounded-xl border border-border bg-white hover:border-primary/40 transition-colors flex items-center justify-between group cursor-pointer"
                   >
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 rounded-lg bg-primary/10">

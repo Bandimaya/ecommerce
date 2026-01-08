@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast"; // Assuming you have a custom toast hook
 import { apiFetch } from "@/lib/axios";
 import { IMAGE_URL } from "@/lib/constants";
+import AdminButton from "@/components/admin/AdminButton";
 
 interface EventFormState {
     _id?: string;
@@ -42,6 +43,7 @@ export default function CreateEventForm() {
     });
     const [events, setEvents] = useState<Event[]>([]);
     const [loading, setLoading] = useState(false);
+    const [removingId, setRemovingId] = useState<string | null>(null);
 
     // Fetch existing events
     useEffect(() => {
@@ -293,13 +295,9 @@ export default function CreateEventForm() {
 
                 {/* Submit Button */}
                 <div className="flex justify-end">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="bg-blue-500 text-white px-4 py-2 rounded"
-                    >
-                        {loading ? "Saving..." : formData._id ? "Update Event" : "Create Event"}
-                    </button>
+                    <AdminButton type="submit" loading={loading} className="px-4 py-2">
+                        {formData._id ? "Update Event" : "Create Event"}
+                    </AdminButton>
                 </div>
             </form>
 
@@ -312,18 +310,25 @@ export default function CreateEventForm() {
                         <p className="text-sm">{event.subtitle}</p>
                         <img src={IMAGE_URL + event?.logo} />
                         <div className="mt-2 flex space-x-4">
-                            <button
-                                className="text-blue-500"
-                                onClick={() => handleEdit(event)}
-                            >
+                            <AdminButton variant="ghost" onClick={() => handleEdit(event)} className="px-2 py-1">
                                 Edit
-                            </button>
-                            <button
-                                className="text-red-500"
-                                onClick={() => handleDelete(event._id)}
+                            </AdminButton>
+                            <AdminButton
+                                variant="danger"
+                                loading={removingId === event._id}
+                                onClick={async () => {
+                                    if (!confirm("Are you sure you want to delete this event?")) return;
+                                    setRemovingId(event._id);
+                                    try {
+                                        await handleDelete(event._id);
+                                    } finally {
+                                        setRemovingId(null);
+                                    }
+                                }}
+                                className="px-2 py-1"
                             >
                                 Delete
-                            </button>
+                            </AdminButton>
                         </div>
                     </div>
                 ))}

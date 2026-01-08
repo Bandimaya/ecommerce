@@ -4,6 +4,7 @@ import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
 import { Loader2 } from 'lucide-react'
 import { Skeleton, SkeletonText, SkeletonLine, SkeletonCircle } from '@/components/ui/skeleton'
+import AdminButton from "@/components/admin/AdminButton";
 
 type StemCourse = {
   _id: string;
@@ -182,13 +183,20 @@ export default function StemCoursesPage() {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+          onChange={(e) => {
+            const f = e.target.files?.[0] || null;
+            if (f && f.size > 5 * 1024 * 1024) {
+              alert("Image too large (max 5MB)");
+              return;
+            }
+            setFile(f);
+          }}
           className="mt-2"
         />
 
-        <button disabled={isAdding} className="bg-blue-600 text-white px-4 py-2 rounded mt-3 flex items-center justify-center">
-          {isAdding ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null} Add Course
-        </button>
+        <AdminButton type="submit" loading={isAdding} className="mt-3">
+          Add Course
+        </AdminButton>
       </form>
 
       {/* LIST */}
@@ -227,13 +235,14 @@ export default function StemCoursesPage() {
                   Age {c.age} • {c.level} • {c.duration} • {c.enrolled}
                 </p>
               </div>
-              <button
-                onClick={() => removeCourse(c._id)}
-                disabled={removingId === c._id}
-                className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded flex items-center justify-center"
-              >
-                {removingId === c._id ? <Loader2 className="w-4 h-4 animate-spin" /> : '✕'}
-              </button>
+                    <AdminButton
+                      variant="danger"
+                      loading={removingId === c._id}
+                      onClick={() => removeCourse(c._id)}
+                      className="absolute top-2 right-2 text-xs px-2 py-1 rounded"
+                    >
+                      ✕
+                    </AdminButton>
             </div>
           ))
         )}

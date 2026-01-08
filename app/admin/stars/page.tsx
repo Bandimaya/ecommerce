@@ -3,6 +3,7 @@
 import { apiFetch } from "@/lib/axios";
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import AdminButton from "@/components/admin/AdminButton";
 
 type Star = {
   _id: string;
@@ -19,6 +20,8 @@ export default function StarsPage() {
   const [image, setImage] = useState<File | null>(null);
   const [video, setVideo] = useState<File | null>(null);
   const [activeVideo, setActiveVideo] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -37,20 +40,36 @@ export default function StarsPage() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Client-side validations
+    if (image && image.size > 5 * 1024 * 1024) {
+      alert("Image too large (max 5MB)");
+      return;
+    }
+    if (video && video.size > 50 * 1024 * 1024) {
+      alert("Video too large (max 50MB)");
+      return;
+    }
 
-    const fd = new FormData();
-    Object.entries(form).forEach(([k, v]) => fd.append(k, v));
-    if (image) fd.append("image", image);
-    if (video) fd.append("video", video);
-    if (editingId) fd.append("id", editingId);
+    setSubmitting(true);
+    try {
+      const fd = new FormData();
+      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      if (image) fd.append("image", image);
+      if (video) fd.append("video", video);
+      if (editingId) fd.append("id", editingId);
 
-    await fetch("/api/stars", {
-      method: editingId ? "PUT" : "POST",
-      body: fd,
-    });
+      await apiFetch("/stars", {
+        method: editingId ? "PUT" : "POST",
+        data: fd,
+      });
 
-    reset();
-    fetchStars();
+      reset();
+      fetchStars();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const reset = () => {
@@ -65,16 +84,20 @@ export default function StarsPage() {
     setForm({ name: s.name, role: s.role, quote: s.quote });
   };
 
-  const deleteStar = (s: Star) => {
-    apiFetch("/stars", {
-      method: "DELETE",
-      data: { id: s._id },
-    }).then(() => {
-      fetchStars();
-    })
-      .catch((err) => {
-        console.error("Error deleting star:", err);
+  const deleteStar = async (s: Star) => {
+    if (!confirm("Delete this star?")) return;
+    setRemovingId(s._id);
+    try {
+      await apiFetch("/stars", {
+        method: "DELETE",
+        data: { id: s._id },
       });
+      await fetchStars();
+    } catch (err) {
+      console.error("Error deleting star:", err);
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   return (
@@ -119,9 +142,9 @@ export default function StarsPage() {
           className="mb-3"
         />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">
+        <AdminButton type="submit" loading={submitting} className="px-4 py-2 rounded">
           {editingId ? "Update" : "Create"}
-        </button>
+        </AdminButton>
       </form>
 
       {/* LIST */}
@@ -134,20 +157,19 @@ export default function StarsPage() {
               <p className="text-sm text-gray-600">{s.role}</p>
               <p className="text-sm">{s.quote}</p>
               {s.video && (
-                <button
-                  onClick={() => setActiveVideo(s.video!)}
-                  className="text-blue-600 text-sm mt-2"
-                >
+                <AdminButton variant="ghost" onClick={() => setActiveVideo(s.video!)} className="text-sm mt-2 px-2">
                   ▶ Play Video
-                </button>
+                </AdminButton>
               )}
             </div>
-            <button onClick={() => edit(s)} className="text-blue-600">
-              Edit
-            </button>
-            <button onClick={() => deleteStar(s)} className="text-blue-600">
-              Delete
-            </button>
+            <div className="flex flex-col gap-2">
+              <AdminButton variant="ghost" onClick={() => edit(s)} className="px-3">
+                Edit
+              </AdminButton>
+              <AdminButton variant="danger" onClick={() => deleteStar(s)} loading={removingId === s._id} className="px-3">
+                Delete
+              </AdminButton>
+            </div>
           </div>
         ))}
       </div>

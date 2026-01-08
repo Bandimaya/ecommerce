@@ -512,7 +512,7 @@ const Programs = () => {
                                 viewport={{ once: true }}
                                 variants={scaleIn}
                                 transition={{ delay: index * 0.2 }}
-                                className="bg-card rounded-2xl p-8 border hover:shadow-xl transition-all duration-300"
+                                className="bg-card rounded-2xl p-8 border hover:shadow-xl transition-all duration-300 cursor-pointer"
                             >
                                 <div className="flex items-start gap-4 mb-6">
                                     <img
@@ -608,7 +608,7 @@ const Programs = () => {
                                     whileHover={{ y: -8, transition: { duration: 0.2 } }}
                                     className="group"
                                 >
-                                    <div className="bg-card rounded-xl border p-8 h-full hover:shadow-xl transition-all duration-300 hover:border-primary/30 flex flex-col">
+                                    <div className="bg-card rounded-xl border p-8 h-full hover:shadow-xl transition-all duration-300 hover:border-primary/30 flex flex-col cursor-pointer">
                                         <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                             {Icon && <Icon className="w-7 h-7 text-primary" />}
                                         </div>

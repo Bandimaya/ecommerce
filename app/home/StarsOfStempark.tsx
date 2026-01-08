@@ -143,7 +143,7 @@ export default function StarsOfAvishkaar() {
                             handlePrev();
                             handleManualInteraction();
                         }}
-                        className="w-12 h-12 rounded-full border border-input bg-card flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 shadow-sm active:scale-95"
+                        className="w-12 h-12 rounded-full border border-input bg-card flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
                     >
                         <ChevronLeft className="w-6 h-6" />
                     </button>
@@ -152,7 +152,7 @@ export default function StarsOfAvishkaar() {
                             handleNext();
                             handleManualInteraction();
                         }}
-                        className="w-12 h-12 rounded-full border border-input bg-card flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 shadow-sm active:scale-95"
+                        className="w-12 h-12 rounded-full border border-input bg-card flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 shadow-sm active:scale-95 cursor-pointer"
                     >
                         <ChevronRight className="w-6 h-6" />
                     </button>
@@ -172,7 +172,7 @@ export default function StarsOfAvishkaar() {
                                 setCurrentIndex(idx);
                                 handleManualInteraction();
                             }}
-                            className="group relative flex-shrink-0"
+                            className="group relative flex-shrink-0 cursor-pointer"
                         >
                             <div className={cn(
                                 "w-14 h-14 rounded-full overflow-hidden border-2 transition-all duration-300",

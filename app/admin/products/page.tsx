@@ -4,6 +4,7 @@ import { toast } from "@/hooks/use-toast";
 import { apiUrl, CURRENCY_OPTIONS, IMAGE_URL } from "@/lib/constants";
 import { t } from "@/lib/i18n";
 import { apiFetch } from "@/lib/axios";
+import AdminButton from "@/components/admin/AdminButton";
 
 const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, levelLabels, setForm, deleteNodeDeep }: any) => {
   const handleLabelChange = (newLabel: any) => {
@@ -78,17 +79,18 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                   onChange={(e) => updateNodeDeep(currentPath, 'name', e.target.value)}
                 />
               </div>
-              <button
+              <AdminButton
                 type="button"
+                variant="danger"
                 onClick={() => {
                   if (confirm(`Are you sure you want to delete "${node.name || 'Unnamed'}"?`)) {
                     deleteNodeDeep(currentPath);
                   }
                 }}
-                className="text-[10px] font-bold text-[var(--destructive-500)] uppercase hover:text-[var(--destructive-700)]"
+                className="text-[10px] font-bold uppercase"
               >
                 Delete
-              </button>
+              </AdminButton>
 
             </div>
 
@@ -173,17 +175,20 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
 
                       return (
                         <div key={pIdx} className="bg-[var(--card)] border border-[var(--border)] rounded-lg p-3 shadow-sm relative group/price">
-                          {
-                            !['INR', 'USD'].includes(pGroup.currency) && <button
-                              type="button"
-                              onClick={() => {
-                                const filtered = node.pricing.filter((_: any, i: any) => i !== pIdx);
-                                updateNodeDeep(currentPath, 'pricing', filtered);
-                              }}
-                              className="absolute -top-2 -right-2 bg-[var(--card)] text-[var(--destructive-500)] border border-[var(--destructive-100)] rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover/price:opacity-100 transition-opacity shadow-sm"
-                            >
-                              ×
-                            </button>
+                            {
+                            !['INR', 'USD'].includes(pGroup.currency) && (
+                              <AdminButton
+                                type="button"
+                                variant="danger"
+                                onClick={() => {
+                                  const filtered = node.pricing.filter((_: any, i: any) => i !== pIdx);
+                                  updateNodeDeep(currentPath, 'pricing', filtered);
+                                }}
+                                className="absolute -top-2 -right-2 rounded-full w-5 h-5 p-0.5 text-xs opacity-0 group-hover/price:opacity-100 transition-opacity shadow-sm"
+                              >
+                                ×
+                              </AdminButton>
+                            )
                           }
 
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -321,14 +326,15 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                             className="w-full h-full object-cover rounded-lg border border-[var(--neutral-200)] shadow-sm"
                           />
                         )}
-                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-                          <button
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
+                          <AdminButton
                             type="button"
+                            variant="danger"
                             onClick={() => handleRemoveExistingVariantImage(currentPath, m.url)}
-                            className="bg-[var(--destructive-500)] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-[var(--destructive-600)] shadow-lg"
+                            className="rounded-full w-5 h-5 p-0.5 text-xs bg-[var(--destructive-500)]"
                           >
                             ×
-                          </button>
+                          </AdminButton>
                         </div>
                         <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[7px] font-bold bg-[var(--card)] px-1 rounded border border-[var(--border)] text-[var(--neutral-400)] uppercase">Saved</span>
                       </div>
@@ -353,16 +359,17 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                             />
                           )}
                           <div className="absolute inset-0 bg-[var(--primary-600)]/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-lg">
-                            <button
+                            <AdminButton
                               type="button"
+                              variant="danger"
                               onClick={() => {
                                 const updatedFiles = node.imageFiles.filter((_: any, i: any) => i !== fIdx);
                                 updateNodeDeep(currentPath, 'imageFiles', updatedFiles);
                               }}
-                              className="bg-[var(--primary-600)] text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-[var(--primary-700)]"
+                              className="rounded-full w-5 h-5 p-0.5 text-xs bg-[var(--primary-600)]"
                             >
                               ×
-                            </button>
+                            </AdminButton>
                           </div>
                           <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 text-[7px] font-bold bg-[var(--primary-600)] px-1 rounded border border-[var(--primary-600)] text-white uppercase">{t('new')}</span>
                         </div>
@@ -395,13 +402,14 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
               setForm={setForm}
             />
 
-            <button
+            <AdminButton
               type="button"
+              variant="ghost"
               onClick={() => addNode([...currentPath, 'children'])}
-              className="text-[10px] font-bold text-[var(--primary-600)] uppercase mt-2 hover:text-[var(--primary-800)]"
+              className="text-[10px] font-bold uppercase mt-2"
             >
               {t('admin.variant.add_sub_option', { name: node.name || t('common.this') })}
-            </button>
+            </AdminButton>
           </div>
         );
       })}
@@ -453,6 +461,8 @@ export default function Products() {
   const [removedMedia, setRemovedMedia] = useState<any>([]);
   const [removedVariantImages, setRemovedVariantImages] = useState([]);
   const [removedVariantMedia, setRemovedVariantMedia] = useState([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -489,22 +499,33 @@ export default function Products() {
   };
 
   const handleMediaChange = (e: any) => {
-    const files = Array.from(e.target.files);
-    const newMedia = files.map((file: any) => {
+    const input = e.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const files = Array.from(input.files) as File[];
+    const newMedia: any[] = [];
+    for (const file of files) {
       const isVideo = file.type.startsWith("video/");
-      return {
-        file, // actual File object for upload
-        url: URL.createObjectURL(file), // preview
+      // client-side size limits
+      if (!isVideo && file.size > 5 * 1024 * 1024) {
+        toast({ title: `Image ${file.name} too large (max 5MB)`, variant: "destructive" });
+        continue;
+      }
+      if (isVideo && file.size > 50 * 1024 * 1024) {
+        toast({ title: `Video ${file.name} too large (max 50MB)`, variant: "destructive" });
+        continue;
+      }
+      newMedia.push({
+        file,
+        url: URL.createObjectURL(file),
         alt: file.name,
         type: isVideo ? "video" : "image",
-        videoType: isVideo ? "uploaded" : null, // you can use 'youtube', 'vimeo' later
-      };
-    });
+        videoType: isVideo ? "uploaded" : null,
+      });
+    }
 
-    setForm((prev: any) => ({
-      ...prev,
-      media: [...prev.media, ...newMedia],
-    }));
+    if (newMedia.length) {
+      setForm((prev: any) => ({ ...prev, media: [...prev.media, ...newMedia] }));
+    }
   };
 
   const handleRemoveMedia = (url: any) => {
@@ -629,12 +650,20 @@ export default function Products() {
 
   const handleDelete = async (id: any) => {
     if (!confirm(('admin.product.delete_confirm'))) return;
-    await apiFetch(`/products/slug/${id}`, { method: "DELETE" });
-    setProducts(products.filter((p: any) => p._id !== id));
+    setRemovingId(id);
+    try {
+      await apiFetch(`/products/slug/${id}`, { method: "DELETE" });
+      setProducts(products.filter((p: any) => p._id !== id));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   const handleSubmit = async (e: any) => {
     e.preventDefault(); // Prevents page refresh
+    setSubmitting(true);
     try {
       const data = new FormData();
 
@@ -711,6 +740,9 @@ export default function Products() {
       fetchProducts();
     } catch (err: any) {
       toast({ title: err.message || "Error saving product" });
+    }
+    finally {
+      setSubmitting(false);
     }
   };
 
@@ -990,13 +1022,16 @@ export default function Products() {
                   <div key={priceGroup.currency} className="border border-[var(--border)] rounded-xl p-4 bg-[var(--card)] shadow-sm hover:shadow-md transition-shadow relative group">
                     {/* Remove Button */}
                     {
-                      !['INR', 'USD'].includes(priceGroup.currency) && <button
-                        type="button"
-                        onClick={() => handleRemoveRegion(idx)}
-                        className="absolute -top-2 -right-2 bg-[var(--destructive-100)] text-[var(--destructive-600)] rounded-full w-6 h-6 flex items-center justify-center border border-[var(--destructive-200)] opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        ×
-                      </button>
+                      !['INR', 'USD'].includes(priceGroup.currency) && (
+                        <AdminButton
+                          type="button"
+                          variant="danger"
+                          onClick={() => handleRemoveRegion(idx)}
+                          className="absolute -top-2 -right-2 rounded-full w-6 h-6 p-0.5 text-xs opacity-0 group-hover:opacity-100 transition-opacity border"
+                        >
+                          ×
+                        </AdminButton>
+                      )
                     }
 
                     <div className="flex items-center gap-3 mb-4">
@@ -1214,13 +1249,14 @@ export default function Products() {
                 setForm={setForm}
               />
 
-              <button
+              <AdminButton
                 type="button"
+                variant="ghost"
                 onClick={() => addNode([])}
                 className="w-full py-4 border-2 border-dashed border-[var(--primary-200)] text-[var(--primary-500)] font-bold rounded-xl hover:bg-[var(--primary-50)] transition-all"
               >
                 + Add New Root Variant (Color/Group)
-              </button>
+              </AdminButton>
 
             </div>
           )
@@ -1233,15 +1269,17 @@ export default function Products() {
               <h4 className="text-sm font-bold text-[var(--neutral-700)] uppercase tracking-wider">Global Product Media</h4>
               <p className="text-[11px] text-[var(--neutral-400)]">Main images and videos for the product showcase</p>
             </div>
-            <label className="cursor-pointer bg-[var(--primary-50)] hover:bg-[var(--primary-100)] text-[var(--primary-600)] px-4 py-2 rounded-lg text-xs font-bold transition-colors border border-[var(--primary-200)]">
-              <span>+ Add Media</span>
-              <input
-                type="file"
-                accept="image/*,video/*"
-                multiple
-                className="hidden"
-                onChange={handleMediaChange}
-              />
+              <label className="cursor-pointer bg-[var(--primary-50)] hover:bg-[var(--primary-100)] text-[var(--primary-600)] px-4 py-2 rounded-lg text-xs font-bold transition-colors border border-[var(--primary-200)]">
+              <AdminButton className="px-4 py-2 text-xs font-bold">
+                <span>+ Add Media</span>
+                <input
+                  type="file"
+                  accept="image/*,video/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleMediaChange}
+                />
+              </AdminButton>
             </label>
           </div>
 
@@ -1266,13 +1304,14 @@ export default function Products() {
 
                 {/* Delete Overlay */}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveMedia(m.url)}
-                    className="bg-[var(--destructive-500)] text-white rounded-full w-7 h-7 flex items-center justify-center shadow-lg hover:bg-[var(--destructive-600)] transform hover:scale-110 transition-all"
-                  >
-                    <span className="text-lg leading-none">×</span>
-                  </button>
+                      <AdminButton
+                        type="button"
+                        variant="danger"
+                        onClick={() => handleRemoveMedia(m.url)}
+                        className="rounded-full w-7 h-7 p-0.5 text-lg leading-none"
+                      >
+                        <span>×</span>
+                      </AdminButton>
                 </div>
 
                 <span className="absolute -top-2 -right-1 text-[8px] font-black bg-[var(--card)] text-[var(--neutral-400)] px-1.5 py-0.5 rounded-full border shadow-sm uppercase">Saved</span>
@@ -1283,20 +1322,13 @@ export default function Products() {
 
         {/* Submit Buttons */}
         <div className="mt-8 flex gap-4">
-          <button
-            type="submit"
-            className="bg-[var(--primary-600)] px-8 py-3 rounded font-bold hover:bg-[var(--primary-700)] shadow-lg"
-          >
+          <AdminButton type="submit" loading={submitting} className="px-8 py-3 rounded font-bold">
             {editingId ? "Update Product" : "Create Product"}
-          </button>
+          </AdminButton>
           {editingId && (
-            <button
-              type="button"
-              onClick={resetForm}
-              className="bg-[var(--neutral-500)] text-white px-8 py-3 rounded font-bold hover:bg-[var(--neutral-600)]"
-            >
+            <AdminButton type="button" variant="ghost" onClick={resetForm} className="px-8 py-3 rounded font-bold">
               Cancel
-            </button>
+            </AdminButton>
           )}
         </div>
       </form >
@@ -1367,26 +1399,29 @@ export default function Products() {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end items-center gap-3">
-                      <button
+                      <AdminButton
                         type="button"
+                        variant="ghost"
                         onClick={() => handleEdit(p)}
-                        className="p-2 text-[var(--primary-600)] hover:bg-[var(--primary-50)] rounded-lg transition-colors group-hover:shadow-sm"
+                        className="p-2"
                         title="Edit Product"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                      </button>
-                      <button
+                      </AdminButton>
+                      <AdminButton
                         type="button"
+                        variant="danger"
+                        loading={removingId === p._id}
                         onClick={() => handleDelete(p._id)}
-                        className="p-2 text-[var(--destructive-500)] hover:bg-[var(--destructive-50)] rounded-lg transition-colors group-hover:shadow-sm"
+                        className="p-2"
                         title="Delete Product"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
-                      </button>
+                      </AdminButton>
                     </div>
                   </td>
                 </tr>

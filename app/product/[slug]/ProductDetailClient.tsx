@@ -293,9 +293,9 @@ const ProductDetailClient = ({ product }: any) => {
                         {/* QUANTITY & ACTIONS */}
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex items-center border rounded-lg h-12">
-                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-4 h-full hover:bg-muted"><Minus className="w-4 h-4" /></button>
+                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-4 h-full hover:bg-muted cursor-pointer"><Minus className="w-4 h-4" /></button>
                                 <span className="w-12 text-center font-bold">{quantity}</span>
-                                <button onClick={() => setQuantity(q => Math.min(displayStock, q + 1))} className="px-4 h-full hover:bg-muted"><Plus className="w-4 h-4" /></button>
+                                <button onClick={() => setQuantity(q => Math.min(displayStock, q + 1))} className="px-4 h-full hover:bg-muted cursor-pointer"><Plus className="w-4 h-4" /></button>
                             </div>
 
                             <Button
@@ -310,9 +310,9 @@ const ProductDetailClient = ({ product }: any) => {
 
                         <div className="flex flex-col sm:flex-row gap-4">
                             <div className="flex items-center border rounded-lg h-12">
-                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-4 h-full hover:bg-muted"><Minus className="w-4 h-4" /></button>
+                                <button onClick={() => setQuantity(q => Math.max(1, q - 1))} className="px-4 h-full hover:bg-muted cursor-pointer"><Minus className="w-4 h-4" /></button>
                                 <span className="w-12 text-center font-bold">{quantity}</span>
-                                <button onClick={() => setQuantity(q => Math.min(displayStock, q + 1))} className="px-4 h-full hover:bg-muted"><Plus className="w-4 h-4" /></button>
+                                <button onClick={() => setQuantity(q => Math.min(displayStock, q + 1))} className="px-4 h-full hover:bg-muted cursor-pointer"><Plus className="w-4 h-4" /></button>
                             </div>
 
                             <Button

@@ -2,6 +2,7 @@
 
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import AdminButton from "@/components/admin/AdminButton";
 
 type Project = {
   _id: string;
@@ -21,6 +22,8 @@ export default function ProjectsPage() {
     title: "",
     views: "",
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const fetchProjects = async () => {
     const res = await fetch("/api/projects");
@@ -33,39 +36,59 @@ export default function ProjectsPage() {
 
   const addProject = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (file) {
-      const fd = new FormData();
-      fd.append("student", form.student);
-      fd.append("title", form.title);
-      fd.append("views", form.views);
-      fd.append("image", file);
-
-      await fetch("/api/projects", {
-        method: "POST",
-        body: fd,
-      });
-    } else if (url) {
-      await fetch("/api/projects", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, image: url }),
-      });
+    // validations
+    if (file && file.size > 5 * 1024 * 1024) {
+      alert("Image too large (max 5MB)");
+      return;
     }
 
-    setForm({ student: "", title: "", views: "" });
-    setUrl("");
-    setFile(null);
-    fetchProjects();
+    setSubmitting(true);
+    try {
+      if (file) {
+        const fd = new FormData();
+        fd.append("student", form.student);
+        fd.append("title", form.title);
+        fd.append("views", form.views);
+        fd.append("image", file);
+
+        await fetch("/api/projects", {
+          method: "POST",
+          body: fd,
+        });
+      } else if (url) {
+        await fetch("/api/projects", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, image: url }),
+        });
+      }
+
+      setForm({ student: "", title: "", views: "" });
+      setUrl("");
+      setFile(null);
+      await fetchProjects();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const removeProject = async (id: string) => {
-    await fetch("/api/projects", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    fetchProjects();
+    if (!confirm("Delete this project?")) return;
+    setRemovingId(id);
+    try {
+      await fetch("/api/projects", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      await fetchProjects();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   return (
@@ -111,9 +134,9 @@ export default function ProjectsPage() {
           className="mt-2"
         />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded mt-3">
+        <AdminButton type="submit" loading={submitting} className="mt-3 px-4 py-2 rounded">
           Add Project
-        </button>
+        </AdminButton>
       </form>
 
       {/* LIST */}
@@ -133,12 +156,14 @@ export default function ProjectsPage() {
               <p className="text-xs text-gray-600">{p.student}</p>
               <p className="text-xs text-gray-500">{p.views} views</p>
             </div>
-            <button
+            <AdminButton
+              variant="danger"
+              loading={removingId === p._id}
               onClick={() => removeProject(p._id)}
-              className="absolute top-1 right-1 bg-red-600 text-white text-xs px-2 py-1 rounded"
+              className="absolute top-1 right-1 text-xs px-2 py-1 rounded"
             >
               ✕
-            </button>
+            </AdminButton>
           </div>
         ))}
       </div>

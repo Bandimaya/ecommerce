@@ -98,7 +98,7 @@ const BenefitsSection = () => {
                 bg-white rounded-[2.5rem]
                 border border-slate-100 shadow-[0_10px_40px_rgba(0,0,0,0.04)]
                 transition-all duration-300
-                hover:shadow-[0_20px_60px_rgba(37,99,235,0.1)] hover:border-blue-100
+                hover:shadow-[0_20px_60px_rgba(37,99,235,0.1)] hover:border-blue-100 cursor-pointer
               "
             >
               {/* Image Container with Dynamic Blob */}

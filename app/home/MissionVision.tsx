@@ -164,7 +164,7 @@ const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
             {/* Vision Card */}
             <div className="group relative">
               <div className="absolute -inset-2 md:-inset-4 bg-gradient-to-r from-blue-500/5 to-purple-500/5 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300" />
-              <div className={`relative bg-white/90 backdrop-blur-sm rounded-xl md:rounded-2xl ${getResponsiveSpacing.card} border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300`}>
+              <div className={`relative bg-white/90 backdrop-blur-sm rounded-xl md:rounded-2xl ${getResponsiveSpacing.card} border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer`}>
                 <div className="flex items-start gap-4 mb-6">
                   <div className="p-2 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
                     <Target className="w-5 h-5 md:w-6 md:h-6 text-white" />
@@ -191,7 +191,7 @@ const MissionVision = ({ getCSSVar }: MissionVisionProps) => {
             {/* Mission Card */}
             <div className="group relative">
               <div className="absolute -inset-2 md:-inset-4 bg-gradient-to-r from-purple-500/5 to-pink-500/5 rounded-2xl md:rounded-3xl blur-xl group-hover:blur-2xl transition-all duration-300" />
-              <div className={`relative bg-white/90 backdrop-blur-sm rounded-xl md:rounded-2xl ${getResponsiveSpacing.card} border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300`}>
+              <div className={`relative bg-white/90 backdrop-blur-sm rounded-xl md:rounded-2xl ${getResponsiveSpacing.card} border border-slate-200/50 shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer`}>
                 <div className="flex items-start gap-4 mb-6">
                   <div className="p-2 md:p-3 rounded-lg md:rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg">
                     <Award className="w-5 h-5 md:w-6 md:h-6 text-white" />

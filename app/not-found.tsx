@@ -133,7 +133,7 @@ export default function NotFound() {
         {/* --- RETURN BUTTON --- */}
         <div className="mt-16">
           <Link href="/">
-            <button className="relative group px-10 py-3 overflow-hidden rounded-full transition-all">
+            <button className="relative group px-10 py-3 overflow-hidden rounded-full transition-all cursor-pointer">
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600" />
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
                 <span className="relative z-10 text-xs font-black uppercase tracking-[0.3em] text-white">

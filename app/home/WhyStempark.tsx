@@ -190,7 +190,7 @@ export default function WhyStempark() {
                           <Link 
                             href={`/home/features/${feature._id}`}
                             onClick={(e) => e.stopPropagation()} // Prevent triggering parent click
-                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all group"
+                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all group cursor-pointer"
                           >
                             Explore This Zone
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

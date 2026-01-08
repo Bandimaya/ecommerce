@@ -208,7 +208,7 @@ const PaymentFailure: React.FC = () => {
                 <div className="mb-8 border border-slate-200 rounded-lg overflow-hidden">
                   <button 
                     onClick={() => setShowTechDetails(!showTechDetails)}
-                    className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-left"
+                    className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors text-left cursor-pointer"
                   >
                     <span className="text-sm font-semibold text-slate-600">Technical Details</span>
                     {showTechDetails ? <ChevronUp size={16} className="text-slate-400"/> : <ChevronDown size={16} className="text-slate-400"/>}
@@ -240,7 +240,7 @@ const PaymentFailure: React.FC = () => {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleRetry}
-                    className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-[12px] shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 transition-all"
+                    className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-[12px] shadow-xl shadow-slate-900/10 flex items-center justify-center gap-3 transition-all cursor-pointer"
                   >
                     <RefreshCw size={18} className={isLoading ? "animate-spin" : ""} />
                     {isLoading ? "Retrying..." : "Retry Payment"}

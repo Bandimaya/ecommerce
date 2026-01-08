@@ -10,6 +10,7 @@ import {
   PlayCircle 
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import AdminButton from "@/components/admin/AdminButton";
 
 type VideoItem = {
   _id: string;
@@ -23,6 +24,7 @@ export default function VideosPage() {
   // Loading states
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   /* ===== FETCH ===== */
   const fetchVideos = async () => {
@@ -71,7 +73,7 @@ export default function VideosPage() {
   /* ===== REMOVE VIDEO ===== */
   const removeVideo = async (id: string) => {
     if (!confirm("Are you sure you want to remove this video?")) return;
-
+    setRemovingId(id);
     try {
       await fetch("/api/videos", {
         method: "DELETE",
@@ -83,6 +85,8 @@ export default function VideosPage() {
     } catch (error) {
       console.error("Failed to delete video", error);
       toast({ title: "Failed to delete video", variant: "destructive" });
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -114,18 +118,10 @@ export default function VideosPage() {
               required
             />
           </div>
-          <button 
-            type="submit"
-            disabled={submitting || !youtubeId}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-[10px] font-medium transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-          >
-            {submitting ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
+          <AdminButton type="submit" loading={submitting} disabled={!youtubeId} className="flex items-center justify-center gap-2 px-6 py-2.5">
+            <Plus className="w-4 h-4" />
             Add Video
-          </button>
+          </AdminButton>
         </form>
         <p className="text-xs text-gray-400 mt-2 ml-1">
           Tip: Copy the ID from the URL (e.g. youtube.com/watch?v=<b>ID_HERE</b>)
@@ -171,13 +167,15 @@ export default function VideosPage() {
                 
                 {/* Delete Button (Visible on hover) */}
                 <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
+                  <AdminButton
+                    variant="danger"
+                    loading={removingId === v._id}
                     onClick={() => removeVideo(v._id)}
-                    className="bg-white/90 hover:bg-red-600 hover:text-white text-gray-700 shadow-md p-2 rounded-full transition-colors backdrop-blur-sm"
+                    className="p-2"
                     title="Remove Video"
                   >
                     <Trash2 className="w-4 h-4" />
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
             ))}

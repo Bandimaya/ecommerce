@@ -21,6 +21,7 @@ import { apiFetch } from "@/lib/axios";
 import { IMAGE_URL } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import AdminButton from "@/components/admin/AdminButton";
 
 // Icon mapping for dynamic rendering
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -57,6 +58,7 @@ export default function StemparkFeaturesPage() {
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   
   // Form State
   const [form, setForm] = useState(emptyForm);
@@ -122,6 +124,7 @@ export default function StemparkFeaturesPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this feature?")) return;
+    setRemovingId(id);
     try {
       await apiFetch("/stempark-features", {
         method: "DELETE",
@@ -131,6 +134,8 @@ export default function StemparkFeaturesPage() {
       toast({ title: "Feature deleted successfully", variant: "success" });
     } catch (err) {
       toast({ title: "Failed to delete feature", variant: "destructive" });
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -175,14 +180,10 @@ export default function StemparkFeaturesPage() {
             Manage the key highlights and statistics of the STEM Park.
           </p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          disabled={showForm}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-        >
+        <AdminButton onClick={() => setShowForm(true)} disabled={showForm} className="flex items-center gap-2">
           <PlusCircle className="w-4 h-4" />
           Add Feature
-        </button>
+        </AdminButton>
       </div>
 
       {/* FORM AREA */}
@@ -303,21 +304,12 @@ export default function StemparkFeaturesPage() {
                 </div>
 
                 <div className="flex justify-end gap-3 pt-6 mt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={handleCloseForm}
-                    className="px-5 py-2.5 text-gray-700 font-medium hover:bg-gray-100 rounded-[10px] transition-colors"
-                  >
+                  <AdminButton variant="ghost" type="button" onClick={handleCloseForm} className="px-5 py-2.5">
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-70 shadow-sm"
-                  >
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  </AdminButton>
+                  <AdminButton type="submit" loading={isSubmitting} className="px-8 py-2.5">
                     {editingId ? "Update Feature" : "Save Feature"}
-                  </button>
+                  </AdminButton>
                 </div>
               </form>
             </div>
@@ -352,7 +344,7 @@ export default function StemparkFeaturesPage() {
             return (
               <div
                 key={f._id}
-                className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex overflow-hidden h-40"
+                className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex overflow-hidden h-40 cursor-pointer"
               >
                 <div className="w-1/3 relative bg-gray-50">
                   <img
@@ -382,18 +374,12 @@ export default function StemparkFeaturesPage() {
                       {f.stat}
                     </span>
                     <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleEdit(f)}
-                        className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-[8px] transition-colors"
-                      >
+                      <AdminButton variant="ghost" onClick={() => handleEdit(f)} className="p-1.5">
                         <Pencil className="w-3.5 h-3.5" />
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(f._id)}
-                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[8px] transition-colors"
-                      >
+                      </AdminButton>
+                      <AdminButton variant="danger" loading={removingId === f._id} onClick={() => handleDelete(f._id)} className="p-1.5">
                         <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      </AdminButton>
                     </div>
                   </div>
                 </div>

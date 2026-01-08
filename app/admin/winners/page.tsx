@@ -21,6 +21,7 @@ import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
 import { IMAGE_URL } from "@/lib/constants";
 import { motion, AnimatePresence } from "framer-motion";
+import AdminButton from "@/components/admin/AdminButton";
 
 interface Winner {
   _id: string;
@@ -47,6 +48,7 @@ export default function WinnersPage() {
   const [winners, setWinners] = useState<Winner[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -141,12 +143,15 @@ export default function WinnersPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this winner?")) return;
+    setRemovingId(id);
     try {
       await apiFetch(`/winners`, { method: "DELETE", data: { id } });
       setWinners(winners.filter((w) => w._id !== id));
       toast({ title: "Winner deleted successfully" });
     } catch {
       toast({ title: "Failed to delete winner", variant: "destructive" });
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -195,14 +200,10 @@ export default function WinnersPage() {
             Showcase winning teams, their positions, and achievements.
           </p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          disabled={showForm}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-        >
+        <AdminButton onClick={() => setShowForm(true)} disabled={showForm} className="flex items-center gap-2">
           <PlusCircle className="w-4 h-4" />
           Add Winner
-        </button>
+        </AdminButton>
       </div>
 
       {/* FORM AREA */}
@@ -324,21 +325,12 @@ export default function WinnersPage() {
                 </div>
 
                 <div className="flex justify-end gap-3 pt-6 mt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={handleCloseForm}
-                    className="px-5 py-2.5 text-gray-700 font-medium hover:bg-gray-100 rounded-[10px] transition-colors"
-                  >
+                  <AdminButton variant="ghost" type="button" onClick={handleCloseForm} className="px-5 py-2.5">
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-70 shadow-sm"
-                  >
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  </AdminButton>
+                  <AdminButton type="submit" loading={isSubmitting} className="px-8 py-2.5">
                     {form._id ? "Update Winner" : "Save Winner"}
-                  </button>
+                  </AdminButton>
                 </div>
               </form>
             </div>
@@ -403,7 +395,7 @@ export default function WinnersPage() {
           {filteredWinners.map((winner) => (
             <div
               key={winner._id}
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden"
+              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden cursor-pointer"
             >
               <div className="relative h-48 bg-gray-100 overflow-hidden">
                 {winner.image ? (
@@ -441,18 +433,17 @@ export default function WinnersPage() {
                 <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                   <span className="text-xs text-gray-400 font-medium">{winner.event}</span>
                   <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(winner)}
-                      className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors"
-                    >
+                    <AdminButton variant="ghost" onClick={() => handleEdit(winner)} className="p-2">
                       <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
+                    </AdminButton>
+                    <AdminButton
+                      variant="danger"
+                      loading={removingId === winner._id}
                       onClick={() => handleDelete(winner._id)}
-                      className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors"
+                      className="p-2"
                     >
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </AdminButton>
                   </div>
                 </div>
               </div>
@@ -495,18 +486,12 @@ export default function WinnersPage() {
                 <p className="text-sm text-gray-500 line-clamp-1">{winner.description}</p>
               </div>
               <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => handleEdit(winner)}
-                  className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors"
-                >
+                <AdminButton variant="ghost" onClick={() => handleEdit(winner)} className="p-2">
                   <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(winner._id)}
-                  className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors"
-                >
+                </AdminButton>
+                <AdminButton variant="danger" loading={removingId === winner._id} onClick={() => handleDelete(winner._id)} className="p-2">
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </AdminButton>
               </div>
             </div>
           ))}

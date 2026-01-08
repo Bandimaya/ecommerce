@@ -14,7 +14,7 @@ interface NewsItem {
 
 // --- Sub-component for a single card ---
 const NewsCard = ({ item }: { item: NewsItem }) => (
-  <div className="relative group w-[300px] md:w-[350px] flex-shrink-0 bg-card rounded-[10px] p-6 border border-border shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary hover:-translate-y-1 h-full flex flex-col justify-between overflow-hidden">
+  <div className="relative group w-[300px] md:w-[350px] flex-shrink-0 bg-card rounded-[10px] p-6 border border-border shadow-sm transition-all duration-300 hover:shadow-xl hover:border-primary hover:-translate-y-1 h-full flex flex-col justify-between overflow-hidden cursor-pointer">
     
     {/* Decorative Quote Icon Background */}
     <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">

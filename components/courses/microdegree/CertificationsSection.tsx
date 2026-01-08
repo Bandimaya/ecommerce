@@ -84,7 +84,7 @@ const CertificationsSection = () => {
                 bg-slate-50/50 p-10 rounded-[2rem]
                 border border-slate-100/80
                 transition-all duration-500
-                hover:bg-white hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-blue-100
+                hover:bg-white hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-blue-100 cursor-pointer
               "
             >
               {/* Category Indicator */}

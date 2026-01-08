@@ -59,7 +59,7 @@ export default function AwardsSection() {
               <div
                 key={`set1-${idx}`}
                 // UPDATED: Fixed dimensions w-[180px] h-[80px], no padding, rounded-[10px]
-                className="relative group flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-white rounded-[10px] shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
+                className="relative group flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-white rounded-[10px] shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100 cursor-pointer"
               >
                 <img
                   src={IMAGE_URL + src.image}
@@ -75,7 +75,7 @@ export default function AwardsSection() {
               <div
                 key={`set2-${idx}`}
                 // UPDATED: Fixed dimensions w-[180px] h-[80px], no padding, rounded-[10px]
-                className="relative group flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-white rounded-[10px] shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
+                className="relative group flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-white rounded-[10px] shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100 cursor-pointer"
               >
                 <img
                   src={IMAGE_URL + src?.image}

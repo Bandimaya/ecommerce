@@ -60,7 +60,7 @@ export default function PartnersSection() {
                             <div
                                 key={`p1-${idx}`}
                                 // Card: Fixed 180x80, rounded-10px, overflow hidden to clip image corners
-                                className="group relative flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-card rounded-[10px] border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 overflow-hidden"
+                                className="group relative flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-card rounded-[10px] border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 overflow-hidden cursor-pointer"
                             >
                                 <img
                                     src={IMAGE_URL + src?.image}
@@ -77,7 +77,7 @@ export default function PartnersSection() {
                         {data.map((src: any, idx) => (
                             <div
                                 key={`p2-${idx}`}
-                                className="group relative flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-card rounded-[10px] border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 overflow-hidden"
+                                className="group relative flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-card rounded-[10px] border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 overflow-hidden cursor-pointer"
                             >
                                 <img
                                     src={IMAGE_URL + src?.image}

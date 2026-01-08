@@ -32,7 +32,7 @@ export default function WhyChooseUsSection() {
       {features.map((feature, idx) => (
         <div 
           key={idx} 
-          className="group flex items-start gap-4 p-4 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-xl hover:bg-white hover:border-orange-200 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300"
+          className="group flex items-start gap-4 p-4 bg-white/80 backdrop-blur-sm border border-gray-100 rounded-xl hover:bg-white hover:border-orange-200 hover:shadow-lg hover:shadow-orange-500/5 transition-all duration-300 cursor-pointer"
         >
           {/* Icon Box */}
           <div className="flex-shrink-0 w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center border border-orange-100 group-hover:bg-orange-500 group-hover:border-orange-500 transition-colors duration-300">

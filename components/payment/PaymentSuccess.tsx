@@ -244,7 +244,7 @@ const PaymentSuccess: React.FC = () => {
                       whileHover={{ scale: 1.05, backgroundColor: "#f1f5f9" }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handlePrint}
-                      className="p-2.5 text-slate-400 hover:text-slate-700 rounded-xl transition-colors border border-transparent hover:border-slate-200"
+                      className="p-2.5 text-slate-400 hover:text-slate-700 rounded-xl transition-colors border border-transparent hover:border-slate-200 cursor-pointer"
                       title="Print Receipt"
                     >
                       <Printer size={20} />
@@ -255,7 +255,7 @@ const PaymentSuccess: React.FC = () => {
                       whileHover={{ scale: 1.05, backgroundColor: "#f1f5f9" }}
                       whileTap={{ scale: 0.95 }}
                       onClick={handleShare}
-                      className="p-2.5 text-slate-400 hover:text-slate-700 rounded-xl transition-colors border border-transparent hover:border-slate-200 relative"
+                      className="p-2.5 text-slate-400 hover:text-slate-700 rounded-xl transition-colors border border-transparent hover:border-slate-200 relative cursor-pointer"
                       title="Share Receipt"
                     >
                       {isSharing ? <Check size={20} className="text-green-600" /> : <Share2 size={20} />}
@@ -295,7 +295,7 @@ const PaymentSuccess: React.FC = () => {
                     whileHover={{ scale: 1.02, translateY: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleDownload}
-                    className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-[12px] shadow-lg shadow-slate-900/20 flex items-center justify-center gap-3 transition-all"
+                    className="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-bold text-base rounded-[12px] shadow-lg shadow-slate-900/20 flex items-center justify-center gap-3 transition-all cursor-pointer"
                   >
                     <Download size={18} />
                     Download PDF

@@ -4,23 +4,21 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
-  Smile,
   Phone,
   Mail,
   Loader2,
   CheckCircle2,
-  Sparkles,
   ArrowRight,
-  AlertCircle,
   X,
-  Calendar
+  Calendar,
+  Building2
 } from 'lucide-react';
 import { apiFetch } from '@/lib/axios';
 
 export default function HeaderLeadForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [isMobileOpen, setIsMobileOpen] = useState(false); // New state for mobile toggle
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const [formData, setFormData] = useState({
     parent: "",
@@ -43,8 +41,8 @@ export default function HeaderLeadForm() {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^\d{10}$/;
 
-    if (!formData.parent.trim()) newErrors.parent = "Parent name is required";
-    if (!formData.child.trim()) newErrors.child = "Child name is required";
+    if (!formData.parent.trim()) newErrors.parent = "Name is required"; // Changed label slightly
+    if (!formData.child.trim()) newErrors.child = "Student name is required";
 
     if (!formData.phone.trim()) {
       newErrors.phone = "Phone is required";
@@ -71,14 +69,14 @@ export default function HeaderLeadForm() {
       await apiFetch(`/contacts/submit`, {
         method: "POST", data: {
           name: formData.parent,
-          message: `Unlock their future for my child ${formData.child}`,
+          message: `Inquiry for student: ${formData.child}`,
           phone: formData.phone,
           email: formData.email,
-          subject: "Unlock Their Future"
+          subject: "Course Inquiry"
         }
       });
 
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setSuccess(true);
     } catch (error) {
       console.error(error);
@@ -87,7 +85,7 @@ export default function HeaderLeadForm() {
     }
   };
 
-  // Prevent scrolling when mobile modal is open
+  // Lock scroll on mobile modal
   useEffect(() => {
     if (isMobileOpen) {
       document.body.style.overflow = 'hidden';
@@ -97,207 +95,180 @@ export default function HeaderLeadForm() {
     return () => { document.body.style.overflow = 'unset'; };
   }, [isMobileOpen]);
 
+  // Subtle shake for errors
   const shakeVariants = {
     idle: { x: 0 },
     shake: {
-      x: [0, -6, 6, -6, 6, 0],
-      transition: { duration: 0.35 },
+      x: [0, -4, 4, -4, 4, 0],
+      transition: { duration: 0.4 },
     },
   };
 
   return (
     <>
-      {/* --- 1. Mobile Trigger Button (Visible only on Mobile) --- */}
-      <div className="md:hidden w-full">
+      {/* --- Mobile Trigger Button (Visible only on Mobile) --- */}
+      <div className="md:hidden w-full px-4 mb-8">
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-orange-500/30 transition-all active:scale-95"
+          className="w-full flex items-center justify-center gap-3 bg-slate-900 text-white font-semibold py-3.5 rounded-lg shadow-md hover:bg-slate-800 transition-all active:scale-[0.98]"
         >
           <Calendar className="w-5 h-5" />
-          <span>Book Free Expert Session</span>
+          <span>Schedule Consultation</span>
         </button>
-        <p className="text-center text-xs text-orange-600 font-medium mt-2 animate-pulse">
-          Only 4 Slots Left Today
-        </p>
       </div>
 
-      {/* --- 2. Form Container (Conditional Rendering for Mobile / Always Visible Desktop) --- */}
+      {/* --- Modal Overlay (Mobile) & Static Card (Desktop) --- */}
       <AnimatePresence>
         {(isMobileOpen || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
           <div className={`
-            /* Base styles */
-            w-full transition-all duration-300
-            
-            /* Mobile Styles (Modal Mode) */
-            ${isMobileOpen ? 'fixed inset-0 z-[100] h-[100dvh] flex items-center justify-center bg-white/50 backdrop-blur-sm md:static md:h-auto md:bg-transparent md:backdrop-blur-none' : 'hidden md:block'}
-            
-            /* Desktop Styles */
-            md:max-w-[440px] md:perspective-1000
+            transition-all duration-300 z-[100]
+            /* Mobile: Fixed Modal Overlay */
+            ${isMobileOpen 
+              ? 'fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4' 
+              : 'hidden md:block relative'}
           `}>
             
-            {/* Form Content Wrapper */}
+            {/* --- The Form Card --- */}
             <motion.div
-              initial={isMobileOpen ? { y: "100%" } : { opacity: 0, y: 30, rotateX: 5 }}
-              animate={isMobileOpen ? { y: 0 } : { opacity: 1, y: 0, rotateX: 0 }}
-              exit={isMobileOpen ? { y: "100%" } : { opacity: 0, scale: 0.9, rotateX: -5 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 100 }}
+              initial={isMobileOpen ? { opacity: 0, scale: 0.95, y: 10 } : { opacity: 0, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={isMobileOpen ? { opacity: 0, scale: 0.95, y: 10 } : { opacity: 0 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
               className={`
-                w-full overflow-hidden
-                
-                /* Mobile: Full Screen, Solid White, No Glass */
-                ${isMobileOpen ? 'h-full bg-white rounded-none shadow-none flex flex-col' : ''}
-                
-                /* Desktop: Card, Glassmorphism */
-                md:h-auto md:bg-white/70 md:backdrop-blur-2xl md:rounded-[2rem] md:shadow-[0_20px_50px_rgba(0,0,0,0.15)] md:border md:border-white/40
+                relative z-1000000 w-full bg-white overflow-hidden
+                /* Mobile specific styles */
+                ${isMobileOpen ? 'rounded-2xl shadow-2xl max-w-[400px]' : ''}
+                /* Desktop specific styles */
+                md:max-w-[420px] md:rounded-xl md:border md:border-slate-200 md:shadow-lg
               `}
             >
               
-              {/* Mobile Close Button Header */}
+              {/* Mobile Close Header */}
               {isMobileOpen && (
-                <div className="flex justify-end p-4 md:hidden">
+                <div className="flex justify-between items-center p-4 border-b border-slate-100">
+                  <h3 className="font-semibold text-slate-800">Book a Session</h3>
                   <button 
                     onClick={() => setIsMobileOpen(false)}
-                    className="p-2 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200"
+                    className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
                   >
-                    <X className="w-6 h-6" />
+                    <X className="w-5 h-5" />
                   </button>
                 </div>
               )}
 
               <AnimatePresence mode="wait">
                 {!success ? (
-                  <div className="flex flex-col h-full md:h-auto">
-                    {/* Top Indicator */}
-                    <div className="bg-orange-500 py-2 px-4 flex justify-center items-center gap-2 shrink-0">
-                      <span className="flex h-2 w-2 rounded-full bg-white animate-pulse" />
-                      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white">Only 4 Slots Left Today</span>
+                  <div className="flex flex-col">
+                    
+                    {/* Header */}
+                    <div className="px-8 pt-8 pb-6">
+                      <h2 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
+                        Get in Touch
+                      </h2>
+                      <p className="text-slate-500 text-sm leading-relaxed">
+                        Fill out the form below and our academic counselors will contact you within 24 hours.
+                      </p>
                     </div>
 
-                    <div className="overflow-y-auto flex-1 md:overflow-visible">
-                      {/* Header Section */}
-                      <div className="px-8 pt-6 pb-6 text-center">
-                        <div className="inline-flex items-center justify-center p-2.5 bg-orange-50 rounded-2xl mb-4">
-                          <Sparkles className="w-6 h-6 text-orange-500 fill-orange-200" />
-                        </div>
-                        <h2 className="text-2xl font-black tracking-tight text-gray-900 leading-tight mb-2">
-                          Unlock Their Future
-                        </h2>
-                        <p className="text-gray-500 text-sm font-medium leading-relaxed">
-                          Book a <span className="text-orange-600 underline underline-offset-4 decoration-orange-200 decoration-2">Free Expert Counseling</span> session.
-                        </p>
-                      </div>
+                    {/* Form Fields */}
+                    <motion.form
+                      onSubmit={handleSubmit}
+                      className="px-8 pb-8 space-y-5"
+                      variants={shakeVariants}
+                      animate={Object.keys(errors).length > 0 ? "shake" : "idle"}
+                    >
+                      <InputField
+                        id="parent"
+                        name="parent"
+                        label="Parent Name"
+                        icon={User}
+                        value={formData.parent}
+                        onChange={handleChange}
+                        error={errors.parent}
+                      />
 
-                      {/* Form Section */}
-                      <motion.form
-                        onSubmit={handleSubmit}
-                        className="px-8 pb-8 space-y-4"
-                        variants={shakeVariants}
-                        animate={Object.keys(errors).length > 0 ? "shake" : "idle"}
+                      <InputField
+                        id="child"
+                        name="child"
+                        label="Student Name"
+                        icon={User} // Can swap for a different icon if desired
+                        value={formData.child}
+                        onChange={handleChange}
+                        error={errors.child}
+                      />
+
+                      <InputField
+                        id="phone"
+                        name="phone"
+                        label="Phone Number"
+                        icon={Phone}
+                        value={formData.phone}
+                        onChange={handleChange}
+                        error={errors.phone}
+                        type="tel"
+                      />
+
+                      <InputField
+                        id="email"
+                        name="email"
+                        label="Email Address"
+                        icon={Mail}
+                        value={formData.email}
+                        onChange={handleChange}
+                        error={errors.email}
+                        type="email"
+                      />
+
+                      {/* Submit Button */}
+                      <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full mt-2 h-12 flex items-center justify-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
                       >
-                        <InputField
-                          id="parent"
-                          name="parent"
-                          label="Parent's Name"
-                          icon={User}
-                          value={formData.parent}
-                          onChange={handleChange}
-                          error={errors.parent}
-                        />
+                        {loading ? (
+                          <>
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span>Processing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>Request Callback</span>
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
 
-                        <InputField
-                          id="child"
-                          name="child"
-                          label="Child's Name"
-                          icon={Smile}
-                          value={formData.child}
-                          onChange={handleChange}
-                          error={errors.child}
-                        />
-
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <InputField
-                            id="phone"
-                            name="phone"
-                            label="Phone No."
-                            icon={Phone}
-                            value={formData.phone}
-                            onChange={handleChange}
-                            error={errors.phone}
-                            type="tel"
-                          />
-
-                          <InputField
-                            id="email"
-                            name="email"
-                            label="Email ID"
-                            icon={Mail}
-                            value={formData.email}
-                            onChange={handleChange}
-                            error={errors.email}
-                            type="email"
-                          />
-                        </div>
-
-                        {/* Submit Button */}
-                        <div className="pt-4 pb-8 md:pb-0">
-                          <button
-                            type="submit"
-                            disabled={loading}
-                            className="group relative w-full h-14 flex items-center justify-center text-lg font-black text-white rounded-2xl overflow-hidden
-                            bg-gradient-to-br from-orange-400 to-orange-600 hover:scale-[1.02] active:scale-95
-                            shadow-[0_10px_25px_rgba(249,115,22,0.4)] transition-all duration-300 disabled:opacity-70"
-                          >
-                            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-
-                            {loading ? (
-                              <div className="flex items-center gap-3">
-                                <Loader2 className="h-6 w-6 animate-spin stroke-[3]" />
-                                <span>Securing Spot...</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2">
-                                <span>Get Started Now</span>
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
-                              </div>
-                            )}
-                          </button>
-                          <div className="flex items-center justify-center gap-2 mt-4 opacity-60">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-600">Secure & Confidential</span>
-                          </div>
-                        </div>
-                      </motion.form>
-                    </div>
+                      <p className="text-center text-xs text-slate-400 mt-4">
+                        We respect your privacy. No spam.
+                      </p>
+                    </motion.form>
                   </div>
                 ) : (
-                  /* Success State - Responsive */
+                  /* Success State */
                   <motion.div
-                    key="success-card"
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    className="flex flex-col items-center justify-center h-full w-full bg-white/80 md:backdrop-blur-2xl p-10 text-center"
+                    key="success"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center justify-center p-12 text-center h-[480px]"
                   >
-                    <div className="relative w-24 h-24 mx-auto mb-6">
-                      <div className="absolute inset-0 bg-green-500/20 rounded-full animate-ping" />
-                      <div className="relative w-full h-full bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                        <CheckCircle2 className="w-12 h-12 text-white" />
-                      </div>
+                    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
+                      <CheckCircle2 className="w-8 h-8 text-green-600" />
                     </div>
 
-                    <h2 className="text-3xl font-black text-gray-900 mb-3">Booking Confirmed!</h2>
-                    <p className="text-gray-500 leading-relaxed text-sm mb-8 px-4">
-                      Great choice, <strong className="text-gray-900">{formData.parent}</strong>! We've reserved a session for <strong className="text-gray-900">{formData.child}</strong>. Expect a call from our experts within 24 hours.
+                    <h2 className="text-xl font-bold text-slate-900 mb-2">Thank You</h2>
+                    <p className="text-slate-500 text-sm mb-8 max-w-[250px]">
+                      Your request has been received. Our team will reach out to <strong>{formData.phone}</strong> shortly.
                     </p>
 
                     <button
                       onClick={() => {
                         setSuccess(false);
                         setFormData({ parent: "", child: "", phone: "", email: "" });
-                        setIsMobileOpen(false); // Close modal on reset
+                        setIsMobileOpen(false);
                       }}
-                      className="py-3 px-6 rounded-xl text-xs font-black text-gray-400 hover:text-orange-600 hover:bg-orange-50 transition-all uppercase tracking-widest border border-transparent hover:border-orange-100"
+                      className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
                     >
-                      Close
+                      Close Form
                     </button>
                   </motion.div>
                 )}
@@ -310,54 +281,50 @@ export default function HeaderLeadForm() {
   );
 }
 
+// --- Professional Input Component ---
 const InputField = ({
   id, name, label, icon: Icon, value, onChange, error, type = "text"
 }: any) => (
-  <div className="relative">
-    <div className="relative group">
-      <Icon className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-all duration-300 z-10 pointer-events-none
-        ${error ? 'text-red-500' : 'text-gray-400 group-focus-within:text-orange-500 group-focus-within:scale-110'}`}
-      />
+  <div className="relative group">
+    {/* Input */}
+    <input
+      id={id}
+      name={name}
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder=" "
+      className={`
+        peer block w-full px-4 pb-2.5 pt-6 text-sm text-slate-900 bg-slate-50 
+        rounded-lg border border-slate-200 
+        focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500
+        focus:bg-white transition-all duration-200
+        ${error ? "bg-red-50 border-red-300 focus:border-red-500 focus:ring-red-200" : ""}
+      `}
+    />
 
-      <input
-        id={id}
-        name={name}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder=" "
-        className={`peer w-full pl-12 pr-4 h-[60px] rounded-2xl outline-none text-gray-900 font-bold transition-all duration-300
-          placeholder-transparent border-2 shadow-sm
-          /* Mobile: Solid borders, no transparency */
-          bg-gray-50 border-gray-200 focus:bg-white focus:border-orange-500
-          
-          /* Desktop: Glassmorphism inputs */
-          md:bg-white/40 md:border-gray-100 md:focus:bg-white
-          
-          ${error
-            ? "border-red-100 bg-red-50/50 focus:border-red-500"
-            : "focus:ring-4 focus:ring-orange-500/10 hover:border-gray-300 md:hover:border-gray-200"
-          }`}
-      />
+    {/* Floating Label */}
+    <label
+      htmlFor={id}
+      className={`
+        absolute text-sm text-slate-500 duration-200 transform 
+        -translate-y-3 scale-75 top-4 z-10 origin-[0] left-4
+        peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-placeholder-shown:text-slate-400
+        peer-focus:scale-75 peer-focus:-translate-y-3 peer-focus:text-indigo-600
+        ${error ? "text-red-500 peer-focus:text-red-600" : ""}
+      `}
+    >
+      {label}
+    </label>
 
-      <label
-        htmlFor={id}
-        className={`absolute left-12 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-semibold transition-all duration-300 origin-[0] pointer-events-none
-          peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-[-50%]
-          peer-focus:scale-75 peer-focus:-translate-y-[170%] peer-focus:text-orange-600
-          peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:-translate-y-[170%]
-          ${error ? "text-red-400" : ""}
-        `}
-      >
-        {label}
-      </label>
-
-      {error && (
-        <AlertCircle className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-red-500 animate-in fade-in zoom-in duration-300" />
-      )}
+    {/* Icon (Optional - Positioned to the right or integrated subtly) */}
+    <div className="absolute right-3 top-4 text-slate-400 pointer-events-none peer-focus:text-indigo-500 transition-colors">
+        <Icon size={18} />
     </div>
+
+    {/* Error Message */}
     {error && (
-      <p className="text-[10px] text-red-600 mt-1 ml-4 font-black uppercase tracking-wider flex items-center gap-1">
+      <p className="text-[11px] font-medium text-red-600 mt-1 ml-1 flex items-center gap-1 animate-in slide-in-from-top-1 fade-in">
         {error}
       </p>
     )}

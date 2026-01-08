@@ -2,14 +2,15 @@
 
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
-import { 
-  Trash2, 
-  Upload, 
-  Plus, 
-  Loader2, 
-  ImageIcon, 
-  X 
+import {
+  Trash2,
+  Upload,
+  Plus,
+  Loader2,
+  ImageIcon,
+  X,
 } from "lucide-react";
+import AdminButton from "@/components/admin/AdminButton";
 
 type AwardImage = {
   _id: string;
@@ -45,6 +46,11 @@ export default function AwardImagesPage() {
   const addImage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
+    // Client-side validation: limit file size to 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image too large (max 5MB)");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -68,20 +74,9 @@ export default function AwardImagesPage() {
   };
 
   /* ===== REMOVE IMAGE ===== */
-  const removeImage = async (id: string) => {
-    if (!confirm("Are you sure you want to remove this image?")) return;
 
-    try {
-      await fetch("/api/award-images", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id }),
-      });
-      fetchImages();
-    } catch (error) {
-      console.error("Failed to delete image", error);
-    }
-  };
+
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   return (
     <div className="space-y-8">
@@ -132,28 +127,16 @@ export default function AwardImagesPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-3 w-full md:w-auto">
-            <button
-              type="submit"
-              disabled={!file || submitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-[10px] font-medium transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-w-[140px]"
-            >
-              {submitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Upload className="w-4 h-4" />
-              )}
+            <AdminButton type="submit" loading={submitting} disabled={!file} className="min-w-[140px] rounded-[10px]">
+              <Upload className="w-4 h-4" />
               {submitting ? "Uploading..." : "Upload Image"}
-            </button>
-            
+            </AdminButton>
+
             {file && (
-              <button
-                type="button"
-                onClick={() => setFile(null)}
-                className="px-6 py-3 rounded-[10px] font-medium text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors flex items-center justify-center gap-2"
-              >
+              <AdminButton variant="ghost" type="button" onClick={() => setFile(null)} className="rounded-[10px]">
                 <X className="w-4 h-4" />
                 Cancel
-              </button>
+              </AdminButton>
             )}
           </div>
         </form>
@@ -182,29 +165,46 @@ export default function AwardImagesPage() {
         ) : (
           // Image List
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            {images.map((img) => (
-              <div
-                key={img._id}
-                className="group relative bg-gray-50 rounded-[10px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all aspect-[4/3]"
-              >
-                <img
-                  src={IMAGE_URL + img.image}
-                  alt="Award"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <button
-                    onClick={() => removeImage(img._id)}
-                    className="bg-white/10 hover:bg-red-600 text-white backdrop-blur-sm p-3 rounded-full transition-all hover:scale-110 border border-white/20 hover:border-transparent"
-                    title="Delete Image"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+              {images.map((img) => (
+                <div
+                  key={img._id}
+                  className="group relative bg-gray-50 rounded-[10px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all aspect-[4/3]"
+                >
+                  <img
+                    src={IMAGE_URL + img.image}
+                    alt="Award"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                    <AdminButton
+                      variant="danger"
+                      onClick={async () => {
+                        if (!confirm("Are you sure you want to remove this image?")) return;
+                        setRemovingId(img._id);
+                        try {
+                          await fetch("/api/award-images", {
+                            method: "DELETE",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ id: img._id }),
+                          });
+                          await fetchImages();
+                        } catch (err) {
+                          console.error(err);
+                        } finally {
+                          setRemovingId(null);
+                        }
+                      }}
+                      loading={removingId === img._id}
+                      title="Delete Image"
+                      className="p-3 rounded-full"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </AdminButton>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
       </div>

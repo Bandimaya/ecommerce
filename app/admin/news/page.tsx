@@ -13,6 +13,7 @@ import {
   FileText
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import AdminButton from "@/components/admin/AdminButton";
 
 type NewsItem = {
   _id: string;
@@ -28,6 +29,7 @@ export default function NewsPage() {
   // Loading states
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   /* ===== FETCH ===== */
   const fetchNews = async () => {
@@ -56,6 +58,10 @@ export default function NewsPage() {
     }
     if (!file) {
       return toast({ title: "Image is required", variant: "destructive" });
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      return toast({ title: "Image too large (max 5MB)", variant: "destructive" });
     }
 
     setSubmitting(true);
@@ -165,26 +171,14 @@ export default function NewsPage() {
           <div className="flex justify-end pt-2 border-t border-gray-100">
             <div className="flex gap-3">
               {file && (
-                <button
-                  type="button"
-                  onClick={() => { setFile(null); setText(""); }}
-                  className="px-5 py-2.5 rounded-[10px] font-medium text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors"
-                >
+                <AdminButton variant="ghost" type="button" onClick={() => { setFile(null); setText(""); }} className="px-5 py-2.5">
                   Clear
-                </button>
+                </AdminButton>
               )}
-              <button
-                type="submit"
-                disabled={submitting}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-[10px] font-medium transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed min-w-[140px]"
-              >
-                {submitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Upload className="w-4 h-4" />
-                )}
+              <AdminButton type="submit" loading={submitting} className="px-6 py-2.5 min-w-[140px]">
+                <Upload className="w-4 h-4" />
                 {submitting ? "Publishing..." : "Publish News"}
-              </button>
+              </AdminButton>
             </div>
           </div>
         </form>
@@ -223,7 +217,7 @@ export default function NewsPage() {
             {news.map((n) => (
               <div
                 key={n._id}
-                className="group relative bg-white border border-gray-200 rounded-[10px] shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col sm:flex-row h-auto sm:h-32"
+                className="group relative bg-white border border-gray-200 rounded-[10px] shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col sm:flex-row h-auto sm:h-32 cursor-pointer"
               >
                 {/* Image */}
                 <div className="w-full sm:w-40 h-40 sm:h-full bg-gray-100 shrink-0">
@@ -245,13 +239,9 @@ export default function NewsPage() {
                 </div>
                 
                 {/* Delete Button (Overlay on hover) */}
-                <button
-                  onClick={() => removeNews(n._id)}
-                  className="absolute top-2 right-2 p-2 bg-white/90 text-gray-400 hover:text-red-600 hover:bg-red-50 border border-gray-200 rounded-[10px] shadow-sm opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-all"
-                  title="Delete News"
-                >
+                <AdminButton variant="danger" loading={removingId === n._id} onClick={async () => { if (!confirm("Are you sure you want to remove this news item?")) return; setRemovingId(n._id); try { await removeNews(n._id); } finally { setRemovingId(null); } }} className="absolute top-2 right-2 p-2" title="Delete News">
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </AdminButton>
               </div>
             ))}
           </div>

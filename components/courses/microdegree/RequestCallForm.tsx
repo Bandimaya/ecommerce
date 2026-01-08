@@ -102,7 +102,7 @@ export default function RequestCallForm() {
               <p className="text-slate-500 font-medium">Keep your phone nearby. An expert will reach out shortly.</p>
               <button 
                 onClick={() => setSubmitted(false)}
-                className="text-xs font-bold text-orange-600 uppercase tracking-widest hover:underline"
+                className="text-xs font-bold text-orange-600 uppercase tracking-widest hover:underline cursor-pointer"
               >
                 Send another request
               </button>

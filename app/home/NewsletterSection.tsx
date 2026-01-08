@@ -170,7 +170,7 @@ const NewsletterSection = ({ getCSSVar }: NewsletterSectionProps) => {
               <input
                 type="email"
                 placeholder={'Your email'}
-                className="flex-1 px-6 sm:px-8 py-5 sm:py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 text-base sm:text-lg shadow-lg hover:shadow-xl transition-shadow border border-gray-300"
+                className="flex-1 px-6 sm:px-8 py-5 sm:py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 text-base sm:text-lg shadow-lg hover:shadow-xl transition-shadow border border-gray-300 cursor-text"
                 style={{
                   backgroundColor: cssVars.background(),
                   color: cssVars.foreground(),
@@ -179,11 +179,11 @@ const NewsletterSection = ({ getCSSVar }: NewsletterSectionProps) => {
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="flex justify-center"
+                className="flex justify-center cursor-pointer"
               >
                 <Button
                   size="lg"
-                  className="px-8 sm:px-10 py-5 sm:py-6 rounded-full text-base sm:text-lg md:text-xl font-semibold gap-3 w-full sm:w-auto shadow-xl hover:shadow-2xl transition-shadow border-2"
+                  className="px-8 sm:px-10 py-5 sm:py-6 rounded-full text-base sm:text-lg md:text-xl font-semibold gap-3 w-full sm:w-auto shadow-xl hover:shadow-2xl transition-shadow border-2 cursor-pointer"
                   style={{
                     backgroundColor: cssVars.accent(),
                     color: cssVars.primaryForeground(),

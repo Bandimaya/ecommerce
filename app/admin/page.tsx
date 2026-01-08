@@ -26,7 +26,7 @@ interface AntCardProps {
 // 2. Apply the interface to the component
 const AntCard = ({ title, value, icon, loading, colorClass, trend }: AntCardProps) => {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-300 relative overflow-hidden group">
+    <div className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-300 relative overflow-hidden group cursor-pointer">
       {loading ? (
         // Skeleton Loader
         <div className="animate-pulse space-y-4">

@@ -22,6 +22,7 @@ import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
 import { IMAGE_URL } from "@/lib/constants";
 import { motion, AnimatePresence } from "framer-motion";
+import AdminButton from "@/components/admin/AdminButton";
 
 interface SectionCourse {
   _id: string;
@@ -66,6 +67,7 @@ export default function SectionCoursesPage({
   const [sections, setSections] = useState<Section[]>([]);
   const [loading, setLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
@@ -201,12 +203,15 @@ export default function SectionCoursesPage({
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this course?")) return;
+    setRemovingId(id);
     try {
       await apiFetch(`/section-courses`, { method: "DELETE", data: { id } });
-      setCourses(courses.filter(c => c._id !== id));
+      setCourses(courses.filter((c) => c._id !== id));
       toast({ title: "Course deleted successfully" });
     } catch {
       toast({ title: "Failed to delete course", variant: "destructive" });
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -270,14 +275,14 @@ export default function SectionCoursesPage({
             Manage educational courses, curriculum details, and enrollment stats.
           </p>
         </div>
-        <button
+        <AdminButton
           onClick={() => setShowForm(true)}
           disabled={showForm}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] shadow-sm"
         >
           <PlusCircle className="w-4 h-4" />
           Add New Course
-        </button>
+        </AdminButton>
       </div>
 
       {/* FORM AREA */}
@@ -459,21 +464,22 @@ export default function SectionCoursesPage({
                 </div>
 
                 <div className="flex justify-end gap-3 pt-6 mt-4 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={handleCloseForm}
-                    className="px-5 py-2.5 text-gray-700 font-medium hover:bg-gray-100 rounded-[10px] transition-colors"
-                  >
+                  <AdminButton type="button" variant="ghost" onClick={handleCloseForm} className="px-5 py-2.5">
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-70 shadow-sm"
-                  >
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
-                    {form._id ? "Update Course" : "Save Course"}
-                  </button>
+                  </AdminButton>
+                  <AdminButton type="submit" loading={isSubmitting} className="px-8 py-2.5">
+                    {form._id ? (
+                      <>
+                        <Save className="w-4 h-4" />
+                        Update Course
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4" />
+                        Save Course
+                      </>
+                    )}
+                  </AdminButton>
                 </div>
               </form>
             </div>
@@ -538,7 +544,7 @@ export default function SectionCoursesPage({
           {filteredCourses.map(course => (
             <div
               key={course._id}
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden"
+              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden cursor-pointer"
             >
               <div className="relative h-48 bg-gray-100 overflow-hidden">
                 {course.image ? (
@@ -585,18 +591,17 @@ export default function SectionCoursesPage({
                         {course.enrolled || "0"} Enrolled
                     </span>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(course._id)}
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors"
-                      >
+                      <AdminButton onClick={() => handleEdit(course._id)} variant="ghost" className="p-2 rounded-[10px]">
                         <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
+                      </AdminButton>
+                      <AdminButton
                         onClick={() => handleDelete(course._id)}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors"
+                        variant="danger"
+                        loading={removingId === course._id}
+                        className="p-2 rounded-[10px]"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </AdminButton>
                     </div>
                  </div>
               </div>
@@ -631,14 +636,19 @@ export default function SectionCoursesPage({
                     {course.enrolled && <span className="flex items-center gap-1"><BarChart className="w-3 h-3" /> {course.enrolled}</span>}
                 </div>
               </div>
-              <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleEdit(course._id)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors">
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleDelete(course._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+                <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <AdminButton onClick={() => handleEdit(course._id)} variant="ghost" className="p-2 rounded-[10px]">
+                    <Pencil className="w-4 h-4" />
+                  </AdminButton>
+                  <AdminButton
+                    onClick={() => handleDelete(course._id)}
+                    variant="danger"
+                    loading={removingId === course._id}
+                    className="p-2 rounded-[10px]"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </AdminButton>
+                </div>
             </div>
           ))}
         </div>

@@ -70,7 +70,7 @@ export default function CountrySelect({ value, onChange, error }: CountrySelectP
           <button
             type="button"
             onClick={() => setIsOpen(!isOpen)}
-            className="flex items-center gap-2 pl-3 pr-2 py-3 border-r border-gray-200 hover:bg-gray-50 rounded-l-xl transition-colors outline-none"
+            className="flex items-center gap-2 pl-3 pr-2 py-3 border-r border-gray-200 hover:bg-gray-50 rounded-l-xl transition-colors outline-none cursor-pointer"
           >
             <img
               src={selectedCountry.flag}

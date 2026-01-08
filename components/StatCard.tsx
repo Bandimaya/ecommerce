@@ -15,7 +15,7 @@ export default function StatCard({ title, value, icon, color, trend }: any) {
   return (
     <motion.div
       whileHover={{ y: -5, scale: 1.02 }}
-      className="group bg-card p-6 rounded-2xl border border-border shadow-sm hover:shadow-lg hover:border-primary/20 transition-all relative overflow-hidden"
+      className="group bg-card p-6 rounded-2xl border border-border shadow-sm hover:shadow-lg hover:border-primary/20 transition-all relative overflow-hidden cursor-pointer"
       style={{ '--stat-color': statColor } as React.CSSProperties}
     >
       {/* Decorative background element */}

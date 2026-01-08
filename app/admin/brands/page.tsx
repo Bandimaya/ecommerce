@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
+import AdminButton from "@/components/admin/AdminButton";
 
 
 export default function Brands() {
@@ -23,6 +24,8 @@ export default function Brands() {
         description: "",
     });
     const [editingId, setEditingId] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [removingId, setRemovingId] = useState<string | null>(null);
 
     const fetchBrands = async () => {
         const res = await apiFetch("/brands");
@@ -40,7 +43,7 @@ export default function Brands() {
 
     const handleSubmit = async () => {
         if (!form.title.trim()) return toast({ title: "Brand title is required" });
-
+        setSubmitting(true);
         try {
             if (editingId) {
                 const updated = await apiFetch(`/brands/${editingId}`, {
@@ -61,13 +64,22 @@ export default function Brands() {
             toast({
                 title: "Error saving brand!"
             })
+        } finally {
+            setSubmitting(false);
         }
     };
 
     const handleDelete = async (id: any) => {
         if (!confirm("Are you sure you want to delete this brand? Products linked to it will remain but won't have a brand reference.")) return;
-        await apiFetch(`/brands/${id}`, { method: "DELETE" });
-        setBrands(brands.filter((b: any) => b._id !== id));
+        setRemovingId(id);
+        try {
+            await apiFetch(`/brands/${id}`, { method: "DELETE" });
+            setBrands(brands.filter((b: any) => b._id !== id));
+        } catch (err) {
+            toast({ title: "Failed to delete brand", variant: "destructive" });
+        } finally {
+            setRemovingId(null);
+        }
     };
 
     const handleEdit = (brand: any) => {
@@ -146,19 +158,13 @@ export default function Brands() {
                                 </div>
 
                                 <div className="flex gap-3 pt-2">
-                                    <button
-                                        onClick={handleSubmit}
-                                        className={`flex-1 py-4 rounded-2xl font-bold text-white transition-all shadow-lg active:scale-95 ${editingId ? 'bg-warning hover:bg-warning/90 shadow-warning/20' : 'bg-primary hover:bg-primary/90 shadow-primary/20'}`}
-                                    >
+                                    <AdminButton loading={submitting} onClick={handleSubmit} className={`flex-1 py-4 rounded-2xl font-bold transition-all shadow-lg active:scale-95 ${editingId ? 'bg-warning hover:bg-warning/90 shadow-warning/20 text-white' : 'bg-primary hover:bg-primary/90 shadow-primary/20 text-white'}`}>
                                         {editingId ? "Save Changes" : "Confirm & Add"}
-                                    </button>
+                                    </AdminButton>
                                     {editingId && (
-                                        <button
-                                            onClick={() => { setEditingId(null); setForm({ title: "", subTitle: "", description: "" }); }}
-                                            className="bg-muted p-4 rounded-2xl text-muted-foreground hover:text-foreground transition-colors"
-                                        >
+                                        <AdminButton variant="ghost" onClick={() => { setEditingId(null); setForm({ title: "", subTitle: "", description: "" }); }} className="p-4 rounded-2xl">
                                             <X className="w-5 h-5" />
-                                        </button>
+                                        </AdminButton>
                                     )}
                                 </div>
                             </div>
@@ -188,20 +194,14 @@ export default function Brands() {
                                             </div>
                                         </div>
 
-                                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                            <button
-                                                onClick={() => handleEdit(brand)}
-                                                className="p-3 bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground rounded-xl transition-all"
-                                            >
-                                                <Pencil className="w-4 h-4" />
-                                            </button>
-                                            <button
-                                                onClick={() => handleDelete(brand._id)}
-                                                className="p-3 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground rounded-xl transition-all"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </div>
+                                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                                    <AdminButton variant="ghost" onClick={() => handleEdit(brand)} className="p-3">
+                                                        <Pencil className="w-4 h-4" />
+                                                    </AdminButton>
+                                                    <AdminButton variant="danger" loading={removingId === brand._id} onClick={() => handleDelete(brand._id)} className="p-3">
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </AdminButton>
+                                                </div>
                                     </div>
                                 )
                                 )}

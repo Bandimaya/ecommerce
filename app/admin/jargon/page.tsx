@@ -18,6 +18,7 @@ import {
   LayoutGrid,
   ImageIcon
 } from "lucide-react";
+import AdminButton from "@/components/admin/AdminButton";
 
 // 1. Icon Mapping: Convert string names to actual React Components
 const ICON_COMPONENTS: Record<string, React.ElementType> = {
@@ -61,6 +62,7 @@ export default function JargonPage() {
   const [file, setFile] = useState<File | null>(null);
   const [editing, setEditing] = useState<JargonItem | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   /* ---------------- FETCH ---------------- */
   const fetchItems = async () => {
@@ -107,8 +109,15 @@ export default function JargonPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this item?")) return;
-    await fetch(`/api/jargon/${id}`, { method: "DELETE" });
-    fetchItems();
+    setRemovingId(id);
+    try {
+      await fetch(`/api/jargon/${id}`, { method: "DELETE" });
+      await fetchItems();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   const handleEdit = (item: JargonItem) => {
@@ -148,14 +157,10 @@ export default function JargonPage() {
             Manage the technical terms and feature cards displayed on the site.
           </p>
         </div>
-        <button
-          onClick={() => setIsFormOpen(true)}
-          disabled={isFormOpen}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-        >
+        <AdminButton onClick={() => setIsFormOpen(true)} disabled={isFormOpen} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
           Add New Term
-        </button>
+        </AdminButton>
       </div>
 
       {/* Form Section */}
@@ -314,25 +319,12 @@ export default function JargonPage() {
 
             {/* Footer Buttons */}
             <div className="md:col-span-2 flex justify-end gap-3 pt-4 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={handleCloseForm}
-                className="px-5 py-2.5 text-gray-700 font-medium hover:bg-gray-100 rounded-[10px] transition-colors"
-              >
+              <AdminButton variant="ghost" type="button" onClick={handleCloseForm} className="px-5 py-2.5">
                 Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-70 shadow-sm"
-              >
-                {submitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Save className="w-4 h-4" />
-                )}
+              </AdminButton>
+              <AdminButton type="submit" loading={submitting} className="px-8 py-2.5">
                 {editing ? "Update Item" : "Save Item"}
-              </button>
+              </AdminButton>
             </div>
           </form>
         </div>
@@ -362,7 +354,7 @@ export default function JargonPage() {
             return (
               <div
                 key={item._id}
-                className="group bg-white rounded-[10px] shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col"
+                className="group bg-white rounded-[10px] shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300 flex flex-col cursor-pointer"
               >
                 {/* Image Section */}
                 <div className="relative h-48 bg-gray-100 overflow-hidden">

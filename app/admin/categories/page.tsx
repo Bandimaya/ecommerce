@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
+import AdminButton from "@/components/admin/AdminButton";
 
 export default function Categories() {
     const [categories, setCategories] = useState<any>([]);
@@ -23,6 +24,8 @@ export default function Categories() {
         parentCategory: "",
     });
     const [editingId, setEditingId] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
+    const [removingId, setRemovingId] = useState<string | null>(null);
 
     const fetchCategories = async () => {
         const res = await apiFetch("/categories");
@@ -40,6 +43,7 @@ export default function Categories() {
     const handleSubmit = async () => {
         if (!form.title.trim()) return toast({ title: "Title is required" });
 
+        setSubmitting(true);
         try {
             if (editingId) {
                 const updated = await apiFetch(`/categories/${editingId}`, {
@@ -58,13 +62,22 @@ export default function Categories() {
             setForm({ title: "", subTitle: "", description: "", parentCategory: "" });
         } catch (error) {
             toast({ title: "An error occurred. Please try again." });
+        } finally {
+            setSubmitting(false);
         }
     };
 
     const handleDelete = async (id: any) => {
         if (!confirm("Delete this category? This might affect products linked to it.")) return;
-        await apiFetch(`/categories/${id}`, { method: "DELETE" });
-        setCategories(categories.filter((c: any) => c._id !== id));
+        setRemovingId(id);
+        try {
+            await apiFetch(`/categories/${id}`, { method: "DELETE" });
+            setCategories(categories.filter((c: any) => c._id !== id));
+        } catch (err) {
+            toast({ title: "Failed to delete category", variant: "destructive" });
+        } finally {
+            setRemovingId(null);
+        }
     };
 
     const handleEdit = (c: any) => {
@@ -84,7 +97,7 @@ export default function Categories() {
             .filter((c: any) => (c.parentCategory || "") === parentId)
             .map((c: any) => (
                 <div key={c._id}>
-                    <div className={`group flex items-center justify-between p-4 mb-2 bg-white border border-gray-100 rounded-xl hover:shadow-md transition-all ${depth > 0 ? 'ml-8 border-l-4 border-l-blue-400' : 'shadow-sm'}`}>
+                    <div className={`group flex items-center justify-between p-4 mb-2 bg-white border border-gray-100 rounded-xl hover:shadow-md transition-all cursor-pointer ${depth > 0 ? 'ml-8 border-l-4 border-l-blue-400' : 'shadow-sm'}`}>
                         <div className="flex items-center gap-3">
                             {depth > 0 ? (
                                 <CornerDownRight className="w-5 h-5 text-gray-400" />
@@ -104,20 +117,12 @@ export default function Categories() {
                         </div>
 
                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button
-                                onClick={() => handleEdit(c)}
-                                className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                                title="Edit"
-                            >
+                            <AdminButton variant="ghost" onClick={() => handleEdit(c)} className="p-2" title="Edit">
                                 <Pencil className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={() => handleDelete(c._id)}
-                                className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                                title="Delete"
-                            >
+                            </AdminButton>
+                            <AdminButton variant="danger" loading={removingId === c._id} onClick={() => handleDelete(c._id)} className="p-2" title="Delete">
                                 <Trash2 className="w-4 h-4" />
-                            </button>
+                            </AdminButton>
                         </div>
                     </div>
                     {renderCategoryRows(c._id, depth + 1)}
@@ -212,13 +217,10 @@ export default function Categories() {
                         </div>
 
                         <div className="mt-6 flex justify-end">
-                            <button
-                                onClick={handleSubmit}
-                                className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-white transition-all shadow-lg active:scale-95 ${editingId ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-200' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200'}`}
-                            >
+                            <AdminButton loading={submitting} onClick={handleSubmit} className={`flex items-center gap-2 px-8 py-3 rounded-xl font-bold transition-all active:scale-95 ${editingId ? 'bg-orange-500 hover:bg-orange-600 shadow-orange-200 text-white' : 'bg-blue-600 hover:bg-blue-700 shadow-blue-200 text-white'}`}>
                                 {editingId ? <ChevronRight className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
                                 {editingId ? "Update Category" : "Save Category"}
-                            </button>
+                            </AdminButton>
                         </div>
                     </div>
                 </div>

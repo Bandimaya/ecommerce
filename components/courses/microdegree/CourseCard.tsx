@@ -9,6 +9,7 @@ import { IMAGE_URL } from '@/lib/constants';
 interface CardProps {
   course: CourseProps;
   compact?: boolean;
+  isMobile?: boolean;
 }
 
 const slabVariants = {
@@ -16,12 +17,12 @@ const slabVariants = {
   expanded: { height: 'calc(100% - 16px)' },
 };
 
-export default function ProfessionalCourseCard({ course, compact }: CardProps) {
+export default function ProfessionalCourseCard({ course, compact, isMobile }: CardProps) {
   return (
     <motion.article
-      initial="collapsed"
-      whileHover="expanded"
-      className="group relative h-full w-full bg-white rounded-[10px] overflow-hidden border border-slate-200 transition-all duration-300 hover:border-blue-500 hover:shadow-2xl"
+      initial={isMobile ? 'expanded' : 'collapsed'}
+      whileHover={isMobile ? undefined : 'expanded'}
+      className="group relative h-full w-full bg-white rounded-[10px] overflow-hidden border border-slate-200 transition-all duration-300 hover:border-blue-500 hover:shadow-2xl cursor-pointer"
     >
       {/* Background Image Wrapper */}
       <div className="relative h-full w-full bg-slate-100">
@@ -61,7 +62,14 @@ export default function ProfessionalCourseCard({ course, compact }: CardProps) {
             {course.title}
           </h3>
 
-          <motion.p className="text-slate-500 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <motion.p
+            variants={{
+              collapsed: { opacity: 0, y: 10 },
+              expanded: { opacity: 1, y: 0 },
+            }}
+            transition={{ duration: 0.3, delay: 0.1 }}
+            className="text-slate-500 text-sm line-clamp-2"
+          >
             {course.description}
           </motion.p>
         </div>

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
+import AdminButton from "@/components/admin/AdminButton";
 import Cropper from "react-easy-crop";
 import { IMAGE_URL } from "@/lib/constants";
 import { SkeletonAvatar, SkeletonText, SkeletonLine } from "@/components/ui/skeleton";
@@ -86,6 +87,7 @@ export default function ContactInfo() {
   const [logo, setLogo] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState("");
   const [saving, setSaving] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   // --- Cropper State ---
   const [cropImage, setCropImage] = useState<string | null>(null); // The raw uploaded image
@@ -117,22 +119,22 @@ export default function ContactInfo() {
 
   // 1. User selects a file -> Read it and open Cropper
   const handleLogoSelect = async (e: any) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      if (!file.type.startsWith("image/")) {
-        return toast({ title: "Please upload a valid image file" });
-      }
-      
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        setCropImage(reader.result as string);
-        setIsCropOpen(true);
-        setZoom(1);
-      });
-      reader.readAsDataURL(file);
-      // Reset input so same file can be selected again if needed
-      e.target.value = null; 
+    const input = e.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const file = input.files[0] as File;
+    if (!file.type.startsWith("image/")) {
+      return toast({ title: "Please upload a valid image file" });
     }
+    
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      setCropImage(reader.result as string);
+      setIsCropOpen(true);
+      setZoom(1);
+    });
+    reader.readAsDataURL(file);
+    // Reset input so same file can be selected again if needed
+    input.value = "";
   };
 
   // 2. Store coordinates when user moves crop box
@@ -272,9 +274,9 @@ export default function ContactInfo() {
                         hidden
                         onChange={handleLogoSelect}
                       />
-                      <span className="px-4 py-2 text-sm font-semibold bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
-                         Upload New
-                      </span>
+                      <AdminButton className="px-4 py-2 text-sm font-semibold rounded-lg">
+                        Upload New
+                      </AdminButton>
                     </label>
                     <p className="text-xs text-gray-400">
                       We'll ask you to crop it to a circle.
@@ -354,27 +356,19 @@ export default function ContactInfo() {
               <div className="text-xs text-gray-400 flex items-center gap-2">
                 <Info className="w-3 h-3" /> Auto-updates website footer
               </div>
-              <button
-                onClick={handleSubmit}
-                disabled={saving}
-                className={`flex items-center gap-2 px-8 py-2.5 rounded-xl font-bold text-white transition ${
-                  saving
-                    ? "bg-gray-400"
-                    : "bg-blue-600 hover:bg-blue-700"
-                }`}
-              >
+              <AdminButton onClick={handleSubmit} loading={saving} className="px-8 py-2.5 rounded-xl font-bold">
                 {saving ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Saving…</span>
-                  </span>
+                  <>
+                    <Loader2 className="w-4 h-4" />
+                    Saving…
+                  </>
                 ) : (
-                  <span className="flex items-center gap-2">
+                  <>
                     <Save className="w-4 h-4" />
-                    <span>Save Changes</span>
-                  </span>
+                    Save Changes
+                  </>
                 )}
-              </button>
+              </AdminButton>
             </div>
           </div>
         </div>
@@ -425,8 +419,8 @@ export default function ContactInfo() {
             {/* Modal Header */}
             <div className="px-4 py-3 border-b flex justify-between items-center bg-gray-50">
                 <h3 className="font-bold text-gray-700">Adjust Logo</h3>
-                <button onClick={cancelCrop} className="p-1 hover:bg-gray-200 rounded-full transition">
-                    <X className="w-5 h-5 text-gray-500" />
+                <button onClick={cancelCrop} className="p-1 hover:bg-gray-200 rounded-full transition cursor-pointer">
+                  <X className="w-5 h-5 text-gray-500" />
                 </button>
             </div>
 
@@ -461,18 +455,12 @@ export default function ContactInfo() {
               </div>
 
               <div className="flex gap-3">
-                <button
-                    onClick={cancelCrop}
-                    className="flex-1 px-4 py-2 text-gray-700 bg-gray-100 rounded-xl font-medium hover:bg-gray-200 transition"
-                >
-                    Cancel
-                </button>
-                <button
-                    onClick={performCrop}
-                    className="flex-1 px-4 py-2 text-white bg-blue-600 rounded-xl font-bold hover:bg-blue-700 transition flex items-center justify-center gap-2"
-                >
-                    <Check className="w-4 h-4" /> Apply Crop
-                </button>
+                <AdminButton variant="ghost" onClick={cancelCrop} className="flex-1 px-4 py-2 rounded-xl">
+                  Cancel
+                </AdminButton>
+                <AdminButton onClick={performCrop} className="flex-1 px-4 py-2 rounded-xl font-bold">
+                  <Check className="w-4 h-4" /> Apply Crop
+                </AdminButton>
               </div>
             </div>
 

@@ -338,7 +338,7 @@ const Cart = () => {
                                                             whileTap={{ scale: 0.9 }}
                                                             onClick={() => removeFromCart(item._id)}
                                                             className="p-2 rounded-lg text-[var(--delete-icon)] hover:bg-[var(--delete-bg)] 
-                                                                     transition-colors"
+                                                                     transition-colors cursor-pointer"
                                                             style={{
                                                                 '--delete-icon': 'hsl(var(--muted-foreground))',
                                                                 '--delete-bg': 'hsl(var(--destructive) / 0.1)',
@@ -363,7 +363,7 @@ const Cart = () => {
                                                                 onClick={() => updateQuantity(item._id, item.quantity - 1)}
                                                                 disabled={item.quantity <= 1}
                                                                 className="p-3 hover:bg-[var(--quantity-hover)] disabled:opacity-30 
-                                                                         transition-colors"
+                                                                         transition-colors cursor-pointer"
                                                                 style={{ '--quantity-hover': 'hsl(var(--background))' } as React.CSSProperties}
                                                             >
                                                                 <Minus className="w-3 h-3" />
@@ -375,7 +375,7 @@ const Cart = () => {
                                                             <motion.button
                                                                 whileTap={{ scale: 0.9 }}
                                                                 onClick={() => updateQuantity(item._id, item.quantity + 1)}
-                                                                className="p-3 hover:bg-[var(--quantity-hover)] transition-colors"
+                                                                className="p-3 hover:bg-[var(--quantity-hover)] transition-colors cursor-pointer"
                                                             >
                                                                 <Plus className="w-3 h-3" />
                                                             </motion.button>

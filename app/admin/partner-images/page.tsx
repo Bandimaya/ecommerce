@@ -11,6 +11,7 @@ import {
   X,
   Handshake
 } from "lucide-react";
+import AdminButton from "@/components/admin/AdminButton";
 
 type PartnerImage = {
   _id: string;
@@ -24,6 +25,7 @@ export default function PartnerImagesPage() {
   // Loading states
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   /* ===== FETCH ===== */
   const fetchImages = async () => {
@@ -46,6 +48,11 @@ export default function PartnerImagesPage() {
   const addImage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image too large (max 5MB)");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -71,16 +78,18 @@ export default function PartnerImagesPage() {
   /* ===== REMOVE IMAGE ===== */
   const removeImage = async (id: string) => {
     if (!confirm("Are you sure you want to remove this partner logo?")) return;
-
+    setRemovingId(id);
     try {
       await fetch("/api/partner-images", {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id }),
       });
-      fetchImages();
+      await fetchImages();
     } catch (error) {
       console.error("Failed to delete image", error);
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -133,28 +142,16 @@ export default function PartnerImagesPage() {
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-3 w-full md:w-auto">
-            <button
-              type="submit"
-              disabled={!file || submitting}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-[10px] font-medium transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap min-w-[140px]"
-            >
-              {submitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Upload className="w-4 h-4" />
-              )}
+            <AdminButton type="submit" loading={submitting} disabled={!file} className="min-w-[140px] rounded-[10px] flex items-center justify-center gap-2">
+              <Upload className="w-4 h-4" />
               {submitting ? "Uploading..." : "Upload Logo"}
-            </button>
+            </AdminButton>
             
             {file && (
-              <button
-                type="button"
-                onClick={() => setFile(null)}
-                className="px-6 py-3 rounded-[10px] font-medium text-gray-600 hover:bg-gray-100 border border-gray-200 transition-colors flex items-center justify-center gap-2"
-              >
+              <AdminButton variant="ghost" type="button" onClick={() => setFile(null)} className="rounded-[10px]">
                 <X className="w-4 h-4" />
                 Cancel
-              </button>
+              </AdminButton>
             )}
           </div>
         </form>
@@ -186,7 +183,7 @@ export default function PartnerImagesPage() {
             {images.map((img) => (
               <div
                 key={img._id}
-                className="group relative bg-white rounded-[10px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all aspect-square flex items-center justify-center p-4"
+                className="group relative bg-white rounded-[10px] overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all aspect-square flex items-center justify-center p-4 cursor-pointer"
               >
                 {/* Note: object-contain is better for logos than object-cover */}
                 <img
@@ -197,13 +194,15 @@ export default function PartnerImagesPage() {
                 
                 {/* Overlay with Round Icon Button */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-                  <button
+                  <AdminButton
+                    variant="danger"
+                    loading={removingId === img._id}
                     onClick={() => removeImage(img._id)}
-                    className="bg-white hover:bg-red-600 hover:text-white text-gray-500 shadow-md p-3 rounded-full transition-all hover:scale-110 border border-gray-100"
                     title="Delete Logo"
+                    className="p-3 rounded-full"
                   >
                     <Trash2 className="w-5 h-5" />
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
             ))}

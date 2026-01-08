@@ -30,7 +30,7 @@ interface HeroSectionProps {
 const SLIDES: Slide[] = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2940&auto=format&fit=crop",
+    image: "/assets/hero/dragon.jpg",
     alt: "Smart Home Interface",
     videoUrl: "/videos/smart-home-demo.mp4",
     content: {
@@ -38,12 +38,12 @@ const SLIDES: Slide[] = [
       title: "The Connected Future",
       description: "Seamlessly integrate your lifestyle with next-gen IoT solutions designed for the modern era.",
       ctaText: "Read the Article",
-      ctaLink: "https://www.mediatek.com/tek-talk-blogs/heres-why-wi-fi-6-is-better-for-iot"
+      ctaLink: ""
     }
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2970&auto=format&fit=crop",
+    image: "/assets/hero/pain-naruto-indigo-5120x2880-10830.png",
     alt: "Advanced Circuitry",
     videoUrl: "/videos/ai-processing.mp4",
     content: {
@@ -51,12 +51,12 @@ const SLIDES: Slide[] = [
       title: "Neural Processing",
       description: "Discover how AI is bridging the gap between raw silicon power and daily human interaction.",
       ctaText: "View Insights",
-      ctaLink: "https://medium.com/horizon-hub"
+      ctaLink: ""
     }
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2940&auto=format&fit=crop",
+    image: "/assets/hero/spidernam.jpg",
     alt: "Smart Living Space",
     videoUrl: "/videos/living-space.mp4",
     content: {
@@ -64,7 +64,7 @@ const SLIDES: Slide[] = [
       title: "Intelligent Living",
       description: "Transform your physical space into a responsive environment that anticipates your needs.",
       ctaText: "Explore Solutions",
-      ctaLink: "https://builtin.com/articles/what-is-a-smart-home"
+      ctaLink: ""
     }
   }
 ];

@@ -95,7 +95,7 @@ function FaqItem({ item, isOpen, onClick }: { item: any, isOpen: boolean, onClic
     >
       <button
         onClick={onClick}
-        className="w-full flex items-center justify-between p-6 md:p-8 text-left outline-none"
+        className="w-full flex items-center justify-between p-6 md:p-8 text-left outline-none cursor-pointer"
       >
         <span className={`text-lg md:text-xl font-bold pr-6 transition-colors duration-300 ${isOpen ? 'text-slate-900' : 'text-slate-700'}`}>
           {item.question}

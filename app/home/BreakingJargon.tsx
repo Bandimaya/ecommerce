@@ -452,9 +452,9 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                       </div>
 
                       <div className="flex justify-between items-center pt-4 border-t border-slate-100">
-                        <button onClick={handlePrev} className="p-3 bg-slate-50 border border-slate-100 rounded-full active:scale-95 transition-transform text-slate-600 hover:bg-slate-100"><ChevronLeft size={20} /></button>
+                        <button onClick={handlePrev} className="p-3 bg-slate-50 border border-slate-100 rounded-full active:scale-95 transition-transform text-slate-600 hover:bg-slate-100 cursor-pointer"><ChevronLeft size={20} /></button>
                          <span className="text-sm font-bold text-slate-400">{activeIndex + 1} / {data.length}</span>
-                        <button onClick={handleNext} className="p-3 bg-slate-50 border border-slate-100 rounded-full active:scale-95 transition-transform text-slate-600 hover:bg-slate-100"><ChevronRight size={20} /></button>
+                        <button onClick={handleNext} className="p-3 bg-slate-50 border border-slate-100 rounded-full active:scale-95 transition-transform text-slate-600 hover:bg-slate-100 cursor-pointer"><ChevronRight size={20} /></button>
                       </div>
                     </div>
                   </div>

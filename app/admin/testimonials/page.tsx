@@ -2,6 +2,7 @@
 
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import AdminButton from "@/components/admin/AdminButton";
 
 type Testimonial = {
   _id: string;
@@ -15,6 +16,8 @@ export default function TestimonialsPage() {
   const [items, setItems] = useState<Testimonial[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     quote: "",
@@ -33,39 +36,54 @@ export default function TestimonialsPage() {
 
   const addItem = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
 
-    if (file) {
-      const fd = new FormData();
-      fd.append("quote", form.quote);
-      fd.append("name", form.name);
-      fd.append("designation", form.designation);
-      fd.append("image", file);
+    try {
+      if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert("Image too large (max 5MB)");
+          return;
+        }
+        const fd = new FormData();
+        fd.append("quote", form.quote);
+        fd.append("name", form.name);
+        fd.append("designation", form.designation);
+        fd.append("image", file);
 
-      await fetch("/api/testimonials", {
-        method: "POST",
-        body: fd,
-      });
-    } else if (url) {
-      await fetch("/api/testimonials", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, image: url }),
-      });
+        await fetch("/api/testimonials", {
+          method: "POST",
+          body: fd,
+        });
+      } else if (url) {
+        await fetch("/api/testimonials", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, image: url }),
+        });
+      }
+
+      setForm({ quote: "", name: "", designation: "" });
+      setUrl("");
+      setFile(null);
+      await fetchItems();
+    } finally {
+      setSubmitting(false);
     }
-
-    setForm({ quote: "", name: "", designation: "" });
-    setUrl("");
-    setFile(null);
-    fetchItems();
   };
 
   const removeItem = async (id: string) => {
-    await fetch("/api/testimonials", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    fetchItems();
+    if (!confirm("Remove this testimonial?")) return;
+    setRemovingId(id);
+    try {
+      await fetch("/api/testimonials", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      await fetchItems();
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   return (
@@ -108,9 +126,9 @@ export default function TestimonialsPage() {
           className="mb-2"
         />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">
+        <AdminButton type="submit" loading={submitting} className="px-4 py-2">
           Add Testimonial
-        </button>
+        </AdminButton>
       </form>
 
       {/* LIST */}
@@ -132,12 +150,9 @@ export default function TestimonialsPage() {
                 {t.designation}
               </p>
             </div>
-            <button
-              onClick={() => removeItem(t._id)}
-              className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded"
-            >
+            <AdminButton variant="danger" loading={removingId === t._id} onClick={() => removeItem(t._id)} className="absolute top-2 right-2 p-2">
               ✕
-            </button>
+            </AdminButton>
           </div>
         ))}
       </div>

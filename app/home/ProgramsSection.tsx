@@ -47,7 +47,7 @@ const ProgramCard = ({ program }: { program: any }) => {
   return (
     <motion.div
       variants={cardVariants}
-      className="group flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] hover:border-slate-300 transition-all duration-500 overflow-hidden"
+      className="group flex flex-col h-full bg-white rounded-2xl border border-slate-200 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-12px_rgba(0,0,0,0.1)] hover:border-slate-300 transition-all duration-500 overflow-hidden cursor-pointer"
     >
       {/* 1. Header Image Area with Hover Zoom */}
       <div className="relative h-48 overflow-hidden">

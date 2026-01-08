@@ -267,14 +267,14 @@ export default function StemParkShowcase() {
               <button
                 onClick={handlePrev}
                 disabled={videoList.length === 0}
-                className="w-16 h-16 rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all duration-300 active:scale-95 bg-white text-slate-900 hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:opacity-50"
+                className="w-16 h-16 rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all duration-300 active:scale-95 bg-white text-slate-900 hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:opacity-50 cursor-pointer"
               >
                 <ChevronLeft size={28} />
               </button>
               <button
                 onClick={handleNext}
                 disabled={videoList.length === 0}
-                className="w-16 h-16 rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all duration-300 active:scale-95 bg-white text-slate-900 hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:opacity-50"
+                className="w-16 h-16 rounded-full shadow-lg border border-slate-200 flex items-center justify-center transition-all duration-300 active:scale-95 bg-white text-slate-900 hover:bg-primary hover:text-primary-foreground hover:border-primary disabled:opacity-50 cursor-pointer"
               >
                 <ChevronRight size={28} />
               </button>
@@ -286,7 +286,7 @@ export default function StemParkShowcase() {
           <a
             href="https://www.youtube.com/@Avishkaar/shorts"
             target="_blank"
-            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all"
+            className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all cursor-pointer"
           >
             View Channel
             <ArrowUpRight className="w-4 h-4" />

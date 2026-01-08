@@ -228,7 +228,7 @@ export default function LeagueResults() {
             <div className="flex items-center gap-6 mt-10 md:mt-14">
               <button
                 onClick={handlePrev}
-                className="group w-12 h-12 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-slate-500 hover:border-primary hover:text-primary hover:shadow-md transition-all duration-300"
+                className="group w-12 h-12 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-slate-500 hover:border-primary hover:text-primary hover:shadow-md transition-all duration-300 cursor-pointer"
               >
                 <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
               </button>
@@ -243,7 +243,7 @@ export default function LeagueResults() {
                       setCurrentIndex(idx);
                     }}
                     className={cn(
-                      "h-2 rounded-full transition-all duration-300",
+                      "h-2 rounded-full transition-all duration-300 cursor-pointer",
                       idx === currentIndex ? "w-8 bg-primary" : "w-2 bg-gray-300 hover:bg-gray-400"
                     )}
                   />
@@ -252,7 +252,7 @@ export default function LeagueResults() {
 
               <button
                 onClick={handleNext}
-                className="group w-12 h-12 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-slate-500 hover:border-primary hover:text-primary hover:shadow-md transition-all duration-300"
+                className="group w-12 h-12 rounded-full bg-white border border-gray-200 shadow-sm flex items-center justify-center text-slate-500 hover:border-primary hover:text-primary hover:shadow-md transition-all duration-300 cursor-pointer"
               >
                 <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
               </button>

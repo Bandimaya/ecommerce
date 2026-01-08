@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
 import { IMAGE_URL } from "@/lib/constants";
+import AdminButton from "@/components/admin/AdminButton";
 
 interface Section {
   _id: string;
@@ -43,6 +44,7 @@ export default function SectionsPage() {
     label: "",
     description: ""
   });
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   /* ---------------- FETCH ---------------- */
   const fetchSections = async () => {
@@ -134,12 +136,15 @@ export default function SectionsPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this section?")) return;
+    setRemovingId(id);
     try {
       await apiFetch(`/sections`, { method: "DELETE", data: { id } });
       setSections(sections.filter(s => s._id !== id));
       toast({ title: "Section deleted" });
     } catch {
       toast({ title: "Delete failed", variant: "destructive" });
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -153,14 +158,10 @@ export default function SectionsPage() {
             Organize course categories and learning tracks.
           </p>
         </div>
-        <button
-          onClick={() => setShowForm(true)}
-          disabled={showForm}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
-        >
+        <AdminButton onClick={() => setShowForm(true)} disabled={showForm} className="flex items-center gap-2">
           <PlusCircle className="w-4 h-4" />
           Add New Section
-        </button>
+        </AdminButton>
       </div>
 
       {/* FORM AREA */}
@@ -178,7 +179,7 @@ export default function SectionsPage() {
                   {editingId ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
                   {editingId ? "Edit Section" : "Create New Section"}
                 </h2>
-                <button onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px]">
+                <button onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px] cursor-pointer">
                   <X className="w-5 h-5" />
                 </button>
               </div>
@@ -237,21 +238,12 @@ export default function SectionsPage() {
                 </div>
 
                 <div className="flex justify-end gap-3 pt-6 mt-2 border-t border-gray-100">
-                  <button
-                    type="button"
-                    onClick={handleCloseForm}
-                    className="px-5 py-2.5 text-gray-700 font-medium hover:bg-gray-100 rounded-[10px] transition-colors"
-                  >
+                  <AdminButton variant="ghost" type="button" onClick={handleCloseForm} className="px-5 py-2.5">
                     Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-[10px] font-medium transition-colors disabled:opacity-70 shadow-sm"
-                  >
-                    {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  </AdminButton>
+                  <AdminButton type="submit" loading={submitting} className="px-8 py-2.5">
                     {editingId ? "Update Section" : "Save Section"}
-                  </button>
+                  </AdminButton>
                 </div>
               </form>
             </div>
@@ -318,7 +310,7 @@ export default function SectionsPage() {
           {filteredSections.map(section => (
             <div
               key={section._id}
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden"
+              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden cursor-pointer"
             >
               <div className="p-5 flex items-start gap-4">
                 <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-[10px] border border-gray-100 flex items-center justify-center overflow-hidden">
@@ -341,20 +333,12 @@ export default function SectionsPage() {
               </div>
 
               <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={() => handleEdit(section)}
-                  className="p-2 bg-white text-gray-600 hover:text-blue-600 hover:border-blue-200 border border-gray-200 rounded-[10px] shadow-sm transition-colors"
-                  title="Edit"
-                >
+                <AdminButton variant="ghost" onClick={() => handleEdit(section)} className="p-2" title="Edit">
                   <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(section._id)}
-                  className="p-2 bg-white text-gray-600 hover:text-red-600 hover:border-red-200 border border-gray-200 rounded-[10px] shadow-sm transition-colors"
-                  title="Delete"
-                >
+                </AdminButton>
+                <AdminButton variant="danger" loading={removingId === section._id} onClick={() => handleDelete(section._id)} className="p-2" title="Delete">
                   <Trash2 className="w-4 h-4" />
-                </button>
+                </AdminButton>
               </div>
             </div>
           ))}
@@ -381,13 +365,13 @@ export default function SectionsPage() {
                 </div>
               </div>
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => handleEdit(section)} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors">
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button onClick={() => handleDelete(section._id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
+                  <AdminButton variant="ghost" onClick={() => handleEdit(section)} className="p-2">
+                    <Pencil className="w-4 h-4" />
+                  </AdminButton>
+                  <AdminButton variant="danger" loading={removingId === section._id} onClick={() => handleDelete(section._id)} className="p-2">
+                    <Trash2 className="w-4 h-4" />
+                  </AdminButton>
+                </div>
             </div>
           ))}
         </div>

@@ -142,7 +142,7 @@ function HoverCard({ project }: { project: Project }) {
 
   return (
     <div
-      className="group relative p-2 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 h-full flex flex-col"
+      className="group relative p-2 bg-white rounded-3xl border border-slate-200 shadow-sm hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 h-full flex flex-col cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

@@ -160,6 +160,7 @@ export default function ProductCard({ product, index = 0 }: any) {
                    onClick={handleAddToCart} // Keep functionality
                    whileHover={{ scale: 1.1 }}
                    whileTap={{ scale: 0.9 }}
+                   className="cursor-pointer"
                 >
                   <Button
                     size="icon"

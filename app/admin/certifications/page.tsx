@@ -2,6 +2,7 @@
 
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import AdminButton from "@/components/admin/AdminButton";
 
 const ICONS = [
   { key: "award", label: "Award" },
@@ -21,6 +22,8 @@ export default function CertificationsPage() {
   const [items, setItems] = useState<Certification[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     label: "",
@@ -39,39 +42,53 @@ export default function CertificationsPage() {
 
   const addItem = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    try {
+      if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert("Image too large (max 5MB)");
+          return;
+        }
+        const fd = new FormData();
+        fd.append("label", form.label);
+        fd.append("alt", form.alt);
+        fd.append("icon", form.icon);
+        fd.append("image", file);
 
-    if (file) {
-      const fd = new FormData();
-      fd.append("label", form.label);
-      fd.append("alt", form.alt);
-      fd.append("icon", form.icon);
-      fd.append("image", file);
+        await fetch("/api/certifications", {
+          method: "POST",
+          body: fd,
+        });
+      } else if (url) {
+        await fetch("/api/certifications", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...form, image: url }),
+        });
+      }
 
-      await fetch("/api/certifications", {
-        method: "POST",
-        body: fd,
-      });
-    } else if (url) {
-      await fetch("/api/certifications", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, image: url }),
-      });
+      setForm({ label: "", alt: "", icon: "award" });
+      setUrl("");
+      setFile(null);
+      await fetchItems();
+    } finally {
+      setSubmitting(false);
     }
-
-    setForm({ label: "", alt: "", icon: "award" });
-    setUrl("");
-    setFile(null);
-    fetchItems();
   };
 
   const removeItem = async (id: string) => {
-    await fetch("/api/certifications", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    fetchItems();
+    if (!confirm("Remove this certification?")) return;
+    setRemovingId(id);
+    try {
+      await fetch("/api/certifications", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      await fetchItems();
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   return (
@@ -122,9 +139,9 @@ export default function CertificationsPage() {
           className="mb-2"
         />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">
+        <AdminButton type="submit" loading={submitting} className="px-4 py-2">
           Add Certification
-        </button>
+        </AdminButton>
       </form>
 
       {/* LIST */}
@@ -143,12 +160,9 @@ export default function CertificationsPage() {
               <p className="font-semibold">{c.label}</p>
               <span className="text-xs text-gray-500">{c.icon}</span>
             </div>
-            <button
-              onClick={() => removeItem(c._id)}
-              className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded"
-            >
+            <AdminButton variant="danger" loading={removingId === c._id} onClick={() => removeItem(c._id)} className="absolute top-2 right-2 p-2">
               ✕
-            </button>
+            </AdminButton>
           </div>
         ))}
       </div>

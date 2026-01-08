@@ -2,6 +2,7 @@
 
 import { IMAGE_URL } from "@/lib/constants";
 import { useEffect, useState } from "react";
+import AdminButton from "@/components/admin/AdminButton";
 
 type Benefit = {
   _id: string;
@@ -16,6 +17,8 @@ export default function BenefitsPage() {
   const [url, setUrl] = useState("");
   const [text, setText] = useState("");
   const [alt, setAlt] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
 
   const fetchBenefits = async () => {
     const res = await fetch("/api/benefits");
@@ -28,36 +31,50 @@ export default function BenefitsPage() {
 
   const addBenefit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
+    try {
+      if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert("Image too large (max 5MB)");
+          return;
+        }
+        const fd = new FormData();
+        fd.append("image", file);
+        fd.append("text", text);
+        fd.append("alt", alt);
 
-    if (file) {
-      const fd = new FormData();
-      fd.append("image", file);
-      fd.append("text", text);
-      fd.append("alt", alt);
+        await fetch("/api/benefits", { method: "POST", body: fd });
+      } else if (url) {
+        await fetch("/api/benefits", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: url, text, alt }),
+        });
+      }
 
-      await fetch("/api/benefits", { method: "POST", body: fd });
-    } else if (url) {
-      await fetch("/api/benefits", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image: url, text, alt }),
-      });
+      setFile(null);
+      setUrl("");
+      setText("");
+      setAlt("");
+      await fetchBenefits();
+    } finally {
+      setSubmitting(false);
     }
-
-    setFile(null);
-    setUrl("");
-    setText("");
-    setAlt("");
-    fetchBenefits();
   };
 
   const removeBenefit = async (id: string) => {
-    await fetch("/api/benefits", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id }),
-    });
-    fetchBenefits();
+    if (!confirm("Remove this benefit?")) return;
+    setRemovingId(id);
+    try {
+      await fetch("/api/benefits", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      await fetchBenefits();
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   return (
@@ -90,9 +107,9 @@ export default function BenefitsPage() {
           className="mb-3"
         />
 
-        <button className="bg-blue-600 text-white px-4 py-2 rounded">
+        <AdminButton type="submit" loading={submitting} className="px-4 py-2">
           Add Benefit
-        </button>
+        </AdminButton>
       </form>
 
       {/* LIST */}
@@ -111,12 +128,9 @@ export default function BenefitsPage() {
               className="text-sm"
               dangerouslySetInnerHTML={{ __html: b.text }}
             />
-            <button
-              onClick={() => removeBenefit(b._id)}
-              className="absolute top-2 right-2 bg-red-600 text-white text-xs px-2 py-1 rounded"
-            >
+            <AdminButton variant="danger" loading={removingId === b._id} onClick={() => removeBenefit(b._id)} className="absolute top-2 right-2 p-2">
               ✕
-            </button>
+            </AdminButton>
           </div>
         ))}
       </div>

@@ -80,7 +80,7 @@ const BadgeCard = ({ badge, c }: { badge: any, c: any }) => {
     >
       {/* Main Card Container */}
       <div 
-        className="relative h-full flex items-center p-5 rounded-lg border transition-all duration-300"
+        className="relative h-full flex items-center p-5 rounded-lg border transition-all duration-300 cursor-pointer"
         style={{
           backgroundColor: c('--background', '#fff'),
           borderColor: c('--border', '#e2e8f0'),
