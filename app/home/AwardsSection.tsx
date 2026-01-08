@@ -2,23 +2,9 @@
 
 import { useEffect, useState } from 'react';
 // Adjust the path to where you saved the component
-import BackgroundGrid from '../home/marqueeBackground/BackgroundGrid';
+import BackgroundGrid from './marqueeBackground/BackgroundGrid';
 import { apiFetch } from '@/lib/axios';
 import { IMAGE_URL } from '@/lib/constants';
-
-// --- Data: Reliable Award Images from Unsplash ---
-const AWARD_IMAGES = [
-  "https://images.unsplash.com/photo-1578269174936-2709b6aeb913?auto=format&fit=crop&q=80&w=400", // Golden Trophy
-  "https://images.unsplash.com/photo-1614036417651-7913396db871?auto=format&fit=crop&q=80&w=400", // Gold Medal
-  "https://images.unsplash.com/photo-1565514020176-dbf22384914e?auto=format&fit=crop&q=80&w=400", // Winning Cup
-  "https://images.unsplash.com/photo-1590071089561-2087ff8f9871?auto=format&fit=crop&q=80&w=400", // Podium
-  "https://images.unsplash.com/photo-1551818255-e6e10975bc17?auto=format&fit=crop&q=80&w=400", // Star Award
-  "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&q=80&w=400", // Runner / Sport
-  "https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&q=80&w=400", // Achievement
-  "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=400", // Writing/Certificate
-  "https://images.unsplash.com/photo-1565514020176-dbf22384914e?auto=format&fit=crop&q=80&w=400", // Cup
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=400", // Team Success
-];
 
 export default function AwardsSection() {
   const [data, setData] = useState<string[]>([]);
@@ -31,6 +17,7 @@ export default function AwardsSection() {
         console.error('Error fetching award images:', error);
       });
   }, [])
+
   return (
     <section className="relative py-20 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
 
@@ -71,13 +58,14 @@ export default function AwardsSection() {
             {data.map((src: any, idx) => (
               <div
                 key={`set1-${idx}`}
-                className="relative group flex-shrink-0 flex items-center justify-center w-[180px] md:w-[240px] aspect-[4/3] bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
+                // UPDATED: Fixed dimensions w-[180px] h-[80px], no padding, rounded-[10px]
+                className="relative group flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-white rounded-[10px] shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
               >
                 <img
-                  src={IMAGE_URL+ src.image}
+                  src={IMAGE_URL + src.image}
                   alt={`Award recognition ${idx + 1}`}
-                  // Removed 'filter grayscale' and 'opacity-80' to maintain full color
-                  className="w-full h-full object-contain mix-blend-multiply transition-all duration-500"
+                  // UPDATED: w-full h-full object-cover to fill entire card with no space
+                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                 />
               </div>
             ))}
@@ -86,13 +74,14 @@ export default function AwardsSection() {
             {data.map((src: any, idx) => (
               <div
                 key={`set2-${idx}`}
-                className="relative group flex-shrink-0 flex items-center justify-center w-[180px] md:w-[240px] aspect-[4/3] bg-white rounded-xl shadow-sm border border-gray-100 p-4 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
+                // UPDATED: Fixed dimensions w-[180px] h-[80px], no padding, rounded-[10px]
+                className="relative group flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-white rounded-[10px] shadow-sm border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-indigo-100"
               >
                 <img
-                  src={IMAGE_URL+src?.image}
+                  src={IMAGE_URL + src?.image}
                   alt={`Award recognition ${idx + 1}`}
-                  // Removed 'filter grayscale' and 'opacity-80' to maintain full color
-                  className="w-full h-full object-contain mix-blend-multiply transition-all duration-500"
+                  // UPDATED: w-full h-full object-cover to fill entire card with no space
+                  className="w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
                 />
               </div>
             ))}
@@ -118,7 +107,8 @@ export default function AwardsSection() {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%);
+            /* Adjusted calculation to account for half width + gap adjustment */
+            transform: translateX(calc(-50% - 2rem));
           }
         }
       `}</style>

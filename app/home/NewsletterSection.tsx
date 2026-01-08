@@ -170,7 +170,7 @@ const NewsletterSection = ({ getCSSVar }: NewsletterSectionProps) => {
               <input
                 type="email"
                 placeholder={'Your email'}
-                className="flex-1 px-6 sm:px-8 py-5 sm:py-6 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 text-base sm:text-lg shadow-lg hover:shadow-xl transition-shadow border border-gray-300"
+                className="flex-1 px-6 sm:px-8 py-5 sm:py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 text-base sm:text-lg shadow-lg hover:shadow-xl transition-shadow border border-gray-300"
                 style={{
                   backgroundColor: cssVars.background(),
                   color: cssVars.foreground(),

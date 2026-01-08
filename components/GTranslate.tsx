@@ -80,10 +80,10 @@ const GTranslate = () => {
           right: auto !important;
           z-index: 1000 !important;
           border-radius: 48px !important;
-          width: 80px !important;
+          width:85px !important;
           pointer-events: none !important;
-          top: 90px !important;
-          left: 10px !important;
+          top: 85px !important;
+          left: 20px !important;
         }
 
         @media (min-width: 1024px) {

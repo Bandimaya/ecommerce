@@ -15,7 +15,7 @@ import VideoModal from "@/app/home/VideoModal"
 
 import CircuitBackground from "@/components/background/CircuitBackground"
 import AwardsSection from "./home/AwardsSection"
-import PartnersSection from "./home/PartnersEction"
+import PartnersSection from "./home/PartnersSection"
 import NewsroomSection from "./home/NewsroomSection"
 import RequestCallBanner from "./home/RequestCallBanner"
 import CompetitionSection from "./home/CompetitionWidget"

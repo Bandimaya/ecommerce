@@ -1,20 +1,21 @@
 'use client';
 
 import Image from 'next/image';
+// Adjust the import path based on where you saved the previous file
 import BackgroundGrid from './marqueeBackground/BackgroundGrid';
 import { apiFetch } from '@/lib/axios';
 import { useEffect, useState } from 'react';
 import { IMAGE_URL } from '@/lib/constants';
 
 export default function PartnersSection() {
-    const [data, setData] = useState<any[]>([]);
+    const [data, setData] = useState<string[]>([]);
 
     useEffect(() => {
         apiFetch('/partner-images')
             .then((response) => {
                 setData(response);
             }).catch((error) => {
-                console.error('Error fetching partner images:', error);
+                console.error('Error fetching award images:', error);
             });
     }, [])
 
@@ -46,6 +47,7 @@ export default function PartnersSection() {
             {/* Marquee Wrapper */}
             <div className="relative z-10 w-full">
 
+                {/* Gradient Fade Masks */}
                 <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-r from-background via-background/95 to-transparent pointer-events-none" />
                 <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-l from-background via-background/95 to-transparent pointer-events-none" />
 
@@ -53,22 +55,20 @@ export default function PartnersSection() {
                 <div className="marquee-container flex overflow-hidden select-none py-4">
                     <div className="marquee-track flex gap-8 md:gap-12 px-4">
 
-                        {/* 1. First Set of Images */}
+                        {/* 1. First Set of Logos */}
                         {data.map((src: any, idx) => (
                             <div
                                 key={`p1-${idx}`}
-                                // UPDATES:
-                                // 1. Set specific width (160px) and height (80px)
-                                // 2. Added rounded-[10px] and overflow-hidden
-                                // 3. Removed bg-card, border, shadow (Removed card styling)
-                                className="relative flex-shrink-0 w-[160px] h-[80px] rounded-[10px] overflow-hidden transition-transform duration-300 hover:scale-105"
+                                // Card: Fixed 180x80, rounded-10px, overflow hidden to clip image corners
+                                className="group relative flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-card rounded-[10px] border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 overflow-hidden"
                             >
                                 <img
                                     src={IMAGE_URL + src?.image}
                                     alt={`Partner Logo ${idx + 1}`}
-                                    sizes="160px"
-                                    // Ensures image covers the 160x80 area completely
-                                    className="w-full h-full object-cover"
+                                    // Image: w-full h-full to match card exactly. 
+                                    // object-cover ensures no empty space (might crop slightly). 
+                                    // Change to 'object-fill' if you prefer stretching over cropping.
+                                    className="w-full h-full object-cover opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110"
                                 />
                             </div>
                         ))}
@@ -77,13 +77,12 @@ export default function PartnersSection() {
                         {data.map((src: any, idx) => (
                             <div
                                 key={`p2-${idx}`}
-                                className="relative flex-shrink-0 w-[160px] h-[80px] rounded-[10px] overflow-hidden transition-transform duration-300 hover:scale-105"
+                                className="group relative flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-card rounded-[10px] border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 overflow-hidden"
                             >
                                 <img
                                     src={IMAGE_URL + src?.image}
                                     alt={`Partner Logo ${idx + 1}`}
-                                    sizes="160px"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110"
                                 />
                             </div>
                         ))}

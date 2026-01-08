@@ -163,8 +163,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               className="flex items-center gap-1 group relative z-[70]"
               onClick={() => setIsOpen(false)}
             >
-              <div className="flex items-center gap-2">
-                <div className="w-[104px] h-[158px] md:w-[158px] md:h-[108px] flex-shrink-0 transition-all duration-300 -ml-[40px] rtl:-mr-[40px] rtl:ml-0">
+              {/* UPDATED: gap-2 -> gap-[20px] for 20px gap on all screens */}
+              <div className="flex items-center gap-[0px]">
+                {/* UPDATED: Added md:-ml-[60px] to move left 60px on desktop */}
+                <div className="w-[104px] h-[158px] md:w-[158px] md:h-[108px] flex-shrink-0 transition-all duration-300 -ml-[20px] md:-ml-[99px] rtl:-mr-[40px] md:rtl:-mr-[60px] rtl:ml-0">
                   <img
                     src="/assets/favicon.png"
                     alt="STEMPARK"
