@@ -5,17 +5,50 @@ import { useEffect } from "react";
 
 const GTranslate = () => {
   useEffect(() => {
+    // ==========================================================
+    // 1. SAFETY PATCH: Fix React Crash with Google Translate
+    // ==========================================================
+    const originalRemoveChild = Node.prototype.removeChild;
+    const originalInsertBefore = Node.prototype.insertBefore;
+
+    Node.prototype.removeChild = function <T extends Node>(child: T): T {
+      try {
+        // Fix: Cast the return value to 'T'
+        return originalRemoveChild.call(this, child) as T;
+      } catch (error) {
+        console.warn("Google Translate crashed React (fixed by patch).");
+        if (child.parentNode) {
+          child.parentNode.removeChild(child);
+        }
+        return child;
+      }
+    };
+
+    Node.prototype.insertBefore = function <T extends Node>(
+      newNode: T,
+      referenceNode: Node | null
+    ): T {
+      try {
+        // Fix: Cast the return value to 'T'
+        return originalInsertBefore.call(this, newNode, referenceNode) as T;
+      } catch (error) {
+        console.warn("Google Translate insertion error (fixed by patch).");
+        return newNode;
+      }
+    };
+
+    // ==========================================================
+    // 2. UI FIXES: Force Styling & Remove Overlays
+    // ==========================================================
     const forceFix = () => {
       document
         .querySelectorAll(".gt_black_overlay, .gt_cover")
-        .forEach(el => el.remove());
+        .forEach((el) => el.remove());
 
       const wrapper = document.getElementById("gt_float_wrapper");
       if (wrapper) {
-        const w = wrapper as HTMLElement;
-        w.style.pointerEvents = "none";
-        w.style.width = "auto";
-        w.style.height = "auto";
+        // Fix: width/height might need !important via CSS, but JS works too
+        wrapper.style.pointerEvents = "none";
       }
 
       const switcher = document.querySelector(".gt_float_switcher");
@@ -35,7 +68,7 @@ const GTranslate = () => {
 
   return (
     <>
-      <div className="gtranslate_wrapper" />
+      <div className="gtranslate_wrapper notranslate" />
 
       <style>{`
         /* ===============================
@@ -44,21 +77,19 @@ const GTranslate = () => {
         .gtranslate_wrapper,
         #gt_float_wrapper {
           position: fixed !important;
-          right: 10px !important;
+          right: auto !important;
           z-index: 1000 !important;
           border-radius: 48px !important;
           width: 80px !important;
           pointer-events: none !important;
-          
-          /* Mobile Default */
-          top: 70px !important;
+          top: 90px !important;
+          left: 10px !important;
         }
 
-        /* Desktop Override (min-width: 1024px) */
         @media (min-width: 1024px) {
           .gtranslate_wrapper,
           #gt_float_wrapper {
-            top: 100px !important;
+            top: 160px !important;
           }
         }
 
@@ -94,30 +125,26 @@ const GTranslate = () => {
           text-transform: uppercase !important;
         }
 
-        /* 🔑 SHOW label ONLY in button */
         .gt_float_switcher .gt_selected span,
         .gt_float_switcher .gt_current span {
           display: inline !important;
         }
 
-        /* Hide flags */
         .gt_float_switcher img {
           display: none !important;
         }
 
         /* ===============================
-           ARROW (Reverse Upside Down Check)
+           ARROW
         =============================== */
         .gt_float_switcher .gt_selected::after {
           content: "▼";
           font-size: 8px;
           margin-left: 2px;
           transition: transform 0.3s ease;
-          /* Ensure rotation happens from center */
           transform-origin: center center; 
         }
 
-        /* This rotates the arrow 180 degrees (Upside Down) on hover */
         .gt_float_switcher:hover .gt_selected::after {
           transform: rotate(180deg);
         }
@@ -127,7 +154,7 @@ const GTranslate = () => {
         =============================== */
         .gt_float_switcher .gt_options {
           top: 100% !important;
-          margin-top: 6px !important;
+          margin-top: 0px !important;
           border-radius: 12px !important;
           box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
           background: #fff !important;
@@ -147,8 +174,6 @@ const GTranslate = () => {
           border-bottom: none !important;
         }
 
-
-        /* 🚫 HIDE CURRENT LANGUAGE FROM LIST */
         .gt_float_switcher .gt_options a.gt_current,
         .gt_float_switcher .gt_options a.selected {
           display: none !important;
