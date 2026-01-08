@@ -85,7 +85,7 @@ const Index = () => {
 
         <WhyStempark />
 
-        <MissionVision getCSSVar={getCSSVar} />
+        {/* <MissionVision getCSSVar={getCSSVar} /> */}
 
         <ProgramsSection getCSSVar={getCSSVar} />
 

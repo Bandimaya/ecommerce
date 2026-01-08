@@ -137,7 +137,7 @@ export default function NotFound() {
                 <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-blue-600" />
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity" />
                 <span className="relative z-10 text-xs font-black uppercase tracking-[0.3em] text-white">
-                  Return to Cyber-Space
+                  Return to Home
                 </span>
             </button>
           </Link>

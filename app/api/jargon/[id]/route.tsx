@@ -4,6 +4,8 @@ import Jargon from "@/models/Jargon";
 import { saveFile, deleteFile } from "../../programs/route";
 
 /* ===== GET ONE ===== */
+import mongoose from "mongoose";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -11,12 +13,21 @@ export async function GET(
   await connectDB();
   const { id } = await params;
 
-  const item = await Jargon.findById(id);
-  if (!item) {
+  // Validate id before querying DB to avoid cast errors
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return NextResponse.json({ message: "Not found" }, { status: 404 });
   }
 
-  return NextResponse.json(item);
+  try {
+    const item = await Jargon.findById(id);
+    if (!item) {
+      return NextResponse.json({ message: "Not found" }, { status: 404 });
+    }
+
+    return NextResponse.json(item);
+  } catch (err: any) {
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
+  }
 }
 
 /* ===== UPDATE ===== */

@@ -83,7 +83,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
   // --- UPDATED NAV ITEMS WITH UNIQUE ICONS ---
   const navItems = [
     { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
-    
+
     // Content Management
     { label: "Jargon", path: "/admin/jargon", icon: Type },
     { label: "Sections", path: "/admin/sections", icon: Layers },
@@ -91,31 +91,31 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
     { label: "Events", path: "/admin/events", icon: CalendarDays },
     { label: "Winners", path: "/admin/winners", icon: Trophy },
     { label: "Stempark Features", path: "/admin/stempark-features", icon: Zap },
-    
+
     // Media & Assets
     { label: "Award Images", path: "/admin/award-images", icon: ImageIcon },
     { label: "Partner Images", path: "/admin/partner-images", icon: Handshake },
     { label: "Videos", path: "/admin/videos", icon: Video },
-    
+
     // Engagement
     { label: "News", path: "/admin/news", icon: Newspaper },
     { label: "Stars", path: "/admin/stars", icon: Star },
     { label: "Benefits", path: "/admin/benefits", icon: Gift },
     { label: "Certifications", path: "/admin/certifications", icon: FileBadge },
     { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquareQuote },
-    
+
     // Academic / Portfolio
     { label: "Stem courses", path: "/admin/stem-courses", icon: Library },
     { label: "Projects", path: "/admin/projects", icon: Rocket },
     { label: "Programs", path: "/admin/programs", icon: BookOpen },
-    
+
     // E-Commerce / Business
     { label: "Brands", path: "/admin/brands", icon: BadgeCheck },
     { label: "Categories", path: "/admin/categories", icon: Tags },
     { label: "Products", path: "/admin/products", icon: Package },
     { label: "Orders", path: "/admin/orders", icon: ShoppingCart },
     { label: "Customers", path: "/admin/customers", icon: Users },
-    
+
     // System
     { label: "Contact Info", path: "/admin/contact-info", icon: Phone },
     { label: "Customization", path: "/admin/customization", icon: Palette }
@@ -166,7 +166,8 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className="hidden lg:flex fixed left-0 top-0 h-screen flex-col z-50 overflow-hidden"
         style={{
-          backgroundColor: colors.card,
+          // UPDATED: Forced white background instead of card variable
+          backgroundColor: '#ffffff',
           borderRight: `1px solid ${colors.border}`,
           boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
         }}
@@ -331,7 +332,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
             exit={{ x: '-100%' }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
             className="lg:hidden fixed inset-y-0 left-0 z-50 w-[280px] flex flex-col shadow-2xl"
-            style={{ backgroundColor: colors.background }}
+            style={{ backgroundColor: '#ffffff' }} // UPDATED: Forced white for mobile too
           >
             {/* Mobile Header */}
             <motion.div
@@ -340,7 +341,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
               transition={{ delay: 0.1 }}
               className="flex items-center justify-between px-6 py-5 border-b"
               style={{
-                backgroundColor: colors.card,
+                backgroundColor: '#ffffff', // UPDATED: Forced white
                 borderColor: colors.border
               }}
             >
@@ -433,7 +434,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
               className="px-4 py-4 border-t"
               style={{
                 borderColor: colors.border,
-                backgroundColor: colors.card
+                backgroundColor: '#ffffff' // UPDATED: Forced white
               }}
             >
               <div className="flex items-center justify-between">
@@ -498,7 +499,8 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
         left: isDesktop ? (isCollapsed ? '80px' : '280px') : '0px'
       }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
-      className="fixed top-0 right-0 z-40 h-16 md:h-20 bg-card/95 backdrop-blur-md shadow-sm border-b border-border"
+      // UPDATED CLASSNAME: Removed backdrop-blur-md and bg-card/95, added bg-white
+      className="fixed top-0 right-0 z-40 h-16 md:h-20 bg-white shadow-sm border-b border-border"
     >
       <div className="flex h-full items-center justify-between px-4 md:px-6">
         {/* Left Side */}
@@ -543,6 +545,7 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
         </div>
 
         {/* Right Side - User */}
+        {/* Right Side - User */}
         <div className="flex items-center gap-3">
           {/* User Dropdown */}
           <DropdownMenu>
@@ -567,7 +570,7 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
                       className="absolute -top-1 -right-1 border-2 w-3 h-3 rounded-full"
                       style={{
                         backgroundColor: 'var(--accent)',
-                        borderColor: 'var(--card)'
+                        borderColor: '#ffffff'
                       }}
                       title="Admin Verified" />
                   )}
@@ -585,7 +588,8 @@ function Header({ toggleMobileSidebar, toggleDesktopSidebar, isCollapsed, isDesk
 
             <DropdownMenuContent
               align="end"
-              className="w-56 p-2 rounded-xl shadow-xl border bg-card border-border">
+              // UPDATED: Changed bg-card to bg-white
+              className="w-56 p-2 rounded-xl shadow-xl border bg-white border-border">
               <DropdownMenuLabel className="font-normal p-3">
                 <div className="flex flex-col space-y-1">
                   <div className="flex items-center gap-2">

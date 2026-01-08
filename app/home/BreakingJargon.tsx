@@ -14,6 +14,7 @@ import {
   Sparkles
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import Link from "next/link"
 import { apiFetch } from "@/lib/axios"
 import { IMAGE_URL } from "@/lib/constants"
 
@@ -34,10 +35,12 @@ interface BreakingJargonProps {
   getCSSVar?: (varName: string, fallback?: string) => string
 }
 
+// Define Icon Map
+const ICON_MAP = { Cpu, Zap, Code, Wifi, Cog, Brain } as const;
+
 const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
   const [activeIndex, setActiveIndex] = useState(0)
-  // New State: Tracks direction (-1 for prev, 1 for next)
-  const [direction, setDirection] = useState(0) 
+  const [direction, setDirection] = useState(0)
   const [isMobile, setIsMobile] = useState(false)
   const [data, setData] = useState<JargonItem[]>([])
 
@@ -58,16 +61,16 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  // --- UPDATED HANDLERS WITH DIRECTION ---
+  // --- HANDLERS ---
   const handleNext = useCallback(() => {
     if (data.length === 0) return
-    setDirection(1) // Set direction to Forward
+    setDirection(1)
     setActiveIndex((prev) => (prev + 1) % data.length)
   }, [data.length])
 
   const handlePrev = useCallback(() => {
     if (data.length === 0) return
-    setDirection(-1) // Set direction to Backward
+    setDirection(-1)
     setActiveIndex((prev) => (prev - 1 + data.length) % data.length)
   }, [data.length])
 
@@ -144,10 +147,10 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
     }
   }
 
-  // --- Mobile Variants (Dynamic Direction) ---
+  // --- Mobile Variants ---
   const mobileVariants = {
     enter: (direction: number) => ({
-      x: direction > 0 ? 100 : -100, // If next, enter from right. If prev, enter from left.
+      x: direction > 0 ? 100 : -100,
       opacity: 0,
       scale: 0.9
     }),
@@ -161,7 +164,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
       }
     },
     exit: (direction: number) => ({
-      x: direction > 0 ? -100 : 100, // If next, exit left. If prev, exit right.
+      x: direction > 0 ? -100 : 100,
       opacity: 0,
       scale: 0.9,
       transition: {
@@ -171,8 +174,13 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
     })
   }
 
+  // Helper to get active mobile icon
+  const activeItem = data[activeIndex];
+  const ActiveIcon = activeItem ? ICON_MAP[activeItem.icon as keyof typeof ICON_MAP] : null;
+  const activeId = activeItem?._id ? String(activeItem._id) : null
+  const activeLinkable = Boolean(activeId)
+
   return (
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     <section className="relative w-full py-20 overflow-hidden bg-slate-50">
 
       {/* Background Ambience */}
@@ -257,12 +265,15 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
         {!isMobile ? (
           <div className="relative h-[550px] w-full flex items-center justify-center perspective-[1200px]">
 
-            {/* Card Iterator */}
             {data.map((item, index) => {
               const { state, zIndex } = getCardProps(index)
-              const ICON_MAP = { Cpu, Zap, Code, Wifi, Cog, Brain } as const;
-              type IconKey = keyof typeof ICON_MAP;
-              const Icon = ICON_MAP[item.icon as IconKey];
+              const Icon = ICON_MAP[item.icon as keyof typeof ICON_MAP];
+
+              const itemId = item._id ? String(item._id) : null
+              const isLinkable = Boolean(itemId)
+              
+              // CHECK LENGTH: Only true if description > 400 chars
+              const isLongDescription = item.description.length > 400;
 
               return (
                 <motion.div
@@ -301,17 +312,44 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                       <div className="absolute top-4 right-6 text-9xl font-black text-slate-50 opacity-[0.04] pointer-events-none select-none">
                         0{item._id}
                       </div>
-                      <div className="relative z-10">
+                      <div className="relative z-10 flex flex-col h-full justify-center">
                         <div className="flex items-center gap-2 mb-3">
                           <span className={`h-2 w-2 rounded-full ${item.color}`} />
                           <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Core Concept</span>
                         </div>
-                        <h2 className="text-4xl font-bold text-slate-900 mb-6 leading-tight">{item.title}</h2>
-                        <p className="text-lg text-slate-600 leading-relaxed mb-8">{item.description}</p>
-                        <div className="flex items-center gap-4 pt-6 border-t border-slate-100">
-                          <button className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 ${item.color}`}>
-                            Explore Topic <ArrowRight size={18} />
-                          </button>
+                        <h2 className="text-4xl font-bold text-slate-900 mb-4 leading-tight">{item.title}</h2>
+
+                        {/* Description - Fixed height text block */}
+                        <div className="mb-6">
+                            <p className="text-lg text-slate-600 leading-relaxed mb-2 line-clamp-3">
+                                {item.description}
+                            </p>
+                            
+                            {/* Desktop: Only show link if description > 400 chars */}
+                            {isLinkable && isLongDescription && (
+                                <Link 
+                                    href={`/home/jargon/${encodeURIComponent(itemId as string)}`} 
+                                    className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors mt-1"
+                                >
+                                    Read full overview <ChevronRight size={14} className="ml-0.5" />
+                                </Link>
+                            )}
+                        </div>
+
+                        {/* Footer / Main Action */}
+                        <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-auto">
+                          <div className="flex items-center gap-3">
+                            {isLinkable ? (
+                              <Link href={`/home/jargon/${encodeURIComponent(itemId as string)}`} className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 ${item.color}`}>
+                                Explore Topic <ArrowRight size={18} />
+                              </Link>
+                            ) : (
+                              <button disabled className={`flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-white opacity-60 ${item.color}`}>
+                                Explore Topic
+                              </button>
+                            )}
+                          </div>
+
                           <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
                             <Sparkles size={16} className="text-amber-400" />
                             <span>Beginner Friendly</span>
@@ -343,48 +381,91 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
           </div>
         ) : (
 
-          /* --- MOBILE CARD STACK (Updated with Direction) --- */
-          <div className="relative w-full h-[600px] px-4">
+          /* --- MOBILE CARD STACK --- */
+          <div className="relative w-full h-[650px] px-4">
             <AnimatePresence mode="popLayout" custom={direction}>
-              <motion.div
-                key={activeIndex}
-                custom={direction} // Pass direction to variants
-                variants={mobileVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
-              >
-                <div className="relative h-1/2">
-                  <img
-                    src={IMAGE_URL + data?.[activeIndex]?.image}
-                    className="w-full h-full object-cover"
-                    alt=""
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                  <div className="absolute bottom-6 left-6 text-white">
-                    <div className={`inline-flex p-2 rounded-lg ${data?.[activeIndex]?.color} mb-3`}>
+              {activeItem && (
+                <motion.div
+                  key={activeIndex}
+                  custom={direction}
+                  variants={mobileVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
+                >
+                  <div className="relative h-[45%]">
+                    <img
+                      src={IMAGE_URL + activeItem.image}
+                      className="w-full h-full object-cover"
+                      alt={activeItem.alt}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                    
+                    <div className="absolute bottom-6 left-6 text-white w-[90%]">
+                      <div className={`w-12 h-12 rounded-xl ${activeItem.color} flex items-center justify-center shadow-lg text-white mb-4`}>
+                          {ActiveIcon && <ActiveIcon size={24} strokeWidth={2.5} />}
+                      </div>
+
+                      <div className="flex items-center gap-2 mb-2 opacity-90">
+                        <span className={`h-1.5 w-1.5 rounded-full bg-white`} />
+                        <span className="text-xs font-bold uppercase tracking-wider">Core Concept</span>
+                      </div>
+                      
+                      <h2 className="text-3xl font-bold leading-tight">{activeItem.title}</h2>
                     </div>
-                    <h2 className="text-3xl font-bold">{data?.[activeIndex]?.title}</h2>
                   </div>
-                </div>
-                <div className="p-6 h-1/2 flex flex-col justify-between">
-                  <p className="text-slate-600 leading-relaxed text-sm sm:text-base">
-                    {data?.[activeIndex]?.description}
-                  </p>
-                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-100">
-                    <button onClick={handlePrev} className="p-3 bg-slate-100 rounded-full active:scale-95 transition-transform"><ChevronLeft size={20} /></button>
-                    <span className="text-sm font-bold text-slate-400">{activeIndex + 1} / {data.length}</span>
-                    <button onClick={handleNext} className="p-3 bg-slate-100 rounded-full active:scale-95 transition-transform"><ChevronRight size={20} /></button>
+
+                  <div className="p-6 flex-1 flex flex-col justify-between">
+                    <div>
+                        <p className="text-slate-600 leading-relaxed text-sm sm:text-base mb-2 line-clamp-4">
+                        {activeItem.description}
+                        </p>
+                        
+                        {/* Mobile: Only show link if description > 400 chars */}
+                        {activeLinkable && activeItem.description.length > 400 && (
+                            <Link 
+                                href={`/home/jargon/${encodeURIComponent(activeId as string)}`} 
+                                className="text-sm font-semibold text-slate-400 underline underline-offset-4 decoration-slate-200 hover:text-slate-600 inline-block py-1"
+                            >
+                                Read full description
+                            </Link>
+                        )}
+                    </div>
+
+                    <div className="flex flex-col gap-4 mt-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          {activeLinkable ? (
+                            <Link href={`/home/jargon/${encodeURIComponent(activeId as string)}`} className={`px-5 py-2.5 rounded-full font-semibold text-white shadow-md text-sm ${activeItem.color}`}>
+                              Explore Topic
+                            </Link>
+                          ) : (
+                            <button disabled className={`px-5 py-2.5 rounded-full font-semibold text-white shadow-md text-sm opacity-60 ${activeItem.color}`}>Explore Topic</button>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
+                           <Sparkles size={14} className="text-amber-400" />
+                           <span>Beginner Friendly</span>
+                        </div>
+                      </div>
+
+                      <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+                        <button onClick={handlePrev} className="p-3 bg-slate-50 border border-slate-100 rounded-full active:scale-95 transition-transform text-slate-600 hover:bg-slate-100"><ChevronLeft size={20} /></button>
+                         <span className="text-sm font-bold text-slate-400">{activeIndex + 1} / {data.length}</span>
+                        <button onClick={handleNext} className="p-3 bg-slate-50 border border-slate-100 rounded-full active:scale-95 transition-transform text-slate-600 hover:bg-slate-100"><ChevronRight size={20} /></button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </motion.div>
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
         )}
 
         {/* --- NAVIGATION DOTS --- */}
-        <div className="flex justify-center gap-3 mt-12 items-center">
+        <div className="flex justify-center gap-3 mt-8 items-center">
           {data.map((_, idx) => (
             <button
               key={idx}

@@ -44,12 +44,22 @@ const GTranslate = () => {
         .gtranslate_wrapper,
         #gt_float_wrapper {
           position: fixed !important;
-          top: 70px !important;
           right: 10px !important;
           z-index: 1000 !important;
           border-radius: 48px !important;
           width: 80px !important;
           pointer-events: none !important;
+          
+          /* Mobile Default */
+          top: 70px !important;
+        }
+
+        /* Desktop Override (min-width: 1024px) */
+        @media (min-width: 1024px) {
+          .gtranslate_wrapper,
+          #gt_float_wrapper {
+            top: 100px !important;
+          }
         }
 
         /* ===============================
@@ -96,15 +106,18 @@ const GTranslate = () => {
         }
 
         /* ===============================
-           ARROW
+           ARROW (Reverse Upside Down Check)
         =============================== */
         .gt_float_switcher .gt_selected::after {
           content: "▼";
           font-size: 8px;
           margin-left: 2px;
           transition: transform 0.3s ease;
+          /* Ensure rotation happens from center */
+          transform-origin: center center; 
         }
 
+        /* This rotates the arrow 180 degrees (Upside Down) on hover */
         .gt_float_switcher:hover .gt_selected::after {
           transform: rotate(180deg);
         }

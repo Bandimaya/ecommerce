@@ -31,7 +31,6 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/SettingsContext";
 import { IMAGE_URL } from "@/lib/constants";
-// Removed unused 'set' import from mongoose to prevent client-side errors
 
 interface NavbarProps {
   onLanguageToggle?: (language: string) => void;
@@ -129,8 +128,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
   const isActive = (path: string) => pathname === path;
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
-
-
   return (
     <>
       {/* 3. HIDDEN GOOGLE TRANSLATE ELEMENTS */}
@@ -158,49 +155,39 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         strategy="afterInteractive"
       />
 
+      {/* FIXED NAVIGATION 
+         Changed w-screen to w-full to prevent horizontal scrollbars on Windows
+      */}
       <nav
         ref={navRef}
-        className={`fixed top-0 left-0 right-0 w-screen overflow-visible z-[60] transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 w-full overflow-visible z-[9999] transition-all duration-300 ${
           scrolled
             ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
             : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
         }`}
       >
         <div className="container mx-auto px-4">
-          <div className="flex h-16 md:h-20 items-center justify-between">
+          {/* Note: h-16 (mobile) and md:h-20 (desktop) set here */}
+          <div className="-ml-[40px] flex h-16 md:h-20 items-center justify-between">
             {/* Logo */}
             <Link
               href="/"
               className="flex items-center gap-1 group relative z-[70]"
               onClick={() => setIsOpen(false)}
             >
-              {contact?.logo_url ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-[40px] h-[40px] md:w-[48px] md:h-[48px] overflow-hidden rounded-full border-2 border-white shadow-sm flex-shrink-0">
-                    <img
-                      src={IMAGE_URL + contact?.logo_url}
-                      alt="Logo"
-                      className="w-full h-full object-contain"
-                      style={{
-                        display: "block",
-                        maxWidth: "48px",
-                        maxHeight: "48px",
-                        width: "48px",
-                        height: "48px",
-                        objectFit: "contain",
-                      }}
-                    />
-                  </div>
-                  <span className="text-[18px] md:text-[22px] font-bold text-gray-900 hidden md:inline-block max-w-[160px] truncate leading-none site-brand">
-                    STEM<span className="text-accent">PARK</span>
-                  </span>
+              <div className="flex items-center gap-2">
+                {/* Mobile: 48px, Desktop: 68px */}
+                <div className="w-[104px] h-[158px] md:w-[158px] md:h-[108px] flex-shrink-0 transition-all duration-300">
+                  <img
+                    src="/assets/favicon.png"
+                    alt="STEMPARK"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
-              ) : (
-                <span className="text-2xl md:text-3xl font-extrabold tracking-tight">
-                  <span className="text-primary">STEM</span>
-                  <span className="text-accent">PARK</span>
+                <span className="text-[18px] md:text-[22px] font-bold text-gray-900 hidden md:inline-block max-w-[160px] truncate leading-none site-brand">
+                  STEM<span className="text-accent">PARK</span>
                 </span>
-              )}
+              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -221,8 +208,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 </Link>
               ))}
             </div>
-
-
 
             {/* Right Actions */}
             <div className="flex items-center gap-2 relative z-[70]">
@@ -279,7 +264,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               </Link>
 
               {/* User Actions */}
-              <div className="flex items-center gap-2 border-l border-gray-300 pl-3 ml-1">
+              <div className="flex items-center gap-2 border-l border-gray-300 pl-3 ml-1 relative z-[100]">
                 {user ? (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -293,7 +278,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
                       align="end"
-                      className="w-56 bg-white border border-gray-200 shadow-lg z-[100]"
+                      className="w-56 bg-white border border-gray-200 shadow-lg z-[99999]"
                     >
                       <DropdownMenuLabel>
                         {user.name || user.email}
@@ -338,7 +323,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   </Link>
                 )}
               </div>
-
               {/* Mobile Menu Button */}
               <Button
                 variant="ghost"
@@ -434,10 +418,21 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         </div>
       </nav>
 
-      {/* Spacer to prevent content overlap with fixed navbar */}
-      <div aria-hidden="true" className="h-16 md:h-20" />
+      {/* SPACER BLOCK (CRITICAL FIX)
+        This empty div sits in the normal document flow. 
+        It is exactly the same height as the fixed Navbar.
+        This forces the next element in your HTML to start 
+        AFTER the visual space taken by the Navbar.
+        
+        Added: 'shrink-0' to prevent flex containers from crushing it.
+        Added: 'block w-full' to ensure it takes up space.
+      */}
+      <div 
+        aria-hidden="true" 
+        className="relative block w-full shrink-0 h-16 md:h-20" 
+      />
 
-      {/* 6. GLOBAL CSS TO HIDE GOOGLE WIDGETS */}
+      {/* GLOBAL CSS */}
       <style jsx global>{`
         /* Hide Google Translate Toolbar and Icon completely */
         .goog-te-banner-frame {
@@ -458,7 +453,6 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
           top: 0px !important;
         }
         
-        /* Ensure the toggle itself isn't translated */
         .notranslate {
           translate: no;
         }
@@ -497,10 +491,9 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         /* Navbar Layout Fixes for RTL */
         html[lang="ar"] nav,
         html[lang="qa"] nav {
-          direction: ltr; /* Keep navbar layout LTR */
+          direction: ltr; 
         }
 
-        /* Allow nav items to still display RTL text properly */
         html[lang="ar"] nav .flex,
         html[lang="qa"] nav .flex {
           direction: rtl;

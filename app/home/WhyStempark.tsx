@@ -1,11 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import Image from 'next/image';
+import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Cpu, Gamepad2, Microscope, Zap, ArrowRight, Sparkles, ChevronDown } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import Link from 'next/link'; // Added Link for navigation
 import { apiFetch } from '@/lib/axios';
 import { IMAGE_URL } from '@/lib/constants';
 
@@ -14,10 +14,39 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-const AUTOPLAY_INTERVAL = 5000; // 5 Seconds
+const AUTOPLAY_INTERVAL = 5000;
+
+// --- Animation Variants ---
+const contentVariants: Variants = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { 
+    opacity: 1, 
+    x: 0,
+    transition: { 
+      duration: 0.5, 
+      staggerChildren: 0.1,
+      delayChildren: 0.2 
+    }
+  },
+  exit: { opacity: 0, x: -20, transition: { duration: 0.2 } }
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.4 } }
+};
+
+const imageVariants: Variants = {
+  hidden: { opacity: 0, scale: 1.1 },
+  visible: { 
+    opacity: 1, 
+    scale: 1, 
+    transition: { duration: 0.7, ease: "easeOut" } 
+  }
+};
 
 export default function WhyStempark() {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
   const [activeId, setActiveId] = useState<string>('');
   const [isPaused, setIsPaused] = useState(false);
 
@@ -25,7 +54,6 @@ export default function WhyStempark() {
     apiFetch('/stempark-features')
       .then((response) => {
         setData(response);
-        // Set initial active ID once data is loaded
         if (response && response.length > 0) {
             setActiveId(response[0]._id);
         }
@@ -50,7 +78,6 @@ export default function WhyStempark() {
     return () => clearInterval(timer);
   }, [isPaused, activeId, data.length]);
 
-  // Don't render until we have data or handle loading state if preferred
   if (data.length === 0) return null; 
 
   return (
@@ -72,8 +99,8 @@ export default function WhyStempark() {
 
         {/* --- Interactive Accordion --- */}
         <div
-          // UPDATED: 'lg:h-[600px]' fixes height on desktop, mobile uses 'h-auto' to stack naturally
           className="flex flex-col lg:flex-row w-full gap-4 lg:h-[600px]"
+          // Pausing auto-play when user interacts (hovers container)
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
@@ -81,6 +108,8 @@ export default function WhyStempark() {
           {data.map((feature: any) => {
             const isActive = activeId === feature._id;
             let Icon: any = feature.icon;
+            
+            // Dynamic Icon Resolution
             if (typeof Icon === 'string') {
               const ICON_MAP: Record<string, any> = { Cpu, Gamepad2, Microscope, Zap, ArrowRight, Sparkles, ChevronDown };
               Icon = ICON_MAP[Icon] ?? Cpu;
@@ -88,63 +117,87 @@ export default function WhyStempark() {
 
             return (
               <motion.div
-                layout // Smooth layout transitions
+                layout // Enables the smooth width animation
                 key={feature._id}
+                
+                // --- EVENTS ---
+                // Desktop: Expand on Hover
+                onMouseEnter={() => setActiveId(feature._id)}
+                // Mobile: Expand on Click
                 onClick={() => setActiveId(feature._id)}
-                // UPDATED: Allow click interaction on mobile AND desktop
+                
                 className={cn(
-                  "relative overflow-hidden rounded-3xl cursor-pointer border transition-all duration-500",
-                  // MOBILE STYLES: Active gets large height, Inactive gets small height (header only)
+                  "relative overflow-hidden rounded-3xl cursor-pointer border transition-colors duration-300",
+                  // Mobile Height Logic
                   isActive ? "h-[550px] lg:h-auto" : "h-[80px] lg:h-auto",
-                  // DESKTOP STYLES: Flex-grow logic
+                  // Desktop Flex Logic (handled by layout prop, but classes set base styles)
                   isActive
                     ? "lg:flex-[3] bg-card border-primary/20 shadow-2xl z-10"
                     : "lg:flex-[0.5] bg-muted/30 border-transparent hover:bg-muted/50"
                 )}
-                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                // --- SMOOTH SPRING TRANSITION ---
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 200, 
+                  damping: 25,
+                  mass: 0.5
+                }}
               >
 
                 {/* === ACTIVE STATE CONTENT === */}
                 <AnimatePresence mode="popLayout">
                   {isActive && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute inset-0 w-full h-full flex flex-col md:flex-row"
-                    >
-                      {/* Left: Text */}
-                      <div className="w-full md:w-2/5 p-6 md:p-8 flex flex-col justify-between bg-card relative z-20 h-[50%] md:h-full">
-                        <div>
-                          <div className="flex items-center gap-4 mb-4 md:mb-6">
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-                              <Icon className="w-5 h-5 md:w-6 md:h-6" />
+                    <div className="absolute inset-0 w-full h-full flex flex-col md:flex-row">
+                      
+                      {/* Left: Text Content */}
+                      <motion.div 
+                        className="w-full md:w-2/5 p-6 md:p-10 flex flex-col justify-between bg-card relative z-20 h-[55%] md:h-full border-r border-border/50"
+                        variants={contentVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                      >
+                        <div className="space-y-4">
+                          <motion.div variants={itemVariants} className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
+                                <Icon className="w-6 h-6" />
+                                </div>
+                                <span className="text-[10px] md:text-xs font-bold px-3 py-1 bg-muted rounded-full text-muted-foreground uppercase tracking-wider border border-border/50">
+                                {feature.stat || "Feature"}
+                                </span>
                             </div>
-                            <span className="text-[10px] md:text-xs font-bold px-2 py-1 bg-muted rounded text-muted-foreground uppercase tracking-wider">
-                              {feature.stat}
-                            </span>
+                          </motion.div>
+
+                          <div className="space-y-2">
+                            <motion.p variants={itemVariants} className="text-xs font-bold text-primary uppercase tracking-widest">
+                                {feature.subtitle}
+                            </motion.p>
+                            <motion.h3 variants={itemVariants} className="text-2xl md:text-4xl font-extrabold text-foreground leading-tight tracking-tight">
+                                {feature.title}
+                            </motion.h3>
                           </div>
 
-                          <h3 className="text-xl md:text-3xl font-bold text-foreground mb-2 leading-tight">
-                            {feature.title}
-                          </h3>
-                          <p className="text-[10px] md:text-xs font-bold text-primary uppercase tracking-widest mb-3 md:mb-4">
-                            {feature.subtitle}
-                          </p>
+                          <motion.div variants={itemVariants} className="w-12 h-1 bg-primary/20 rounded-full" />
 
-                          <p className="text-muted-foreground leading-relaxed text-sm md:text-base line-clamp-3 md:line-clamp-none">
+                          <motion.p variants={itemVariants} className="text-muted-foreground leading-relaxed text-sm md:text-base font-medium">
                             {feature.description}
-                          </p>
+                          </motion.p>
                         </div>
 
-                        <div className="mt-4 md:mt-0">
-                          <button className="flex items-center gap-2 text-sm font-bold text-foreground hover:text-primary transition-colors group">
-                            Explore Zone
+                        {/* Functional Explore Button */}
+                        <motion.div variants={itemVariants} className="mt-6 md:mt-0 pt-6 border-t border-border/50">
+                          <Link 
+                            href={`/home/features/${feature._id}`}
+                            onClick={(e) => e.stopPropagation()} // Prevent triggering parent click
+                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all group"
+                          >
+                            Explore This Zone
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                          </button>
-                        </div>
+                          </Link>
+                        </motion.div>
 
-                        {/* === PROGRESS TIMER BAR === */}
+                        {/* Progress Bar */}
                         {!isPaused && (
                           <motion.div
                             className="absolute bottom-0 left-0 h-1 bg-primary z-30"
@@ -153,39 +206,52 @@ export default function WhyStempark() {
                             transition={{ duration: AUTOPLAY_INTERVAL / 1000, ease: "linear" }}
                           />
                         )}
-                      </div>
+                      </motion.div>
 
                       {/* Right: Image */}
-                      <div className="w-full md:w-3/5 h-[50%] md:h-full relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-card via-transparent to-transparent z-10" />
-                        <img
+                      <div className="w-full md:w-3/5 h-[45%] md:h-full relative overflow-hidden bg-muted group">
+                        <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-card/80 via-transparent to-transparent z-10 pointer-events-none" />
+                        <motion.img
+                          variants={imageVariants}
+                          initial="hidden"
+                          animate="visible"
+                          exit={{ opacity: 0, transition: { duration: 0.2 } }}
                           src={IMAGE_URL + feature.image}
                           alt={feature.title}
-                          className="w-full h-full object-cover transition-transform duration-[5000ms] scale-105"
+                          className="w-full h-full object-cover transition-transform duration-[5000ms] group-hover:scale-110"
                         />
+                        
+                        {/* Image Overlay Badge */}
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.8 }}
+                            animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
+                            className="absolute top-6 right-6 z-20 bg-black/30 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2"
+                        >
+                            <Sparkles className="w-3 h-3 text-yellow-400" />
+                            <span>Featured Zone</span>
+                        </motion.div>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
                 </AnimatePresence>
 
 
-                {/* === INACTIVE STATE LABEL (Visible when NOT active) === */}
+                {/* === INACTIVE STATE LABEL === */}
                 <div className={cn(
-                  "absolute inset-0 flex transition-opacity duration-300 pointer-events-none",
-                  isActive ? "opacity-0" : "opacity-100"
+                  "absolute inset-0 flex transition-all duration-500 pointer-events-none",
+                  isActive ? "opacity-0" : "opacity-100 delay-100"
                 )}>
                   {/* Desktop: Vertical Bar */}
-                  <div className="hidden lg:flex flex-col items-center justify-center w-full h-full p-4">
-                    <span className="text-lg font-bold text-muted-foreground [writing-mode:vertical-rl] rotate-180 tracking-widest uppercase whitespace-nowrap">
+                  <div className="hidden lg:flex flex-col items-center justify-center w-full h-full p-4 group-hover:bg-muted/50 transition-colors">
+                    <span className="text-lg font-bold text-muted-foreground [writing-mode:vertical-rl] rotate-180 tracking-widest uppercase whitespace-nowrap opacity-70 group-hover:opacity-100 transition-opacity">
                       {feature.title}
                     </span>
-                    <div className="mt-8 text-muted-foreground/40">
+                    <div className="mt-8 text-muted-foreground/40 group-hover:text-primary transition-colors">
                       <Icon className="w-6 h-6" />
                     </div>
                   </div>
 
                   {/* Mobile: Horizontal Header Bar */}
-                  {/* This ensures user sees the title to click on mobile */}
                   <div className="lg:hidden w-full h-full flex items-center justify-between px-6 bg-muted/10">
                     <div className="flex items-center gap-4">
                       <Icon className="w-5 h-5 text-muted-foreground" />
