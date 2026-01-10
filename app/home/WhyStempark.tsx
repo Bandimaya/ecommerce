@@ -5,7 +5,7 @@ import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { Cpu, Gamepad2, Microscope, Zap, ArrowRight, Sparkles, ChevronDown } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
-import Link from 'next/link'; // Added Link for navigation
+import Link from 'next/link';
 import { apiFetch } from '@/lib/axios';
 import { IMAGE_URL } from '@/lib/constants';
 
@@ -81,17 +81,17 @@ export default function WhyStempark() {
   if (data.length === 0) return null; 
 
   return (
-    <section className="relative w-full py-20 lg:py-28 bg-background overflow-hidden font-sans">
+    <section className="relative w-full py-12 md:py-20 lg:py-28 bg-background overflow-hidden font-sans">
 
       {/* --- Ambient Background --- */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-[120px] mix-blend-multiply" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] md:w-[800px] h-[600px] md:h-[800px] bg-primary/5 rounded-full blur-[80px] md:blur-[120px] mix-blend-multiply" />
       </div>
 
       <div className="container relative z-10 mx-auto px-4 md:px-6 flex flex-col h-full">
 
         {/* --- Header Section --- */}
-        <div className="flex justify-center items-center gap-3 mb-10 sm:mb-16">
+        <div className="flex justify-center items-center gap-3 mb-8 md:mb-16">
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
           <span className="text-xs font-bold uppercase tracking-widest text-primary">Why Choose us?</span>
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
@@ -128,11 +128,11 @@ export default function WhyStempark() {
                 
                 className={cn(
                   "relative overflow-hidden rounded-3xl cursor-pointer border transition-colors duration-300",
-                  // Mobile Height Logic
-                  isActive ? "h-[550px] lg:h-auto" : "h-[80px] lg:h-auto",
+                  // Mobile Height Logic - Increased height for active state to accommodate reordering
+                  isActive ? "h-[600px] lg:h-auto" : "h-[70px] lg:h-auto",
                   // Desktop Flex Logic (handled by layout prop, but classes set base styles)
                   isActive
-                    ? "lg:flex-[3] bg-card border-primary/20 shadow-2xl z-10"
+                    ? "lg:flex-[3] bg-card border-primary/20 shadow-xl lg:shadow-2xl z-10"
                     : "lg:flex-[0.5] bg-muted/30 border-transparent hover:bg-muted/50"
                 )}
                 // --- SMOOTH SPRING TRANSITION ---
@@ -149,19 +149,19 @@ export default function WhyStempark() {
                   {isActive && (
                     <div className="absolute inset-0 w-full h-full flex flex-col md:flex-row">
                       
-                      {/* Left: Text Content */}
+                      {/* Left: Text Content (Mobile: Bottom Order) */}
                       <motion.div 
-                        className="w-full md:w-2/5 p-6 md:p-10 flex flex-col justify-between bg-card relative z-20 h-[55%] md:h-full border-r border-border/50"
+                        className="w-full md:w-2/5 h-[65%] md:h-full p-6 md:p-10 flex flex-col justify-between bg-card relative z-20 border-r border-border/50 order-last md:order-first overflow-y-auto md:overflow-visible scrollbar-hide"
                         variants={contentVariants}
                         initial="hidden"
                         animate="visible"
                         exit="exit"
                       >
-                        <div className="space-y-4">
+                        <div className="space-y-3 md:space-y-4">
                           <motion.div variants={itemVariants} className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
-                                <Icon className="w-6 h-6" />
+                            <div className="flex items-center gap-3 md:gap-4">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary shadow-sm">
+                                <Icon className="w-5 h-5 md:w-6 md:h-6" />
                                 </div>
                                 <span className="text-[10px] md:text-xs font-bold px-3 py-1 bg-muted rounded-full text-muted-foreground uppercase tracking-wider border border-border/50">
                                 {feature.stat || "Feature"}
@@ -169,11 +169,11 @@ export default function WhyStempark() {
                             </div>
                           </motion.div>
 
-                          <div className="space-y-2">
-                            <motion.p variants={itemVariants} className="text-xs font-bold text-primary uppercase tracking-widest">
+                          <div className="space-y-1 md:space-y-2">
+                            <motion.p variants={itemVariants} className="text-[10px] md:text-xs font-bold text-primary uppercase tracking-widest">
                                 {feature.subtitle}
                             </motion.p>
-                            <motion.h3 variants={itemVariants} className="text-2xl md:text-4xl font-extrabold text-foreground leading-tight tracking-tight">
+                            <motion.h3 variants={itemVariants} className="text-xl md:text-2xl lg:text-4xl font-extrabold text-foreground leading-tight tracking-tight">
                                 {feature.title}
                             </motion.h3>
                           </div>
@@ -186,11 +186,11 @@ export default function WhyStempark() {
                         </div>
 
                         {/* Functional Explore Button */}
-                        <motion.div variants={itemVariants} className="mt-6 md:mt-0 pt-6 border-t border-border/50">
+                        <motion.div variants={itemVariants} className="mt-4 md:mt-6 pt-4 md:pt-6 border-t border-border/50">
                           <Link 
                             href={`/home/features/${feature._id}`}
                             onClick={(e) => e.stopPropagation()} // Prevent triggering parent click
-                            className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all group cursor-pointer"
+                            className="inline-flex items-center justify-center w-full md:w-auto gap-3 px-6 py-3 rounded-full bg-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 hover:bg-primary/90 hover:scale-105 active:scale-95 transition-all group cursor-pointer"
                           >
                             Explore This Zone
                             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -208,8 +208,8 @@ export default function WhyStempark() {
                         )}
                       </motion.div>
 
-                      {/* Right: Image */}
-                      <div className="w-full md:w-3/5 h-[45%] md:h-full relative overflow-hidden bg-muted group">
+                      {/* Right: Image (Mobile: Top Order) */}
+                      <div className="w-full md:w-3/5 h-[35%] md:h-full relative overflow-hidden bg-muted group order-first md:order-last">
                         <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-l from-card/80 via-transparent to-transparent z-10 pointer-events-none" />
                         <motion.img
                           variants={imageVariants}
@@ -225,7 +225,7 @@ export default function WhyStempark() {
                         <motion.div 
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1, transition: { delay: 0.5 } }}
-                            className="absolute top-6 right-6 z-20 bg-black/30 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full text-xs font-medium flex items-center gap-2"
+                            className="absolute top-4 right-4 md:top-6 md:right-6 z-20 bg-black/30 backdrop-blur-md border border-white/20 text-white px-3 py-1.5 md:px-4 md:py-2 rounded-full text-[10px] md:text-xs font-medium flex items-center gap-2"
                         >
                             <Sparkles className="w-3 h-3 text-yellow-400" />
                             <span>Featured Zone</span>
@@ -255,7 +255,7 @@ export default function WhyStempark() {
                   <div className="lg:hidden w-full h-full flex items-center justify-between px-6 bg-muted/10">
                     <div className="flex items-center gap-4">
                       <Icon className="w-5 h-5 text-muted-foreground" />
-                      <span className="text-base font-bold text-foreground">{feature.title}</span>
+                      <span className="text-sm font-bold text-foreground">{feature.title}</span>
                     </div>
                     <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                       <ChevronDown className="w-4 h-4 text-muted-foreground" />

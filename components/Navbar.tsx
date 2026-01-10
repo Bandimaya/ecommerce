@@ -117,6 +117,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     { label: "Home", path: "/", icon: <Home className="w-5 h-5" /> },
     { label: "Shop", path: "/shop", icon: <Store className="w-5 h-5" /> },
     { label: "Courses", path: "/courses", icon: <Layers className="w-5 h-5" /> },
+    { label: "Join As Tutor", path: "/tutor", icon: <Layers className="w-5 h-5" /> },
     { label: "Contact", path: "/contact", icon: <Phone className="w-5 h-5" /> },
   ];
 

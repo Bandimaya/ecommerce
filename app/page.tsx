@@ -25,6 +25,7 @@ import WhyAvishkaar from "./home/WhyStempark"
 import WhyStempark from "./home/WhyStempark"
 import PaymentSuccess from "@/components/payment/PaymentSuccess"
 import PaymentFailure from "@/components/payment/PaymentFailure"
+import { motion } from "framer-motion"
 
 
 const Index = () => {
@@ -60,10 +61,17 @@ const Index = () => {
 
       {/* Content container with higher z-index but transparent bg */}
       <div className="relative z-10 min-h-screen">
-        <HeroSection
-          getCSSVar={getCSSVar}
-          handleWatchVideo={() => setShowVideoModal(true)}
-        />
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          viewport={{ once: true }}
+        >
+          <HeroSection
+            getCSSVar={getCSSVar}
+            handleWatchVideo={() => setShowVideoModal(true)}
+          />
+        </motion.div>
 
         <BreakingJargon />
 

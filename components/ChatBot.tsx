@@ -75,7 +75,7 @@ const ChatBot = () => {
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-colors duration-300 ${
+        className={`fixed bottom-4 right-4 md:bottom-6 md:right-6 z-[100000] w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-colors duration-300 ${
           isOpen ? "bg-slate-800" : "bg-primary"
         }`}
       >
@@ -93,7 +93,7 @@ const ChatBot = () => {
             initial={{ opacity: 0, scale: 0.9, y: 20, transformOrigin: "bottom right" }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
+            className="fixed bottom-24 right-4 md:bottom-24 md:right-6 z-[99999] w-[calc(100vw-2rem)] md:w-[380px] max-h-[80vh] md:max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col"
           >
             {/* Header - Solid Primary */}
             <div className="bg-primary p-5 text-white">
@@ -112,7 +112,7 @@ const ChatBot = () => {
             </div>
 
             {/* Messages Area - Pure White Background */}
-            <div className="h-[350px] overflow-y-auto p-4 space-y-4 bg-white">
+            <div className="h-[50vh] md:h-[350px] overflow-y-auto p-4 space-y-4 bg-white">
               {messages.map((message) => (
                 <div
                   key={message.id}

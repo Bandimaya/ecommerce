@@ -640,3 +640,59 @@ export const PARENT_TESTIMONIALS: Testimonial[] = [
     src: "https://images.unsplash.com/photo-1544005313-94ddf0286df2",
   }
 ];
+
+// lib/Data.ts
+
+export const INDIAN_STATES_CITIES: Record<string, string[]> = {
+  "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Tirupati"],
+  "Telangana": ["Hyderabad", "Warangal", "Nizamabad", "Khammam", "Karimnagar"],
+  "Karnataka": ["Bengaluru", "Mysuru", "Hubballi", "Mangaluru", "Belagavi"],
+  "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli", "Salem"],
+  "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Thane", "Nashik"],
+  "Delhi": ["New Delhi", "North Delhi", "South Delhi", "West Delhi", "East Delhi"],
+  "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot", "Bhavnagar"],
+  "West Bengal": ["Kolkata", "Howrah", "Durgapur", "Asansol", "Siliguri"],
+  "Rajasthan": ["Jaipur", "Jodhpur", "Kota", "Bikaner", "Ajmer"],
+  "Uttar Pradesh": ["Lucknow", "Kanpur", "Agra", "Varanasi", "Meerut"],
+};
+
+export const SUBJECTS: string[] = [
+  "Mathematics",
+  "Physics",
+  "Chemistry",
+  "Biology",
+  "Computer Science",
+  "Robotics",
+  "Artificial Intelligence",
+  "Coding (Python/JS)",
+  "Vedic Maths",
+  "Environmental Science",
+  "Astronomy",
+  "Statistics"
+];
+
+export const QUALIFICATIONS: string[] = [
+  "Bachelors (B.E/B.Tech/B.Sc)",
+  "Masters (M.E/M.Tech/M.Sc)",
+  "PhD",
+  "Diploma",
+  "Undergraduate Student",
+  "Other"
+];
+
+export const GRADE_LEVELS: string[] = [
+  "Primary (Class 1-5)",
+  "Middle School (Class 6-8)",
+  "High School (Class 9-10)",
+  "Senior Secondary (Class 11-12)",
+  "Undergraduate",
+  "Competitive Exams (IIT-JEE/NEET)"
+];
+
+export const EXPERIENCE_LEVELS: string[] = [
+  "Fresher (0 years)",
+  "1-2 Years",
+  "3-5 Years",
+  "5-10 Years",
+  "10+ Years"
+];
