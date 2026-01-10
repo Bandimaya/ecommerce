@@ -419,9 +419,9 @@ export default function ContactInfo() {
             {/* Modal Header */}
             <div className="px-4 py-3 border-b flex justify-between items-center bg-gray-50">
                 <h3 className="font-bold text-gray-700">Adjust Logo</h3>
-                <button onClick={cancelCrop} className="p-1 hover:bg-gray-200 rounded-full transition cursor-pointer">
+                <AdminButton variant="ghost" onClick={cancelCrop} className="p-1 hover:bg-gray-200 rounded-full transition cursor-pointer">
                   <X className="w-5 h-5 text-gray-500" />
-                </button>
+                </AdminButton>
             </div>
 
             {/* Cropper Container */}

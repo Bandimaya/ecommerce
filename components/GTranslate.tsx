@@ -1,9 +1,14 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 const GTranslate = () => {
+  // We keep the state to handle dragging within the CURRENT session.
+  // When the page reloads, this resets to { x: 0, y: 0 } automatically.
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+
   useEffect(() => {
     // ==========================================================
     // 1. SAFETY PATCH: Fix React Crash with Google Translate
@@ -13,7 +18,6 @@ const GTranslate = () => {
 
     Node.prototype.removeChild = function <T extends Node>(child: T): T {
       try {
-        // Fix: Cast the return value to 'T'
         return originalRemoveChild.call(this, child) as T;
       } catch (error) {
         console.warn("Google Translate crashed React (fixed by patch).");
@@ -29,7 +33,6 @@ const GTranslate = () => {
       referenceNode: Node | null
     ): T {
       try {
-        // Fix: Cast the return value to 'T'
         return originalInsertBefore.call(this, newNode, referenceNode) as T;
       } catch (error) {
         console.warn("Google Translate insertion error (fixed by patch).");
@@ -47,7 +50,6 @@ const GTranslate = () => {
 
       const wrapper = document.getElementById("gt_float_wrapper");
       if (wrapper) {
-        // Fix: width/height might need !important via CSS, but JS works too
         wrapper.style.pointerEvents = "none";
       }
 
@@ -68,29 +70,64 @@ const GTranslate = () => {
 
   return (
     <>
-      <div className="gtranslate_wrapper notranslate" />
+      <motion.div
+        drag
+        dragMomentum={false}
+        whileHover={{ scale: 1.05 }}
+        whileDrag={{ scale: 1.1 }}
+        // update position state so it stays put while the user is on the page
+        onDragEnd={(event, info) => {
+          setPosition((prev) => ({
+            x: prev.x + info.offset.x,
+            y: prev.y + info.offset.y,
+          }));
+        }}
+        animate={{ x: position.x, y: position.y }}
+        transition={{ type: "spring", stiffness: 400, damping: 25 }}
+        className="gt-draggable-container"
+      >
+        <div className="gtranslate_wrapper notranslate" />
+      </motion.div>
 
       <style>{`
         /* ===============================
-           POSITIONING
+           DRAGGABLE CONTAINER
         =============================== */
-        .gtranslate_wrapper,
-        #gt_float_wrapper {
+        .gt-draggable-container {
           position: fixed !important;
-          right: auto !important;
           z-index: 1000 !important;
-          border-radius: 48px !important;
-          width:85px !important;
-          pointer-events: none !important;
-          top: 85px !important;
+          
+          /* DEFAULT POSITION (Where it resets to on reload) */
+          top: 85px !important; 
           left: 20px !important;
+          
+          width: 85px !important;
+          height: auto !important;
+          border-radius: 48px !important;
+          cursor: grab;
+          touch-action: none; 
+        }
+
+        .gt-draggable-container:active {
+          cursor: grabbing;
         }
 
         @media (min-width: 1024px) {
-          .gtranslate_wrapper,
-          #gt_float_wrapper {
+          .gt-draggable-container {
             top: 160px !important;
           }
+        }
+
+        /* ===============================
+           OLD WRAPPER OVERRIDES
+        =============================== */
+        .gtranslate_wrapper,
+        #gt_float_wrapper {
+          position: relative !important;
+          top: auto !important;
+          left: auto !important;
+          width: 100% !important;
+          pointer-events: none !important;
         }
 
         /* ===============================

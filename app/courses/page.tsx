@@ -24,7 +24,6 @@ export default function Courses() {
       <div> 
         <HeroBanner />
         <BenefitsSection />
-        <CertificationsSection />
         <CourseBentoGrid />
         {/* <CourseListSection /> */}
         {/* <WhyChooseUsSection /> */}
@@ -32,6 +31,7 @@ export default function Courses() {
         <StudentSpotlights />
         <FeatureShowcase />
         <AwardsSection />
+        <CertificationsSection />
         <FaqSection />
       </div>
     </div>

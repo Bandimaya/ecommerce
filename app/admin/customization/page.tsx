@@ -37,6 +37,7 @@ import {
   Plus,
 } from "lucide-react";
 import { apiFetch } from "@/lib/axios";
+import AdminButton from "@/components/admin/AdminButton";
 
 /* ---------- SOLID THEME CONFIG ---------- */
 const solidThemes = [
@@ -693,26 +694,20 @@ export default function ThemeCustomizationPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => setShowPreview(!showPreview)}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all ${showPreview
+            <AdminButton variant="ghost" onClick={() => setShowPreview(!showPreview)} className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all ${showPreview
                 ? 'border-primary bg-primary/10 text-primary'
                 : 'border-border hover:border-primary/40 hover:bg-secondary'
-                }`}
-            >
+                }`}>
               <Eye className="w-4 h-4" />
               <span className="text-sm font-medium hidden sm:inline">
                 {showPreview ? 'Preview On' : 'Preview Off'}
               </span>
-            </button>
+            </AdminButton>
 
-            <button
-              onClick={handleExportTheme}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:border-primary/40 hover:bg-secondary transition-colors"
-            >
+            <AdminButton variant="ghost" onClick={handleExportTheme} className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-border hover:border-primary/40 hover:bg-secondary transition-colors">
               <Download className="w-4 h-4" />
               <span className="text-sm font-medium hidden sm:inline">Export</span>
-            </button>
+            </AdminButton>
           </div>
         </div>
 
@@ -725,8 +720,9 @@ export default function ThemeCustomizationPage() {
               { key: "gradient" as const, label: "Gradients", icon: Layers },
               { key: "typography" as const, label: "Typography", icon: Type },
             ].map(({ key, label, icon: Icon }) => (
-              <button
+              <AdminButton
                 key={key}
+                variant="ghost"
                 onClick={() => {
                   setMode(key);
                   if (key === "select") {
@@ -743,7 +739,7 @@ export default function ThemeCustomizationPage() {
               >
                 <Icon className={`w-4 h-4 transition-transform ${mode === key ? 'scale-110' : ''}`} />
                 <span className="text-sm font-medium whitespace-nowrap">{label}</span>
-              </button>
+              </AdminButton>
             ))}
           </div>
         </div>
@@ -816,24 +812,18 @@ export default function ThemeCustomizationPage() {
                     </div>
 
                     <div className="flex gap-2">
-                      <button
-                        onClick={(e) => {
+                      <AdminButton variant="primary" onClick={(e) => {
                           e.stopPropagation();
                           handleApplyTheme(preset.config);
-                        }}
-                        className="flex-1 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors text-sm"
-                      >
+                        }} className="flex-1 py-2.5 rounded-lg font-medium text-sm">
                         Apply Now
-                      </button>
-                      <button
-                        onClick={(e) => {
+                      </AdminButton>
+                      <AdminButton variant="ghost" onClick={(e) => {
                           e.stopPropagation();
                           handleLoadPreset(preset);
-                        }}
-                        className="px-3 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm"
-                      >
+                        }} className="px-3 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm">
                         Preview
-                      </button>
+                      </AdminButton>
                     </div>
                   </div>
                 </motion.div>
@@ -866,12 +856,9 @@ export default function ThemeCustomizationPage() {
                     whileTap={{ scale: 0.98 }}
                     className="group relative overflow-hidden rounded-2xl border border-border bg-card hover:border-primary/40 transition-colors cursor-pointer"
                   >
-                    <button
-                      onClick={() => handleDeleteCustomTheme(theme.id)}
-                      className="absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors opacity-0 group-hover:opacity-100"
-                    >
+                    <AdminButton variant="danger" onClick={() => handleDeleteCustomTheme(theme.id)} className="absolute top-3 right-3 z-10 p-1.5 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 transition-colors opacity-0 group-hover:opacity-100">
                       <Trash2 className="w-4 h-4" />
-                    </button>
+                    </AdminButton>
 
                     <div className="p-5">
                       <div className="mb-4">
@@ -897,22 +884,16 @@ export default function ThemeCustomizationPage() {
                       </div>
 
                       <div className="flex gap-2">
-                        <button
-                          onClick={() => handleApplyTheme(theme.config)}
-                          className="flex-1 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors text-sm"
-                        >
+                        <AdminButton variant="primary" onClick={() => handleApplyTheme(theme.config)} className="flex-1 py-2.5 rounded-lg font-medium text-sm">
                           Apply
-                        </button>
-                        <button
-                          onClick={() => {
+                        </AdminButton>
+                        <AdminButton variant="ghost" onClick={() => {
                             setDraftTheme(theme.config);
                             setMode("custom");
                             setShowPreview(true);
-                          }}
-                          className="flex-1 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm"
-                        >
+                          }} className="flex-1 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm">
                           Edit
-                        </button>
+                        </AdminButton>
                       </div>
                     </div>
                   </motion.div>
@@ -927,13 +908,10 @@ export default function ThemeCustomizationPage() {
                 <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
                   Start by creating your first custom theme to save your preferred settings
                 </p>
-                <button
-                  onClick={() => setMode("custom")}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
-                >
+                <AdminButton variant="primary" onClick={() => setMode("custom")} className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-medium">
                   <Brush className="w-4 h-4" />
                   Create Your First Theme
-                </button>
+                </AdminButton>
               </div>
             )}
           </div>
@@ -999,23 +977,13 @@ export default function ThemeCustomizationPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => setMode("gradient")}
-                    className="px-4 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm font-medium"
-                  >
+                  <AdminButton variant="ghost" onClick={() => setMode("gradient")} className="px-4 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm font-medium">
                     View Matching Gradients
-                  </button>
-                  <button
-                    onClick={handleReset}
-                    className="px-4 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm font-medium"
-                  >
+                  </AdminButton>
+                  <AdminButton variant="ghost" onClick={handleReset} className="px-4 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm font-medium">
                     Reset
-                  </button>
-                  <button
-                    onClick={() => handleApplyTheme()}
-                    disabled={isSaving}
-                    className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
-                  >
+                  </AdminButton>
+                  <AdminButton variant="primary" onClick={() => handleApplyTheme()} loading={isSaving} className="px-6 py-2.5 rounded-lg font-medium text-sm">
                     {isSaving ? (
                       <span className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
@@ -1027,7 +995,7 @@ export default function ThemeCustomizationPage() {
                         Apply Color
                       </span>
                     )}
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
             </div>
@@ -1049,12 +1017,9 @@ export default function ThemeCustomizationPage() {
                   Matching gradients for {selectedSolidTheme?.name}
                 </p>
               </div>
-              <button
-                onClick={() => setMode("color")}
-                className="px-4 py-2.5 rounded-lg border border-border hover:border-primary/40 hover:bg-secondary transition-colors text-sm font-medium"
-              >
+              <AdminButton variant="ghost" onClick={() => setMode("color")} className="px-4 py-2.5 rounded-lg border border-border hover:border-primary/40 hover:bg-secondary transition-colors text-sm font-medium">
                 Change Color
-              </button>
+              </AdminButton>
             </div>
 
             {/* Matching Gradients Section */}
@@ -1151,17 +1116,10 @@ export default function ThemeCustomizationPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={handleReset}
-                    className="px-4 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm font-medium"
-                  >
+                  <AdminButton variant="ghost" onClick={handleReset} className="px-4 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm font-medium">
                     Reset
-                  </button>
-                  <button
-                    onClick={() => handleApplyTheme()}
-                    disabled={isSaving}
-                    className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
-                  >
+                  </AdminButton>
+                  <AdminButton variant="primary" onClick={() => handleApplyTheme()} loading={isSaving} className="px-6 py-2.5 rounded-lg font-medium text-sm">
                     {isSaving ? (
                       <span className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
@@ -1173,7 +1131,7 @@ export default function ThemeCustomizationPage() {
                         Apply Gradient
                       </span>
                     )}
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
             </div>
@@ -1195,10 +1153,7 @@ export default function ThemeCustomizationPage() {
               <div>
                 <h3 className="text-lg font-semibold mb-4">Font Family</h3>
                 <div className="relative">
-                  <button
-                    onClick={() => setShowFontDropdown(!showFontDropdown)}
-                    className="w-full px-4 py-3.5 rounded-xl border border-border bg-white hover:border-primary/40 transition-colors flex items-center justify-between group cursor-pointer"
-                  >
+                  <AdminButton variant="ghost" onClick={() => setShowFontDropdown(!showFontDropdown)} className="w-full px-4 py-3.5 rounded-xl border border-border bg-white hover:border-primary/40 transition-colors flex items-center justify-between group cursor-pointer">
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 rounded-lg bg-primary/10">
                         <Type className="w-5 h-5 text-primary" />
@@ -1209,7 +1164,7 @@ export default function ThemeCustomizationPage() {
                       </div>
                     </div>
                     <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showFontDropdown ? 'rotate-180' : ''}`} />
-                  </button>
+                  </AdminButton>
 
                   <AnimatePresence>
                     {showFontDropdown && (
@@ -1220,16 +1175,11 @@ export default function ThemeCustomizationPage() {
                         className="absolute top-full left-0 right-0 mt-2 max-h-80 overflow-y-auto rounded-xl border border-border bg-white shadow-xl z-50"
                       >
                         {professionalFonts.map((font) => (
-                          <button
-                            key={font.key}
-                            onClick={() => {
+                          <AdminButton key={font.key} variant="ghost" onClick={() => {
                               setSelectedFont(font);
                               setShowFontDropdown(false);
-                            }}
-                            className={`w-full px-4 py-3 flex items-center justify-between hover:bg-secondary transition-colors ${selectedFont.key === font.key ? 'bg-primary/10' : ''
-                              }`}
-                            style={{ fontFamily: font.value }}
-                          >
+                            }} className={`w-full px-4 py-3 flex items-center justify-between hover:bg-secondary transition-colors ${selectedFont.key === font.key ? 'bg-primary/10' : ''
+                              }`} style={{ fontFamily: font.value }}>
                             <div className="flex items-center gap-3">
                               <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
                                 <span className="text-sm font-medium">{font.preview}</span>
@@ -1242,7 +1192,7 @@ export default function ThemeCustomizationPage() {
                             {selectedFont.key === font.key && (
                               <Check className="w-4 h-4 text-primary" />
                             )}
-                          </button>
+                          </AdminButton>
                         ))}
                       </motion.div>
                     )}
@@ -1263,17 +1213,10 @@ export default function ThemeCustomizationPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={handleReset}
-                    className="px-4 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm font-medium"
-                  >
+                  <AdminButton variant="ghost" onClick={handleReset} className="px-4 py-2.5 rounded-lg border border-border hover:bg-secondary transition-colors text-sm font-medium">
                     Reset Defaults
-                  </button>
-                  <button
-                    onClick={() => handleApplyTheme()}
-                    disabled={isSaving}
-                    className="px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 text-sm"
-                  >
+                  </AdminButton>
+                  <AdminButton variant="primary" onClick={() => handleApplyTheme()} loading={isSaving} className="px-6 py-2.5 rounded-lg font-medium text-sm">
                     {isSaving ? (
                       <span className="flex items-center gap-2">
                         <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
@@ -1285,7 +1228,7 @@ export default function ThemeCustomizationPage() {
                         Apply Typography
                       </span>
                     )}
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
             </div>
@@ -1363,38 +1306,29 @@ export default function ThemeCustomizationPage() {
 
                 {/* Quick Actions */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <button
-                    onClick={() => setMode("color")}
-                    className="p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-secondary transition-colors text-left group"
-                  >
+                  <AdminButton variant="ghost" onClick={() => setMode("color")} className="p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-secondary transition-colors text-left group">
                     <div className="p-2 rounded-lg bg-primary/10 w-fit mb-3 group-hover:scale-110 transition-transform">
                       <Palette className="w-5 h-5 text-primary" />
                     </div>
                     <h4 className="font-medium mb-1">Colors</h4>
                     <p className="text-xs text-muted-foreground">Change color palette</p>
-                  </button>
+                  </AdminButton>
 
-                  <button
-                    onClick={() => setMode("gradient")}
-                    className="p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-secondary transition-colors text-left group"
-                  >
+                  <AdminButton variant="ghost" onClick={() => setMode("gradient")} className="p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-secondary transition-colors text-left group">
                     <div className="p-2 rounded-lg bg-primary/10 w-fit mb-3 group-hover:scale-110 transition-transform">
                       <Layers className="w-5 h-5 text-primary" />
                     </div>
                     <h4 className="font-medium mb-1">Gradients</h4>
                     <p className="text-xs text-muted-foreground">Apply gradient themes</p>
-                  </button>
+                  </AdminButton>
 
-                  <button
-                    onClick={() => setMode("typography")}
-                    className="p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-secondary transition-colors text-left group"
-                  >
+                  <AdminButton variant="ghost" onClick={() => setMode("typography")} className="p-4 rounded-xl border border-border hover:border-primary/40 hover:bg-secondary transition-colors text-left group">
                     <div className="p-2 rounded-lg bg-primary/10 w-fit mb-3 group-hover:scale-110 transition-transform">
                       <Type className="w-5 h-5 text-primary" />
                     </div>
                     <h4 className="font-medium mb-1">Typography</h4>
                     <p className="text-xs text-muted-foreground">Adjust font settings</p>
-                  </button>
+                  </AdminButton>
                 </div>
               </div>
 
@@ -1427,24 +1361,16 @@ export default function ThemeCustomizationPage() {
                       />
                     </div>
 
-                    <button
-                      onClick={handleSaveCustomTheme}
-                      disabled={!themeName.trim()}
-                      className="w-full py-3.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
+                    <AdminButton variant="primary" onClick={handleSaveCustomTheme} loading={!themeName.trim() ? false : undefined} disabled={!themeName.trim()} className="w-full py-3.5 rounded-lg font-medium text-sm flex items-center justify-center gap-2">
                       <Save className="w-4 h-4" />
                       Save as Custom Theme
-                    </button>
+                    </AdminButton>
                   </div>
                 </div>
 
                 {/* Actions */}
                 <div className="space-y-3">
-                  <button
-                    onClick={() => handleApplyTheme()}
-                    disabled={isSaving}
-                    className="w-full py-3.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-                  >
+                  <AdminButton variant="primary" onClick={() => handleApplyTheme()} loading={isSaving} disabled={isSaving} className="w-full py-3.5 rounded-lg font-medium text-sm flex items-center justify-center gap-2">
                     {isSaving ? (
                       <>
                         <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
@@ -1456,24 +1382,18 @@ export default function ThemeCustomizationPage() {
                         Apply Current Theme
                       </>
                     )}
-                  </button>
+                  </AdminButton>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <button
-                      onClick={handleExportTheme}
-                      className="py-3 rounded-lg border border-border hover:bg-secondary transition-colors flex items-center justify-center gap-2 text-sm"
-                    >
+                    <AdminButton variant="ghost" onClick={handleExportTheme} className="py-3 rounded-lg border border-border hover:bg-secondary transition-colors flex items-center justify-center gap-2 text-sm">
                       <Download className="w-4 h-4" />
                       Export
-                    </button>
+                    </AdminButton>
 
-                    <button
-                      onClick={handleReset}
-                      className="py-3 rounded-lg border border-border hover:bg-secondary transition-colors flex items-center justify-center gap-2 text-sm"
-                    >
+                    <AdminButton variant="ghost" onClick={handleReset} className="py-3 rounded-lg border border-border hover:bg-secondary transition-colors flex items-center justify-center gap-2 text-sm">
                       <Undo className="w-4 h-4" />
                       Reset
-                    </button>
+                    </AdminButton>
                   </div>
                 </div>
               </div>
@@ -1508,12 +1428,9 @@ export default function ThemeCustomizationPage() {
                 <div className="flex-1">
                   <p className="text-sm font-medium">{dialog.message}</p>
                 </div>
-                <button
-                  onClick={() => setDialog(null)}
-                  className="p-1 hover:opacity-70 transition-opacity"
-                >
+                <AdminButton variant="ghost" onClick={() => setDialog(null)} className="p-1 hover:opacity-70 transition-opacity">
                   <X className="w-4 h-4" />
-                </button>
+                </AdminButton>
               </div>
             </div>
           </motion.div>

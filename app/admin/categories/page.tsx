@@ -148,12 +148,9 @@ export default function Categories() {
                             <h3 className="font-bold text-gray-700">{editingId ? "Modify Category" : "Create New Category"}</h3>
                         </div>
                         {editingId && (
-                            <button
-                                onClick={() => { setEditingId(null); setForm({ title: "", subTitle: "", description: "", parentCategory: "" }); }}
-                                className="text-gray-400 hover:text-gray-600"
-                            >
+                            <AdminButton variant="ghost" onClick={() => { setEditingId(null); setForm({ title: "", subTitle: "", description: "", parentCategory: "" }); }} className="text-gray-400 hover:text-gray-600 p-1">
                                 <X className="w-5 h-5" />
-                            </button>
+                            </AdminButton>
                         )}
                     </div>
 

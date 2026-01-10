@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/axios";
+import AdminButton from "@/components/admin/AdminButton";
 
 export default function Orders() {
   const [orders, setOrders] = useState([]);
@@ -53,9 +54,9 @@ export default function Orders() {
                 className="pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-4 focus:ring-indigo-500/5 outline-none transition-all w-64 shadow-sm"
               />
             </div>
-            <button className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:bg-slate-50">
+            <AdminButton variant="ghost" className="p-2 bg-white border border-slate-200 rounded-xl shadow-sm text-slate-600 hover:bg-slate-50">
               <Filter className="w-5 h-5" />
-            </button>
+            </AdminButton>
           </div>
         </header>
 
@@ -126,8 +127,8 @@ export default function Orders() {
           <div className="px-6 py-4 bg-slate-50/30 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
             <span>Showing {orders.length} orders</span>
             <div className="flex gap-2">
-              <button className="px-3 py-1 border rounded-lg bg-white disabled:opacity-50" disabled>Prev</button>
-              <button className="px-3 py-1 border rounded-lg bg-white">Next</button>
+              <AdminButton variant="ghost" className="px-3 py-1 border rounded-lg bg-white disabled:opacity-50" disabled>Prev</AdminButton>
+              <AdminButton variant="ghost" className="px-3 py-1 border rounded-lg bg-white">Next</AdminButton>
             </div>
           </div>
         </div>

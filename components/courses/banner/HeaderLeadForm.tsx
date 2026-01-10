@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
@@ -19,6 +20,7 @@ export default function HeaderLeadForm() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     parent: "",
@@ -85,6 +87,11 @@ export default function HeaderLeadForm() {
     }
   };
 
+  // Handle hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Lock scroll on mobile modal
   useEffect(() => {
     if (isMobileOpen) {
@@ -104,10 +111,146 @@ export default function HeaderLeadForm() {
     },
   };
 
+  // Helper to render form content (shared between desktop/mobile to avoid duplication)
+  const renderFormContent = (isMobileMode: boolean) => (
+    <>
+      {/* Mobile Close Header */}
+      {isMobileMode && (
+        <div className="flex justify-between items-center p-4 border-b border-slate-100">
+          <h3 className="font-semibold text-slate-800">Book a Session</h3>
+          <button 
+            onClick={() => setIsMobileOpen(false)}
+            className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+      )}
+
+      <AnimatePresence mode="wait">
+        {!success ? (
+          <div className="flex flex-col">
+            
+            {/* Header */}
+            <div className="px-8 pt-8 pb-6">
+              <h2 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
+                Get in Touch
+              </h2>
+              <p className="text-slate-500 text-sm leading-relaxed">
+                Fill out the form below and our academic counselors will contact you within 24 hours.
+              </p>
+            </div>
+
+            {/* Form Fields */}
+            <motion.form
+              onSubmit={handleSubmit}
+              className="px-8 pb-8 space-y-5"
+              variants={shakeVariants}
+              animate={Object.keys(errors).length > 0 ? "shake" : "idle"}
+            >
+              <InputField
+                id={`parent-${isMobileMode ? 'm' : 'd'}`}
+                name="parent"
+                label="Parent Name"
+                icon={User}
+                value={formData.parent}
+                onChange={handleChange}
+                error={errors.parent}
+              />
+
+              <InputField
+                id={`child-${isMobileMode ? 'm' : 'd'}`}
+                name="child"
+                label="Student Name"
+                icon={User}
+                value={formData.child}
+                onChange={handleChange}
+                error={errors.child}
+              />
+
+              <InputField
+                id={`phone-${isMobileMode ? 'm' : 'd'}`}
+                name="phone"
+                label="Phone Number"
+                icon={Phone}
+                value={formData.phone}
+                onChange={handleChange}
+                error={errors.phone}
+                type="tel"
+              />
+
+              <InputField
+                id={`email-${isMobileMode ? 'm' : 'd'}`}
+                name="email"
+                label="Email Address"
+                icon={Mail}
+                value={formData.email}
+                onChange={handleChange}
+                error={errors.email}
+                type="email"
+              />
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full mt-2 h-12 flex items-center justify-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Request Callback</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+
+              <p className="text-center text-xs text-slate-400 mt-4">
+                We respect your privacy. No spam.
+              </p>
+            </motion.form>
+          </div>
+        ) : (
+          /* Success State */
+          <motion.div
+            key="success"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center justify-center p-12 text-center h-[480px]"
+          >
+            <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
+              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            </div>
+
+            <h2 className="text-xl font-bold text-slate-900 mb-2">Thank You</h2>
+            <p className="text-slate-500 text-sm mb-8 max-w-[250px]">
+              Your request has been received. Our team will reach out to <strong>{formData.phone}</strong> shortly.
+            </p>
+
+            <button
+              onClick={() => {
+                setSuccess(false);
+                setFormData({ parent: "", child: "", phone: "", email: "" });
+                setIsMobileOpen(false);
+              }}
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
+            >
+              Close Form
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+
   return (
     <>
       {/* --- Mobile Trigger Button (Visible only on Mobile) --- */}
-      <div className="md:hidden w-full px-4 mb-8">
+      <div className="lg:hidden w-full px-4 mb-8">
         <button
           onClick={() => setIsMobileOpen(true)}
           className="w-full flex items-center justify-center gap-3 bg-slate-900 text-white font-semibold py-3.5 rounded-lg shadow-md hover:bg-slate-800 transition-all active:scale-[0.98]"
@@ -117,166 +260,42 @@ export default function HeaderLeadForm() {
         </button>
       </div>
 
-      {/* --- Modal Overlay (Mobile) & Static Card (Desktop) --- */}
-      <AnimatePresence>
-        {(isMobileOpen || (typeof window !== 'undefined' && window.innerWidth >= 768)) && (
-          <div className={`
-            transition-all duration-300 z-[100]
-            /* Mobile: Fixed Modal Overlay */
-            ${isMobileOpen 
-              ? 'fixed inset-0 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4' 
-              : 'hidden md:block relative'}
-          `}>
-            
-            {/* --- The Form Card --- */}
+      {/* --- Desktop Static Card (Inline) --- */}
+      <div className="hidden lg:block relative z-[100]">
+        <div className="w-full bg-white overflow-hidden lg:max-w-[420px] lg:rounded-xl lg:border lg:border-slate-200 lg:shadow-lg">
+          {renderFormContent(false)}
+        </div>
+      </div>
+
+      {/* --- Mobile Modal (Portal) --- */}
+      {mounted && createPortal(
+        <AnimatePresence>
+          {isMobileOpen && (
             <motion.div
-              initial={isMobileOpen ? { opacity: 0, scale: 0.95, y: 10 } : { opacity: 0, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={isMobileOpen ? { opacity: 0, scale: 0.95, y: 10 } : { opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className={`
-                relative z-1000000 w-full bg-white overflow-hidden
-                /* Mobile specific styles */
-                ${isMobileOpen ? 'rounded-2xl shadow-2xl max-w-[400px]' : ''}
-                /* Desktop specific styles */
-                md:max-w-[420px] md:rounded-xl md:border md:border-slate-200 md:shadow-lg
-              `}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[999999] flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
             >
+              {/* Backdrop Click */}
+              <div className="absolute inset-0" onClick={() => setIsMobileOpen(false)} />
               
-              {/* Mobile Close Header */}
-              {isMobileOpen && (
-                <div className="flex justify-between items-center p-4 border-b border-slate-100">
-                  <h3 className="font-semibold text-slate-800">Book a Session</h3>
-                  <button 
-                    onClick={() => setIsMobileOpen(false)}
-                    className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
-              )}
-
-              <AnimatePresence mode="wait">
-                {!success ? (
-                  <div className="flex flex-col">
-                    
-                    {/* Header */}
-                    <div className="px-8 pt-8 pb-6">
-                      <h2 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
-                        Get in Touch
-                      </h2>
-                      <p className="text-slate-500 text-sm leading-relaxed">
-                        Fill out the form below and our academic counselors will contact you within 24 hours.
-                      </p>
-                    </div>
-
-                    {/* Form Fields */}
-                    <motion.form
-                      onSubmit={handleSubmit}
-                      className="px-8 pb-8 space-y-5"
-                      variants={shakeVariants}
-                      animate={Object.keys(errors).length > 0 ? "shake" : "idle"}
-                    >
-                      <InputField
-                        id="parent"
-                        name="parent"
-                        label="Parent Name"
-                        icon={User}
-                        value={formData.parent}
-                        onChange={handleChange}
-                        error={errors.parent}
-                      />
-
-                      <InputField
-                        id="child"
-                        name="child"
-                        label="Student Name"
-                        icon={User} // Can swap for a different icon if desired
-                        value={formData.child}
-                        onChange={handleChange}
-                        error={errors.child}
-                      />
-
-                      <InputField
-                        id="phone"
-                        name="phone"
-                        label="Phone Number"
-                        icon={Phone}
-                        value={formData.phone}
-                        onChange={handleChange}
-                        error={errors.phone}
-                        type="tel"
-                      />
-
-                      <InputField
-                        id="email"
-                        name="email"
-                        label="Email Address"
-                        icon={Mail}
-                        value={formData.email}
-                        onChange={handleChange}
-                        error={errors.email}
-                        type="email"
-                      />
-
-                      {/* Submit Button */}
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full mt-2 h-12 flex items-center justify-center gap-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
-                      >
-                        {loading ? (
-                          <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            <span>Processing...</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>Request Callback</span>
-                            <ArrowRight className="w-4 h-4" />
-                          </>
-                        )}
-                      </button>
-
-                      <p className="text-center text-xs text-slate-400 mt-4">
-                        We respect your privacy. No spam.
-                      </p>
-                    </motion.form>
-                  </div>
-                ) : (
-                  /* Success State */
-                  <motion.div
-                    key="success"
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="flex flex-col items-center justify-center p-12 text-center h-[480px]"
-                  >
-                    <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mb-6">
-                      <CheckCircle2 className="w-8 h-8 text-green-600" />
-                    </div>
-
-                    <h2 className="text-xl font-bold text-slate-900 mb-2">Thank You</h2>
-                    <p className="text-slate-500 text-sm mb-8 max-w-[250px]">
-                      Your request has been received. Our team will reach out to <strong>{formData.phone}</strong> shortly.
-                    </p>
-
-                    <button
-                      onClick={() => {
-                        setSuccess(false);
-                        setFormData({ parent: "", child: "", phone: "", email: "" });
-                        setIsMobileOpen(false);
-                      }}
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition-colors"
-                    >
-                      Close Form
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Card */}
+              <motion.div
+                initial={{ scale: 0.95, y: 10 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 10 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="relative z-10 w-full bg-white overflow-hidden rounded-2xl shadow-2xl max-w-[400px]"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {renderFormContent(true)}
+              </motion.div>
             </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }

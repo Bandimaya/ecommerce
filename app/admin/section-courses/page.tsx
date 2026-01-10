@@ -300,9 +300,9 @@ export default function SectionCoursesPage({
                   {form._id ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
                   {form._id ? "Edit Course" : "Create New Course"}
                 </h2>
-                <button onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px]">
+                <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px]">
                   <X className="w-5 h-5" />
-                </button>
+                </AdminButton>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6">
@@ -499,22 +499,16 @@ export default function SectionCoursesPage({
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <button
-            onClick={() => setView("grid")}
-            className={`p-2 rounded-[10px] transition-all ${
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
               view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+            }`}>
             <Grid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setView("list")}
-            className={`p-2 rounded-[10px] transition-all ${
+          </AdminButton>
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
               view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+            }`}>
             <List className="w-4 h-4" />
-          </button>
+          </AdminButton>
         </div>
       </div>
 

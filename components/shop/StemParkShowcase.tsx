@@ -3,7 +3,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
-import { apiFetch } from '@/lib/axios';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function StemParkShowcase() {
@@ -15,11 +14,19 @@ export default function StemParkShowcase() {
   // --- Data Fetching ---
   useEffect(() => {
     setLoading(true);
-    apiFetch('/videos')
+    // Channel ID for @thestempark. 
+    // TODO: Replace 'UC_x5XG1OV2P6uZZ5FSM9Ttw' with the actual Channel ID for @thestempark (starts with UC)
+    const channelId = 'UCN6h9FNcHBs_sOong7K1rtQ'; 
+    const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`;
+    
+    fetch(`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`)
+      .then((res) => res.json())
       .then((data) => {
-        // Ensure we are extracting the ID correctly. Adjust 'youtubeId' if your API key is different
-        const ids = Array.isArray(data) ? data.map((video: any) => video.youtubeId) : [];
-        setVideoList(ids);
+        if (data.items) {
+          // RSS feed returns the latest ~15 videos/shorts
+          const ids = data.items.map((item: any) => item.guid.split(':').pop());
+          setVideoList(ids);
+        }
       })
       .catch((err) => {
         console.error("Failed to fetch videos:", err);
@@ -284,7 +291,7 @@ export default function StemParkShowcase() {
 
         <div className="mt-12 text-center">
           <a
-            href="https://www.youtube.com/@Avishkaar/shorts"
+            href="https://youtube.com/@thestempark?si=1OeOVMKz_HCDC5tS"
             target="_blank"
             className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-105 transition-all cursor-pointer"
           >

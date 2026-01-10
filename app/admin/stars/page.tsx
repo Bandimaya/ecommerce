@@ -178,12 +178,9 @@ export default function StarsPage() {
       {activeVideo && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center">
           <div className="bg-black p-4 rounded relative w-[80%]">
-            <button
-              onClick={() => setActiveVideo(null)}
-              className="absolute top-2 right-3 text-white"
-            >
+            <AdminButton variant="ghost" onClick={() => setActiveVideo(null)} className="absolute top-2 right-3 text-white p-1">
               ✕
-            </button>
+            </AdminButton>
             <video src={IMAGE_URL + activeVideo} controls autoPlay className="w-full" />
           </div>
         </div>

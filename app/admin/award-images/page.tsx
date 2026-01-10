@@ -10,6 +10,7 @@ import {
   ImageIcon,
   X,
 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 import AdminButton from "@/components/admin/AdminButton";
 
 type AwardImage = {
@@ -43,12 +44,30 @@ export default function AwardImagesPage() {
   }, []);
 
   /* ===== ADD IMAGE ===== */
+
+  const handleFileSelect = (e: any) => {
+    const input = e.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+    const f = input.files[0] as File;
+    if (!f.type.startsWith("image/")) {
+      toast({ title: "Please upload a valid image file" });
+      input.value = "";
+      return;
+    }
+    if (f.size > 5 * 1024 * 1024) {
+      toast({ title: `Image ${f.name} too large (max 5MB)`, variant: "destructive" });
+      input.value = "";
+      return;
+    }
+    setFile(f);
+  };
+
   const addImage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) return;
     // Client-side validation: limit file size to 5MB
     if (file.size > 5 * 1024 * 1024) {
-      alert("Image too large (max 5MB)");
+      toast({ title: "Image too large (max 5MB)", variant: "destructive" });
       return;
     }
 
@@ -102,7 +121,7 @@ export default function AwardImagesPage() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setFile(e.target.files?.[0] || null)}
+                onChange={handleFileSelect}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
               <div className="flex flex-col items-center justify-center text-gray-500 group-hover:text-gray-700">

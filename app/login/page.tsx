@@ -6,7 +6,15 @@ import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, Loader2, LogIn, AlertCircle } from "lucide-react";
+import { 
+  Mail, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  Loader2, 
+  AlertCircle, 
+  ArrowLeft 
+} from "lucide-react";
 
 const Login = () => {
   const { login, loading } = useUser();
@@ -105,10 +113,19 @@ const Login = () => {
             initial="initial"
             animate="enter"
             exit="exitSuccess"
-            className="w-full max-w-md bg-card/80 bg-white rounded-2xl border border-border/50 shadow-xl overflow-hidden shadow-black/5"
+            className="relative w-full max-w-md bg-card/80 bg-white rounded-2xl border border-border/50 shadow-xl overflow-hidden shadow-black/5"
           >
-            {/* Header with subtle gradient */}
-            <div className="px-8 pt-8 pb-6 text-center bg-gradient-to-b from-card to-card/80 border-b border-border/30">
+            {/* Back Button - Updated to Navigate Home */}
+            <button
+              onClick={() => router.push("/")}
+              className="absolute left-4 top-4 p-2 rounded-full hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors z-10"
+              aria-label="Go to home"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+
+            {/* Header */}
+            <div className="px-8 pt-8 pb-6 text-center bg-gradient-to-b from-card to-card/80">
               <div className="mb-4 flex justify-center">
                 <div className="p-3 rounded-full bg-primary/10">
                   <Lock className="w-6 h-6 text-primary" />

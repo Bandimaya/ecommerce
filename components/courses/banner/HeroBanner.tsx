@@ -66,11 +66,11 @@ export default function HeroBanner() {
               </div>
             </div>
 
-            {/* Lead Form */}
-            <div className="w-full max-w-md mx-auto lg:mx-0 animate-fade-in-up">
-              <HeaderLeadForm />
-            </div>
+          </div>
 
+          {/* Right Column: Lead Form */}
+          <div className="lg:col-span-5 w-full flex justify-center lg:justify-end animate-fade-in-up">
+            <HeaderLeadForm />
           </div>
 
         </div>

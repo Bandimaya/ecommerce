@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect, useRef, use } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Play, X, Quote, ArrowRight, Star, GraduationCap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Play, X, Quote, ArrowRight, GraduationCap, ChevronLeft, ChevronRight } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { apiFetch } from '@/lib/axios';
@@ -21,7 +21,7 @@ const starsData = [
         role: 'Alumni • University of Illinois',
         image: 'https://images.avishkaar.cc/misc/home/stars/stars-of-avishkaar-desktop-mihir-vardhan.webp',
         quote: "I've been building since I was a child. Avishkaar helped me get my robots into the Prime Minister's house.",
-        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        videoUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ", // Valid Video
     },
     {
         id: 'nishka',
@@ -58,20 +58,31 @@ const starsData = [
 ];
 
 export default function StarsOfAvishkaar() {
-    const [currentIndex, setCurrentIndex] = useState(0);
+    // 1. Initialize data immediately with static data to ensure content is present
+    const [data, setData] = useState(starsData);
+
+    // 2. Find the first index that has a video URL available
+    const initialIndex = starsData.findIndex(star => star.videoUrl && star.videoUrl.trim() !== "");
+
+    // 3. Set the currentIndex to that valid index (fallback to 0 if none found)
+    const [currentIndex, setCurrentIndex] = useState(initialIndex !== -1 ? initialIndex : 0);
+    
     const [isVideoOpen, setIsVideoOpen] = useState(false);
     const [isAutoPlay, setIsAutoPlay] = useState(true);
     const [direction, setDirection] = useState(0);
-    const [data, setData] = useState([]);
 
     useEffect(() => {
-        // Simulate fetching data
+        // Keep existing fetch logic but ensure it updates state correctly
         apiFetch('/stars')
             .then((response) => {
-                setData(response);
+                if (response && response.length > 0) {
+                    setData(response);
+                    // Optional: Re-calculate index if data changes significantly
+                }
             })
             .catch(() => {
                 console.log("Error fetching stars data, using static data.");
+                // We already have static data set, so no action needed here
             });
     }, []);
 
@@ -115,10 +126,17 @@ export default function StarsOfAvishkaar() {
         exit: (direction: number) => ({ opacity: 0, x: direction > 0 ? -50 : 50 })
     };
 
+    // Helper to generate correct embed URL
+    const getVideoSrc = (url: string) => {
+        if (!url) return "";
+        // Check if query params exist to append correctly
+        const separator = url.includes('?') ? '&' : '?';
+        return `${url}${separator}autoplay=1&rel=0&modestbranding=1`;
+    };
+
     // --- Reusable Navigation Component ---
     const NavigationControls = ({ mobile = false }) => (
         <div className={cn(
-            // Use background color from theme, styled borders
             "flex flex-col gap-6 border-t border-border bg-background/50 backdrop-blur-sm",
             mobile ? "p-6 lg:hidden" : "hidden lg:flex p-10 mt-auto"
         )}>
@@ -160,7 +178,6 @@ export default function StarsOfAvishkaar() {
             </div>
 
             {/* Bottom Row: Circle Thumbnails */}
-            {/* Added padding-bottom (pb-4) to prevent rings from cutting off */}
             <div className="flex gap-4 overflow-x-auto pb-4 pt-2 scrollbar-hide">
                 {data.map((star: any, idx) => {
                     const isActive = idx === currentIndex;
@@ -207,13 +224,11 @@ export default function StarsOfAvishkaar() {
     );
 
     return (
-        // Increased min-height to ensure circle videos fit
         <section className="relative w-full h-auto lg:min-h-[850px] bg-background font-sans overflow-hidden flex flex-col py-8 lg:py-0">
 
             {/* --- HEADER --- */}
             <div className="container mx-auto px-4 md:px-6 mb-8 lg:mb-12 pt-8 lg:pt-12">
                 <div className="flex flex-col items-center justify-center text-center">
-                    {/* Flanking Lines Layout */}
                     <div className="flex items-center gap-4 mb-4">
                         <motion.div
                             initial={{ width: 0 }}
@@ -245,9 +260,9 @@ export default function StarsOfAvishkaar() {
                 <div className="relative w-full lg:w-[60%] h-[45vh] lg:h-auto bg-muted overflow-hidden group">
                     <AnimatePresence mode="wait" initial={false}>
                         {!isVideoOpen ? (
-                            /* IMAGE STATE */
+                            /* IMAGE STATE WITH PLAY BUTTON */
                             <motion.div
-                                key={`img-${activeStar?._id}`}
+                                key={`img-${activeStar?.id || 'default'}`}
                                 initial={{ scale: 1.1, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ opacity: 0 }}
@@ -263,11 +278,17 @@ export default function StarsOfAvishkaar() {
                                 <div className="absolute inset-0 bg-gradient-to-r from-background/40 to-transparent"></div>
                                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent lg:hidden"></div>
 
-                                {/* Floating Play Button */}
+                                {/* Floating Play Button - THIS IS KEPT AS REQUESTED */}
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <button
-                                        onClick={() => { setIsVideoOpen(true); setIsAutoPlay(false); }}
-                                        className="relative group/btn transform transition-transform duration-300 hover:scale-110"
+                                        onClick={() => {
+                                            // Explicitly handle video open logic
+                                            if (activeStar?.videoUrl) {
+                                                setIsVideoOpen(true);
+                                                setIsAutoPlay(false);
+                                            }
+                                        }}
+                                        className="relative group/btn transform transition-transform duration-300 hover:scale-110 cursor-pointer"
                                     >
                                         <div className="absolute inset-0 bg-background/30 rounded-full animate-ping opacity-50"></div>
                                         <div className="relative w-24 h-24 bg-background/20 backdrop-blur-md border border-white/40 rounded-full flex items-center justify-center text-white shadow-2xl group-hover/btn:bg-primary group-hover/btn:border-primary transition-colors">
@@ -300,10 +321,11 @@ export default function StarsOfAvishkaar() {
 
                                 {activeStar?.videoUrl ? (
                                     <iframe
-                                        src={`${activeStar?.videoUrl}?autoplay=1`}
+                                        src={getVideoSrc(activeStar.videoUrl)}
                                         className="w-full h-full"
                                         allow="autoplay; encrypted-media"
                                         allowFullScreen
+                                        title={activeStar.name}
                                     />
                                 ) : (
                                     <div className="text-center text-muted-foreground">
@@ -325,7 +347,7 @@ export default function StarsOfAvishkaar() {
                     <div className="flex-1 px-8 lg:px-12 flex flex-col justify-center py-8">
                         <AnimatePresence mode="wait" custom={direction}>
                             <motion.div
-                                key={activeStar?.id}
+                                key={activeStar?.id || 'content'}
                                 custom={direction}
                                 variants={slideVariants}
                                 initial="hidden"
@@ -355,8 +377,10 @@ export default function StarsOfAvishkaar() {
 
                                 <button
                                     onClick={() => {
-                                        setIsVideoOpen(true);
-                                        setIsAutoPlay(false);
+                                        if (activeStar?.videoUrl) {
+                                            setIsVideoOpen(true);
+                                            setIsAutoPlay(false);
+                                        }
                                     }}
                                     className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-foreground hover:text-primary transition-colors group"
                                 >

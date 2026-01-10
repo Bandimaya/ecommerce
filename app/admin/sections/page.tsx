@@ -179,9 +179,9 @@ export default function SectionsPage() {
                   {editingId ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
                   {editingId ? "Edit Section" : "Create New Section"}
                 </h2>
-                <button onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px] cursor-pointer">
+                <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px] cursor-pointer">
                   <X className="w-5 h-5" />
-                </button>
+                </AdminButton>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6">
@@ -263,22 +263,16 @@ export default function SectionsPage() {
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <button
-            onClick={() => setView("grid")}
-            className={`p-2 rounded-[10px] transition-all ${
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
               view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+            }`}>
             <Grid className="w-4 h-4" />
-          </button>
-          <button
-            onClick={() => setView("list")}
-            className={`p-2 rounded-[10px] transition-all ${
+          </AdminButton>
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
               view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
-            }`}
-          >
+            }`}>
             <List className="w-4 h-4" />
-          </button>
+          </AdminButton>
         </div>
       </div>
 

@@ -147,7 +147,7 @@ const Footer = () => {
                 />
               </a>
               <a
-                href="#"
+                href="https://youtube.com/@thestempark?si=1OeOVMKz_HCDC5tS"
                 className="w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 hover:scale-110"
                 style={{
                   backgroundColor: 'rgba(255,255,255,0.06)',

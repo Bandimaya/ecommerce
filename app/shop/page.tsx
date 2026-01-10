@@ -22,7 +22,6 @@ const Index = () => {
             </motion.div>
 
             <div>
-                <CategoryShowcase />
 
                 <Shop />
 
@@ -30,7 +29,11 @@ const Index = () => {
 
                 <SantaShop />
 
+                <CategoryShowcase />
+                
                 <StemParkTestimonials />
+
+
             </div>
         </div>
     );

@@ -173,8 +173,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     className="w-full h-full object-contain"
                   />
                 </div>
-                <span className="text-[18px] md:text-[22px] font-bold text-gray-900 hidden md:inline-block max-w-[160px] truncate leading-none site-brand">
-                  STEM<span className="text-accent">PARK</span>
+                <span className="text-[20px] md:text-[22px] font-bold hidden md:inline-block max-w-[160px] truncate leading-none site-brand" style={{ color: 'var(--primary)' }}>
+                  <span>STEM</span><span className="text-accent">PARK</span>
                 </span>
               </div>
             </Link>

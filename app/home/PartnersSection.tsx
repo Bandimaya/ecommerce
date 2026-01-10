@@ -57,34 +57,22 @@ export default function PartnersSection() {
 
                         {/* 1. First Set of Logos */}
                         {data.map((src: any, idx) => (
-                            <div
+                            <img
                                 key={`p1-${idx}`}
-                                // Card: Fixed 180x80, rounded-10px, overflow hidden to clip image corners
-                                className="group relative flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-card rounded-[10px] border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 overflow-hidden cursor-pointer"
-                            >
-                                <img
-                                    src={IMAGE_URL + src?.image}
-                                    alt={`Partner Logo ${idx + 1}`}
-                                    // Image: w-full h-full to match card exactly. 
-                                    // object-cover ensures no empty space (might crop slightly). 
-                                    // Change to 'object-fill' if you prefer stretching over cropping.
-                                    className="w-full h-full object-cover opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110"
-                                />
-                            </div>
+                                src={IMAGE_URL + src?.image}
+                                alt={`Partner Logo ${idx + 1}`}
+                                className="flex-shrink-0 w-[180px] h-[80px] object-cover rounded-[10px] opacity-80 cursor-pointer transition-all duration-300 hover:opacity-100 hover:scale-110"
+                            />
                         ))}
 
                         {/* 2. Duplicate Set for Infinite Loop */}
                         {data.map((src: any, idx) => (
-                            <div
+                            <img
                                 key={`p2-${idx}`}
-                                className="group relative flex-shrink-0 flex items-center justify-center w-[180px] h-[80px] bg-card rounded-[10px] border border-border shadow-sm transition-all duration-300 hover:bg-card hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 overflow-hidden cursor-pointer"
-                            >
-                                <img
-                                    src={IMAGE_URL + src?.image}
-                                    alt={`Partner Logo ${idx + 1}`}
-                                    className="w-full h-full object-cover opacity-80 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110"
-                                />
-                            </div>
+                                src={IMAGE_URL + src?.image}
+                                alt={`Partner Logo ${idx + 1}`}
+                                className="flex-shrink-0 w-[180px] h-[80px] object-cover rounded-[10px] opacity-80 cursor-pointer transition-all duration-300 hover:opacity-100 hover:scale-110"
+                            />
                         ))}
 
                     </div>

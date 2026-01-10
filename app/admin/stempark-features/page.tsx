@@ -201,9 +201,9 @@ export default function StemparkFeaturesPage() {
                   {editingId ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
                   {editingId ? "Edit Feature" : "Create New Feature"}
                 </h2>
-                <button onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px]">
+                <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px]">
                   <X className="w-5 h-5" />
-                </button>
+                </AdminButton>
               </div>
 
               <form onSubmit={handleSubmit} className="p-6">

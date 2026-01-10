@@ -2,51 +2,50 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import { Play, Pause, ArrowRight } from "lucide-react";
-import { stemMedia } from "../../../lib/Data"; // Ensure this path is correct
+import { stemMedia } from "../../../lib/Data"; 
 import { cn } from "@/lib/utils";
 
-// 1. Added hex codes for smooth Framer Motion color interpolation
 const features = [
   { 
-    title: "Elite Hardware", 
-    description: "Learn using the #1 Best Robotics and Coding Kits in the industry.", 
-    highlight: "Robotics & Coding Kits", 
-    link: "https://home.avishkaar.cc/shop",
+    title: "STEM Innovation Labs", 
+    description: "State-of-the-art physical environments designed to foster creativity and scientific inquiry.", 
+    highlight: "Innovation Labs", 
+    link: "/innovation-labs",
     bgColor: "#f8fafc" // Slate 50
   },
   { 
-    title: "Personalized Learning", 
-    description: "Choose from personalized 1-1 or small group (1-4) sessions to fit your child's style.", 
-    highlight: "Tailored Sessions", 
-    link: "https://www.avishkaar.cc/courses",
+    title: "AI & Robotics Kits", 
+    description: "Proprietary hardware kits that bridge the gap between abstract coding and real-world robotics.", 
+    highlight: "Hardware Kits", 
+    link: "/shop",
     bgColor: "#eff6ff" // Blue 50
   },
   { 
-    title: "Expert Mentorship", 
-    description: "Learn from expert instructors with a minimum 5+ years of hands-on experience.", 
-    highlight: "5+ Years Experience", 
-    link: "https://www.avishkaar.cc/about-us",
-    bgColor: "#eef2ff" // Indigo 50
-  },
-  { 
-    title: "Lifetime Knowledge", 
-    description: "Get lifetime access to all the study material online, anytime, anywhere.", 
-    highlight: "Study Material", 
-    link: "https://community.avishkaar.cc/projects",
-    bgColor: "#fff7ed" // Orange 50
-  },
-  { 
-    title: "Global Recognition", 
-    description: "Earn STEM.org accredited certificates and regular report cards to track growth.", 
-    highlight: "Accredited Certificates", 
-    link: "https://stem.org/authenticated/",
+    title: "Professional Certification", 
+    description: "Every course completion is backed by industry-recognized STEMPARK global certifications.", 
+    highlight: "Global Certifications", 
+    link: "/certifications",
     bgColor: "#f0fdf4" // Emerald 50
   },
   { 
-    title: "Hands-on Projects", 
-    description: "Engage in hands-on projects that make learning fun and practical.", 
-    highlight: "Hands-on", 
-    link: "https://www.avishkaar.cc/projects",
+    title: "Advanced AI Curriculum", 
+    description: "Learn Machine Learning and Data Science through our specialized age-appropriate pathways.", 
+    highlight: "Machine Learning", 
+    link: "/curriculum",
+    bgColor: "#eef2ff" // Indigo 50
+  },
+  { 
+    title: "Experiential Learning", 
+    description: "Our 'Learn by Doing' philosophy ensures students build 21st-century problem-solving skills.", 
+    highlight: "Learn by Doing", 
+    link: "/about",
+    bgColor: "#fff7ed" // Orange 50
+  },
+  { 
+    title: "Future-Ready Mentors", 
+    description: "Direct access to experts from the tech industry guiding students through complex projects.", 
+    highlight: "Industry Experts", 
+    link: "/mentors",
     bgColor: "#fdf2f8" // Pink 50
   },
 ];
@@ -56,7 +55,6 @@ export const FeatureShowcase = () => {
   const [isPlaying, setIsPlaying] = useState(true);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Desktop Video Autoplay Logic
   useEffect(() => {
     if (videoRef.current && isPlaying) {
       videoRef.current.play().catch(() => console.log("Autoplay prevented"));
@@ -73,7 +71,6 @@ export const FeatureShowcase = () => {
   };
 
   return (
-    // Animate background color based on active index
     <motion.div 
       animate={{ backgroundColor: features[activeIdx].bgColor }}
       transition={{ duration: 0.8, ease: "linear" }}
@@ -83,43 +80,44 @@ export const FeatureShowcase = () => {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          className="max-w-3xl"
+          className="max-w-4xl"
         >
-          <h2 className="text-4xl md:text-7xl font-bold text-slate-900 tracking-tighter mb-4">
-            The Avishkaar <br />
-            <span className="text-primary italic underline decoration-primary/30">Advantage</span>
+          <h2 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tighter mb-6">
+            The STEMPARK <br />
+            <span className="text-primary italic">Experience</span>
           </h2>
-          <p className="text-slate-600 text-lg md:text-xl max-w-xl">
-            Everything your child needs to master STEM, robotics, and coding in one ecosystem.
+          <p className="text-slate-600 text-lg md:text-2xl max-w-2xl leading-relaxed">
+            Empowering the next generation of innovators through integrated technology, 
+            expert mentorship, and hands-on discovery.
           </p>
         </motion.div>
       </div>
 
       <div className="relative grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 px-6 max-w-7xl mx-auto">
         
-        {/* --- Left Column (Scrolling Content) --- */}
-        <div className="flex flex-col gap-12 md:gap-0">
+        {/* --- Left Column (Text Content) --- */}
+        <div className="flex flex-col">
           {features.map((feature, idx) => (
             <ScrollItem 
                 key={idx} 
                 index={idx} 
                 feature={feature} 
                 setActiveIdx={setActiveIdx}
-                media={stemMedia[idx]} // Pass media for Mobile rendering
+                media={stemMedia[idx]} 
             />
           ))}
         </div>
 
-        {/* --- Right Column (Sticky Desktop Media) --- */}
-        <div className="hidden md:block sticky top-[15%] h-[600px] w-full self-start">
-          <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden border-[8px] border-white shadow-2xl bg-slate-100 transition-all duration-500">
+        {/* --- Right Column (Sticky Media) --- */}
+        <div className="hidden md:block sticky top-[15%] h-[550px] w-full self-start">
+          <div className="relative w-full h-full rounded-[2.5rem] overflow-hidden border-[12px] border-white shadow-2xl bg-slate-200">
             <AnimatePresence mode="wait">
               <motion.div
                 key={activeIdx}
-                initial={{ opacity: 0, scale: 1.05 }}
+                initial={{ opacity: 0, scale: 1.1 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.5 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.6 }}
                 className="absolute inset-0"
               >
                 {stemMedia[activeIdx]?.type === "video" ? (
@@ -133,9 +131,9 @@ export const FeatureShowcase = () => {
                       playsInline
                       className="w-full h-full object-cover"
                     />
-                     <div className="absolute inset-0 flex items-center justify-center bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <div className="bg-white/90 backdrop-blur-sm p-4 rounded-full shadow-xl">
-                        {isPlaying ? <Pause size={28} /> : <Play size={28} className="ml-1" />}
+                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <div className="bg-white p-5 rounded-full shadow-2xl">
+                        {isPlaying ? <Pause size={32} /> : <Play size={32} className="ml-1" />}
                       </div>
                     </div>
                   </div>
@@ -147,12 +145,12 @@ export const FeatureShowcase = () => {
                   />
                 )}
                 
-                {/* Desktop Floating Card */}
-                <div className="absolute bottom-8 left-8 right-8 p-6 rounded-2xl bg-white/30 backdrop-blur-xl border border-white/40 shadow-xl">
-                  <p className="text-white text-[10px] font-black tracking-[0.3em] uppercase mb-1 drop-shadow-sm">
-                    Featured
+                {/* Content Overlay */}
+                <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/60 to-transparent">
+                  <p className="text-white/70 text-xs font-bold tracking-[0.4em] uppercase mb-2">
+                    STEMPARK Advantage 0{activeIdx + 1}
                   </p>
-                  <p className="text-white text-2xl font-bold drop-shadow-md">{features[activeIdx].title}</p>
+                  <p className="text-white text-3xl font-black">{features[activeIdx].title}</p>
                 </div>
               </motion.div>
             </AnimatePresence>
@@ -163,11 +161,9 @@ export const FeatureShowcase = () => {
   );
 };
 
-// --- Sub Component ---
-
 const ScrollItem = ({ feature, index, setActiveIdx, media }: any) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { margin: "-40% 0px -40% 0px" });
+  const isInView = useInView(ref, { margin: "-45% 0px -45% 0px" });
 
   useEffect(() => {
     if (isInView) setActiveIdx(index);
@@ -176,60 +172,44 @@ const ScrollItem = ({ feature, index, setActiveIdx, media }: any) => {
   return (
     <motion.div 
       ref={ref} 
-      className={cn(
-        "flex flex-col justify-center transition-all duration-500 ease-out py-6 md:py-10",
-        // On desktop, use min-h to enable scroll. On mobile, auto height is better.
-        "min-h-auto md:min-h-[70vh]" 
-      )}
-      animate={{ opacity: isInView ? 1 : 0.4 }}
+      className="flex flex-col justify-center py-12 md:py-20 min-h-auto md:min-h-[70vh]"
+      animate={{ opacity: isInView ? 1 : 0.3, x: isInView ? 0 : -20 }}
+      transition={{ duration: 0.5 }}
     >
-      {/* Mobile: Top Divider */}
       <div className={cn(
-        "w-12 h-1 mb-6 transition-all duration-500 md:w-16 md:mb-8",
-        isInView ? "bg-primary w-20 md:w-24" : "bg-slate-300"
+        "h-1.5 mb-8 transition-all duration-700",
+        isInView ? "bg-primary w-24" : "bg-slate-300 w-12"
       )} />
 
-      {/* Number & Title */}
-      <span className="text-primary font-mono font-black text-xl md:text-2xl mb-2">0{index + 1}</span>
-      <h3 className="text-3xl md:text-5xl font-black text-slate-900 mb-6 tracking-tight leading-tight">
+      <span className="text-primary font-black text-2xl mb-4">0{index + 1}</span>
+      <h3 className="text-4xl md:text-6xl font-black text-slate-900 mb-8 tracking-tighter leading-[1.1]">
         {feature.title}
       </h3>
 
-      {/* --- MOBILE ONLY: Inline Media Card --- */}
-      <div className="block md:hidden w-full aspect-[4/3] mb-8 rounded-2xl overflow-hidden shadow-lg border-4 border-white bg-slate-100 relative group">
+      {/* Mobile Inline Media */}
+      <div className="block md:hidden w-full aspect-video mb-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-slate-200 relative">
         {media?.type === 'video' ? (
-             <video
-             src={media.url}
-             autoPlay
-             loop
-             muted
-             playsInline
-             className="w-full h-full object-cover"
-           />
+             <video src={media.url} autoPlay loop muted playsInline className="w-full h-full object-cover" />
         ) : (
             <img src={media?.url} alt={feature.title} className="w-full h-full object-cover" />
         )}
-        <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-2xl pointer-events-none" />
       </div>
 
-      {/* Description */}
-      <p className="text-lg md:text-2xl text-slate-600 leading-relaxed mb-6 md:mb-8 max-w-md">
+      <p className="text-xl md:text-2xl text-slate-600 leading-relaxed mb-10 max-w-lg">
         {feature.description.split(feature.highlight)[0]}
-        <span className="text-slate-900 font-bold bg-white/50 px-1 rounded shadow-sm">
+        <span className="text-slate-900 font-extrabold border-b-4 border-primary/20">
           {feature.highlight}
         </span>
         {feature.description.split(feature.highlight)[1]}
       </p>
 
-      {/* Link */}
       <a 
         href={feature.link} 
-        target="_blank"
-        className="text-primary font-bold text-lg flex items-center gap-2 hover:gap-3 transition-all group/link w-fit"
+        className="group flex items-center gap-4 text-primary font-black text-xl uppercase tracking-widest"
       >
-        <span>Explore</span>
-        <div className="bg-primary/10 p-2 rounded-full group-hover/link:bg-primary/20 transition-colors">
-            <ArrowRight size={18} />
+        <span>Discover More</span>
+        <div className="w-12 h-12 rounded-full border-2 border-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+            <ArrowRight size={20} />
         </div>
       </a>
     </motion.div>

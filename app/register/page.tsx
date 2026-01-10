@@ -5,9 +5,21 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, User, Mail, Lock, AlertCircle, CheckCircle } from "lucide-react";
+import { 
+  Eye, 
+  EyeOff, 
+  Loader2, 
+  User, 
+  Mail, 
+  Lock, 
+  AlertCircle, 
+  CheckCircle, 
+  Phone,
+  ArrowLeft // Imported ArrowLeft
+} from "lucide-react";
 
 const Register = () => {
+  // @ts-ignore
   const { register, loading } = useUser();
   const navigate = useRouter();
 
@@ -15,6 +27,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    mobile: "", 
     password: "",
     confirmPassword: "",
   });
@@ -28,13 +41,17 @@ const Register = () => {
   // Handle Input Change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    
+    // For mobile, restrict to numbers only
+    if (name === "mobile" && !/^\d*$/.test(value)) {
+      return; 
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Clear specific error when user types
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
     }
-    // Clear confirm password error if password changes
     if (name === "password" && errors.confirmPassword) {
       setErrors((prev) => ({ ...prev, confirmPassword: "" }));
     }
@@ -44,6 +61,7 @@ const Register = () => {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^\d{10}$/; 
 
     if (!formData.name.trim()) newErrors.name = "Full name is required";
 
@@ -51,6 +69,12 @@ const Register = () => {
       newErrors.email = "Email is required";
     } else if (!emailRegex.test(formData.email)) {
       newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!formData.mobile.trim()) {
+      newErrors.mobile = "Mobile number is required";
+    } else if (!phoneRegex.test(formData.mobile)) {
+      newErrors.mobile = "Please enter a valid 10-digit mobile number";
     }
 
     if (!formData.password) {
@@ -78,7 +102,7 @@ const Register = () => {
     if (!validateForm()) return;
 
     try {
-      await register(formData.name, formData.email, formData.password);
+      await register(formData.email, formData.password, formData.mobile);
       navigate.push("/shop");
     } catch (err: any) {
       setGeneralError(err.message || "Registration failed. Please try again.");
@@ -87,7 +111,17 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted/50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden">
+      {/* Added 'relative' class here to position the back button */}
+      <div className="w-full max-w-md bg-white rounded-2xl border border-gray-200 shadow-xl overflow-hidden relative">
+
+        {/* Back Button */}
+        <button
+          onClick={() => navigate.back()}
+          className="absolute left-4 top-4 p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors z-10"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-5 h-5" />
+        </button>
 
         {/* Header Section */}
         <div className="px-8 pt-8 pb-6 text-center">
@@ -171,6 +205,40 @@ const Register = () => {
             </div>
             {errors.email && (
               <p className="text-xs text-red-600 ml-1">{errors.email}</p>
+            )}
+          </div>
+
+          {/* Mobile Input */}
+          <div className="space-y-1">
+            <div className="relative group">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-primary transition-colors" />
+              <input
+                id="mobile"
+                name="mobile"
+                type="tel"
+                maxLength={10}
+                value={formData.mobile}
+                onChange={handleChange}
+                placeholder=" "
+                className={`peer w-full pl-10 pr-3 pt-5 pb-2 bg-white border-2 rounded-xl outline-none transition-all duration-200
+                  ${errors.mobile
+                    ? "border-red-500 focus:border-red-500"
+                    : "border-gray-200 focus:border-primary focus:shadow-[0_0_0_4px_rgba(var(--primary),0.1)]"
+                  }`}
+              />
+              <label
+                htmlFor="mobile"
+                className={`absolute left-10 top-3.5 text-gray-500 text-sm transition-all duration-200 origin-[0]
+                  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
+                  peer-focus:scale-75 peer-focus:-translate-y-2.5
+                  peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:-translate-y-2.5
+                  ${errors.mobile ? "text-red-500" : ""}`}
+              >
+                Mobile Number
+              </label>
+            </div>
+            {errors.mobile && (
+              <p className="text-xs text-red-600 ml-1">{errors.mobile}</p>
             )}
           </div>
 

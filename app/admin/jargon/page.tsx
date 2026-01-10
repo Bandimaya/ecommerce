@@ -171,12 +171,9 @@ export default function JargonPage() {
               {editing ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
               {editing ? "Edit Jargon Item" : "Create New Jargon"}
             </h2>
-            <button
-              onClick={handleCloseForm}
-              className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-[10px] transition-colors"
-            >
+            <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-[10px] transition-colors">
               <X className="w-5 h-5" />
-            </button>
+            </AdminButton>
           </div>
 
           <form onSubmit={handleSubmit} className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -392,20 +389,12 @@ export default function JargonPage() {
                       {item.icon}
                     </span>
                     <div className="flex gap-2">
-                      <button
-                        onClick={() => handleEdit(item)}
-                        className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors"
-                        title="Edit Term"
-                      >
+                      <AdminButton variant="ghost" onClick={() => handleEdit(item)} className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-[10px] transition-colors" title="Edit Term">
                         <Pencil className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item._id)}
-                        className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors"
-                        title="Delete Term"
-                      >
+                      </AdminButton>
+                      <AdminButton variant="danger" loading={removingId === item._id} onClick={() => handleDelete(item._id)} className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-[10px] transition-colors" title="Delete Term">
                         <Trash2 className="w-4 h-4" />
-                      </button>
+                      </AdminButton>
                     </div>
                   </div>
                 </div>
