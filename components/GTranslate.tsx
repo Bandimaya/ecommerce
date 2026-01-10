@@ -98,7 +98,7 @@ const GTranslate = () => {
           z-index: 1000 !important;
           
           /* DEFAULT POSITION (Where it resets to on reload) */
-          top: 85px !important; 
+          top: 150px !important; 
           left: 20px !important;
           
           width: 85px !important;

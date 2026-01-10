@@ -158,10 +158,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
         <div className="container mx-auto px-4">
           <div className="flex h-16 md:h-20 md:px-1 items-gap-20 items-center justify-between">
             {/* Logo Section - Left Side */}
-            <Link
-              href="/"
+            <div
               className="flex items-center gap-1 group relative z-[70]"
-              onClick={() => setIsOpen(false)}
             >
               {/* UPDATED: gap-2 -> gap-[20px] for 20px gap on all screens */}
               <div className="flex items-center gap-[0px]">
@@ -177,7 +175,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   <span>STEM</span><span className="text-accent">PARK</span>
                 </span>
               </div>
-            </Link>
+            </div>
 
             {/* Centered Desktop Navigation */}
             <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2">
