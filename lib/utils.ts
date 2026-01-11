@@ -25,3 +25,8 @@ export function getDisplayPrice(pricing: any[], userCountryCode: string) {
 
   return { displayPrice: priceObj.salePrice ?? priceObj.originalPrice ?? 0, currency: priceObj.currency || "USD" };
 }
+
+
+export function returnWhatsappLink(number: string|undefined, message: string) {
+  return `https://wa.me/${number}?text=${message}`;
+}

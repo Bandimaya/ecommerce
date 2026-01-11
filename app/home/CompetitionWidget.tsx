@@ -9,11 +9,19 @@ import {
     Check,
     ArrowLeft,
     User,
-    Mail
+    Mail,
+    Star,
+    X,
+    Package,
+    Brain
 } from 'lucide-react';
 import { motion, AnimatePresence, Variants } from 'framer-motion';
 import { apiFetch } from '@/lib/axios';
 import { IMAGE_URL } from '@/lib/constants';
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { returnWhatsappLink } from '@/lib/utils';
+import { useSettings } from '@/contexts/SettingsContext';
 
 // Hook to detect prefers-reduced-motion
 const useReducedMotion = () => {
@@ -124,8 +132,13 @@ const CompetitionWidget = () => {
         setActiveIndex((prev) => (prev - 1 + events.length) % events.length);
         setViewState('idle');
     }, [events.length]);
+    const route = useRouter()
+    const { contact } = useSettings();
 
-    const handleRegisterClick = () => setViewState('form');
+    // const handleRegisterClick = () => setViewState('form');
+    const handleRegisterClick = () => {
+        window.open(returnWhatsappLink(contact?.whatsapp_number, `Hello! I would like to register for the event: ${activeEvent?.title}.`), "_blank", "noopener,noreferrer");
+    };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -197,6 +210,17 @@ const CompetitionWidget = () => {
             transition: { type: "spring", stiffness: 260, damping: 20 }
         }
     };
+
+    const [selectedEvent, setSelectedEvent] = useState<any | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    useEffect(() => {
+        if (selectedEvent) {
+            setIsModalOpen(true);
+        } else {
+            setIsModalOpen(false);
+        }
+    }, [selectedEvent]);
 
     return (
         <div className="relative w-full min-h-screen font-sans transition-colors duration-700 lg:h-screen lg:overflow-hidden bg-slate-50 theme-wrapper">
@@ -301,7 +325,7 @@ const CompetitionWidget = () => {
                                         >
                                             {/* Card Image */}
                                             <div className="h-[60%] relative overflow-hidden group">
-                                                <img src={IMAGE_URL+evt.logo} alt={evt.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                                <img src={IMAGE_URL + evt.logo} alt={evt.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                                 <div className="absolute top-4 left-4">
                                                     <span className="bg-white/90 backdrop-blur text-[var(--accent)] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
                                                         {evt.category}
@@ -313,7 +337,7 @@ const CompetitionWidget = () => {
                                             <div className="flex-1 p-6 flex flex-col justify-between relative bg-white">
                                                 <div>
                                                     <div className="flex items-center gap-2 mb-2 opacity-50">
-                                                        <img src={IMAGE_URL+evt.logo} className="w-6 h-6 object-contain grayscale" />
+                                                        <img src={IMAGE_URL + evt.logo} className="w-6 h-6 object-contain grayscale" />
                                                         <span className="text-xs font-bold tracking-widest">EVENT ID: {evt.id}</span>
                                                     </div>
                                                     <h2 className="text-2xl font-bold leading-tight text-slate-800">{evt.title}</h2>
@@ -321,13 +345,16 @@ const CompetitionWidget = () => {
                                                 </div>
 
                                                 {/* Active Indicator Button */}
-                                                <div className={`mt-4 py-3 rounded-xl flex items-center justify-center font-bold text-sm transition-colors duration-500 ${idx === activeIndex ? 'bg-[var(--primary)] text-white' : 'bg-slate-100 text-slate-400'}`}>
-                                                    {idx === activeIndex ? 'Viewing Details' : 'Click to View'}
+                                                <div
+                                                    onClick={() => !isModalOpen && setSelectedEvent(evt)}
+                                                    className={`mt-4 py-3 rounded-xl flex items-center justify-center font-bold text-sm transition-colors duration-500 ${idx === activeIndex ? 'bg-[var(--primary)] text-white' : 'bg-slate-100 text-slate-400'}`}>
+                                                    {idx === activeIndex ? 'View Details' : 'Click to View'}
                                                 </div>
                                             </div>
                                         </motion.div>
                                     );
                                 })}
+
                             </>
                         ) : (
                             // --- Mobile: Simple Stack with Embedded Controls ---
@@ -341,7 +368,7 @@ const CompetitionWidget = () => {
                                     className="w-full h-full rounded-3xl shadow-xl overflow-hidden flex flex-col bg-white"
                                 >
                                     <div className="h-[60%] relative overflow-hidden">
-                                        <img src={IMAGE_URL+activeEvent?.['logo']} alt={activeEvent?.title+'ghjk'} className="w-full h-full object-cover" />
+                                        <img src={IMAGE_URL + activeEvent?.['logo']} alt={activeEvent?.title + 'ghjk'} className="w-full h-full object-cover" />
                                         <div className="absolute top-4 left-4">
                                             <span className="bg-white/90 backdrop-blur text-[var(--accent)] text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">
                                                 {activeEvent?.category}
@@ -576,6 +603,97 @@ const CompetitionWidget = () => {
                     </div>
                 </div>
             </div>
+            <AnimatePresence>
+                {selectedEvent && (
+                    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-24 pb-4 px-4">
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
+                            onClick={() => setSelectedEvent(null)}
+                        />
+
+                        {/* Modal */}
+                        <motion.div
+                            key="event-modal"
+                            layoutId={`event-card-${selectedEvent._id}`}
+                            className="relative w-full h-full sm:w-[90vw] md:max-w-6xl bg-white rounded-[10px] overflow-hidden shadow-2xl flex flex-col z-[110]"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            {/* Close */}
+                            <button
+                                onClick={() => setSelectedEvent(null)}
+                                className="absolute top-4 right-4 md:top-8 md:right-8 z-50 p-3 rounded-[10px] bg-slate-100 hover:bg-slate-200"
+                            >
+                                <X className="w-6 h-6 text-slate-900" />
+                            </button>
+
+                            <div className="flex flex-col md:flex-row h-full">
+                                {/* Image */}
+                                <div className="w-full h-[35vh] md:w-3/5 md:h-auto bg-slate-50 relative overflow-hidden">
+                                    <motion.div
+                                        layoutId={`event-image-${selectedEvent._id}`}
+                                        className="relative w-full h-full"
+                                    >
+                                        <img
+                                            src={selectedEvent.logo || "/placeholder.png"}
+                                            alt={selectedEvent.title}
+                                            className="object-cover w-full h-full"
+                                        />
+                                    </motion.div>
+                                </div>
+
+                                {/* Content */}
+                                <div className="w-full md:w-2/5 flex flex-col bg-white overflow-hidden">
+                                    <div className="flex-1 overflow-y-auto p-6 md:p-12">
+                                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+                                            {/* Tags */}
+                                            <div className="flex items-center gap-3 mb-6">
+                                                <span
+                                                    className="text-xs font-black uppercase tracking-widest px-4 py-1.5 rounded-[10px]"
+                                                    style={{ backgroundColor: `${selectedEvent.color}20`, color: selectedEvent.color }}
+                                                >
+                                                    {selectedEvent.category}
+                                                </span>
+                                                <span className="text-xs font-bold text-slate-500">
+                                                    Participants: {selectedEvent.count}
+                                                </span>
+                                            </div>
+
+                                            {/* Title */}
+                                            <h2 className="text-3xl md:text-5xl font-black mb-4 text-slate-900">
+                                                {selectedEvent.title}
+                                            </h2>
+
+                                            {/* Subtitle */}
+                                            <p className="text-slate-600 font-medium mb-8">
+                                                {selectedEvent.subtitle}
+                                            </p>
+
+                                            {/* Example info section */}
+                                            <div>
+                                                <h4 className="font-black text-slate-900 mb-4 uppercase text-sm tracking-widest">
+                                                    Event Highlights
+                                                </h4>
+                                                <div className="space-y-3">
+                                                    <div className="p-4 bg-slate-50 rounded-[10px] border">
+                                                        Category: {selectedEvent.category}
+                                                    </div>
+                                                    <div className="p-4 bg-slate-50 rounded-[10px] border">
+                                                        Participants: {selectedEvent.count}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

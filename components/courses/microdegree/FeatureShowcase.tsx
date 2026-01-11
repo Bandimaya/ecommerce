@@ -83,8 +83,9 @@ export const FeatureShowcase = () => {
           className="max-w-4xl"
         >
           <h2 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tighter mb-6">
-            The STEMPARK <br />
-            <span className="text-primary italic">Experience</span>
+            Why STEMPARK Courses Are a Great Choice
+            {/* The STEMPARK <br />
+            <span className="text-primary italic">Experience</span> */}
           </h2>
           <p className="text-slate-600 text-lg md:text-2xl max-w-2xl leading-relaxed">
             Empowering the next generation of innovators through integrated technology, 
@@ -203,15 +204,15 @@ const ScrollItem = ({ feature, index, setActiveIdx, media }: any) => {
         {feature.description.split(feature.highlight)[1]}
       </p>
 
-      <a 
+      {/* <a 
         href={feature.link} 
         className="group flex items-center gap-4 text-primary font-black text-xl uppercase tracking-widest"
-      >
-        <span>Discover More</span>
-        <div className="w-12 h-12 rounded-full border-2 border-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+      > */}
+        {/* <span>Discover More</span> */}
+        {/* <div className="w-12 h-12 rounded-full border-2 border-primary flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
             <ArrowRight size={20} />
-        </div>
-      </a>
+        </div> */}
+      {/* </a> */}
     </motion.div>
   );
 };

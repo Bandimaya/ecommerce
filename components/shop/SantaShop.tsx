@@ -145,7 +145,7 @@ const SantaShop = () => {
             <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-blue-600" />
           </div>
           <h1 className="text-4xl md:text-6xl font-black text-center text-slate-900">
-            Explore Our <span className="text-blue-600">Results</span>
+            Our DIY <span className="text-blue-600">KITS</span>
           </h1>
         </div>
 

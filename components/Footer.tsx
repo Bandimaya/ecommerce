@@ -2,6 +2,9 @@
 import { Facebook, Twitter, Instagram, Youtube, Mail, Phone, MapPin } from "lucide-react";
 import { useSettings } from "@/contexts/SettingsContext";
 import Link from "next/link";
+import { Course } from "./courses/microdegree/BentoGrid";
+import { useEffect, useState } from "react";
+import { apiFetch } from "@/lib/axios";
 
 const Footer = () => {
   const { contact } = useSettings();
@@ -11,7 +14,24 @@ const Footer = () => {
   const shopAll = 'Shop all';
   const stemPrograms = 'Programs';
   const contactUs = 'Contact us';
-  const programsTitle = 'Programs';
+  const programsTitle = 'Courses';
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [events, setEvents] = useState<Course[]>([]);
+  useEffect(() => {
+    apiFetch('/stem-courses')
+      .then((data) => {
+        setCourses(data);
+      })
+      .catch((err) => console.error(err))
+  }, []);
+  useEffect(() => {
+    apiFetch('/events')
+      .then((data) => {
+        setEvents(data);
+      })
+      .catch((err) => console.error(err))
+  }, []);
+
   const programsList = [
     { href: "/programs", text: 'STEM Clubs' },
     { href: "/programs", text: 'Academic Support' },
@@ -43,8 +63,8 @@ const Footer = () => {
         }}
       />
 
-      <div className="container relative mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+      <div className="container relative mx-auto px-4 py-12 md:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div>
             <Link href="/" className="inline-block mb-4 group">
@@ -186,6 +206,7 @@ const Footer = () => {
                 { href: "/shop", text: shopAll },
                 { href: "/programs", text: stemPrograms },
                 { href: "/contact", text: contactUs },
+                { href: "/tutor", text: "Join As  Tutor" },
               ].map((link) => (
                 <li key={link.href}>
                   <Link
@@ -215,7 +236,13 @@ const Footer = () => {
               {programsTitle}
             </h4>
             <ul className="space-y-2">
-              {programsList.map((link, index) => (
+              {
+                courses.map((course: any) => (
+                  <li key={course._id}>
+                    {course?.title}
+                  </li>
+                ))}
+              {/* {programsList.map((link, index) => (
                 <li key={`${link.text}-${index}`}>
                   <Link
                     href={link.href}
@@ -230,7 +257,43 @@ const Footer = () => {
                     {link.text}
                   </Link>
                 </li>
-              ))}
+              ))} */}
+            </ul>
+
+          </div>
+          {/* Programs */}
+          <div>
+            <h4
+              className="font-display font-bold text-lg mb-4 transition-colors duration-200"
+              style={{
+                color: 'var(--footer-text)',
+              }}
+            >
+              Events
+            </h4>
+            <ul className="space-y-2">
+              {
+                events.map((course: any) => (
+                  <li key={course._id}>
+                    {course?.title}
+                  </li>
+                ))}
+              {/* {programsList.map((link, index) => (
+                <li key={`${link.text}-${index}`}>
+                  <Link
+                    href={link.href}
+                    className="
+          block
+          transition-colors
+          duration-200
+          text-[var(--footer-text-muted)]
+          hover:text-[var(--footer-hover)]
+        "
+                  >
+                    {link.text}
+                  </Link>
+                </li>
+              ))} */}
             </ul>
 
           </div>

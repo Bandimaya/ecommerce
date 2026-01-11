@@ -68,6 +68,7 @@ export async function POST(req: NextRequest) {
     const variants = JSON.parse(formData.get("variants") as string || "[]");
     const categories = JSON.parse(formData.get("categories") as string || "[]");
     const dimensions = JSON.parse(formData.get("dimensions") as string || "{}");
+    const tags = JSON.parse(formData.get("tags") as string || "[]");
 
     // Handle Media Uploads
     const media: any[] = [];
@@ -90,6 +91,7 @@ export async function POST(req: NextRequest) {
       slug: slugify(name, { lower: true, strict: true }),
       description,
       categories,
+      tags: tags,
       brand: formData.get("brand") || null,
       media,
       isFeatured: formData.get("isFeatured") === "true",
@@ -163,6 +165,7 @@ export async function PUT(req: NextRequest) {
     const name = formData.get("name") as string;
     const pricing = parseJson("pricing", []);
     const variants = parseJson("variants", []);
+    const tags = parseJson("tags", []);
     const categories = parseJson("categories", []);
     const dimensions = parseJson("dimensions", { length: 0, width: 0, height: 0 });
     const removedMedia = parseJson("removedMedia", []);
@@ -214,6 +217,7 @@ export async function PUT(req: NextRequest) {
       product.productData = {
         sku: formData.get("sku"),
         barcode: formData.get("barcode"),
+        tags: tags,
         inventory: {
           stock: Number(formData.get("stock") || 0),
           reserved: Number(formData.get("reserved") || 0),

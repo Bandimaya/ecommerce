@@ -4,6 +4,7 @@ import React from "react";
 import { Phone, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSettings } from "@/contexts/SettingsContext";
+import { returnWhatsappLink } from "@/lib/utils";
 
 const RequestCallBanner = () => {
     const { contact } = useSettings()
@@ -112,7 +113,10 @@ const RequestCallBanner = () => {
                             </a>
 
                             <a
-                                href={`https://wa.me/${contact?.whatsapp_number}`}
+                                href={returnWhatsappLink(
+                                    contact?.whatsapp_number,
+                                    "Hello, I want to register"
+                                )}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="flex items-center justify-center gap-3 rounded-full px-8 py-4 text-sm font-bold border border-[var(--border)] transition-all duration-300 hover:shadow-lg hover:scale-105 active:scale-95 bg-[var(--background)] text-[var(--foreground)] hover:border-[#25D366] hover:text-[#25D366]"

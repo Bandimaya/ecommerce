@@ -47,6 +47,7 @@ const CourseShowcase = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  const [selectedCourse, setSelectedCourse] = useState<any>(null);
   // Handle Resize
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -288,12 +289,17 @@ const CourseShowcase = () => {
 
                         {/* Actions */}
                         <div className="flex items-center gap-4 mt-auto">
+                          <button
+                            onClick={() => setSelectedCourse(course)}
+                            className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">
+                            View Details
+                          </button>
                           <button onClick={() => router.push(`https://wa.me/${contact?.whatsapp_number}`)} className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200">
                             Enroll Now <ArrowRight size={18} />
                           </button>
-                          <button className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">
+                          {/* <button className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">
                             Syllabus
-                          </button>
+                          </button> */}
                         </div>
                       </div>
                     </div>
@@ -405,10 +411,124 @@ const CourseShowcase = () => {
             </button>
           ))}
         </div>
+        <AnimatePresence>
+          {selectedCourse && (
+            <CourseModal
+              course={selectedCourse}
+              onClose={() => setSelectedCourse(null)}
+              contact={contact}
+            />
+          )}
+        </AnimatePresence>
 
       </div>
     </section>
   );
 };
+
+const CourseModal = ({ course, onClose, contact }: any) => {
+  return (
+    <div className="fixed inset-0 z-[200] flex items-start justify-center pt-24 px-4">
+      {/* Backdrop */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="absolute inset-0 bg-slate-900/70 backdrop-blur-md"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <motion.div
+        layoutId={`course-card-${course._id}`}
+        initial={{ scale: 0.95, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden z-[210]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close */}
+        <button
+          onClick={onClose}
+          className="absolute top-6 right-6 z-50 p-3 rounded-full bg-slate-100 hover:bg-slate-200"
+        >
+          ✕
+        </button>
+
+        <div className="grid grid-cols-1 md:grid-cols-12 h-full">
+          {/* Image */}
+          <div className="md:col-span-5 relative h-[300px] md:h-auto overflow-hidden">
+            <img
+              src={IMAGE_URL + course.image}
+              alt={course.title}
+              className="w-full h-full object-cover"
+            />
+
+            <div className="absolute top-6 left-6 bg-white/95 px-4 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+              <Star size={16} className="text-yellow-500 fill-yellow-500" />
+              <span className="font-bold">{course.rating || '4.9'}</span>
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className="md:col-span-7 p-8 md:p-12 flex flex-col">
+            <span className="inline-block mb-4 px-4 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider w-fit">
+              {course.category || 'STEM Education'}
+            </span>
+
+            <h2 className="text-4xl font-black text-slate-900 mb-4">
+              {course.title}
+            </h2>
+
+            <p className="text-lg text-slate-600 leading-relaxed mb-8">
+              {course.description}
+            </p>
+
+            {/* Stats */}
+            <div className="grid grid-cols-2 gap-6 mb-10">
+              <div className="flex items-center gap-3">
+                <Clock className="text-blue-500" />
+                <span className="font-semibold text-slate-700">
+                  {course.duration || '8 Weeks'}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
+                <Users className="text-blue-500" />
+                <span className="font-semibold text-slate-700">
+                  {course.students || '1.2k'} Students
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="mt-auto flex flex-wrap gap-4">
+              <button
+                onClick={() =>
+                  window.open(
+                    `https://wa.me/${contact?.whatsapp_number}?text=${encodeURIComponent(
+                      `Hello, I want to enroll in ${course.title}`
+                    )}`,
+                    "_blank"
+                  )
+                }
+                className="flex items-center gap-2 px-8 py-4 rounded-full font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg"
+              >
+                Enroll Now <ArrowRight size={18} />
+              </button>
+
+              <button
+                onClick={onClose}
+                className="px-8 py-4 rounded-full font-bold text-slate-600 border border-slate-200 hover:bg-slate-50"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
 
 export default CourseShowcase;

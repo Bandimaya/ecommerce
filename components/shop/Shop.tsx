@@ -7,7 +7,7 @@ import {
     Tag, CheckCircle2, Package, Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn, getDisplayPrice } from "@/lib/utils";
+import { cn, getDisplayPrice, returnWhatsappLink } from "@/lib/utils";
 import {
     motion,
     AnimatePresence,
@@ -29,11 +29,11 @@ import ProductGridSkeleton from "@/components/ui/ProductGridSkeleton";
 // CONFIG: Animation Physics
 // ----------------------------------------------------------------------
 // 2. FIXED TYPESCRIPT ERROR by strictly typing the object
-const SMOOTH_SPRING: Transition = { 
-    type: "spring", 
-    stiffness: 160, 
-    damping: 25, 
-    mass: 1 
+const SMOOTH_SPRING: Transition = {
+    type: "spring",
+    stiffness: 160,
+    damping: 25,
+    mass: 1
 };
 
 // ----------------------------------------------------------------------
@@ -108,7 +108,7 @@ const Shop = () => {
     const [popupDims, setPopupDims] = useState({ width: 0, height: 0 });
     const [isMobileWidth, setIsMobileWidth] = useState(false);
     const { addToCart, loading: cartLoading } = useCart();
-    
+
     // Refs & Motion Values
     const popupImageContainerRef = useRef<HTMLDivElement>(null);
     const mouseX = useMotionValue(0);
@@ -121,8 +121,8 @@ const Shop = () => {
 
     useEffect(() => {
         setLoading(true);
-        apiFetch('/categories').then(setCategories).catch(() => {});
-        apiFetch('/products').then(setProducts).catch(() => {}).finally(() => setLoading(false));
+        apiFetch('/categories').then(setCategories).catch(() => { });
+        apiFetch('/products').then(setProducts).catch(() => { }).finally(() => setLoading(false));
     }, [])
 
     useEffect(() => {
@@ -166,7 +166,7 @@ const Shop = () => {
             }, 1);
             toast({ title: 'Added to cart', description: `${product.name} added to cart`, className: "bg-emerald-600 text-white border-none" });
         } else {
-            navigate.push(`/shop/product/${product.slug}`);
+            navigate.push(`/product/${product.slug}`);
         }
     };
 
@@ -195,6 +195,7 @@ const Shop = () => {
             return matchesCategory && matchesSearch;
         });
     }, [products, selectedCategory, searchQuery]);
+    const { contact } = useSettings();
 
     const FilterContent = () => (
         <div className="space-y-10 pr-2">
@@ -239,7 +240,9 @@ const Shop = () => {
                         <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Bulk Orders</span>
                     </div>
                     <p className="text-xs text-white/90 leading-relaxed mb-4">Equipping a classroom? Get specific curriculum kits.</p>
-                    <Button size="sm" variant="secondary" className="w-full text-xs font-bold h-8 rounded-[10px]">Contact Sales</Button>
+                    <Button
+                        onClick={() => window.open(returnWhatsappLink(contact?.whatsapp_number, `Hello! I would like to buy bulk orders.`), "_blank", "noopener,noreferrer")}
+                        size="sm" variant="secondary" className="w-full text-xs font-bold h-8 rounded-[10px]">Contact Sales</Button>
                 </div>
             </div>
         </div>
@@ -410,14 +413,14 @@ const Shop = () => {
             <AnimatePresence>
                 {selectedProduct && (
                     <div className="fixed inset-0 z-[100] flex items-start justify-center pointer-events-none pt-24 pb-4 px-4">
-                        <motion.div 
-                            initial={{ opacity: 0 }} 
-                            animate={{ opacity: 1 }} 
-                            exit={{ opacity: 0 }} 
-                            className="absolute inset-0 bg-slate-900/70 backdrop-blur-md pointer-events-auto" 
-                            onClick={() => setSelectedProduct(null)} 
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute inset-0 bg-slate-900/70 backdrop-blur-md pointer-events-auto"
+                            onClick={() => setSelectedProduct(null)}
                         />
-                        
+
                         <motion.div
                             // 3. FIXED: ADDED KEY to prevent instant disappearing / confusing Framer
                             key="modal-card"

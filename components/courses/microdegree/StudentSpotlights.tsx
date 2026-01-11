@@ -106,7 +106,7 @@ export default function StudentSpotlight() {
             </p>
           </motion.div>
 
-          <motion.a
+          {/* <motion.a
             href="#"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -114,22 +114,18 @@ export default function StudentSpotlight() {
           >
             Explore Library
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1 text-blue-600" />
-          </motion.a>
+          </motion.a> */}
         </div>
 
         {/* Custom Project Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {studentProjects.map((project, idx) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
-              viewport={{ once: true }}
-            >
-              <HoverCard project={project} />
-            </motion.div>
-          ))}
+        <div className="relative overflow-hidden w-[100vw]">
+          <div className="flex w-max animate-marquee gap-6">
+            {[...studentProjects].map((project, idx) => (
+              <div key={`${project.id}-${idx}`} className="shrink-0">
+                <HoverCard project={project} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

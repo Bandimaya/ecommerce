@@ -4,10 +4,12 @@ import { ArrowRight, Sparkles, Users, BookOpen, Rocket, ChevronRight, BarChart3,
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { motion, useReducedMotion } from "framer-motion"
-import { cn } from "@/lib/utils"
+import { cn, returnWhatsappLink } from "@/lib/utils"
 import BackgroundDecorations from "./BackgroundDecorations"
 import { apiFetch } from "@/lib/axios"
 import { IMAGE_URL } from "@/lib/constants"
+import { useRouter } from "next/navigation"
+import { useSettings } from "@/contexts/SettingsContext"
 
 interface ProgramsSectionProps {
   getCSSVar?: (varName: string, fallback?: string) => string
@@ -209,6 +211,8 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
   ]
 
   const [programsData, setProgramsData] = useState([])
+  const router = useRouter()
+  const { contact } = useSettings();
 
   useEffect(() => {
     apiFetch('/programs')
@@ -243,7 +247,8 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
               className={`${getResponsiveText.small} font-bold uppercase tracking-[0.2em]`}
               style={{ color: `var(--accent)` }}
             >
-              Our Programs
+              {/* Our Programs */}
+              Testimonials
             </span>
             <motion.div
               initial={{ width: 0 }}
@@ -261,7 +266,7 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
         </motion.div>
 
         {/* Staggered Grid */}
-        <motion.div
+        {/* <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
@@ -271,7 +276,7 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
           {programsData.map((program: any) => (
             <ProgramCard key={program._id} program={program} />
           ))}
-        </motion.div>
+        </motion.div> */}
 
         {/* Minimalist Footer CTA */}
         <motion.div
@@ -297,12 +302,15 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
           <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto relative z-10">
             <Button
               variant="outline"
+              onClick={() => router.push('/courses')}
               className="flex-1 md:flex-none border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium transition-all"
             >
               View All Programs
             </Button>
             {/* Primary Action: Neutral Slate-900 Background */}
-            <Button className="flex-1 md:flex-none bg-slate-900 hover:bg-slate-800 text-white shadow-lg hover:shadow-slate-900/20 transition-all font-medium">
+            <Button
+              onClick={() => window.open(returnWhatsappLink(contact?.whatsapp_number, `Hello! I would like to register in STEMPARK`), "_blank", "noopener,noreferrer")}
+              className="flex-1 md:flex-none bg-slate-900 hover:bg-slate-800 text-white shadow-lg hover:shadow-slate-900/20 transition-all font-medium">
               Talk to an Expert <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           </div>

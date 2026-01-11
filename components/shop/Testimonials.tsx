@@ -196,7 +196,7 @@ export default function ParentTestimonialsAnimated() {
       <div className="max-w-7xl mx-auto px-6 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight mb-4">
-            Hear From Our <span className="text-orange-500">Happy Parents</span>
+            OUR <span className="text-orange-500">Happy Customers</span>
           </h2>
         </div>
 
