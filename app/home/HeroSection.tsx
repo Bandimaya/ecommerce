@@ -81,21 +81,41 @@ const SLIDES: Slide[] = [
     }
   },
   {
-  id: 5,
-  image: "/assets/hero/5th.jpeg",
-  alt: "Advanced Circuitry",
-  videoUrl: "/videos/ai-processing.mp4",
-  content: {
-    category: "Academic Support – Teacher helping child",
-    title: "Personalized Academic Support",
-    description: "Expert guidance to strengthen concepts, boost confidence, and achieve academic success.",
-    ctaText: "Supporting Every Student’s Learning Journey",
-    ctaLink: ""
-  }
-},
+    id: 5,
+    image: "/assets/hero/5th.jpeg",
+    alt: "Advanced Circuitry",
+    videoUrl: "https://youtu.be/ACLldJdD1N0", 
+    content: {
+      category: "Academic Support – Teacher helping child",
+      title: "Personalized Academic Support",
+      description: "Expert guidance to strengthen concepts, boost confidence, and achieve academic success.",
+      ctaText: "Supporting Every Student’s Learning Journey",
+      ctaLink: ""
+    }
+  },
 ];
 
 const AUTO_PLAY_DURATION = 6000;
+
+// --- Helper: Convert YouTube URL to Embed ---
+const getYouTubeEmbedUrl = (url: string) => {
+  try {
+    let videoId = '';
+    if (url.includes('youtu.be/')) {
+      videoId = url.split('youtu.be/')[1]?.split('?')[0];
+    } else if (url.includes('youtube.com/watch')) {
+      const params = new URLSearchParams(new URL(url).search);
+      videoId = params.get('v') || '';
+    }
+    
+    if (videoId) {
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
+    }
+  } catch (e) {
+    console.error('Error parsing YouTube URL:', e);
+  }
+  return url;
+};
 
 // --- INTERNAL COMPONENT: Sketch Cover Art ---
 const SketchCoverArt = ({ onPlay }: { onPlay: () => void }) => {
@@ -232,12 +252,8 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
   const [activeVideo, setActiveVideo] = useState<string>("");
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // --- Dynamic Theme Color Extraction ---
-  // If getCSSVar is passed, grab the primary color (e.g., --primary).
-  // Fallback to the orange (#ea580c) used in the Sketch Art.
   const themeAccent = getCSSVar ? getCSSVar('--primary', '#ea580c') : '#ea580c';
 
-  // --- Logic ---
   const handleNext = useCallback(() => {
     setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
   }, []);
@@ -275,7 +291,6 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
     return () => clearInterval(interval);
   }, [isAutoPlaying, handleNext]);
 
-  // Keyboard Support
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (showModal) return;
@@ -290,7 +305,6 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
     <section 
       className="hero-wrapper" 
       aria-label="Featured Highlights"
-      // Inject the theme color as a CSS variable for this section
       style={{ '--theme-accent': themeAccent } as React.CSSProperties}
     >
 
@@ -349,14 +363,13 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
                   </div>
                 </Link>
 
-                {/* --- MOBILE ONLY: Watch Video Button (Only on slide 3) --- */}
-                {index === 2 && (
+                {/* --- MOBILE ONLY: Watch Video Button (Slide 5 / Index 4) --- */}
+                {index === 4 && (
                     <button
                         className="mobile-watch-video-btn"
                         onClick={() => openVideoModal(slide.videoUrl)}
                         aria-label="Watch Video"
                     >
-                        {/* Outer grey ring and inner white circle container */}
                         <div className="play-icon-ring">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
                                 <path d="M8 5v14l11-7z" />
@@ -370,18 +383,15 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
           ))}
         </div>
 
-        {/* Right: Dynamic Feature Area */}
+        {/* Right: Feature Area */}
         <div className="feature-zone">
-          {/* Only Show Sketch Art on Slide 3 */}
-          <div className={`feature-item ${currentIndex === 2 ? 'active' : ''}`}>
-             <SketchCoverArt onPlay={() => openVideoModal(SLIDES[2].videoUrl)} />
+          <div className={`feature-item ${currentIndex === 4 ? 'active' : ''}`}>
+             <SketchCoverArt onPlay={() => openVideoModal(SLIDES[4].videoUrl)} />
           </div>
         </div>
       </div>
 
-      {/* 3. NAVIGATION CONTROLS (Moved Outside Grid) */}
-
-      {/* Left Navigation Arrow */}
+      {/* 3. NAVIGATION CONTROLS */}
       <button
         className="nav-arrow left"
         onClick={(e) => { e.stopPropagation(); handlePrev(); resetAutoplay(); }}
@@ -392,7 +402,6 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         </svg>
       </button>
 
-      {/* Right Navigation Arrow */}
       <button
         className="nav-arrow right"
         onClick={(e) => { e.stopPropagation(); handleNext(); resetAutoplay(); }}
@@ -403,7 +412,6 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         </svg>
       </button>
 
-      {/* Bottom Horizontal Pagination */}
       <div className="pagination-container">
         {SLIDES.map((_, idx) => (
           <button
@@ -431,7 +439,17 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
                   </svg>
                 </button>
                 <div className="video-wrapper">
-                    <video src={activeVideo} controls autoPlay className="video-player" />
+                    {(activeVideo.includes('youtube.com') || activeVideo.includes('youtu.be')) ? (
+                      <iframe 
+                        src={getYouTubeEmbedUrl(activeVideo)} 
+                        className="video-player" 
+                        allow="autoplay; encrypted-media; picture-in-picture" 
+                        allowFullScreen
+                        title="Video Player"
+                      />
+                    ) : (
+                      <video src={activeVideo} controls autoPlay className="video-player" />
+                    )}
                 </div>
             </div>
           </div>
@@ -462,19 +480,18 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
           z-index: 2;
         }
 
-        /* --- Content Grid (Simplified) --- */
+        /* --- Content Grid --- */
         .content-grid {
           position: relative;
           z-index: 10;
           display: grid;
-          /* Left Text (Auto) | Right Feature (500px) */
           grid-template-columns: 1fr 500px;
           height: 100%;
           max-width: 1600px;
           margin: 0 auto;
-          padding: 0 100px; /* Added side padding to make room for arrows */
+          padding: 0 100px; 
           gap: 40px;
-          align-items: center; /* Vertically center the grid content */
+          align-items: center; 
         }
 
         /* --- Text Zone --- */
@@ -502,6 +519,7 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         .line { width: 40px; height: 2px; background: #fff; }
 
         .main-title {
+          /* Desktop default */
           font-size: 40px;
           font-weight: 800;
           line-height: 1.1;
@@ -521,7 +539,7 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
           flex-wrap: wrap;
         }
 
-        /* --- Updated CTA Button Styling --- */
+        /* --- Button Styling --- */
         .glass-button {
           display: inline-flex; 
           align-items: center; 
@@ -535,11 +553,10 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
           font-weight: 600; 
           transition: all 0.3s ease; 
           cursor: pointer;
-          border-radius: 50px; /* Modern rounded pill */
+          border-radius: 50px; 
         }
         
         .glass-button:hover { 
-          /* Use the theme variable injected in wrapper */
           background: var(--theme-accent, #fff); 
           border-color: var(--theme-accent, #fff);
           color: white; 
@@ -553,24 +570,19 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Arrow Movement on Hover */
-        .glass-button:hover .icon-wrapper {
-            transform: translateX(4px);
-        }
+        .glass-button:hover .icon-wrapper { transform: translateX(4px); }
 
-        /* --- New Mobile Video Button Styles (Hidden by default) --- */
+        /* --- Mobile Video Button --- */
         .mobile-watch-video-btn {
-            display: none; /* Hidden on desktop */
+            display: none; 
             align-items: center;
             gap: 12px;
             background: none;
             border: none;
             padding: 0;
             cursor: pointer;
-            /* margin-left: 12px;  Optional spacing if next to another button */
         }
 
-        /* The outer grey semi-transparent ring */
         .play-icon-ring {
             width: 48px;
             height: 48px;
@@ -583,7 +595,6 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
             transition: transform 0.2s ease;
         }
 
-        /* The inner white circle */
         .play-icon-ring::after {
              content: '';
              position: absolute;
@@ -594,17 +605,14 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
              z-index: 1;
         }
 
-        /* The red play triangle */
         .play-icon-ring svg {
-            color: var(--theme-accent, #dc2626); /* Adapts to theme too! */
+            color: var(--theme-accent, #dc2626);
             z-index: 2;
             position: relative;
-            left: 1px; /* Optical adjustment for centering the triangle */
+            left: 1px; 
         }
         
-        .mobile-watch-video-btn:hover .play-icon-ring {
-            transform: scale(1.05);
-        }
+        .mobile-watch-video-btn:hover .play-icon-ring { transform: scale(1.05); }
 
         .btn-text {
             color: white;
@@ -613,14 +621,13 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
             white-space: nowrap;
         }
 
-
         /* --- Feature Zone --- */
         .feature-zone {
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            height: 400px; /* Fixed height for the sketch area */
+            height: 400px;
         }
         .feature-item {
             position: absolute; width: 100%; height: 100%; opacity: 0;
@@ -630,7 +637,7 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         }
         .feature-item.active { opacity: 1; transform: scale(1) translateX(0); pointer-events: all; visibility: visible; }
 
-        /* --- Navigation Arrows (Center Left/Right) --- */
+        /* --- Navigation --- */
         .nav-arrow {
             position: absolute;
             top: 50%;
@@ -655,14 +662,12 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         .nav-arrow.left { left: 30px; }
         .nav-arrow.right { right: 30px; }
 
-        /* --- Pagination (Bottom Horizontal) --- */
         .pagination-container {
             position: absolute;
             bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            flex-direction: row; /* Horizontal */
             gap: 40px;
             z-index: 50;
         }
@@ -673,9 +678,7 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
             transition: color 0.3s;
         }
         .progress-item.active { color: white; }
-
         .progress-number { font-family: monospace; font-size: 14px; }
-
         .progress-bar {
             width: 50px; height: 2px; background: rgba(255, 255, 255, 0.2);
             position: relative; overflow: hidden;
@@ -683,8 +686,7 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         .progress-fill { position: absolute; top: 0; left: 0; height: 100%; width: 0%; background: var(--theme-accent, white); }
         .progress-item.active .progress-fill { width: 100%; transition: width ${AUTO_PLAY_DURATION}ms linear; }
 
-
-        /* --- Modal Styles --- */
+        /* --- Modal --- */
         .modal-backdrop {
           position: fixed; inset: 0; z-index: 10000;
           background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
@@ -713,11 +715,12 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         }
         .close-btn:hover { background: rgba(255,255,255,0.2); }
         .video-wrapper { width: 100%; height: 100%; background: black; }
-        .video-player { width: 100%; height: 100%; object-fit: contain; }
+        .video-player { width: 100%; height: 100%; object-fit: contain; border: none; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* --- Responsive --- */
+        /* --- RESPONSIVE ADJUSTMENTS --- */
+        
         @media (max-width: 1024px) {
           .content-grid {
             grid-template-columns: 1fr;
@@ -727,16 +730,14 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
           .text-zone { justify-content: center; }
           .text-content { align-items: center; display: flex; flex-direction: column; }
           .main-title { justify-content: center; }
-          .category-tag { margin-top: 60px; }
+          .category-tag { margin-top: 60px; justify-content: center; }
           .feature-zone { display: none; } /* Hide sketch on mobile */
 
-          /* Center button group on mobile */
           .button-group {
              justify-content: center;
              align-items: center;
           }
 
-          /* Show the new Mobile Video Button */
           .mobile-watch-video-btn { display: flex; }
 
           .nav-arrow { width: 40px; height: 40px; bottom: 30px; top: auto; transform: none; }
@@ -746,16 +747,41 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         }
 
         @media (max-width: 768px) {
-          .main-title { font-size: 10px; }
+          /* Use Small Viewport Height to handle mobile browser bars */
+          .hero-wrapper { height: 100svh; }
+
+          /* Layout padding */
+          .content-grid { padding: 0 20px; }
+
+          /* Typography Scaling */
+          .main-title { 
+            /* Responsive font sizing: Minimum 24px, preferred 5vw, max 40px */
+            font-size: clamp(24px, 5vw, 40px); 
+            line-height: 1.2;
+          }
+          
+          .description {
+            font-size: 16px; /* Slightly smaller for mobile */
+            line-height: 1.5;
+            margin-bottom: 30px;
+            padding: 0 10px; /* Prevent text hitting edges */
+          }
+          
+          .category-tag {
+             font-size: 12px;
+             margin-bottom: 16px;
+          }
+
           .pagination-container { display: none; }
           .modal-backdrop { padding: 10px; }
+          
+          /* Full width button on small screens */
           .glass-button { width: 100%; justify-content: center; }
 
-          /* On smaller screens, stack the buttons if the video button is present */
-          .button-group { flex-direction: column; width: 100%; }
-          .mobile-watch-video-btn { margin-top: 16px; }
+          /* Stack buttons */
+          .button-group { flex-direction: column; width: 100%; gap: 20px; }
+          .mobile-watch-video-btn { margin-top: 0; }
 
-          /* Ensure modal fits on mobile portrait */
           .modal-container { aspect-ratio: auto; height: auto; min-height: 250px; }
         }
       `}</style>

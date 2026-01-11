@@ -128,7 +128,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
           </motion.div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            <span style={{ color: v('--foreground', '#020817') }}>How Would They</span>{" "}
+            <span style={{ color: v('--foreground', '#020817') }}>How Would Your Child</span>{" "}
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
               Prefer to Learn?
             </span>

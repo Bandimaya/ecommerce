@@ -724,8 +724,9 @@ export default function Layout({ children }: LayoutProps) {
         />
 
         {/* Main Content */}
-        <main className="pt-20 pb-10">
-          <div className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <main className="pt-20 pb-10 w-full">
+          {/* UPDATED: Removed max-w-7xl and mx-auto, replaced with w-full to force 100% width */}
+          <div className="px-4 sm:px-6 lg:px-8 w-full">
             {/* Breadcrumb */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}

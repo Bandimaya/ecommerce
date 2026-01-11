@@ -1,215 +1,368 @@
-"use client"
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useState, useMemo, ChangeEvent } from "react";
 import {
-    Tag,
-    Plus,
-    Pencil,
-    Trash2,
-    Globe,
-    Info,
-    X,
-    CheckCircle2,
-    Building2
+  PlusCircle,
+  Pencil,
+  Trash2,
+  Globe,
+  X,
+  Building2,
+  Search,
+  Grid,
+  List,
+  Loader2,
+  Tag,
+  FileText
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
+import { motion, AnimatePresence } from "framer-motion";
 import AdminButton from "@/components/admin/AdminButton";
 
+type Brand = {
+  _id: string;
+  title: string;
+  subTitle: string;
+  description: string;
+};
 
-export default function Brands() {
-    const [brands, setBrands] = useState<any>([]);
-    const [form, setForm] = useState({
-        title: "",
-        subTitle: "",
-        description: "",
+const emptyForm = {
+  title: "",
+  subTitle: "",
+  description: "",
+};
+
+export default function BrandsPage() {
+  const [brands, setBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  // UI State
+  const [showForm, setShowForm] = useState(false);
+  const [view, setView] = useState<"grid" | "list">("grid");
+  const [search, setSearch] = useState("");
+
+  // Form State
+  const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  /* ---------------- FETCH ---------------- */
+  const fetchBrands = async () => {
+    setLoading(true);
+    try {
+      const res = await apiFetch("/brands");
+      // Handle potential data structure variations
+      const data = Array.isArray(res) ? res : res.data || [];
+      setBrands(data);
+    } catch (error) {
+      toast({ title: "Failed to load brands", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBrands();
+  }, []);
+
+  /* ---------------- FILTER ---------------- */
+  const filteredBrands = useMemo(() => {
+    return brands.filter(b => 
+      b.title.toLowerCase().includes(search.toLowerCase()) || 
+      b.subTitle?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [brands, search]);
+
+  /* ---------------- HANDLERS ---------------- */
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleCloseForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setForm(emptyForm);
+  };
+
+  const handleEdit = (brand: Brand) => {
+    setEditingId(brand._id);
+    setForm({
+      title: brand.title,
+      subTitle: brand.subTitle || "",
+      description: brand.description || "",
     });
-    const [editingId, setEditingId] = useState(null);
-    const [submitting, setSubmitting] = useState(false);
-    const [removingId, setRemovingId] = useState<string | null>(null);
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-    const fetchBrands = async () => {
-        const res = await apiFetch("/brands");
-        // Handling potential data structure differences
-        setBrands(Array.isArray(res) ? res : res.data || []);
-    };
-
-    useEffect(() => {
-        fetchBrands();
-    }, []);
-
-    const handleChange = (e: any) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-
-    const handleSubmit = async () => {
-        if (!form.title.trim()) return toast({ title: "Brand title is required" });
-        setSubmitting(true);
-        try {
-            if (editingId) {
-                const updated = await apiFetch(`/brands/${editingId}`, {
-                    method: "PUT",
-                    data: form,
-                });
-                setBrands(brands.map((b: any) => (b._id === editingId ? updated : b)));
-                setEditingId(null);
-            } else {
-                const newBrand = await apiFetch("/brands", {
-                    method: "POST",
-                    data: form,
-                });
-                setBrands([...brands, newBrand]);
-            }
-            setForm({ title: "", subTitle: "", description: "" });
-        } catch (error) {
-            toast({
-                title: "Error saving brand!"
-            })
-        } finally {
-            setSubmitting(false);
-        }
-    };
-
-    const handleDelete = async (id: any) => {
-        if (!confirm("Are you sure you want to delete this brand? Products linked to it will remain but won't have a brand reference.")) return;
-        setRemovingId(id);
-        try {
-            await apiFetch(`/brands/${id}`, { method: "DELETE" });
-            setBrands(brands.filter((b: any) => b._id !== id));
-        } catch (err) {
-            toast({ title: "Failed to delete brand", variant: "destructive" });
-        } finally {
-            setRemovingId(null);
-        }
-    };
-
-    const handleEdit = (brand: any) => {
-        setEditingId(brand._id);
-        setForm({
-            title: brand.title,
-            subTitle: brand.subTitle || "",
-            description: brand.description || "",
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.title.trim()) return toast({ title: "Brand title is required", variant: "destructive" });
+    
+    setSubmitting(true);
+    try {
+      if (editingId) {
+        const updated = await apiFetch(`/brands/${editingId}`, {
+          method: "PUT",
+          data: form,
         });
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
+        setBrands(brands.map((b) => (b._id === editingId ? updated : b)));
+        toast({ title: "Brand updated successfully" });
+      } else {
+        const newBrand = await apiFetch("/brands", {
+          method: "POST",
+          data: form,
+        });
+        setBrands([...brands, newBrand]);
+        toast({ title: "Brand created successfully" });
+      }
+      handleCloseForm();
+    } catch (error) {
+      toast({ title: "Error saving brand", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-    return (
-        <div className="min-h-screen bg-background py-12 px-4">
-            
-            <div className="max-w-5xl mx-auto">
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this brand?")) return;
+    setRemovingId(id);
+    try {
+      await apiFetch(`/brands/${id}`, { method: "DELETE" });
+      setBrands(brands.filter((b) => b._id !== id));
+      toast({ title: "Brand deleted successfully" });
+    } catch (err) {
+      toast({ title: "Failed to delete brand", variant: "destructive" });
+    } finally {
+      setRemovingId(null);
+    }
+  };
 
-                {/* Header Area */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
-                    <div>
-                        <h1 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
-                            <Building2 className="w-8 h-8 text-primary" />
-                            Brand Partners
-                        </h1>
-                        <p className="text-muted-foreground font-medium">Manage your manufacturer and designer relationships.</p>
-                    </div>
-                    <div className="bg-card px-4 py-2 rounded-full border shadow-sm text-sm font-bold text-muted-foreground">
-                        {brands.length} active brands
-                    </div>
-                </div>
+  return (
+    <div className="space-y-10">
+      {/* HEADER */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[10px] border border-gray-200 shadow-sm">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Brand Partners</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Manage manufacturer and designer relationships.
+          </p>
+        </div>
+        <AdminButton 
+          onClick={() => setShowForm(true)} 
+          disabled={showForm} 
+          className="flex items-center gap-2"
+        >
+          <PlusCircle className="w-4 h-4" />
+          Add New Brand
+        </AdminButton>
+      </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* FORM AREA */}
+      <AnimatePresence>
+        {showForm && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
+                <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-2">
+                  {editingId ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
+                  {editingId ? "Edit Brand" : "Create New Brand"}
+                </h2>
+                <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px] cursor-pointer">
+                  <X className="w-5 h-5" />
+                </AdminButton>
+              </div>
 
-                    {/* Left Side: Form */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-card rounded-3xl shadow-xl shadow-black/5 border overflow-hidden sticky top-8">
-                            <div className={`p-6 border-b ${editingId ? 'bg-warning/10 border-warning/20' : 'bg-primary/10 border-primary/20'}`}>
-                                <h3 className={`font-bold flex items-center gap-2 ${editingId ? 'text-warning-dark' : 'text-primary'}`}>
-                                    {editingId ? <Pencil className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                                    {editingId ? "Update Brand" : "Create New Brand"}
-                                </h3>
+              <form onSubmit={handleSubmit} className="p-6">
+                <div className="flex flex-col gap-5">
+                    <div className="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Brand Name</label>
+                            <div className="relative">
+                                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <input
+                                    name="title"
+                                    value={form.title}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Acme Corp"
+                                    className="w-full pl-10 pr-4 py-2.5 rounded-[10px] border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                                    required
+                                    autoFocus
+                                />
                             </div>
-
-                            <div className="p-6 space-y-5">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Brand Name</label>
-                                    <input
-                                        name="title"
-                                        value={form.title}
-                                        onChange={handleChange}
-                                        placeholder="e.g. Nike, Apple, Sony"
-                                        className="w-full bg-muted border-transparent border focus:bg-background focus:border-primary rounded-2xl px-4 py-3 outline-none transition-all font-semibold text-foreground"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">Slogan / Subtitle</label>
-                                    <input
-                                        name="subTitle"
-                                        value={form.subTitle}
-                                        onChange={handleChange}
-                                        placeholder="Just Do It"
-                                        className="w-full bg-muted border-transparent border focus:bg-background focus:border-primary rounded-2xl px-4 py-3 outline-none transition-all text-foreground"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black text-muted-foreground uppercase tracking-widest">About the Brand</label>
-                                    <textarea
-                                        name="description"
-                                        value={form.description}
-                                        onChange={handleChange}
-                                        placeholder="History and values..."
-                                        className="w-full bg-muted border-transparent border focus:bg-background focus:border-primary rounded-2xl px-4 py-3 outline-none transition-all resize-none text-foreground"
-                                    />
-                                </div>
-
-                                <div className="flex gap-3 pt-2">
-                                    <AdminButton loading={submitting} onClick={handleSubmit} className={`flex-1 py-4 rounded-2xl font-bold transition-all shadow-lg active:scale-95 ${editingId ? 'bg-warning hover:bg-warning/90 shadow-warning/20 text-white' : 'bg-primary hover:bg-primary/90 shadow-primary/20 text-white'}`}>
-                                        {editingId ? "Save Changes" : "Confirm & Add"}
-                                    </AdminButton>
-                                    {editingId && (
-                                        <AdminButton variant="ghost" onClick={() => { setEditingId(null); setForm({ title: "", subTitle: "", description: "" }); }} className="p-4 rounded-2xl">
-                                            <X className="w-5 h-5" />
-                                        </AdminButton>
-                                    )}
-                                </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Slogan / Subtitle</label>
+                            <div className="relative">
+                                <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <input
+                                    name="subTitle"
+                                    value={form.subTitle}
+                                    onChange={handleChange}
+                                    placeholder="e.g. Innovation First"
+                                    className="w-full pl-10 pr-4 py-2.5 rounded-[10px] border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                                />
                             </div>
                         </div>
                     </div>
 
-                    {/* Right Side: List */}
-                    <div className="lg:col-span-2">
-                        {brands.length === 0 ? (
-                            <div className="bg-card border-2 border-dashed rounded-3xl py-20 flex flex-col items-center">
-                                <Building2 className="w-16 h-16 text-muted-foreground/50 mb-4" />
-                                <p className="text-muted-foreground font-bold">No brands in your registry yet.</p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 gap-4">
-                                {brands.map((brand: any) => (
-                                    <div key={brand._id} className="group bg-card p-5 rounded-3xl border shadow-sm hover:shadow-xl hover:shadow-primary/5 transition-all flex items-center justify-between">
-                                        <div className="flex items-center gap-5">
-                                            {/* Dummy Logo Circle */}
-                                            <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center text-primary font-black text-xl border uppercase">
-                                                {brand.title.charAt(0)}
-                                            </div>
-                                            <div>
-                                                <h4 className="text-lg font-bold text-foreground tracking-tight">{brand.title}</h4>
-                                                {brand.subTitle && <p className="text-primary text-xs font-black uppercase tracking-tighter mb-1">{brand.subTitle}</p>}
-                                                {brand.description && <p className="text-muted-foreground text-sm line-clamp-1 max-w-sm">{brand.description}</p>}
-                                            </div>
-                                        </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                        <textarea
+                            name="description"
+                            value={form.description}
+                            onChange={handleChange}
+                            placeholder="Brief history and values of the brand..."
+                            className="w-full h-24 px-3 py-2.5 rounded-[10px] border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm resize-none"
+                        />
+                    </div>
 
-                                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                                                    <AdminButton variant="ghost" onClick={() => handleEdit(brand)} className="p-3">
-                                                        <Pencil className="w-4 h-4" />
-                                                    </AdminButton>
-                                                    <AdminButton variant="danger" loading={removingId === brand._id} onClick={() => handleDelete(brand._id)} className="p-3">
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </AdminButton>
-                                                </div>
-                                    </div>
-                                )
-                                )}
-                            </div>
-                        )}
+                    <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                        <AdminButton type="button" variant="ghost" onClick={handleCloseForm} className="px-5 py-2.5">
+                            Cancel
+                        </AdminButton>
+                        <AdminButton type="submit" loading={submitting} className="px-8 py-2.5">
+                            {editingId ? "Update Brand" : "Save Brand"}
+                        </AdminButton>
                     </div>
                 </div>
+              </form>
             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* TOOLBAR */}
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 rounded-[10px] border border-gray-200 shadow-sm">
+        <div className="relative w-full sm:w-96">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            placeholder="Search brands..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-[10px] border border-gray-200 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all"
+          />
         </div>
-    );
+        <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
+              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}>
+            <Grid className="w-4 h-4" />
+          </AdminButton>
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
+              view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+            }`}>
+            <List className="w-4 h-4" />
+          </AdminButton>
+        </div>
+      </div>
+
+      {/* CONTENT */}
+      {loading ? (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white border border-gray-200 rounded-[10px] h-40 animate-pulse p-6 flex items-center gap-4">
+               <div className="w-16 h-16 bg-gray-100 rounded-full" />
+               <div className="flex-1 space-y-2">
+                 <div className="h-4 bg-gray-100 rounded w-3/4" />
+                 <div className="h-3 bg-gray-100 rounded w-1/2" />
+               </div>
+            </div>
+          ))}
+        </div>
+      ) : filteredBrands.length === 0 ? (
+        <div className="text-center py-12 bg-gray-50 rounded-[10px] border border-dashed border-gray-200">
+          <Building2 className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+          <p className="text-gray-500 font-medium">No brands found</p>
+          <p className="text-sm text-gray-400">Add brands to manage your catalog partners.</p>
+        </div>
+      ) : view === "grid" ? (
+        // GRID VIEW
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredBrands.map((brand) => {
+            const isDeleting = removingId === brand._id;
+            return (
+              <div key={brand._id} className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 p-6 relative flex items-start gap-5">
+                {/* Generated Avatar */}
+                <div className="w-16 h-16 shrink-0 rounded-[12px] bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-2xl uppercase">
+                    {brand.title.charAt(0)}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-gray-900 text-lg mb-1 truncate">{brand.title}</h3>
+                    {brand.subTitle && (
+                        <p className="text-xs font-medium text-blue-600 bg-blue-50 inline-block px-2 py-0.5 rounded border border-blue-100 mb-2">
+                            {brand.subTitle}
+                        </p>
+                    )}
+                    <p className="text-sm text-gray-500 line-clamp-2">
+                        {brand.description || "No description provided."}
+                    </p>
+                </div>
+
+                {/* Circular Action Buttons */}
+                <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
+                        onClick={() => handleEdit(brand)}
+                        className="w-8 h-8 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all shadow-sm hover:scale-110"
+                        title="Edit"
+                    >
+                        <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                        onClick={() => handleDelete(brand._id)}
+                        disabled={isDeleting}
+                        className="w-8 h-8 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 disabled:opacity-50"
+                        title="Delete"
+                    >
+                        {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        // LIST VIEW
+        <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
+           {filteredBrands.map((brand) => {
+              const isDeleting = removingId === brand._id;
+              return (
+                <div key={brand._id} className="p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors group">
+                    <div className="w-10 h-10 shrink-0 rounded-[8px] bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm uppercase">
+                        {brand.title.charAt(0)}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                            <h3 className="font-bold text-gray-900 text-sm">{brand.title}</h3>
+                            {brand.subTitle && (
+                                <span className="text-xs text-gray-400">• {brand.subTitle}</span>
+                            )}
+                        </div>
+                        <p className="text-xs text-gray-500 line-clamp-1">{brand.description}</p>
+                    </div>
+
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => handleEdit(brand)} className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors">
+                            <Pencil className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(brand._id)} disabled={isDeleting} className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors">
+                            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        </button>
+                    </div>
+                </div>
+              );
+           })}
+        </div>
+      )}
+    </div>
+  );
 }

@@ -16,7 +16,8 @@ import {
   Clock, 
   Users, 
   BarChart,
-  Star
+  Star,
+  CheckCircle2
 } from "lucide-react";
 import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
@@ -35,7 +36,7 @@ interface SectionCourse {
   skills: string[];
   rating: number;
   sectionId: string;
-  enrolled: number; // Changed to number for strict typing
+  enrolled: number;
   alt: string;
 }
 
@@ -50,12 +51,12 @@ interface FormState {
   description: string;
   ageRange: string;
   duration: string;
-  enrolled: number | ""; // Allow empty string for input field handling
+  enrolled: number | "";
   alt: string;
   level: string;
   sectionId: string;
   skills: string[];
-  rating: number | ""; // Allow empty string for input field handling
+  rating: number | "";
 }
 
 export default function SectionCoursesPage({
@@ -131,7 +132,6 @@ export default function SectionCoursesPage({
   ) => {
     const { name, value, type } = e.target;
     
-    // Handle numeric fields strictly
     if (type === "number") {
       setForm((prev) => ({ 
         ...prev, 
@@ -219,23 +219,17 @@ export default function SectionCoursesPage({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // --- VALIDATIONS ---
     if (!form.title.trim()) return toast({ title: "Title is required", variant: "destructive" });
     if (!form._id && !imageFile) return toast({ title: "Image is required", variant: "destructive" });
     if (!form.sectionId) return toast({ title: "Section is required", variant: "destructive" });
     
-    // Number validations
     if (form.rating === "" || form.rating < 0 || form.rating > 5) {
       return toast({ title: "Rating must be a number between 0 and 5", variant: "destructive" });
-    }
-    if (form.enrolled === "" || form.enrolled < 0) {
-      return toast({ title: "Enrolled count must be a valid positive number", variant: "destructive" });
     }
 
     setIsSubmitting(true);
     const data = new FormData();
     
-    // Append fields
     Object.entries(form).forEach(([key, value]) => {
       if (key === 'skills') {
         data.append(key, JSON.stringify(value));
@@ -248,12 +242,11 @@ export default function SectionCoursesPage({
     if (form._id) data.append("id", form._id);
 
     try {
-      let res;
       if (form._id) {
-        res = await apiFetch(`/section-courses`, { method: "PUT", data });
+        await apiFetch(`/section-courses`, { method: "PUT", data });
         toast({ title: "Course updated successfully" });
       } else {
-        res = await apiFetch("/section-courses", { method: "POST", data });
+        await apiFetch("/section-courses", { method: "POST", data });
         toast({ title: "Course created successfully" });
       }
       handleCloseForm();
@@ -266,7 +259,7 @@ export default function SectionCoursesPage({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[10px] border border-gray-200 shadow-sm">
         <div>
@@ -278,7 +271,7 @@ export default function SectionCoursesPage({
         <AdminButton
           onClick={() => setShowForm(true)}
           disabled={showForm}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-[10px] shadow-sm"
+          className="flex items-center gap-2"
         >
           <PlusCircle className="w-4 h-4" />
           Add New Course
@@ -294,13 +287,13 @@ export default function SectionCoursesPage({
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden mb-8">
+            <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
               <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
                 <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-2">
                   {form._id ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
                   {form._id ? "Edit Course" : "Create New Course"}
                 </h2>
-                <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px]">
+                <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px] cursor-pointer">
                   <X className="w-5 h-5" />
                 </AdminButton>
               </div>
@@ -319,6 +312,7 @@ export default function SectionCoursesPage({
                           placeholder="e.g. Introduction to Robotics"
                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
                           required
+                          autoFocus
                         />
                       </div>
                       
@@ -387,30 +381,30 @@ export default function SectionCoursesPage({
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Enrolled Count (Number)</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Enrolled Count</label>
                         <input
                           type="number"
                           name="enrolled"
                           value={form.enrolled}
                           onChange={handleChange}
                           min="0"
-                          placeholder="e.g. 150"
+                          placeholder="0"
                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
                         />
                       </div>
 
                       <div>
-                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Rating (0-5)</label>
-                         <input
-                           type="number"
-                           name="rating"
-                           value={form.rating}
-                           onChange={handleChange}
-                           min="0"
-                           max="5"
-                           step="0.1"
-                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-                         />
+                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Rating (0-5)</label>
+                          <input
+                            type="number"
+                            name="rating"
+                            value={form.rating}
+                            onChange={handleChange}
+                            min="0"
+                            max="5"
+                            step="0.1"
+                            className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          />
                       </div>
 
                       <div className="md:col-span-2">
@@ -454,7 +448,7 @@ export default function SectionCoursesPage({
                         </div>
                       ) : (
                         <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
-                          <Upload className="w-10 h-10 opacity-50" />
+                          <ImageIcon className="w-10 h-10 opacity-50" />
                           <span className="text-sm font-medium">Upload Image</span>
                           <span className="text-xs text-gray-300 text-center">PNG, JPG up to 5MB</span>
                         </div>
@@ -468,17 +462,7 @@ export default function SectionCoursesPage({
                     Cancel
                   </AdminButton>
                   <AdminButton type="submit" loading={isSubmitting} className="px-8 py-2.5">
-                    {form._id ? (
-                      <>
-                        <Save className="w-4 h-4" />
-                        Update Course
-                      </>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4" />
-                        Save Course
-                      </>
-                    )}
+                    {form._id ? "Update Course" : "Save Course"}
                   </AdminButton>
                 </div>
               </form>
@@ -514,14 +498,14 @@ export default function SectionCoursesPage({
 
       {/* CONTENT */}
       {loading ? (
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white border border-gray-200 rounded-[10px] overflow-hidden animate-pulse">
-              <div className="h-48 bg-gray-100"></div>
-              <div className="p-4 space-y-3">
-                <div className="h-4 bg-gray-100 rounded-[10px] w-3/4"></div>
-                <div className="h-3 bg-gray-100 rounded-[10px] w-full"></div>
-                <div className="h-3 bg-gray-100 rounded-[10px] w-2/3"></div>
+            <div key={i} className="bg-white border border-gray-200 rounded-[10px] overflow-hidden animate-pulse h-[400px]">
+              <div className="h-48 bg-gray-100 mb-4"></div>
+              <div className="p-5 space-y-3">
+                <div className="h-6 bg-gray-100 rounded-[10px] w-3/4"></div>
+                <div className="h-4 bg-gray-100 rounded-[10px] w-full"></div>
+                <div className="h-4 bg-gray-100 rounded-[10px] w-2/3"></div>
               </div>
             </div>
           ))}
@@ -534,117 +518,142 @@ export default function SectionCoursesPage({
         </div>
       ) : view === "grid" ? (
         // GRID VIEW
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCourses.map(course => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredCourses.map(course => {
+            const isDeleting = removingId === course._id;
+            return (
             <div
               key={course._id}
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden cursor-pointer"
+              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
             >
-              <div className="relative h-48 bg-gray-100 overflow-hidden">
+              {/* Image Area */}
+              <div className="relative h-56 bg-gray-100 overflow-hidden">
                 {course.image ? (
                   <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300">
-                    <ImageIcon className="w-12 h-12" />
+                  <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+                    <ImageIcon className="w-16 h-16 opacity-50" />
                   </div>
                 )}
-                <div className="absolute top-3 right-3 flex gap-2">
-                   <span className="bg-white/90 backdrop-blur-md px-2 py-1 rounded-[10px] text-xs font-bold shadow-sm text-gray-700 border border-black/5">
+                
+                {/* Level Tag Overlay */}
+                <div className="absolute top-3 right-3">
+                   <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm text-gray-700 border border-black/5 flex items-center gap-1.5">
+                     <CheckCircle2 className="w-3 h-3 text-blue-500" />
                      {course.level}
                    </span>
                 </div>
               </div>
               
-              <div className="p-5 flex-1 flex flex-col">
-                 <h3 className="font-bold text-gray-900 mb-2 line-clamp-1" title={course.title}>{course.title}</h3>
+              {/* Content Area */}
+              <div className="p-6 flex-1 flex flex-col">
+                 <h3 className="font-bold text-xl text-gray-900 mb-2 line-clamp-1" title={course.title}>
+                   {course.title}
+                 </h3>
                  <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
                    {course.description}
                  </p>
                  
-                 <div className="flex flex-wrap gap-2 mb-4">
+                 {/* Meta Tags */}
+                 <div className="flex flex-wrap gap-2 mb-6">
                     {course.ageRange && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-[10px] border border-gray-100">
-                            <Users className="w-3 h-3" /> {course.ageRange}
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded-[10px] border border-gray-100">
+                            <Users className="w-3.5 h-3.5" /> {course.ageRange}
                         </div>
                     )}
                     {course.duration && (
-                        <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-50 px-2 py-1 rounded-[10px] border border-gray-100">
-                            <Clock className="w-3 h-3" /> {course.duration}
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded-[10px] border border-gray-100">
+                            <Clock className="w-3.5 h-3.5" /> {course.duration}
                         </div>
                     )}
                     {course.rating > 0 && (
-                        <div className="flex items-center gap-1 text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-[10px] border border-amber-100">
-                            <Star className="w-3 h-3 fill-amber-600" /> {course.rating}
+                        <div className="flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-[10px] border border-amber-100">
+                            <Star className="w-3.5 h-3.5 fill-amber-600" /> {course.rating}
                         </div>
                     )}
                  </div>
 
-                 <div className="flex items-center justify-between pt-4 border-t border-gray-100 mt-auto">
-                    <span className="text-xs text-gray-400 font-medium flex items-center gap-1">
-                        <BarChart className="w-3 h-3" />
-                        {course.enrolled || "0"} Enrolled
+                 <div className="flex items-center justify-between pt-5 border-t border-gray-100 mt-auto">
+                    <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
+                        <BarChart className="w-4 h-4" />
+                        {course.enrolled || "0"} Students
                     </span>
-                    <div className="flex gap-2">
-                      <AdminButton onClick={() => handleEdit(course._id)} variant="ghost" className="p-2 rounded-[10px]">
-                        <Pencil className="w-4 h-4" />
-                      </AdminButton>
-                      <AdminButton
-                        onClick={() => handleDelete(course._id)}
-                        variant="danger"
-                        loading={removingId === course._id}
-                        className="p-2 rounded-[10px]"
+                    
+                    {/* Circular Action Buttons */}
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => handleEdit(course._id)} 
+                        className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
+                        title="Edit Course"
                       >
-                        <Trash2 className="w-4 h-4" />
-                      </AdminButton>
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      
+                      <button 
+                        onClick={() => handleDelete(course._id)}
+                        disabled={isDeleting}
+                        className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
+                        title="Delete Course"
+                      >
+                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
                     </div>
                  </div>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       ) : (
         // LIST VIEW
         <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
-          {filteredCourses.map(course => (
+          {filteredCourses.map(course => {
+             const isDeleting = removingId === course._id;
+             return (
             <div key={course._id} className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group">
-              <div className="w-full md:w-24 h-24 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200">
+              {/* List Image */}
+              <div className="w-full md:w-28 h-28 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200">
                 {course.image ? (
-                  <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover" />
+                  <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    <ImageIcon className="w-6 h-6 text-gray-300" />
+                    <ImageIcon className="w-8 h-8 text-gray-300" />
                   </div>
                 )}
               </div>
+              
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-bold text-gray-900">{course.title}</h3>
-                    <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-[10px] border border-blue-100 font-medium">
+                <div className="flex items-center gap-3 mb-2">
+                    <h3 className="font-bold text-lg text-gray-900">{course.title}</h3>
+                    <span className="text-xs px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-full border border-blue-100 font-medium">
                         {course.level}
                     </span>
                 </div>
-                <p className="text-sm text-gray-500 line-clamp-1 mb-2">{course.description}</p>
-                <div className="flex flex-wrap gap-4 text-xs text-gray-400">
-                    {course.ageRange && <span className="flex items-center gap-1"><Users className="w-3 h-3" /> {course.ageRange}</span>}
-                    {course.duration && <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {course.duration}</span>}
-                    {course.enrolled && <span className="flex items-center gap-1"><BarChart className="w-3 h-3" /> {course.enrolled}</span>}
+                <p className="text-sm text-gray-500 line-clamp-1 mb-3">{course.description}</p>
+                <div className="flex flex-wrap gap-4 text-xs text-gray-400 font-medium">
+                    {course.ageRange && <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {course.ageRange}</span>}
+                    {course.duration && <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {course.duration}</span>}
+                    {course.enrolled && <span className="flex items-center gap-1.5"><BarChart className="w-3.5 h-3.5" /> {course.enrolled}</span>}
                 </div>
               </div>
-                <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <AdminButton onClick={() => handleEdit(course._id)} variant="ghost" className="p-2 rounded-[10px]">
-                    <Pencil className="w-4 h-4" />
-                  </AdminButton>
-                  <AdminButton
-                    onClick={() => handleDelete(course._id)}
-                    variant="danger"
-                    loading={removingId === course._id}
-                    className="p-2 rounded-[10px]"
+              
+              {/* List Actions */}
+              <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={() => handleEdit(course._id)} 
+                    className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </AdminButton>
-                </div>
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(course._id)}
+                    disabled={isDeleting}
+                    className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
+                  >
+                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  </button>
+              </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>

@@ -15,7 +15,8 @@ import {
   Upload, 
   Trophy,
   Medal,
-  School
+  School,
+  Target
 } from "lucide-react";
 import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
@@ -191,7 +192,7 @@ export default function WinnersPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[10px] border border-gray-200 shadow-sm">
         <div>
@@ -215,13 +216,13 @@ export default function WinnersPage() {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden mb-8">
+            <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
               <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
                 <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-2">
                   {form._id ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
                   {form._id ? "Edit Winner" : "Add New Winner"}
                 </h2>
-                <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px]">
+                <AdminButton variant="ghost" onClick={handleCloseForm} className="p-1 text-gray-400 hover:text-gray-600 rounded-[10px] cursor-pointer">
                   <X className="w-5 h-5" />
                 </AdminButton>
               </div>
@@ -240,6 +241,7 @@ export default function WinnersPage() {
                           placeholder="e.g. RoboWarriors"
                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
                           required
+                          autoFocus
                         />
                       </div>
                       <div>
@@ -274,7 +276,7 @@ export default function WinnersPage() {
                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
                         />
                       </div>
-                      <div>
+                      <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
                         <input
                           name="category"
@@ -365,14 +367,14 @@ export default function WinnersPage() {
 
       {/* CONTENT */}
       {loading ? (
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white border border-gray-200 rounded-[10px] overflow-hidden animate-pulse">
-              <div className="h-48 bg-gray-100"></div>
+            <div key={i} className="bg-white border border-gray-200 rounded-[10px] overflow-hidden animate-pulse h-80">
+              <div className="h-48 bg-gray-100 mb-4"></div>
               <div className="p-4 space-y-3">
                 <div className="h-4 bg-gray-100 rounded-[10px] w-3/4"></div>
-                <div className="h-3 bg-gray-100 rounded-[10px] w-full"></div>
-                <div className="h-3 bg-gray-100 rounded-[10px] w-1/2"></div>
+                <div className="h-4 bg-gray-100 rounded-[10px] w-full"></div>
+                <div className="h-4 bg-gray-100 rounded-[10px] w-1/2"></div>
               </div>
             </div>
           ))}
@@ -385,13 +387,16 @@ export default function WinnersPage() {
         </div>
       ) : view === "grid" ? (
         // GRID VIEW
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredWinners.map((winner) => (
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredWinners.map((winner) => {
+            const isDeleting = removingId === winner._id;
+            return (
             <div
               key={winner._id}
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden cursor-pointer"
+              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
             >
-              <div className="relative h-48 bg-gray-100 overflow-hidden">
+              {/* Image Section */}
+              <div className="relative h-56 bg-gray-100 overflow-hidden">
                 {winner.image ? (
                   <img
                     src={IMAGE_URL + winner.image}
@@ -400,54 +405,67 @@ export default function WinnersPage() {
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-300">
-                    <ImageIcon className="w-12 h-12" />
+                    <ImageIcon className="w-16 h-16 opacity-50" />
                   </div>
                 )}
+                
+                {/* Position Badge */}
                 <div className="absolute top-3 right-3">
-                  <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-[10px] text-xs font-bold shadow-sm border border-yellow-200 flex items-center gap-1">
-                    <Medal className="w-3 h-3" />
+                  <span className="bg-white/90 backdrop-blur-md text-gray-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-black/5 flex items-center gap-1.5">
+                    <Medal className="w-3.5 h-3.5 text-amber-500" />
                     {winner.position}
                   </span>
                 </div>
               </div>
 
-              <div className="p-5 flex-1 flex flex-col">
+              {/* Content Section */}
+              <div className="p-6 flex-1 flex flex-col">
                 <div className="mb-2">
-                  <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded-[10px] border border-blue-100">
+                  <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-[10px] border border-blue-100">
                     {winner.category}
                   </span>
                 </div>
-                <h3 className="font-bold text-gray-900 text-lg mb-1">{winner.team}</h3>
-                <div className="flex items-center gap-1 text-sm text-gray-500 mb-3">
-                  <School className="w-3 h-3" /> {winner.school}
+                <h3 className="font-bold text-gray-900 text-xl mb-1 line-clamp-1">{winner.team}</h3>
+                <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium mb-3">
+                  <School className="w-3.5 h-3.5" /> {winner.school}
                 </div>
-                <p className="text-sm text-gray-600 line-clamp-2 flex-1">
+                <p className="text-sm text-gray-600 line-clamp-2 flex-1 mb-4">
                   {winner.description}
                 </p>
-                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
-                  <span className="text-xs text-gray-400 font-medium">{winner.event}</span>
-                  <div className="flex gap-2">
-                    <AdminButton variant="ghost" onClick={() => handleEdit(winner)} className="p-2">
-                      <Pencil className="w-4 h-4" />
-                    </AdminButton>
-                    <AdminButton
-                      variant="danger"
-                      loading={removingId === winner._id}
-                      onClick={() => handleDelete(winner._id)}
-                      className="p-2"
+                
+                <div className="mt-auto pt-5 border-t border-gray-100 flex items-center justify-between">
+                  <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5" />
+                      {winner.event}
+                  </span>
+                  
+                  {/* Circular Actions */}
+                  <div className="flex gap-3">
+                    <button 
+                       onClick={() => handleEdit(winner)} 
+                       className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
                     >
-                      <Trash2 className="w-4 h-4" />
-                    </AdminButton>
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(winner._id)}
+                      disabled={isDeleting}
+                      className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
+                    >
+                      {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       ) : (
         // LIST VIEW
         <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
-          {filteredWinners.map((winner) => (
+          {filteredWinners.map((winner) => {
+            const isDeleting = removingId === winner._id;
+            return (
             <div
               key={winner._id}
               className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group"
@@ -457,7 +475,7 @@ export default function WinnersPage() {
                   <img
                     src={IMAGE_URL + winner.image}
                     alt={winner.team}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
@@ -465,30 +483,40 @@ export default function WinnersPage() {
                   </div>
                 )}
               </div>
+              
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <h3 className="font-bold text-gray-900">{winner.team}</h3>
-                  <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-[10px] border border-yellow-200 font-bold flex items-center gap-1">
+                <div className="flex items-center gap-3 mb-1">
+                  <h3 className="font-bold text-lg text-gray-900">{winner.team}</h3>
+                  <span className="text-xs px-2.5 py-0.5 bg-amber-50 text-amber-700 rounded-full border border-amber-100 font-bold flex items-center gap-1">
                     <Medal className="w-3 h-3" /> {winner.position}
                   </span>
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500 mb-2">
-                  <span className="flex items-center gap-1"><School className="w-3 h-3" /> {winner.school}</span>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 font-medium mb-2">
+                  <span className="flex items-center gap-1.5"><School className="w-3.5 h-3.5" /> {winner.school}</span>
                   <span className="text-gray-300">|</span>
                   <span>{winner.event}</span>
                 </div>
                 <p className="text-sm text-gray-500 line-clamp-1">{winner.description}</p>
               </div>
+
+              {/* List Actions */}
               <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <AdminButton variant="ghost" onClick={() => handleEdit(winner)} className="p-2">
+                <button 
+                   onClick={() => handleEdit(winner)} 
+                   className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
+                >
                   <Pencil className="w-4 h-4" />
-                </AdminButton>
-                <AdminButton variant="danger" loading={removingId === winner._id} onClick={() => handleDelete(winner._id)} className="p-2">
-                  <Trash2 className="w-4 h-4" />
-                </AdminButton>
+                </button>
+                <button
+                  onClick={() => handleDelete(winner._id)}
+                  disabled={isDeleting}
+                  className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
+                >
+                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                </button>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>

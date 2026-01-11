@@ -10,9 +10,7 @@ import {
   List, 
   ImageIcon, 
   X, 
-  Save, 
   Loader2, 
-  Upload 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { apiFetch } from "@/lib/axios";
@@ -149,7 +147,7 @@ export default function SectionsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-6 rounded-[10px] border border-gray-200 shadow-sm">
         <div>
@@ -173,7 +171,7 @@ export default function SectionsPage() {
             exit={{ opacity: 0, height: 0 }}
             className="overflow-hidden"
           >
-            <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden mb-8">
+            <div className="bg-white rounded-[10px] shadow-md border border-gray-200 overflow-hidden mb-8 animate-in fade-in slide-in-from-top-4 duration-300">
               <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4 flex justify-between items-center">
                 <h2 className="font-semibold text-lg text-gray-800 flex items-center gap-2">
                   {editingId ? <Pencil className="w-4 h-4" /> : <PlusCircle className="w-4 h-4" />}
@@ -278,17 +276,13 @@ export default function SectionsPage() {
 
       {/* CONTENT */}
       {loading ? (
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {[1, 2, 3].map(i => (
-            <div key={i} className="bg-white border border-gray-200 rounded-[10px] p-4 space-y-4 animate-pulse">
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 bg-gray-100 rounded-[10px]"></div>
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-gray-100 rounded-[10px] w-3/4"></div>
-                  <div className="h-3 bg-gray-100 rounded-[10px] w-1/2"></div>
-                </div>
-              </div>
-              <div className="h-20 bg-gray-100 rounded-[10px] w-full"></div>
+            <div key={i} className="bg-white p-6 rounded-[10px] shadow-sm border border-gray-200 h-96 animate-pulse">
+               <div className="h-48 bg-gray-100 rounded-[10px] mb-4 w-full"></div>
+               <div className="h-8 bg-gray-100 rounded-[10px] w-3/4 mb-3"></div>
+               <div className="h-4 bg-gray-100 rounded-[10px] w-full mb-1"></div>
+               <div className="h-4 bg-gray-100 rounded-[10px] w-2/3"></div>
             </div>
           ))}
         </div>
@@ -300,74 +294,110 @@ export default function SectionsPage() {
         </div>
       ) : view === "grid" ? (
         // GRID VIEW
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredSections.map(section => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredSections.map(section => {
+             const isDeleting = removingId === section._id;
+             return (
             <div
               key={section._id}
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col overflow-hidden cursor-pointer"
+              className="group bg-white rounded-[10px] shadow-sm border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col"
             >
-              <div className="p-5 flex items-start gap-4">
-                <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-[10px] border border-gray-100 flex items-center justify-center overflow-hidden">
-                  {section.icon ? (
-                    <img src={IMAGE_URL + section.icon} alt={section.label} className="w-full h-full object-cover" />
-                  ) : (
-                    <ImageIcon className="w-6 h-6 text-gray-300" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-bold text-gray-900 truncate" title={section.label}>{section.label}</h3>
-                  <p className="text-xs text-gray-400 mt-1 font-mono">{section.slug}</p>
-                </div>
+              {/* Image Area */}
+              <div className="relative h-60 bg-gray-100 overflow-hidden">
+                {section.icon ? (
+                  <img src={IMAGE_URL + section.icon} alt={section.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+                    <ImageIcon className="w-16 h-16 opacity-50" />
+                  </div>
+                )}
               </div>
               
-              <div className="px-5 pb-4 flex-1">
-                 <p className="text-sm text-gray-500 line-clamp-3 leading-relaxed">
-                   {section.description}
-                 </p>
-              </div>
+              {/* Content Area */}
+              <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="font-bold text-xl text-gray-900 mb-3 line-clamp-1" title={section.label}>
+                    {section.label}
+                  </h3>
+                  <p className="text-base text-gray-500 line-clamp-3 mb-6 flex-1">
+                    {section.description}
+                  </p>
 
-              <div className="px-5 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <AdminButton variant="ghost" onClick={() => handleEdit(section)} className="p-2" title="Edit">
-                  <Pencil className="w-4 h-4" />
-                </AdminButton>
-                <AdminButton variant="danger" loading={removingId === section._id} onClick={() => handleDelete(section._id)} className="p-2" title="Delete">
-                  <Trash2 className="w-4 h-4" />
-                </AdminButton>
+                  <div className="flex items-center justify-between pt-5 border-t border-gray-100 mt-auto">
+                    {/* Slug Tag */}
+                    <span className="text-xs font-mono font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-[10px] border border-gray-100">
+                      {section.slug}
+                    </span>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                      <button 
+                        onClick={() => handleEdit(section)} 
+                        className="w-12 h-12 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-black hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
+                        title="Edit Section"
+                      >
+                        <Pencil className="w-5 h-5" />
+                      </button>
+
+                      <button 
+                        onClick={() => handleDelete(section._id)} 
+                        disabled={isDeleting}
+                        className="w-12 h-12 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
+                        title="Delete Section"
+                      >
+                         {isDeleting ? (
+                           <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                           <Trash2 className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       ) : (
-        // LIST VIEW
+        // LIST VIEW - Updated to match Grid hover effects
         <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
-          {filteredSections.map(section => (
+          {filteredSections.map(section => {
+             const isDeleting = removingId === section._id;
+             return (
             <div key={section._id} className="p-4 flex items-center gap-6 hover:bg-gray-50 transition-colors group">
-              <div className="w-12 h-12 shrink-0 bg-gray-100 rounded-[10px] flex items-center justify-center overflow-hidden border border-gray-200">
+              <div className="w-16 h-16 shrink-0 bg-gray-100 rounded-[10px] flex items-center justify-center overflow-hidden border border-gray-200">
                 {section.icon ? (
-                  <img src={IMAGE_URL + section.icon} alt={section.label} className="w-full h-full object-cover" />
+                  <img src={IMAGE_URL + section.icon} alt={section.label} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <ImageIcon className="w-5 h-5 text-gray-300" />
+                  <ImageIcon className="w-6 h-6 text-gray-300" />
                 )}
               </div>
               <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <h3 className="font-bold text-gray-900 truncate">{section.label}</h3>
-                  <p className="text-xs text-gray-400 font-mono">{section.slug}</p>
+                  <h3 className="font-bold text-lg text-gray-900 truncate">{section.label}</h3>
+                  <p className="text-xs text-gray-400 font-mono mt-1">{section.slug}</p>
                 </div>
-                <div className="md:col-span-2">
-                   <p className="text-sm text-gray-500 line-clamp-1">{section.description}</p>
+                <div className="md:col-span-2 flex items-center">
+                   <p className="text-sm text-gray-500 line-clamp-2">{section.description}</p>
                 </div>
               </div>
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <AdminButton variant="ghost" onClick={() => handleEdit(section)} className="p-2">
+              <div className="flex gap-2">
+                  <button 
+                    onClick={() => handleEdit(section)} 
+                    className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-black hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
+                    title="Edit Section"
+                  >
                     <Pencil className="w-4 h-4" />
-                  </AdminButton>
-                  <AdminButton variant="danger" loading={removingId === section._id} onClick={() => handleDelete(section._id)} className="p-2">
-                    <Trash2 className="w-4 h-4" />
-                  </AdminButton>
-                </div>
+                  </button>
+                  <button 
+                    onClick={() => handleDelete(section._id)} 
+                    disabled={isDeleting}
+                    className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
+                    title="Delete Section"
+                  >
+                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                  </button>
+              </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
     </div>
