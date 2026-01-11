@@ -7,12 +7,12 @@ import { useTheme } from "@/contexts/ThemeContext";
 import SettingsSkeleton from "@/components/ui/SettingsSkeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
-import { 
-  Save, 
-  Loader2, 
-  Image as ImageIcon, 
-  MapPin, 
-  Lock, 
+import {
+  Save,
+  Loader2,
+  Image as ImageIcon,
+  MapPin,
+  Lock,
   CheckCircle,
   ChevronDown,
   ChevronUp,
@@ -50,7 +50,7 @@ export default function AccountSettings() {
   const [email, setEmail] = useState(user?.email || "");
   // 1. Added Phone State
   const [phone, setPhone] = useState((user as any)?.phone?.toString() || "");
-  
+
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(user?.avatar || null);
   const [savingProfile, setSavingProfile] = useState(false);
@@ -64,7 +64,7 @@ export default function AccountSettings() {
 
   // Initialize all address types
   const emptyAddress: AddressDetail = { doorNo: "", street: "", village: "", city: "", state: "", pincode: "" };
-  
+
   const [addresses, setAddresses] = useState<Record<AddressType, AddressDetail>>({
     home: { ...emptyAddress },
     office: { ...emptyAddress },
@@ -87,9 +87,9 @@ export default function AccountSettings() {
       setName(user.name || "");
       setEmail(user.email || "");
       // 2. Sync Phone from User Context
-      setPhone((user as any).phone?.toString() || ""); 
+      setPhone((user as any).phone?.toString() || "");
       setAvatarPreview(user.avatar || null);
-      
+
       if (user.address) {
         setAddresses({
           home: { ...emptyAddress, ...user.address.home },
@@ -99,7 +99,7 @@ export default function AccountSettings() {
         });
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const userLoading = (useUser() as any).loading;
@@ -129,7 +129,7 @@ export default function AccountSettings() {
 
   const handleProfileSave = async () => {
     setProfileError("");
-    
+
     // Name Validation
     if (!name.trim()) {
       setProfileError("Name is required");
@@ -152,10 +152,10 @@ export default function AccountSettings() {
       data.append("name", name);
       data.append("email", email);
       // 4. Append Phone to FormData
-      data.append("phone", phone); 
-      
+      data.append("phone", phone);
+
       if (avatar) data.append("avatar", avatar);
-      
+
       await updateProfile(data);
       toast({ title: "Profile updated successfully" });
     } catch (err: any) {
@@ -205,7 +205,7 @@ export default function AccountSettings() {
         if (!addr.street.trim()) errors.street = "Street is required";
         if (!addr.city.trim()) errors.city = "City is required";
         if (!addr.state.trim()) errors.state = "State is required";
-        
+
         if (!addr.pincode.trim()) {
           errors.pincode = "Pincode is required";
         } else if (addr.pincode.length < 5 || addr.pincode.length > 6) {
@@ -220,13 +220,13 @@ export default function AccountSettings() {
     });
 
     setAddressErrors(newErrors);
-    
+
     if (!isValid) {
       const errorTabs = Object.keys(newErrors).map(t => t.charAt(0).toUpperCase() + t.slice(1)).join(", ");
-      toast({ 
-        title: "Validation Error", 
-        description: `Please fix errors in: ${errorTabs}`, 
-        variant: "destructive" 
+      toast({
+        title: "Validation Error",
+        description: `Please fix errors in: ${errorTabs}`,
+        variant: "destructive"
       });
     }
 
@@ -257,7 +257,7 @@ export default function AccountSettings() {
     if (!oldPassword) return toast({ title: "Enter your old password", variant: "destructive" });
     try {
       setVerifyingPassword(true);
-      await new Promise(resolve => setTimeout(resolve, 1000)); 
+      await new Promise(resolve => setTimeout(resolve, 1000));
       setIsOldPasswordVerified(true);
       toast({ title: "Password verified", description: "You can now set a new password." });
     } catch (err: any) {
@@ -272,7 +272,7 @@ export default function AccountSettings() {
     const errors: { new?: string; confirm?: string } = {};
     let valid = true;
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-    
+
     if (!strongPasswordRegex.test(newPassword)) {
       errors.new = "Password must comprise 8+ chars, uppercase, number & special char.";
       valid = false;
@@ -309,6 +309,27 @@ export default function AccountSettings() {
     { id: 'school', label: 'School', icon: GraduationCap },
     { id: 'college', label: 'College', icon: Building2 },
   ];
+  const [showModal, setShowModal] = useState(false)
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  
+  const handleSaveNewAddress = () => {
+    // Save new address logic here (e.g., push to address list)
+    // After saving, close the modal and reset the form
+    setShowModal(false);
+    setAddresses({
+      ...addresses,
+      [activeTab]: { doorNo: "", street: "", village: "", pincode: "", city: "", state: "" }, // reset form
+    });
+  };
+
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-6 text-foreground">
@@ -339,10 +360,10 @@ export default function AccountSettings() {
             {/* Name Field */}
             <div>
               <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Full Name <span className="text-destructive">*</span></label>
-              <input 
-                value={name} 
-                onChange={(e) => setName(e.target.value)} 
-                className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none transition-all ${profileError && !name.trim() ? 'border-destructive' : 'border-input'}`} 
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none transition-all ${profileError && !name.trim() ? 'border-destructive' : 'border-input'}`}
               />
             </div>
 
@@ -357,25 +378,25 @@ export default function AccountSettings() {
               <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider flex items-center gap-1">
                 <Phone className="w-3 h-3" /> Mobile Number
               </label>
-              <input 
-                value={phone} 
+              <input
+                value={phone}
                 type="tel"
                 maxLength={10}
                 placeholder="e.g. 9876543210"
                 onChange={(e) => {
-                    const val = e.target.value;
-                    if (val === "" || isNumeric(val)) setPhone(val);
-                }} 
-                className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none transition-all ${profileError && phone.length !== 10 ? 'border-destructive' : 'border-input'}`} 
+                  const val = e.target.value;
+                  if (val === "" || isNumeric(val)) setPhone(val);
+                }}
+                className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none transition-all ${profileError && phone.length !== 10 ? 'border-destructive' : 'border-input'}`}
               />
             </div>
 
             {/* General Error Message */}
-            {profileError && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {profileError}</p>}
+            {profileError && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {profileError}</p>}
 
             <div className="pt-2">
               <button onClick={handleProfileSave} disabled={savingProfile} className={`px-6 py-2.5 rounded-xl text-primary-foreground font-semibold shadow-md transition-all ${savingProfile ? 'bg-muted text-muted-foreground' : 'bg-primary hover:bg-primary/90'}`}>
-                {savingProfile ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> Saving...</span> : <span className="flex items-center gap-2"><Save className="w-4 h-4"/> Save Changes</span>}
+                {savingProfile ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Saving...</span> : <span className="flex items-center gap-2"><Save className="w-4 h-4" /> Save Changes</span>}
               </button>
             </div>
           </div>
@@ -384,14 +405,23 @@ export default function AccountSettings() {
 
       {/* --- Section 2: Address Management --- */}
       <section className="w-full bg-card border bg-white  border-border rounded-lg overflow-hidden shadow-sm">
-        <button 
+        <button
           onClick={() => setShowAddressSection(!showAddressSection)}
           className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors"
         >
           <h2 className="font-semibold text-xl flex items-center gap-2 text-foreground">
             <MapPin className="w-5 h-5 text-muted-foreground" /> Address Details
           </h2>
-          {showAddressSection ? <ChevronUp className="w-5 h-5 text-muted-foreground"/> : <ChevronDown className="w-5 h-5 text-muted-foreground"/>}
+          <div className="flex justify-between p-6">
+            <button
+              onClick={handleOpenModal}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-lg"
+            >
+              Add Address
+            </button>
+          </div>
+
+          {showAddressSection ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
         </button>
 
         {showAddressSection && (
@@ -408,8 +438,8 @@ export default function AccountSettings() {
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border relative
-                      ${isActive 
-                        ? 'bg-primary text-primary-foreground border-primary shadow-md transform scale-105' 
+                      ${isActive
+                        ? 'bg-primary text-primary-foreground border-primary shadow-md transform scale-105'
                         : 'bg-card text-muted-foreground border-border hover:bg-accent hover:text-accent-foreground'
                       }
                       ${hasError && !isActive ? 'border-destructive/50 text-destructive' : ''}
@@ -426,17 +456,17 @@ export default function AccountSettings() {
             {/* Dynamic Address Fields for Active Tab */}
             <div className="animate-in fade-in slide-in-from-left-2 duration-300">
               <div className="mb-4 flex items-center justify-between">
-                 <h3 className="font-bold text-foreground capitalize flex items-center gap-2">
-                   {activeTab} Address
-                   {activeTab === 'home' && <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full font-normal">Mandatory</span>}
-                 </h3>
+                <h3 className="font-bold text-foreground capitalize flex items-center gap-2">
+                  {activeTab} Address
+                  {activeTab === 'home' && <span className="text-xs bg-destructive/10 text-destructive px-2 py-0.5 rounded-full font-normal">Mandatory</span>}
+                </h3>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Door No */}
                 <div>
                   <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Door No / Flat No <span className="text-destructive">*</span></label>
-                  <input 
+                  <input
                     value={addresses[activeTab].doorNo}
                     onChange={(e) => handleAddressChange('doorNo', e.target.value)}
                     className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.doorNo ? 'border-destructive' : 'border-input'}`}
@@ -448,7 +478,7 @@ export default function AccountSettings() {
                 {/* Street */}
                 <div>
                   <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Street Name <span className="text-destructive">*</span></label>
-                  <input 
+                  <input
                     value={addresses[activeTab].street}
                     onChange={(e) => handleAddressChange('street', e.target.value)}
                     className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.street ? 'border-destructive' : 'border-input'}`}
@@ -460,7 +490,7 @@ export default function AccountSettings() {
                 {/* Village / Area */}
                 <div>
                   <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Village / Area</label>
-                  <input 
+                  <input
                     value={addresses[activeTab].village}
                     onChange={(e) => handleAddressChange('village', e.target.value)}
                     className="w-full bg-background border border-input text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none"
@@ -468,10 +498,10 @@ export default function AccountSettings() {
                   />
                 </div>
 
-                 {/* Pincode (Number Validation) */}
-                 <div>
+                {/* Pincode (Number Validation) */}
+                <div>
                   <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Pincode <span className="text-destructive">*</span></label>
-                  <input 
+                  <input
                     value={addresses[activeTab].pincode}
                     onChange={(e) => handleAddressChange('pincode', e.target.value)}
                     maxLength={6}
@@ -488,13 +518,13 @@ export default function AccountSettings() {
                 {/* City (Alpha Validation) */}
                 <div>
                   <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">City <span className="text-destructive">*</span></label>
-                  <input 
+                  <input
                     value={addresses[activeTab].city}
                     onChange={(e) => handleAddressChange('city', e.target.value)}
                     className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.city ? 'border-destructive' : 'border-input'}`}
                     placeholder="e.g. New York"
                   />
-                   {addressErrors[activeTab]?.city ? (
+                  {addressErrors[activeTab]?.city ? (
                     <p className="text-xs text-destructive mt-1">{addressErrors[activeTab]?.city}</p>
                   ) : (
                     <p className="text-[10px] text-muted-foreground mt-1">Text only</p>
@@ -504,7 +534,7 @@ export default function AccountSettings() {
                 {/* State (Alpha Validation) */}
                 <div>
                   <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">State <span className="text-destructive">*</span></label>
-                  <input 
+                  <input
                     value={addresses[activeTab].state}
                     onChange={(e) => handleAddressChange('state', e.target.value)}
                     className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.state ? 'border-destructive' : 'border-input'}`}
@@ -516,22 +546,126 @@ export default function AccountSettings() {
             </div>
 
             <div className="mt-8 flex justify-end border-t border-border pt-4">
-              <button 
+              <button
                 onClick={handleSaveAddresses}
                 disabled={savingAddress}
                 className="px-6 py-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors flex items-center gap-2 shadow-lg"
               >
-                 {savingAddress ? <Loader2 className="w-4 h-4 animate-spin"/> : <Save className="w-4 h-4"/>}
-                 Save All Addresses
+                {savingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                Save All Addresses
               </button>
             </div>
           </div>
         )}
       </section>
 
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+            <h2 className="text-xl font-semibold mb-4">Add New Address</h2>
+            {/* Add Address Form */}
+            <div className="grid grid-cols-1 gap-4">
+              {/* Door No */}
+              <div>
+                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                  Door No / Flat No <span className="text-destructive">*</span>
+                </label>
+                <input
+                  value={addresses[activeTab].doorNo}
+                  onChange={(e) => handleAddressChange("doorNo", e.target.value)}
+                  className="w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none"
+                  placeholder="e.g. 12-B"
+                />
+              </div>
+
+              {/* Street */}
+              <div>
+                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                  Street Name <span className="text-destructive">*</span>
+                </label>
+                <input
+                  value={addresses[activeTab].street}
+                  onChange={(e) => handleAddressChange("street", e.target.value)}
+                  className="w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none"
+                  placeholder="e.g. Main Road"
+                />
+              </div>
+
+              {/* Village / Area */}
+              <div>
+                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                  Village / Area
+                </label>
+                <input
+                  value={addresses[activeTab].village}
+                  onChange={(e) => handleAddressChange("village", e.target.value)}
+                  className="w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none"
+                  placeholder="e.g. Downtown"
+                />
+              </div>
+
+              {/* Pincode */}
+              <div>
+                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                  Pincode <span className="text-destructive">*</span>
+                </label>
+                <input
+                  value={addresses[activeTab].pincode}
+                  onChange={(e) => handleAddressChange("pincode", e.target.value)}
+                  maxLength={6}
+                  className="w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none"
+                  placeholder="e.g. 500001"
+                />
+              </div>
+
+              {/* City */}
+              <div>
+                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                  City <span className="text-destructive">*</span>
+                </label>
+                <input
+                  value={addresses[activeTab].city}
+                  onChange={(e) => handleAddressChange("city", e.target.value)}
+                  className="w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none"
+                  placeholder="e.g. New York"
+                />
+              </div>
+
+              {/* State */}
+              <div>
+                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">
+                  State <span className="text-destructive">*</span>
+                </label>
+                <input
+                  value={addresses[activeTab].state}
+                  onChange={(e) => handleAddressChange("state", e.target.value)}
+                  className="w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none"
+                  placeholder="e.g. NY"
+                />
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={handleSaveNewAddress}
+                className="px-6 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/80 transition-colors"
+              >
+                Save Address
+              </button>
+              <button
+                onClick={handleCloseModal}
+                className="px-6 py-2 rounded-xl bg-muted text-muted-foreground hover:bg-muted/80 transition-colors ml-4"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* --- Section 3: Password & Security --- */}
       <section className="w-full bg-card border bg-white  border-border rounded-lg overflow-hidden shadow-sm">
-        <button 
+        <button
           onClick={() => setShowPasswordSection(!showPasswordSection)}
           className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors"
         >
@@ -550,10 +684,10 @@ export default function AccountSettings() {
                   <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} disabled={isOldPasswordVerified} className="flex-1 bg-background border border-input text-foreground rounded-lg px-4 py-2 focus:ring-2 focus:ring-ring outline-none" placeholder="Enter current password" />
                   {!isOldPasswordVerified && (
                     <button onClick={verifyOldPassword} disabled={verifyingPassword || !oldPassword} className="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg text-sm font-medium transition-colors">
-                      {verifyingPassword ? <Loader2 className="w-4 h-4 animate-spin"/> : "Verify"}
+                      {verifyingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify"}
                     </button>
                   )}
-                  {isOldPasswordVerified && <div className="px-3 py-2 text-green-600 flex items-center gap-1 font-medium"><CheckCircle className="w-5 h-5"/> Verified</div>}
+                  {isOldPasswordVerified && <div className="px-3 py-2 text-green-600 flex items-center gap-1 font-medium"><CheckCircle className="w-5 h-5" /> Verified</div>}
                 </div>
               </div>
 
@@ -561,36 +695,36 @@ export default function AccountSettings() {
                 <div className="animate-in fade-in slide-in-from-top-4 space-y-4 pt-4 border-t border-dashed border-border">
                   <div>
                     <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">New Password</label>
-                    <input 
-                      type="password" 
-                      value={newPassword} 
+                    <input
+                      type="password"
+                      value={newPassword}
                       onChange={(e) => {
                         setNewPassword(e.target.value);
                         setPasswordErrors(prev => ({ ...prev, new: undefined }));
-                      }} 
-                      className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${passwordErrors.new ? 'border-destructive' : 'border-input'}`} 
-                      placeholder="Min. 8 chars, 1 Upper, 1 Special" 
+                      }}
+                      className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${passwordErrors.new ? 'border-destructive' : 'border-input'}`}
+                      placeholder="Min. 8 chars, 1 Upper, 1 Special"
                     />
                     {passwordErrors.new && <p className="text-xs text-destructive mt-1">{passwordErrors.new}</p>}
                   </div>
-                  
+
                   <div>
                     <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Confirm New Password</label>
-                    <input 
-                      type="password" 
-                      value={confirmPassword} 
+                    <input
+                      type="password"
+                      value={confirmPassword}
                       onChange={(e) => {
                         setConfirmPassword(e.target.value);
                         setPasswordErrors(prev => ({ ...prev, confirm: undefined }));
-                      }} 
-                      className={`w-full bg-background border rounded-lg px-4 py-2 mt-1 focus:ring-2 outline-none ${passwordErrors.confirm ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'}`} 
-                      placeholder="Re-enter new password" 
+                      }}
+                      className={`w-full bg-background border rounded-lg px-4 py-2 mt-1 focus:ring-2 outline-none ${passwordErrors.confirm ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'}`}
+                      placeholder="Re-enter new password"
                     />
                     {passwordErrors.confirm && <p className="text-xs text-destructive mt-1">{passwordErrors.confirm}</p>}
                   </div>
 
                   <button onClick={handleChangePassword} disabled={changingPassword || !newPassword || !confirmPassword} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-md mt-2">
-                    {changingPassword ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin"/> Updating...</span> : "Confirm Change Password"}
+                    {changingPassword ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Updating...</span> : "Confirm Change Password"}
                   </button>
                 </div>
               )}
