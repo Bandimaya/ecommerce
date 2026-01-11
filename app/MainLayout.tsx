@@ -18,11 +18,13 @@ export default function MainLayout({ children }: any) {
 }
 
 function RenderLayout({ children }: any) {
+    const pathname = usePathname()
+
     return <div className="min-h-screen flex flex-col">
         <CircuitBackground />
-        <Navbar />
+        {!pathname.includes('/login') && <Navbar />}
         <main className="flex-1">{children}</main>
-        <Footer />
-        <ChatBot />
+        {!pathname.includes('/login') && <Footer />}
+        {!pathname.includes('/login') && <ChatBot />}
     </div>
 }

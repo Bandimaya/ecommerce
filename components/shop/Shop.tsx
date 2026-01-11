@@ -334,6 +334,7 @@ const Shop = () => {
                                         {/* RESPONSIVE GRID */}
                                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8 md:gap-x-8 md:gap-y-12">
                                             {categoryProducts.map((product: any) => {
+                                                console.log(categoryProducts)
                                                 const displayImage = product.media?.[0]?.url || '/placeholder.png';
                                                 const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
                                                 const displayCategory = product.categories?.[0]?.title || "Item";
@@ -349,10 +350,8 @@ const Shop = () => {
                                                         variants={{ rest: {}, hover: {}, selected: { scale: 1 } }}
                                                         onClick={() => !isModalOpen && setSelectedProduct(product)}
                                                     >
-                                                        {/* Aspect Ratio Container for Layout Stability */}
                                                         <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full">
                                                             
-                                                            {/* CARD BASE */}
                                                             <motion.div
                                                                 className="absolute inset-0 top-0 md:top-12 rounded-[12px] border bg-white shadow-lg overflow-hidden flex flex-col"
                                                                 variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0 } }}
@@ -381,7 +380,6 @@ const Shop = () => {
                                                                 </div>
                                                             </motion.div>
 
-                                                            {/* FLOATING IMAGE */}
                                                             <motion.div
                                                                 layoutId={`product-image-container-${product._id}`}
                                                                 className="absolute z-30 overflow-hidden shadow-xl bg-white"
@@ -412,13 +410,11 @@ const Shop = () => {
                                                                 <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
                                                                     <img src={displayImage} alt={product.name} className="object-cover object-center w-full h-full" />
                                                                     
-                                                                    {/* Overlay visible on Rest (Mobile/Desktop) */}
                                                                     <motion.div
                                                                         className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none md:from-black/70 md:via-black/0"
                                                                         variants={{ rest: { opacity: 1 }, hover: { opacity: 0 }, selected: { opacity: 0 } }}
                                                                     />
                                                                     
-                                                                    {/* Text visible on Rest (Image Overlay) */}
                                                                     <motion.div
                                                                         className="absolute bottom-4 left-4 md:bottom-8 md:left-8 text-white pointer-events-none pr-4"
                                                                         variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 }, selected: { opacity: 0 } }}

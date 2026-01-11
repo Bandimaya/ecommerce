@@ -207,8 +207,8 @@ const SantaShop = () => {
           {/* PRODUCT CARDS */}
           {!isLoading && products.map((product) => (
             <motion.div
-              key={product._id}
-              layoutId={`product-card-container-${product._id}`}
+              key={product._id+"santa-shop-rfghjk"}
+              layoutId={`product-card-container-fdghjkl-santa-shop-${product._id}`}
               className="relative h-[400px] w-full group cursor-pointer perspective-1000"
               initial="rest"
               whileHover={isMobileWidth || selectedProduct || isAnimating ? undefined : "hover"}
@@ -262,7 +262,7 @@ const SantaShop = () => {
 
               {/* FLOATING IMAGE & REST STATE */}
               <motion.div
-                layoutId={`product-image-container-${product._id}`}
+                layoutId={`product-image-container-santa-shop-657-${product._id}`}
                 className="absolute z-30 overflow-hidden shadow-xl bg-white"
                 variants={{
                   rest: {
@@ -284,7 +284,7 @@ const SantaShop = () => {
                   {/* Actual Image Implementation */}
                   <Image 
                     src={product.image || '/placeholder.png'} 
-                    alt={product.title}
+                    alt={product.title||'product'}
                     fill
                     className="object-cover object-center"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -404,7 +404,7 @@ const SantaShop = () => {
                     </h4>
                     {/* Fallback for outcomes if API doesn't provide them */}
                     {(selectedProduct.outcomes || ["Critical Thinking", "Problem Solving", "Creativity"]).map((outcome, idx) => (
-                      <div key={idx} className="flex items-center gap-3 text-sm font-bold text-slate-600 bg-slate-50 p-4 rounded-[10px] border border-slate-100">
+                      <div key={idx+'selected-img=-key'} className="flex items-center gap-3 text-sm font-bold text-slate-600 bg-slate-50 p-4 rounded-[10px] border border-slate-100">
                         <div className="w-2 h-2 rounded-full bg-blue-500" />
                         {outcome}
                       </div>
