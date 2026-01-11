@@ -4,6 +4,7 @@ import { apiFetch } from "@/lib/axios";
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
 export interface User {
+  address: any;
   _id: string;
   name: string;
   email: string;

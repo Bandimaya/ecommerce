@@ -30,43 +30,69 @@ interface HeroSectionProps {
 const SLIDES: Slide[] = [
   {
     id: 1,
-    image: "/assets/hero/dragon.jpg",
+    image: "/assets/hero/1st.jpeg",
     alt: "Smart Home Interface",
     videoUrl: "/videos/smart-home-demo.mp4",
     content: {
-      category: "Innovation",
-      title: "The Connected Future",
-      description: "Seamlessly integrate your lifestyle with next-gen IoT solutions designed for the modern era.",
-      ctaText: "Read the Article",
+      category: "Zero Shipping Fee – STEM Park (Qatar)",
+      title: "STEM Learning, Delivered Free Across Qata",
+      description: "Buy any STEM item with zero shipping fee inside Qatar — fast, reliable, and hassle-free.",
+      ctaText: "Zero Shipping. Infinite Learning.",
       ctaLink: ""
     }
   },
   {
     id: 2,
-    image: "/assets/hero/pain-naruto-indigo-5120x2880-10830.png",
+    image: "/assets/hero/2nd.jpeg",
     alt: "Advanced Circuitry",
     videoUrl: "/videos/ai-processing.mp4",
     content: {
-      category: "Technology",
-      title: "Neural Processing",
-      description: "Discover how AI is bridging the gap between raw silicon power and daily human interaction.",
-      ctaText: "View Insights",
+      category: "Shop US – Robot, 3D Printer, Electronics",
+      title: "Your One-Stop STEM Store",
+      description: "Shop robotics, electronics, science kits, and innovation tools — all in one place.",
+      ctaText: "Powering Young Innovators with Future-Ready Tools",
       ctaLink: ""
     }
   },
   {
     id: 3,
-    image: "/assets/hero/spidernam.jpg",
+    image: "/assets/hero/3rd.jpeg",
     alt: "Smart Living Space",
     videoUrl: "/videos/living-space.mp4",
     content: {
-      category: "Lifestyle",
-      title: "Intelligent Living",
-      description: "Transform your physical space into a responsive environment that anticipates your needs.",
-      ctaText: "Explore Solutions",
+      category: "STEM Projects & Kits",
+      title: "Hands-On STEM Projects & Kits",
+      description: "Build, experiment, and innovate with curated STEM kits designed for real-world learning.",
+      ctaText: "Learn by Building. Learn by Doing.",
       ctaLink: ""
     }
+  },
+  {
+    id: 4,
+    image: "/assets/hero/4th.jpeg",
+    alt: "Advanced Circuitry",
+    videoUrl: "/videos/ai-processing.mp4",
+    content: {
+      category: "Competitions – Kids working on robot",
+      title: "STEM Competitions That Inspire Excellence",
+      description: "Encouraging creativity, teamwork, and problem-solving through exciting STEM challenges.",
+      ctaText: "Where Young Minds Compete, Create, and Excel",
+      ctaLink: ""
+    }
+  },
+  {
+  id: 5,
+  image: "/assets/hero/5th.jpeg",
+  alt: "Advanced Circuitry",
+  videoUrl: "/videos/ai-processing.mp4",
+  content: {
+    category: "Academic Support – Teacher helping child",
+    title: "Personalized Academic Support",
+    description: "Expert guidance to strengthen concepts, boost confidence, and achieve academic success.",
+    ctaText: "Supporting Every Student’s Learning Journey",
+    ctaLink: ""
   }
+},
 ];
 
 const AUTO_PLAY_DURATION = 6000;
@@ -476,7 +502,7 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         .line { width: 40px; height: 2px; background: #fff; }
 
         .main-title {
-          font-size: clamp(3rem, 5vw, 5rem);
+          font-size: 40px;
           font-weight: 800;
           line-height: 1.1;
           margin-bottom: 24px;
@@ -720,7 +746,7 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
         }
 
         @media (max-width: 768px) {
-          .main-title { font-size: 2.5rem; }
+          .main-title { font-size: 10px; }
           .pagination-container { display: none; }
           .modal-backdrop { padding: 10px; }
           .glass-button { width: 100%; justify-content: center; }
