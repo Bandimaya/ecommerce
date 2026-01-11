@@ -85,7 +85,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
     { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
 
     // Content Management
-    { label: "Jargon", path: "/admin/jargon", icon: Type },
+    // { label: "Jargon", path: "/admin/jargon", icon: Type },
     { label: "Sections", path: "/admin/sections", icon: Layers },
     { label: "Section Courses", path: "/admin/section-courses", icon: GraduationCap },
     { label: "Events", path: "/admin/events", icon: CalendarDays },

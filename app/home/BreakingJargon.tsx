@@ -11,12 +11,19 @@ import {
   Cog,
   Brain,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  GraduationCap,
+  CheckCircle2,
+  Users,
+  Clock,
+  Star
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Link from "next/link"
 import { apiFetch } from "@/lib/axios"
 import { IMAGE_URL } from "@/lib/constants"
+import { Course } from "@/components/courses/microdegree/BentoGrid"
+import { useRouter } from "next/navigation"
 
 // --- Types ---
 interface JargonItem {
@@ -44,14 +51,14 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
   const [isMobile, setIsMobile] = useState(false)
   const [data, setData] = useState<JargonItem[]>([])
 
-  useEffect(() => {
-    apiFetch('/jargon')
-      .then(response => {
-        setData(response)
-      }).catch(error => {
-        console.error('Error fetching jargon data:', error)
-      })
-  }, [])
+  // useEffect(() => {
+  //   apiFetch('/jargon')
+  //     .then(response => {
+  //       setData(response)
+  //     }).catch(error => {
+  //       console.error('Error fetching jargon data:', error)
+  //     })
+  // }, [])
 
   // Handle Resize
   useEffect(() => {
@@ -179,6 +186,22 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
   const ActiveIcon = activeItem ? ICON_MAP[activeItem.icon as keyof typeof ICON_MAP] : null;
   const activeId = activeItem?._id ? String(activeItem._id) : null
   const activeLinkable = Boolean(activeId)
+  const [courses, setCourses] = useState<Course[]>([]);
+
+  const activeCourse = courses[activeIndex];
+
+  useEffect(() => {
+    apiFetch('/stem-courses')
+      .then((data) => {
+        setCourses(data);
+      })
+      .catch((err) => console.error(err))
+      // .finally(() => setLoading(false));
+  }, []);
+
+  const router = useRouter();
+
+
 
   return (
     <section className="relative w-full py-20 overflow-hidden bg-slate-50">
@@ -261,8 +284,181 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
           </motion.p>
         </div>
 
-        {/* --- DESKTOP 3D CAROUSEL --- */}
         {!isMobile ? (
+          <div className="relative h-[550px] w-full flex items-center justify-center perspective-[1200px]">
+            {courses.map((course, index) => {
+              const { state, zIndex } = getCardProps(index);
+
+              return (
+                <motion.div
+                  key={course._id}
+                  variants={desktopVariants}
+                  initial="farRight"
+                  animate={state}
+                  className="absolute w-[900px] h-[500px] rounded-3xl bg-white shadow-2xl border border-slate-100/50 overflow-hidden cursor-pointer"
+                  style={{ zIndex, transformStyle: "preserve-3d" }}
+                  onClick={() => {
+                    if (state === 'left') handlePrev();
+                    if (state === 'right') handleNext();
+                  }}
+                >
+                  <div className="grid grid-cols-12 h-full w-full">
+
+                    {/* Left: Image Side */}
+                    <div className="col-span-5 relative h-full overflow-hidden group">
+                      <div className="absolute inset-0 bg-slate-900/10 z-10 transition-colors group-hover:bg-transparent" />
+                      <img
+                        src={IMAGE_URL + course.image}
+                        alt={course.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      />
+                      {/* Rating Badge Overlay */}
+                      <div className="absolute top-6 left-6 z-20">
+                        <div className="bg-white/95 backdrop-blur-sm px-3 py-2 rounded-xl flex items-center gap-2 shadow-lg">
+                          <Star size={16} className="text-yellow-500 fill-yellow-500" />
+                          <span className="font-bold text-slate-900 text-sm">{course.rating || '4.9'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right: Content Side */}
+                    <div className="col-span-7 p-10 flex flex-col justify-center relative bg-white">
+                      {/* Background Number */}
+                      <div className="absolute top-4 right-6 text-9xl font-black text-slate-50 opacity-100 pointer-events-none select-none text-slate-100">
+                        0{index + 1}
+                      </div>
+
+                      <div className="relative z-10 flex flex-col h-full justify-center">
+                        {/* Category Tag */}
+                        <div className="mb-4">
+                          <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider">
+                            {course.category || 'STEM Education'}
+                          </span>
+                        </div>
+
+                        <h2 className="text-3xl font-bold text-slate-900 mb-4 leading-tight line-clamp-2">
+                          {course.title}
+                        </h2>
+
+                        <p className="text-slate-600 leading-relaxed mb-6 line-clamp-3 text-lg">
+                          {course.description}
+                        </p>
+
+                        {/* Stats Row */}
+                        <div className="flex items-center gap-6 mb-8 border-b border-slate-100 pb-6">
+                          <div className="flex items-center gap-2 text-slate-500 font-medium">
+                            <Clock size={18} className="text-blue-500" />
+                            <span>{course.duration || '8 Weeks'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-500 font-medium">
+                            <Users size={18} className="text-blue-500" />
+                            <span>{course.students || '1.2k'} Students</span>
+                          </div>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-4 mt-auto">
+                          <button onClick={() => router.push('/courses')} className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200">
+                            Explore Course <ArrowRight size={18} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+
+            {/* Desktop Navigation Arrows */}
+            <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between px-4 pointer-events-none z-40 max-w-6xl mx-auto">
+              <button onClick={handlePrev} className="pointer-events-auto w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-white hover:scale-110 transition-all active:scale-95">
+                <ChevronLeft size={28} />
+              </button>
+              <button onClick={handleNext} className="pointer-events-auto w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-white hover:scale-110 transition-all active:scale-95">
+                <ChevronRight size={28} />
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* --- MOBILE CARD STACK --- */
+          <div className="relative w-full h-[680px] px-4">
+            <AnimatePresence mode="popLayout" custom={direction}>
+              {activeCourse && (
+                <motion.div
+                  key={activeIndex}
+                  custom={direction}
+                  variants={mobileVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
+                >
+                  <div className="relative h-[40%]">
+                    <img
+                      src={IMAGE_URL + activeCourse.image}
+                      alt={activeCourse.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+
+                    <div className="absolute top-4 left-4 bg-white/90 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                      <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                      <span className="text-xs font-bold">{activeCourse.rating || '4.9'}</span>
+                    </div>
+
+                    <div className="absolute bottom-6 left-6 right-6 text-white">
+                      <div className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-2">
+                        {activeCourse.category || 'STEM Education'}
+                      </div>
+                      <h2 className="text-2xl font-bold leading-tight shadow-black drop-shadow-md">
+                        {activeCourse.title}
+                      </h2>
+                    </div>
+                  </div>
+
+                  <div className="p-6 flex-1 flex flex-col">
+                    <p className="text-slate-600 leading-relaxed text-sm mb-6 line-clamp-4 flex-grow">
+                      {activeCourse.description}
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <Clock size={16} className="text-blue-500" />
+                        <span>{activeCourse.duration || '8 Weeks'}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <Users size={16} className="text-blue-500" />
+                        <span>{activeCourse.students || '1.2k'} Students</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <CheckCircle2 size={16} className="text-green-500" />
+                        <span>Certificated</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <GraduationCap size={16} className="text-blue-500" />
+                        <span>Mentorship</span>
+                      </div>
+                    </div>
+
+                    <button className="w-full py-3.5 rounded-xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-200 mb-4">
+                      Explore Course
+                    </button>
+
+                    {/* Mobile Nav */}
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                      <button onClick={handlePrev} className="p-2 bg-slate-50 rounded-full border border-slate-200"><ChevronLeft size={20} /></button>
+                      <span className="text-xs font-bold text-slate-400">{activeIndex + 1} / {courses.length}</span>
+                      <button onClick={handleNext} className="p-2 bg-slate-50 rounded-full border border-slate-200"><ChevronRight size={20} /></button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        )}
+
+        {/* --- DESKTOP 3D CAROUSEL --- */}
+        {/* {!isMobile ? (
           <div className="relative h-[550px] w-full flex items-center justify-center perspective-[1200px]">
 
             {data.map((item, index) => {
@@ -271,7 +467,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
 
               const itemId = item._id ? String(item._id) : null
               const isLinkable = Boolean(itemId)
-              
+
               // CHECK LENGTH: Only true if description > 400 chars
               const isLongDescription = item.description.length > 400;
 
@@ -292,7 +488,6 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                   }}
                 >
                   <div className="grid grid-cols-12 h-full w-full">
-                    {/* Left: Image Side */}
                     <div className="col-span-5 relative h-full overflow-hidden group">
                       <div className="absolute inset-0 bg-slate-900/10 z-10 transition-colors group-hover:bg-transparent" />
                       <img
@@ -307,7 +502,6 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                       </div>
                     </div>
 
-                    {/* Right: Content Side */}
                     <div className="col-span-7 p-10 flex flex-col justify-center relative bg-white">
                       <div className="absolute top-4 right-6 text-9xl font-black text-slate-50 opacity-[0.04] pointer-events-none select-none">
                         0{item._id}
@@ -319,24 +513,21 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                         </div>
                         <h2 className="text-4xl font-bold text-slate-900 mb-4 leading-tight">{item.title}</h2>
 
-                        {/* Description - Fixed height text block */}
                         <div className="mb-6">
-                            <p className="text-lg text-slate-600 leading-relaxed mb-2 line-clamp-3">
-                                {item.description}
-                            </p>
-                            
-                            {/* Desktop: Only show link if description > 400 chars */}
-                            {isLinkable && isLongDescription && (
-                                <Link 
-                                    href={`/home/jargon/${encodeURIComponent(itemId as string)}`} 
-                                    className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors mt-1"
-                                >
-                                    Read full overview <ChevronRight size={14} className="ml-0.5" />
-                                </Link>
-                            )}
+                          <p className="text-lg text-slate-600 leading-relaxed mb-2 line-clamp-3">
+                            {item.description}
+                          </p>
+
+                          {isLinkable && isLongDescription && (
+                            <Link
+                              href={`/home/jargon/${encodeURIComponent(itemId as string)}`}
+                              className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors mt-1"
+                            >
+                              Read full overview <ChevronRight size={14} className="ml-0.5" />
+                            </Link>
+                          )}
                         </div>
 
-                        {/* Footer / Main Action */}
                         <div className="flex items-center justify-between pt-6 border-t border-slate-100 mt-auto">
                           <div className="flex items-center gap-3">
                             {isLinkable ? (
@@ -362,7 +553,6 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
               )
             })}
 
-            {/* Desktop Navigation Arrows */}
             <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between px-4 pointer-events-none z-40 max-w-6xl mx-auto">
               <button
                 onClick={handlePrev}
@@ -381,7 +571,6 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
           </div>
         ) : (
 
-          /* --- MOBILE CARD STACK --- */
           <div className="relative w-full h-[650px] px-4">
             <AnimatePresence mode="popLayout" custom={direction}>
               {activeItem && (
@@ -401,36 +590,35 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                       alt={activeItem.alt}
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                    
+
                     <div className="absolute bottom-6 left-6 text-white w-[90%]">
                       <div className={`w-12 h-12 rounded-xl ${activeItem.color} flex items-center justify-center shadow-lg text-white mb-4`}>
-                          {ActiveIcon && <ActiveIcon size={24} strokeWidth={2.5} />}
+                        {ActiveIcon && <ActiveIcon size={24} strokeWidth={2.5} />}
                       </div>
 
                       <div className="flex items-center gap-2 mb-2 opacity-90">
                         <span className={`h-1.5 w-1.5 rounded-full bg-white`} />
                         <span className="text-xs font-bold uppercase tracking-wider">Core Concept</span>
                       </div>
-                      
+
                       <h2 className="text-3xl font-bold leading-tight">{activeItem.title}</h2>
                     </div>
                   </div>
 
                   <div className="p-6 flex-1 flex flex-col justify-between">
                     <div>
-                        <p className="text-slate-600 leading-relaxed text-sm sm:text-base mb-2 line-clamp-4">
+                      <p className="text-slate-600 leading-relaxed text-sm sm:text-base mb-2 line-clamp-4">
                         {activeItem.description}
-                        </p>
-                        
-                        {/* Mobile: Only show link if description > 400 chars */}
-                        {activeLinkable && activeItem.description.length > 400 && (
-                            <Link 
-                                href={`/home/jargon/${encodeURIComponent(activeId as string)}`} 
-                                className="text-sm font-semibold text-slate-400 underline underline-offset-4 decoration-slate-200 hover:text-slate-600 inline-block py-1"
-                            >
-                                Read full description
-                            </Link>
-                        )}
+                      </p>
+
+                      {activeLinkable && activeItem.description.length > 400 && (
+                        <Link
+                          href={`/home/jargon/${encodeURIComponent(activeId as string)}`}
+                          className="text-sm font-semibold text-slate-400 underline underline-offset-4 decoration-slate-200 hover:text-slate-600 inline-block py-1"
+                        >
+                          Read full description
+                        </Link>
+                      )}
                     </div>
 
                     <div className="flex flex-col gap-4 mt-4">
@@ -446,14 +634,14 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                         </div>
 
                         <div className="flex items-center gap-1.5 text-xs font-medium text-slate-400">
-                           <Sparkles size={14} className="text-amber-400" />
-                           <span>Beginner Friendly</span>
+                          <Sparkles size={14} className="text-amber-400" />
+                          <span>Beginner Friendly</span>
                         </div>
                       </div>
 
                       <div className="flex justify-between items-center pt-4 border-t border-slate-100">
                         <button onClick={handlePrev} className="p-3 bg-slate-50 border border-slate-100 rounded-full active:scale-95 transition-transform text-slate-600 hover:bg-slate-100 cursor-pointer"><ChevronLeft size={20} /></button>
-                         <span className="text-sm font-bold text-slate-400">{activeIndex + 1} / {data.length}</span>
+                        <span className="text-sm font-bold text-slate-400">{activeIndex + 1} / {data.length}</span>
                         <button onClick={handleNext} className="p-3 bg-slate-50 border border-slate-100 rounded-full active:scale-95 transition-transform text-slate-600 hover:bg-slate-100 cursor-pointer"><ChevronRight size={20} /></button>
                       </div>
                     </div>
@@ -462,7 +650,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
               )}
             </AnimatePresence>
           </div>
-        )}
+        )} */}
 
         {/* --- NAVIGATION DOTS --- */}
         <div className="flex justify-center gap-3 mt-8 items-center">

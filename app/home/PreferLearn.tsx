@@ -50,13 +50,13 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
       apiFetch('/section-courses')
     ]).then(([sectionsData, setCoursesData]) => {
       let mainData: any[] = []
-      
+
       sectionsData.forEach((section: any, index: number) => {
         const courses = setCoursesData.filter((item: any) => item.sectionId?._id === section._id)
-        const icon = index % 2 === 0 ? Zap : Users; 
-        mainData.push({ ...section, paths: courses, icon: icon, label: section.name || section.label }) 
+        const icon = index % 2 === 0 ? Zap : Users;
+        mainData.push({ ...section, paths: courses, icon: icon, label: section.name || section.label })
       })
-      
+
       setData(mainData)
       if (mainData.length > 0) setActiveTab(mainData[0]._id)
     })
@@ -137,13 +137,33 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
 
         {/* --- DYNAMIC TOGGLE SWITCHER --- */}
         <div className="flex justify-center mb-10 w-full">
-            <div
-              className="flex flex-wrap justify-center gap-2 p-2 rounded-2xl border shadow-sm backdrop-blur-md w-full max-w-fit"
+          <div
+            className="flex flex-wrap justify-center gap-2 p-2 rounded-2xl border shadow-sm backdrop-blur-md w-full max-w-fit"
+            style={{
+              backgroundColor: `color-mix(in srgb, ${v('--card', '#fff')} 80%, transparent)`,
+              borderColor: v('--border', '#e2e8f0')
+            }}
+          >
+            <button
+              key={'all'}
+              onClick={() => setActiveTab('all')}
+              // Added cursor-pointer explicit class here
+              className="relative cursor-pointer px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 z-10 flex items-center justify-center gap-2 outline-none focus-visible:ring-2 focus-visible:ring-primary min-w-[120px]"
               style={{
-                  backgroundColor: `color-mix(in srgb, ${v('--card', '#fff')} 80%, transparent)`,
-                  borderColor: v('--border', '#e2e8f0')
+                color: activeTab === 'all' ? v('--primary-foreground', '#ffffff') : v('--muted-foreground', '#64748b')
               }}
             >
+              {activeTab === 'all' && (
+                <motion.div
+                  layoutId="activeTabBackground"
+                  className="absolute inset-0 rounded-xl shadow-md -z-10"
+                  initial={false}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                  style={{ backgroundColor: v('--primary', '#3b82f6') }}
+                />
+              )}
+              <span className="truncate">All</span>
+            </button>
             {displayData.map((tab: any) => {
               const isActive = activeTab === tab._id
               return (
@@ -203,20 +223,20 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                       }}
                     >
                       {/* --- BACKGROUND IMAGE ANIMATION --- */}
-                      <motion.div 
+                      <motion.div
                         className="absolute top-0 left-0 w-full z-0 overflow-hidden"
                         // Changed default to "50%" to ensure half space by default
-                        initial={{ height: "50%" }} 
+                        initial={{ height: "50%" }}
                         animate={{ height: isHovered ? "100%" : "50%" }}
                         transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
                       >
-                         <img
+                        <img
                           src={IMAGE_URL + path.image}
                           alt={path.alt || path.title}
                           className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-110"
                         />
                         {/* Overlay Gradient: Essential for reading white text over image */}
-                        <motion.div 
+                        <motion.div
                           className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30"
                           initial={{ opacity: 0 }}
                           animate={{ opacity: isHovered ? 1 : 0 }}
@@ -226,16 +246,16 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
 
                       {/* --- CONTENT CONTAINER --- */}
                       <div className="relative z-10 flex flex-col h-full w-full">
-                        
+
                         {/* Top Badges (Always stay at top) */}
                         <div className="p-3 flex justify-between items-start w-full absolute top-0 left-0 z-20">
-                            <Badge className="bg-white/90 text-black backdrop-blur-md text-[10px] px-2 py-0.5 border-0 font-bold shadow-sm">
-                              {path.ageRange || "8+ Yrs"}
-                            </Badge>
-                            <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/10">
-                              <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                              <span className="text-[10px] font-bold text-white">{path.rating || 4.5}</span>
-                            </div>
+                          <Badge className="bg-white/90 text-black backdrop-blur-md text-[10px] px-2 py-0.5 border-0 font-bold shadow-sm">
+                            {path.ageRange || "8+ Yrs"}
+                          </Badge>
+                          <div className="flex items-center gap-1 bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-full border border-white/10">
+                            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+                            <span className="text-[10px] font-bold text-white">{path.rating || 4.5}</span>
+                          </div>
                         </div>
 
                         {/* Spacer div to push content to bottom half */}
@@ -243,23 +263,23 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
 
                         {/* Text Content */}
                         <CardContent className="p-5 pt-2 flex flex-col gap-2 relative">
-                           {/* Play Button (Appears only on hover) */}
-                           {/* Positioning calculation: top -50px from content start to sit near image center when collapsed, or center when expanded */}
-                            <motion.div 
-                              className="absolute -top-12 right-4"
-                              animate={{ 
-                                opacity: isHovered ? 1 : 0, 
-                                y: isHovered ? 0 : 10,
-                                scale: isHovered ? 1 : 0.8 
-                              }}
-                            >
-                               <div className="bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/30 shadow-lg">
-                                  <PlayCircle className="w-8 h-8 text-white fill-white/20" />
-                               </div>
-                            </motion.div>
+                          {/* Play Button (Appears only on hover) */}
+                          {/* Positioning calculation: top -50px from content start to sit near image center when collapsed, or center when expanded */}
+                          <motion.div
+                            className="absolute -top-12 right-4"
+                            animate={{
+                              opacity: isHovered ? 1 : 0,
+                              y: isHovered ? 0 : 10,
+                              scale: isHovered ? 1 : 0.8
+                            }}
+                          >
+                            <div className="bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/30 shadow-lg">
+                              <PlayCircle className="w-8 h-8 text-white fill-white/20" />
+                            </div>
+                          </motion.div>
 
                           <div className="flex justify-between items-start mt-2">
-                            <h3 
+                            <h3
                               className="text-lg font-bold leading-tight line-clamp-2 transition-colors duration-300"
                               style={{ color: isHovered ? '#ffffff' : v('--foreground', '#020817') }}
                             >
@@ -267,14 +287,14 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                             </h3>
                           </div>
 
-                          <p 
-                            className="text-xs line-clamp-2 leading-relaxed transition-colors duration-300" 
+                          <p
+                            className="text-xs line-clamp-2 leading-relaxed transition-colors duration-300"
                             style={{ color: isHovered ? '#e2e8f0' : v('--muted-foreground', '#64748b') }}
                           >
                             {path.description}
                           </p>
 
-                          <div 
+                          <div
                             className="flex items-center gap-3 mt-2 text-[11px] font-medium transition-colors duration-300"
                             style={{ color: isHovered ? '#cbd5e1' : v('--muted-foreground', '#64748b') }}
                           >

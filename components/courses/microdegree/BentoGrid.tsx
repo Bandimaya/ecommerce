@@ -1,23 +1,25 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Clock, 
-  Users, 
-  Star, 
-  ArrowRight, 
-  CheckCircle2, 
-  GraduationCap 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Users,
+  Star,
+  ArrowRight,
+  CheckCircle2,
+  GraduationCap
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { apiFetch } from '@/lib/axios';
 import { IMAGE_URL } from '@/lib/constants';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSettings } from '@/contexts/SettingsContext';
 
 // --- Types ---
-interface Course {
+export interface Course {
   _id: string;
   title: string;
   description: string;
@@ -169,10 +171,12 @@ const CourseShowcase = () => {
   if (loading && courses.length === 0) return <div className="py-20 text-center">Loading Courses...</div>;
 
   const activeCourse = courses[activeIndex];
+  const router = useRouter();
+  const { contact } = useSettings();
 
   return (
     <section className="relative w-full py-20 overflow-hidden bg-slate-50">
-      
+
       {/* Background Ambience */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -185,21 +189,21 @@ const CourseShowcase = () => {
 
         {/* Header */}
         <div className="text-center mb-16">
-          <motion.div 
+          <motion.div
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
             className="flex justify-center items-center gap-3 mb-6"
           >
-             <div className="h-[2px] w-12 bg-blue-600" />
-             <span className="text-xs font-bold uppercase tracking-widest text-blue-600">
-               World-Class Curriculum
-             </span>
-             <div className="h-[2px] w-12 bg-blue-600" />
+            <div className="h-[2px] w-12 bg-blue-600" />
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-600">
+              World-Class Curriculum
+            </span>
+            <div className="h-[2px] w-12 bg-blue-600" />
           </motion.div>
 
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
@@ -214,7 +218,7 @@ const CourseShowcase = () => {
           <div className="relative h-[550px] w-full flex items-center justify-center perspective-[1200px]">
             {courses.map((course, index) => {
               const { state, zIndex } = getCardProps(index);
-              
+
               return (
                 <motion.div
                   key={course._id}
@@ -229,7 +233,7 @@ const CourseShowcase = () => {
                   }}
                 >
                   <div className="grid grid-cols-12 h-full w-full">
-                    
+
                     {/* Left: Image Side */}
                     <div className="col-span-5 relative h-full overflow-hidden group">
                       <div className="absolute inset-0 bg-slate-900/10 z-10 transition-colors group-hover:bg-transparent" />
@@ -251,45 +255,45 @@ const CourseShowcase = () => {
                     <div className="col-span-7 p-10 flex flex-col justify-center relative bg-white">
                       {/* Background Number */}
                       <div className="absolute top-4 right-6 text-9xl font-black text-slate-50 opacity-100 pointer-events-none select-none text-slate-100">
-                         0{index + 1}
+                        0{index + 1}
                       </div>
 
                       <div className="relative z-10 flex flex-col h-full justify-center">
                         {/* Category Tag */}
                         <div className="mb-4">
-                            <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider">
-                                {course.category || 'STEM Education'}
-                            </span>
+                          <span className="inline-block px-3 py-1 bg-blue-50 text-blue-600 rounded-full text-xs font-bold uppercase tracking-wider">
+                            {course.category || 'STEM Education'}
+                          </span>
                         </div>
 
                         <h2 className="text-3xl font-bold text-slate-900 mb-4 leading-tight line-clamp-2">
-                            {course.title}
+                          {course.title}
                         </h2>
 
                         <p className="text-slate-600 leading-relaxed mb-6 line-clamp-3 text-lg">
-                            {course.description}
+                          {course.description}
                         </p>
 
                         {/* Stats Row */}
                         <div className="flex items-center gap-6 mb-8 border-b border-slate-100 pb-6">
-                            <div className="flex items-center gap-2 text-slate-500 font-medium">
-                                <Clock size={18} className="text-blue-500" />
-                                <span>{course.duration || '8 Weeks'}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-slate-500 font-medium">
-                                <Users size={18} className="text-blue-500" />
-                                <span>{course.students || '1.2k'} Students</span>
-                            </div>
+                          <div className="flex items-center gap-2 text-slate-500 font-medium">
+                            <Clock size={18} className="text-blue-500" />
+                            <span>{course.duration || '8 Weeks'}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-slate-500 font-medium">
+                            <Users size={18} className="text-blue-500" />
+                            <span>{course.students || '1.2k'} Students</span>
+                          </div>
                         </div>
 
                         {/* Actions */}
                         <div className="flex items-center gap-4 mt-auto">
-                           <button className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200">
-                             Enroll Now <ArrowRight size={18} />
-                           </button>
-                           <button className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">
-                             Syllabus
-                           </button>
+                          <button onClick={() => router.push(`https://wa.me/${contact?.whatsapp_number}`)} className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200">
+                            Enroll Now <ArrowRight size={18} />
+                          </button>
+                          <button className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all">
+                            Syllabus
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -311,96 +315,95 @@ const CourseShowcase = () => {
         ) : (
           /* --- MOBILE CARD STACK --- */
           <div className="relative w-full h-[680px] px-4">
-             <AnimatePresence mode="popLayout" custom={direction}>
-                {activeCourse && (
-                   <motion.div
-                      key={activeIndex}
-                      custom={direction}
-                      variants={mobileVariants}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
-                   >
-                      <div className="relative h-[40%]">
-                         <img 
-                            src={IMAGE_URL + activeCourse.image} 
-                            alt={activeCourse.title}
-                            className="w-full h-full object-cover"
-                         />
-                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
-                         
-                         <div className="absolute top-4 left-4 bg-white/90 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                            <Star size={14} className="text-yellow-500 fill-yellow-500" />
-                            <span className="text-xs font-bold">{activeCourse.rating || '4.9'}</span>
-                         </div>
+            <AnimatePresence mode="popLayout" custom={direction}>
+              {activeCourse && (
+                <motion.div
+                  key={activeIndex}
+                  custom={direction}
+                  variants={mobileVariants}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
+                  className="w-full h-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col"
+                >
+                  <div className="relative h-[40%]">
+                    <img
+                      src={IMAGE_URL + activeCourse.image}
+                      alt={activeCourse.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
 
-                         <div className="absolute bottom-6 left-6 right-6 text-white">
-                            <div className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-2">
-                                {activeCourse.category || 'STEM Education'}
-                            </div>
-                            <h2 className="text-2xl font-bold leading-tight shadow-black drop-shadow-md">
-                                {activeCourse.title}
-                            </h2>
-                         </div>
+                    <div className="absolute top-4 left-4 bg-white/90 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
+                      <Star size={14} className="text-yellow-500 fill-yellow-500" />
+                      <span className="text-xs font-bold">{activeCourse.rating || '4.9'}</span>
+                    </div>
+
+                    <div className="absolute bottom-6 left-6 right-6 text-white">
+                      <div className="text-xs font-bold uppercase tracking-wider text-blue-200 mb-2">
+                        {activeCourse.category || 'STEM Education'}
                       </div>
+                      <h2 className="text-2xl font-bold leading-tight shadow-black drop-shadow-md">
+                        {activeCourse.title}
+                      </h2>
+                    </div>
+                  </div>
 
-                      <div className="p-6 flex-1 flex flex-col">
-                         <p className="text-slate-600 leading-relaxed text-sm mb-6 line-clamp-4 flex-grow">
-                             {activeCourse.description}
-                         </p>
+                  <div className="p-6 flex-1 flex flex-col">
+                    <p className="text-slate-600 leading-relaxed text-sm mb-6 line-clamp-4 flex-grow">
+                      {activeCourse.description}
+                    </p>
 
-                         <div className="grid grid-cols-2 gap-4 mb-6">
-                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                                <Clock size={16} className="text-blue-500" />
-                                <span>{activeCourse.duration || '8 Weeks'}</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                                <Users size={16} className="text-blue-500" />
-                                <span>{activeCourse.students || '1.2k'} Students</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                                <CheckCircle2 size={16} className="text-green-500" />
-                                <span>Certificated</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-sm text-slate-500">
-                                <GraduationCap size={16} className="text-blue-500" />
-                                <span>Mentorship</span>
-                            </div>
-                         </div>
-
-                         <button className="w-full py-3.5 rounded-xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-200 mb-4">
-                             Enroll Now
-                         </button>
-
-                         {/* Mobile Nav */}
-                         <div className="flex justify-between items-center pt-2 border-t border-slate-100">
-                            <button onClick={handlePrev} className="p-2 bg-slate-50 rounded-full border border-slate-200"><ChevronLeft size={20}/></button>
-                            <span className="text-xs font-bold text-slate-400">{activeIndex + 1} / {courses.length}</span>
-                            <button onClick={handleNext} className="p-2 bg-slate-50 rounded-full border border-slate-200"><ChevronRight size={20}/></button>
-                         </div>
+                    <div className="grid grid-cols-2 gap-4 mb-6">
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <Clock size={16} className="text-blue-500" />
+                        <span>{activeCourse.duration || '8 Weeks'}</span>
                       </div>
-                   </motion.div>
-                )}
-             </AnimatePresence>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <Users size={16} className="text-blue-500" />
+                        <span>{activeCourse.students || '1.2k'} Students</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <CheckCircle2 size={16} className="text-green-500" />
+                        <span>Certificated</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <GraduationCap size={16} className="text-blue-500" />
+                        <span>Mentorship</span>
+                      </div>
+                    </div>
+
+                    <button className="w-full py-3.5 rounded-xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-200 mb-4">
+                      Enroll Now
+                    </button>
+
+                    {/* Mobile Nav */}
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-100">
+                      <button onClick={handlePrev} className="p-2 bg-slate-50 rounded-full border border-slate-200"><ChevronLeft size={20} /></button>
+                      <span className="text-xs font-bold text-slate-400">{activeIndex + 1} / {courses.length}</span>
+                      <button onClick={handleNext} className="p-2 bg-slate-50 rounded-full border border-slate-200"><ChevronRight size={20} /></button>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
 
         {/* --- NAVIGATION DOTS --- */}
         <div className="flex justify-center gap-3 mt-10 items-center">
-            {courses.map((_, idx) => (
-                <button
-                    key={idx}
-                    onClick={() => setActiveIndex(idx)}
-                    className="group flex items-center justify-center p-1 focus:outline-none"
-                >
-                    <div 
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                            activeIndex === idx ? 'w-8 bg-blue-600' : 'w-2 bg-slate-300 hover:bg-slate-400'
-                        }`}
-                    />
-                </button>
-            ))}
+          {courses.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setActiveIndex(idx)}
+              className="group flex items-center justify-center p-1 focus:outline-none"
+            >
+              <div
+                className={`h-2 rounded-full transition-all duration-300 ${activeIndex === idx ? 'w-8 bg-blue-600' : 'w-2 bg-slate-300 hover:bg-slate-400'
+                  }`}
+              />
+            </button>
+          ))}
         </div>
 
       </div>
