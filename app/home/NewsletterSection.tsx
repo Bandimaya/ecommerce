@@ -4,6 +4,9 @@ import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { motion, useReducedMotion } from "framer-motion"
 import BackgroundDecorations from "./BackgroundDecorations"
+import { useState } from "react"
+import { toast } from "@/hooks/use-toast";
+import { apiFetch } from "@/lib/axios"
 
 interface NewsletterSectionProps {
   getCSSVar: (varName: string, fallback?: string) => string
@@ -22,6 +25,38 @@ const NewsletterSection = ({ getCSSVar }: NewsletterSectionProps) => {
   }
   
   const prefersReducedMotion = useReducedMotion()
+const [email, setEmail] = useState("");
+
+const handleNewsletterSubmit = async (
+  e: React.FormEvent<HTMLFormElement>
+) => {
+  e.preventDefault();
+
+  if (!email) return;
+
+  apiFetch('/news-letter-members', {
+    method: "POST",
+    data: { email },
+  })
+  .then((response) => {
+    if (response.message === "Already subscribed") {
+      toast({title:"You are already subscribed to the newsletter."});
+      console.log("Subscribed:", response);
+      setEmail("");
+      return;
+    }
+    else if (response._id) {
+      toast({title:"Thank you for subscribing to our newsletter!"});
+      console.log("Subscribed:", response);
+      setEmail("");
+      return;
+    }
+  })
+  .catch((error) => {
+    console.error("Subscription error:", error);
+  });
+};
+
 
   return (
     <motion.section
@@ -166,9 +201,13 @@ const NewsletterSection = ({ getCSSVar }: NewsletterSectionProps) => {
             viewport={{ once: true }}
             className="flex justify-center"
           >
-            <form className="flex flex-col sm:flex-row gap-4 sm:gap-6 max-w-xl w-full px-4 sm:px-0">
+            <form
+              onSubmit={handleNewsletterSubmit} 
+            className="flex flex-col sm:flex-row gap-4 sm:gap-6 max-w-xl w-full px-4 sm:px-0">
               <input
                 type="email"
+                    value={email}
+    onChange={(e) => setEmail(e.target.value)}
                 placeholder={'Your email'}
                 className="flex-1 px-6 sm:px-8 py-5 sm:py-2 rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 text-base sm:text-lg shadow-lg hover:shadow-xl transition-shadow border border-gray-300 cursor-text"
                 style={{

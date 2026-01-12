@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Plus, Minus, HelpCircle, ChevronDown } from 'lucide-react';
+import { apiFetch } from '@/lib/axios';
+import { useEffect } from 'react';
 
 // --- Data (Preserved) ---
 const FAQ_DATA = [
@@ -33,6 +35,12 @@ const FAQ_DATA = [
 ];
 
 export default function FaqSection() {
+    const [faqData, setfaqData] = React.useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    apiFetch('/faq').then((data) => setfaqData(data)).catch((err) => console.error(err));
+  }, [])
+
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
 
   const toggleIndex = (index: number) => {
@@ -69,7 +77,7 @@ export default function FaqSection() {
 
         {/* FAQ List */}
         <div className="space-y-4">
-          {FAQ_DATA.map((item, index) => (
+          {faqData.map((item, index) => (
             <FaqItem 
               key={index} 
               item={item} 

@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Quote, Star, ArrowLeft, ArrowRight, Play, X } from "lucide-react";
+import { apiFetch } from '@/lib/axios';
 
 /**
  * MOCK DATA
@@ -107,8 +108,8 @@ const AnimatedTestimonials = ({
                 ) : (
                   <div className="relative h-full w-full group">
                     <img
-                      src={testimonials[active].src}
-                      alt={testimonials[active].name}
+                      src={testimonials[active]?.src}
+                      alt={testimonials[active]?.name}
                       className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/30 transition-colors flex items-center justify-center">
@@ -143,16 +144,16 @@ const AnimatedTestimonials = ({
               </div>
               
               <h3 className="text-3xl font-black text-slate-900 mb-1">
-                {testimonials[active].name}
+                {testimonials[active]?.name}
               </h3>
               <p className="text-sm font-bold text-orange-600 uppercase tracking-widest mb-8">
-                {testimonials[active].designation}
+                {testimonials[active]?.designation}
               </p>
               
               <div className="relative">
                 <Quote className="absolute -top-6 -left-8 w-16 h-16 text-slate-100 -z-10" />
                 <p className="text-xl text-slate-600 leading-relaxed font-medium italic">
-                  &ldquo;{testimonials[active].quote}&rdquo;
+                  &ldquo;{testimonials[active]?.quote}&rdquo;
                 </p>
               </div>
             </motion.div>
@@ -183,6 +184,13 @@ const AnimatedTestimonials = ({
 // --- Main Export: ParentTestimonialsAnimated ---
 
 export default function ParentTestimonialsAnimated() {
+    const [parentTestimonials, setParentTestimonials] = React.useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial) => testimonial.testimonial_type === 'product'))).catch((err) => console.error(err));
+  }, [])
+
+  console.log(parentTestimonials)
   return (
     <section className="py-24 bg-[#fcfcfd] relative overflow-hidden">
       {/* Decorative background element */}
@@ -201,7 +209,7 @@ export default function ParentTestimonialsAnimated() {
         </div>
 
         {/* Passing the local TESTIMONIALS constant */}
-        <AnimatedTestimonials testimonials={TESTIMONIALS} autoplay={true} />
+        <AnimatedTestimonials testimonials={parentTestimonials} autoplay={true} />
       </div>
     </section>
   );

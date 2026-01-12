@@ -30,6 +30,12 @@ const TESTIMONIALS = [
 
 // --- Main Section Component ---
 export default function ParentTestimonials() {
+      const [parentTestimonials, setParentTestimonials] = React.useState<Testimonial[]>([]);
+
+  useEffect(() => {
+    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial) => testimonial.testimonial_type === 'product'))).catch((err) => console.error(err));
+  }, [])
+
     return (
         <section className="py-24 bg-[#fcfcfd] relative overflow-hidden">
             {/* Background Decorations */}
@@ -53,7 +59,7 @@ export default function ParentTestimonials() {
                 </motion.div>
 
                 {/* The Animated Logic Component */}
-                <AnimatedTestimonials testimonials={TESTIMONIALS} autoplay={true} />
+                <AnimatedTestimonials testimonials={parentTestimonials} autoplay={true} />
             </div>
         </section>
     );

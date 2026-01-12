@@ -23,10 +23,11 @@ export async function POST(req: NextRequest) {
 
     const quote = fd.get("quote")?.toString();
     const name = fd.get("name")?.toString();
+    const testimonial_type = fd.get("testimonial_type")?.toString() ?? 'product';
     const designation = fd.get("designation")?.toString();
     const file = fd.get("image") as File | null;
 
-    if (!quote || !name || !designation || !file) {
+    if (!quote || !name || !testimonial_type || !designation || !file) {
       return NextResponse.json(
         { message: "All fields required" },
         { status: 400 }
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
     const saved = await Testimonial.create({
       quote,
       name,
+      testimonial_type,
       designation,
       image: imageUrl,
     });
@@ -46,9 +48,9 @@ export async function POST(req: NextRequest) {
   }
 
   // ✅ Image URL
-  const { quote, name, designation, image } = await req.json();
+  const { quote, name, testimonial_type, designation, image } = await req.json();
 
-  if (!quote || !name || !designation || !image) {
+  if (!quote || !name || !testimonial_type || !designation || !image) {
     return NextResponse.json(
       { message: "All fields required" },
       { status: 400 }
@@ -58,6 +60,7 @@ export async function POST(req: NextRequest) {
   const saved = await Testimonial.create({
     quote,
     name,
+    testimonial_type,
     designation,
     image,
   });

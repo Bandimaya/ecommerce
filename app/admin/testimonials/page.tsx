@@ -23,6 +23,7 @@ import AdminButton from "@/components/admin/AdminButton";
 type Testimonial = {
   _id: string;
   quote: string;
+  testimonial_type?: string;
   name: string;
   designation: string;
   image: string;
@@ -93,7 +94,7 @@ export default function TestimonialsPage() {
 
   const handleCloseForm = () => {
     setShowForm(false);
-    setForm({ quote: "", name: "", designation: "" });
+    setForm({ quote: "", name: "", designation: "", testimonial_type: "" });
     setFile(null);
     setPreview(null);
     setUrl("");
@@ -103,12 +104,14 @@ export default function TestimonialsPage() {
     e.preventDefault();
     if (!file && !url) return toast({ title: "Image is required", variant: "destructive" });
     if (!form.name.trim()) return toast({ title: "Name is required", variant: "destructive" });
+    if (!form.testimonial_type.trim()) return toast({ title: "testimonial_type is required", variant: "destructive" });
 
     setSubmitting(true);
     try {
       if (file) {
         const fd = new FormData();
         fd.append("quote", form.quote);
+        fd.append("testimonial_type", form.testimonial_type);
         fd.append("name", form.name);
         fd.append("designation", form.designation);
         fd.append("image", file);
@@ -200,6 +203,17 @@ export default function TestimonialsPage() {
                             <input
                                 name="name"
                                 value={form.name}
+                                onChange={handleChange}
+                                placeholder="e.g. John Doe"
+                                className="w-full p-2.5 rounded-[10px] border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                                required
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Testimonial Type</label>
+                            <input
+                                name="name"
+                                value={form.testimonial_type}
                                 onChange={handleChange}
                                 placeholder="e.g. John Doe"
                                 className="w-full p-2.5 rounded-[10px] border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"

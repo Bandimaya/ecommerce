@@ -437,7 +437,7 @@ const Shop = () => {
                                             </div>
 
                                             {/* ITERATE OVER CHUNKS (ROWS OF 10) */}
-                                            <div className="space-y-12">
+                                            <div className="space-y-12 px-10">
                                                 {productChunks.map((chunk: any[], chunkIndex: number) => (
                                                     <ProductCarouselRow key={`${category._id}-chunk-${chunkIndex}`} rowIndex={chunkIndex}>
                                                         {chunk.map((product: any) => {
