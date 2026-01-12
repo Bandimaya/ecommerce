@@ -2,10 +2,10 @@
 
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
-    Search, X, SlidersHorizontal, ChevronRight,
+    Search, X, ChevronRight, ChevronLeft,
     PackageSearch, ShoppingCart, Loader2,
-    CheckCircle2, Package, Brain, Star, ArrowRight,
-    ChevronDown, ChevronUp, Filter
+    Package, Brain, Star, ArrowRight,
+    Filter
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn, getDisplayPrice } from "@/lib/utils";
@@ -33,6 +33,17 @@ const SMOOTH_SPRING: Transition = {
     stiffness: 160,
     damping: 25,
     mass: 1
+};
+
+// ----------------------------------------------------------------------
+// HELPER: Utilities
+// ----------------------------------------------------------------------
+const chunkArray = (array: any[], size: number) => {
+    const chunked = [];
+    for (let i = 0; i < array.length; i += size) {
+        chunked.push(array.slice(i, i + size));
+    }
+    return chunked;
 };
 
 // ----------------------------------------------------------------------
@@ -86,6 +97,97 @@ const MagnifierLens = ({ mouseX, mouseY, imageSrc, containerWidth, containerHeig
 };
 
 // ----------------------------------------------------------------------
+// COMPONENT: Product Carousel Row (Handles 10 items per row + Navigation)
+// ----------------------------------------------------------------------
+const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode, rowIndex: number }) => {
+    const rowRef = useRef<HTMLDivElement>(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(true);
+
+    const checkScroll = () => {
+        if (!rowRef.current) return;
+        const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
+        
+        // Use Math.ceil to handle fractional pixels from browser zooming
+        const isAtStart = scrollLeft <= 1; // 1px buffer
+        const isAtEnd = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 1;
+
+        setCanScrollLeft(!isAtStart);
+        setCanScrollRight(!isAtEnd);
+    };
+
+    useEffect(() => {
+        checkScroll();
+        window.addEventListener('resize', checkScroll);
+        // Check after a short delay to allow images/layout to settle
+        const timeout = setTimeout(checkScroll, 500);
+        return () => {
+            window.removeEventListener('resize', checkScroll);
+            clearTimeout(timeout);
+        };
+    }, [children]);
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (!rowRef.current) return;
+        const scrollAmount = rowRef.current.clientWidth * 0.75; // Scroll 75% of view width
+        rowRef.current.scrollBy({
+            left: direction === 'left' ? -scrollAmount : scrollAmount,
+            behavior: 'smooth'
+        });
+        // Check scroll buttons after animation
+        setTimeout(checkScroll, 400); 
+    };
+
+    return (
+        <div className="relative group/row">
+            {/* Row Label (Optional) */}
+            {rowIndex > 0 && (
+                <div className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2 pl-1">Page {rowIndex + 1}</div>
+            )}
+
+            {/* Left Button - High Z-Index & Disabled Logic */}
+            <button
+                onClick={() => scroll('left')}
+                disabled={!canScrollLeft}
+                className={cn(
+                    "absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -ml-6", // Positioned half-out
+                    "bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center transition-all duration-300",
+                    "flex",
+                    !canScrollLeft ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100 hover:bg-slate-900 hover:text-white"
+                )}
+            >
+                <ChevronLeft className="w-6 h-6" />
+            </button>
+
+            {/* Scroll Container */}
+            <div
+                ref={rowRef}
+                onScroll={checkScroll}
+                className="flex items-stretch gap-4 md:gap-6 overflow-x-auto overflow-y-hidden pb-8 pt-4 -mx-4 px-4 md:-mx-12 md:px-12 scrollbar-hide snap-x snap-mandatory"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+                {children}
+            </div>
+
+            {/* Right Button - High Z-Index & Disabled Logic */}
+            <button
+                onClick={() => scroll('right')}
+                disabled={!canScrollRight}
+                className={cn(
+                    "absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -mr-6", // Positioned half-out
+                    "bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center transition-all duration-300",
+                    "flex",
+                    !canScrollRight ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100 hover:bg-slate-900 hover:text-white"
+                )}
+            >
+                <ChevronRight className="w-6 h-6" />
+            </button>
+        </div>
+    );
+};
+
+
+// ----------------------------------------------------------------------
 // MAIN SHOP COMPONENT
 // ----------------------------------------------------------------------
 
@@ -94,7 +196,7 @@ const Shop = () => {
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
     
-    // Category Menu State (Shared for Desktop & Mobile)
+    // Category Menu State
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
 
     // Animation/Modal State
@@ -197,13 +299,13 @@ const Shop = () => {
 
 
     return (
-        <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans relative">
+        <div className="h-auto bg-[var(--background)] text-[var(--foreground)] font-sans relative">
             <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-0"></div>
 
             <div className="w-full max-w-[2000px] mx-auto px-4 md:px-12 py-8 relative z-10">
                 
                 {/* --- HEADER SECTION --- */}
-                <div className="sticky top-[70px] md:top-[60px] z-40 mb-6 md:mb-10 -mx-4 px-4 md:-mx-12 md:px-12 py-2 md:py-4 bg-[var(--background)]/95 backdrop-blur-md transition-all rounded-b-2xl md:rounded-none shadow-sm md:shadow-none">
+                <div className="sticky top-[60px] md:top-[80px] z-40 mb-6 md:mb-10 -mx-4 px-4 md:-mx-12 md:px-12 py-2 md:py-4 bg-[var(--background)]/95 backdrop-blur-md transition-all rounded-b-2xl md:rounded-none shadow-sm md:shadow-none">
                     
                     {/* Search & Controls */}
                     <div className="flex flex-col gap-4 max-w-4xl mx-auto">
@@ -298,7 +400,7 @@ const Shop = () => {
                 </div>
 
                 <main className="min-w-0 pb-20">
-                    <div className="space-y-12">
+                    <div className="space-y-16">
                         {loading ? (
                              <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-[var(--muted-foreground)]" /></div>
                         ) : filteredProducts.length > 0 ? (
@@ -312,124 +414,130 @@ const Shop = () => {
                                 // Only render this section if "All" is selected OR this specific category is selected
                                 if(selectedCategory !== "all" && selectedCategory !== category._id) return null;
 
+                                // --- CHUNK THE PRODUCTS INTO GROUPS OF 10 ---
+                                const productChunks = chunkArray(categoryProducts, 10);
+
                                 return (
-                                    <div key={category._id + 'maincategoryproduct'} className="space-y-6 md:space-y-10">
-                                        
-                                        {/* SECTION HEADER */}
-                                        <div className="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4 md:pb-6">
-                                            <h3 className="text-xl md:text-3xl font-black text-[var(--foreground)] tracking-tight">{category.title}</h3>
+                                    <div key={category._id + 'maincategoryproduct'} className="space-y-6 md:space-y-8">
                                             
-                                            {selectedCategory === "all" && (
-                                                 <Button 
-                                                    variant="ghost" 
-                                                    onClick={() => { setSelectedCategory(category._id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                                                    className="group flex items-center gap-1 md:gap-2 text-xs md:text-sm font-bold text-[var(--muted-foreground)] hover:text-blue-600 hover:bg-blue-50 transition-all rounded-[10px] px-2 md:px-4"
-                                                 >
-                                                    <span className="hidden md:inline">View all</span> {categoryProducts.length}
-                                                    <ArrowRight className="w-3 h-3 md:w-4 md:h-4 transition-transform group-hover:translate-x-1" />
-                                                 </Button>
-                                            )}
-                                        </div>
+                                            {/* SECTION HEADER */}
+                                            <div className="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4 md:pb-6">
+                                                <h3 className="text-xl md:text-3xl font-black text-[var(--foreground)] tracking-tight">{category.title}</h3>
+                                                
+                                                {selectedCategory === "all" && (
+                                                     <Button 
+                                                        variant="ghost" 
+                                                        onClick={() => { setSelectedCategory(category._id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                                        className="group flex items-center gap-1 md:gap-2 text-xs md:text-sm font-bold text-[var(--muted-foreground)] hover:text-blue-600 hover:bg-blue-50 transition-all rounded-[10px] px-2 md:px-4"
+                                                     >
+                                                        <span className="hidden md:inline">View all</span> {categoryProducts.length}
+                                                        <ArrowRight className="w-3 h-3 md:w-4 md:h-4 transition-transform group-hover:translate-x-1" />
+                                                     </Button>
+                                                )}
+                                            </div>
 
-                                        {/* RESPONSIVE GRID */}
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-x-6 gap-y-8 md:gap-x-8 md:gap-y-12">
-                                            {categoryProducts.map((product: any) => {
-                                                console.log(categoryProducts)
-                                                const displayImage = product.media?.[0]?.url || '/placeholder.png';
-                                                const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
-                                                const displayCategory = product.categories?.[0]?.title || "Item";
+                                            {/* ITERATE OVER CHUNKS (ROWS OF 10) */}
+                                            <div className="space-y-12">
+                                                {productChunks.map((chunk: any[], chunkIndex: number) => (
+                                                    <ProductCarouselRow key={`${category._id}-chunk-${chunkIndex}`} rowIndex={chunkIndex}>
+                                                        {chunk.map((product: any) => {
+                                                            const displayImage = product.media?.[0]?.url || '/placeholder.png';
+                                                            const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
+                                                            const displayCategory = product.categories?.[0]?.title || "Item";
 
-                                                return (
-                                                    <motion.div
-                                                        key={product._id + "sub" + category._id}
-                                                        layoutId={`product-card-container-${product._id}`}
-                                                        className="relative w-full group cursor-pointer perspective-1000"
-                                                        initial="rest"
-                                                        whileHover={isMobile || isModalOpen ? undefined : "hover"}
-                                                        animate={selectedProduct?._id === product._id ? "selected" : "rest"}
-                                                        variants={{ rest: {}, hover: {}, selected: { scale: 1 } }}
-                                                        onClick={() => !isModalOpen && setSelectedProduct(product)}
-                                                    >
-                                                        <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full">
-                                                            
-                                                            <motion.div
-                                                                className="absolute inset-0 top-0 md:top-12 rounded-[12px] border bg-white shadow-lg overflow-hidden flex flex-col"
-                                                                variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0 } }}
-                                                                transition={{ duration: 0.4, ease: "easeOut" }}
-                                                            >
-                                                                <div className="mt-auto p-4 md:p-6 lg:p-8 space-y-2 md:space-y-4 z-10 bg-white">
-                                                                     <motion.div
-                                                                        initial={false}
-                                                                        variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
-                                                                     >
-                                                                         <div className="flex justify-between items-start">
-                                                                            <div>
-                                                                                <p className="text-[9px] md:text-[10px] font-black uppercase text-blue-600 mb-0.5 md:mb-1">{displayCategory}</p>
-                                                                                <h3 className="text-lg md:text-xl font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
+                                                            return (
+                                                                <motion.div
+                                                                    key={product._id + "sub" + category._id}
+                                                                    layoutId={`product-card-container-${product._id}`}
+                                                                    className="relative group cursor-pointer perspective-1000 flex-shrink-0 w-[260px] md:w-[320px] snap-start"
+                                                                    initial="rest"
+                                                                    whileHover={isMobile || isModalOpen ? undefined : "hover"}
+                                                                    animate={selectedProduct?._id === product._id ? "selected" : "rest"}
+                                                                    variants={{ rest: {}, hover: {}, selected: { scale: 1 } }}
+                                                                    onClick={() => !isModalOpen && setSelectedProduct(product)}
+                                                                >
+                                                                    <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full">
+                                                                        
+                                                                        <motion.div
+                                                                            className="absolute inset-0 top-0 md:top-12 rounded-[12px] border bg-white shadow-sm group-hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
+                                                                            variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0 } }}
+                                                                            transition={{ duration: 0.4, ease: "easeOut" }}
+                                                                        >
+                                                                            <div className="mt-auto p-4 md:p-6 space-y-2 md:space-y-4 z-10 bg-white">
+                                                                                 <motion.div
+                                                                                    initial={false}
+                                                                                    variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
+                                                                                 >
+                                                                                     <div className="flex justify-between items-start">
+                                                                                        <div>
+                                                                                            <p className="text-[9px] md:text-[10px] font-black uppercase text-blue-600 mb-0.5 md:mb-1">{displayCategory}</p>
+                                                                                            <h3 className="text-lg font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
+                                                                                        </div>
+                                                                                        <span className="text-lg font-black text-slate-900 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
+                                                                                     </div>
+                                                                                     
+                                                                                     <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center mt-2">
+                                                                                        <span className="text-xs font-bold text-slate-400 flex items-center">Details <ChevronRight className="ml-1 w-3 h-3" /></span>
+                                                                                        <Button size="icon" className="h-8 w-8 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product)} disabled={cartLoading}>
+                                                                                                {cartLoading ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <ShoppingCart className="w-3 h-3 text-white" />}
+                                                                                        </Button>
+                                                                                     </div>
+                                                                                 </motion.div>
                                                                             </div>
-                                                                            <span className="text-lg md:text-xl font-black text-slate-900 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
-                                                                         </div>
-                                                                         
-                                                                         <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center mt-2">
-                                                                            <span className="text-xs font-bold text-slate-400 flex items-center">Details <ChevronRight className="ml-1 w-3 h-3" /></span>
-                                                                            <Button size="icon" className="h-8 w-8 md:h-10 md:w-10 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product)} disabled={cartLoading}>
-                                                                                {cartLoading ? <Loader2 className="w-3 h-3 md:w-4 md:h-4 text-white animate-spin" /> : <ShoppingCart className="w-3 h-3 md:w-4 md:h-4 text-white" />}
-                                                                            </Button>
-                                                                         </div>
-                                                                     </motion.div>
-                                                                </div>
-                                                            </motion.div>
+                                                                        </motion.div>
 
-                                                            <motion.div
-                                                                layoutId={`product-image-container-${product._id}`}
-                                                                className="absolute z-30 overflow-hidden shadow-xl bg-white"
-                                                                variants={{
-                                                                    rest: {
-                                                                        top: 0, left: 0, right: 0, margin: "0 auto",
-                                                                        width: "100%", height: "100%",
-                                                                        borderRadius: "12px",
-                                                                        y: isMobile ? 0 : 48,
-                                                                        scale: 1,
-                                                                    },
-                                                                    hover: {
-                                                                        top: -20, left: 0, right: 0, margin: "0 auto",
-                                                                        width: "240px", height: "240px",
-                                                                        borderRadius: "12px",
-                                                                        y: 0, scale: 1.05,
-                                                                    },
-                                                                    selected: {
-                                                                        width: "100%", height: "100%",
-                                                                        borderRadius: "0px",
-                                                                        y: 0, scale: 1,
-                                                                        left: 0, right: 0, margin: "0"
-                                                                    }
-                                                                }}
-                                                                transition={SMOOTH_SPRING}
-                                                                style={{ willChange: 'transform, width, height' }}
-                                                            >
-                                                                <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
-                                                                    <img src={displayImage} alt={product.name} className="object-cover object-center w-full h-full" />
-                                                                    
-                                                                    <motion.div
-                                                                        className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none md:from-black/70 md:via-black/0"
-                                                                        variants={{ rest: { opacity: 1 }, hover: { opacity: 0 }, selected: { opacity: 0 } }}
-                                                                    />
-                                                                    
-                                                                    <motion.div
-                                                                        className="absolute bottom-4 left-4 md:bottom-8 md:left-8 text-white pointer-events-none pr-4"
-                                                                        variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 }, selected: { opacity: 0 } }}
-                                                                    >
-                                                                        <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-0.5 md:mb-1">{displayCategory}</p>
-                                                                        <h3 className="text-lg md:text-2xl font-black leading-tight line-clamp-2">{product.name}</h3>
-                                                                        <p className="text-white/80 font-bold mt-1 text-sm md:text-base">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
-                                                                    </motion.div>
-                                                                </div>
-                                                            </motion.div>
-                                                        </div>
-                                                    </motion.div>
-                                                );
-                                            })}
-                                        </div>
+                                                                        <motion.div
+                                                                            layoutId={`product-image-container-${product._id}`}
+                                                                            className="absolute z-30 overflow-hidden shadow-md group-hover:shadow-2xl bg-white"
+                                                                            variants={{
+                                                                                rest: {
+                                                                                    top: 0, left: 0, right: 0, margin: "0 auto",
+                                                                                    width: "100%", height: "100%",
+                                                                                    borderRadius: "12px",
+                                                                                    y: isMobile ? 0 : 48,
+                                                                                    scale: 1,
+                                                                                },
+                                                                                hover: {
+                                                                                    top: -20, left: 0, right: 0, margin: "0 auto",
+                                                                                    width: "200px", height: "200px",
+                                                                                    borderRadius: "12px",
+                                                                                    y: 0, scale: 1.05,
+                                                                                },
+                                                                                selected: {
+                                                                                    width: "100%", height: "100%",
+                                                                                    borderRadius: "0px",
+                                                                                    y: 0, scale: 1,
+                                                                                    left: 0, right: 0, margin: "0"
+                                                                                }
+                                                                            }}
+                                                                            transition={SMOOTH_SPRING}
+                                                                            style={{ willChange: 'transform, width, height' }}
+                                                                        >
+                                                                            <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
+                                                                                <img src={displayImage} alt={product.name} className="object-cover object-center w-full h-full" />
+                                                                                
+                                                                                <motion.div
+                                                                                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none md:from-black/70 md:via-black/0"
+                                                                                    variants={{ rest: { opacity: 1 }, hover: { opacity: 0 }, selected: { opacity: 0 } }}
+                                                                                />
+                                                                                
+                                                                                <motion.div
+                                                                                    className="absolute bottom-4 left-4 md:bottom-6 md:left-6 text-white pointer-events-none pr-4"
+                                                                                    variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 }, selected: { opacity: 0 } }}
+                                                                                >
+                                                                                    <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-0.5 md:mb-1">{displayCategory}</p>
+                                                                                    <h3 className="text-lg md:text-xl font-black leading-tight line-clamp-2">{product.name}</h3>
+                                                                                    <p className="text-white/80 font-bold mt-1 text-sm">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
+                                                                                </motion.div>
+                                                                            </div>
+                                                                        </motion.div>
+                                                                    </div>
+                                                                </motion.div>
+                                                            );
+                                                        })}
+                                                    </ProductCarouselRow>
+                                                ))}
+                                            </div>
                                     </div>
                                 )
                             })
@@ -551,7 +659,6 @@ const Shop = () => {
 
 // --- SUB COMPONENTS ---
 
-// Updated Category Button: "Soft Rectangle" Style (Desktop)
 const CategoryButton = ({ active, onClick, label, count }: { active: boolean, onClick: () => void, label: string, count: number }) => (
     <button
         onClick={onClick}
@@ -572,7 +679,6 @@ const CategoryButton = ({ active, onClick, label, count }: { active: boolean, on
     </button>
 );
 
-// New: Mobile Grid Style Button
 const CategoryButtonMobile = ({ active, onClick, label, count }: { active: boolean, onClick: () => void, label: string, count: number }) => (
     <button
         onClick={onClick}
