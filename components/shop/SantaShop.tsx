@@ -73,7 +73,7 @@ const MagnifierLens = ({ mouseX, mouseY, imageSrc, containerWidth, containerHeig
 // ----------------------------------------------------------------------
 
 const SantaShop = () => {
-  const [selectedProduct, setSelectedProduct] = useState<StemProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [isHoveringPopup, setIsHoveringPopup] = useState(false);
   const [isMobileWidth, setIsMobileWidth] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -160,7 +160,7 @@ const SantaShop = () => {
 
         {/* --- PRODUCT GRID --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-24">
-          {data.map((product) => (
+          {data.map((product: any) => (
             <motion.div
               key={product._id+'stempark'}
               layoutId={`product-card-container-${product._id}+stempark`}
@@ -361,7 +361,7 @@ const SantaShop = () => {
                     <h4 className="font-black text-slate-900 flex items-center gap-2 uppercase text-sm tracking-widest">
                       <Brain className="w-5 h-5 text-blue-500" /> Learning Outcomes
                     </h4>
-                    {selectedProduct.outcomes.map((outcome, idx) => (
+                    {selectedProduct.outcomes.map((outcome: any, idx: any) => (
                       <div key={idx} className="flex items-center gap-3 text-sm font-bold text-slate-600 bg-slate-50 p-4 rounded-[10px] border border-slate-100">
                         <div className="w-2 h-2 rounded-full bg-blue-500" />
                         {outcome}
