@@ -41,6 +41,7 @@ const useReducedMotion = () => {
 
 // --- Types ---
 interface Event {
+    _id?: string;
     id: string;
     title: string;
     subtitle: string;
