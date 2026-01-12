@@ -135,10 +135,10 @@ const CompetitionWidget = () => {
     const route = useRouter()
     const { contact } = useSettings();
 
-    // const handleRegisterClick = () => setViewState('form');
-    const handleRegisterClick = () => {
-        window.open(returnWhatsappLink(contact?.whatsapp_number, `Hello! I would like to register for the event: ${activeEvent?.title}.`), "_blank", "noopener,noreferrer");
-    };
+    const handleRegisterClick = () => setViewState('form');
+    // const handleRegisterClick = () => {
+    //     window.open(returnWhatsappLink(contact?.whatsapp_number, `Hello! I would like to register for the event: ${activeEvent?.title}.`), "_blank", "noopener,noreferrer");
+    // };
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -146,10 +146,19 @@ const CompetitionWidget = () => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setTimeout(() => {
-            setEvents(prev => prev.map(evt => evt.id === activeEvent?.id ? { ...evt, count: evt.count + 1 } : evt));
-            setViewState('success');
-        }, 600);
+        apiFetch('/events/registrations', {
+            method: "POST",
+            data: {
+                eventId: activeEvent?._id,
+                name: formData.name,
+                email: formData.email
+            },
+        }).then((res) => {
+            setTimeout(() => {
+                setEvents(prev => prev.map(evt => evt.id === activeEvent?.id ? { ...evt, count: evt.count + 1 } : evt));
+                setViewState('success');
+            }, 600);
+        })
     };
 
     // --- 3D Carousel Logic ---

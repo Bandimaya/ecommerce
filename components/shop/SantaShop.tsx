@@ -16,6 +16,7 @@ import {
   MotionValue
 } from "framer-motion";
 import Image from "next/image";
+import {apiFetch} from "@/lib/axios";
 
 // --- DATA IMPORT ---
 import { stemResults, StemProduct } from "../../lib/Data";
@@ -77,6 +78,14 @@ const SantaShop = () => {
   const [isMobileWidth, setIsMobileWidth] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [data, setData] = useState([])
+
+  useEffect(() => {
+    apiFetch('/products')
+    // .then((res)=> setData(res.filter((item: any) => item.is_stemp===true)) )
+    .then((res)=> setData(res) )
+    .catch((err)=> console.log(err) )
+  }, [])
 
   const popupImageContainerRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
@@ -151,10 +160,10 @@ const SantaShop = () => {
 
         {/* --- PRODUCT GRID --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-24">
-          {stemResults.map((product) => (
+          {data.map((product) => (
             <motion.div
-              key={product.id}
-              layoutId={`product-card-container-${product.id}`}
+              key={product._id+'stempark'}
+              layoutId={`product-card-container-${product._id}+stempark`}
               className="relative h-[400px] w-full group cursor-pointer perspective-1000"
               initial="rest"
               whileHover={isMobileWidth || isModalOpen || isAnimating ? undefined : "hover"}
@@ -206,7 +215,8 @@ const SantaShop = () => {
 
               {/* FLOATING IMAGE (Fixed Centering logic + 10px Radius) */}
               <motion.div
-                layoutId={`product-image-container-${product.id}`}
+                layoutId={`product-image-container-${product._id}`}
+                key={product._id+'image+stempark'}
                 className="absolute z-30 overflow-hidden shadow-xl bg-white"
                 variants={{
                   rest: {
@@ -240,12 +250,12 @@ const SantaShop = () => {
                 style={{ willChange: 'transform, width, height' }}
               >
                 <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
-                  <Image
+                  {/* <Image
                     src={product.image || '/placeholder.png'}
                     alt={product.title}
                     fill
                     className="object-cover object-center"
-                  />
+                  /> */}
 
                   {/* Overlay Gradient */}
                   <motion.div

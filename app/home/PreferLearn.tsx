@@ -63,7 +63,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
   }, [])
 
   const displayData = data.length > 0 ? data : []
-  const activeTabData = displayData.find((tab: any) => tab._id === activeTab)
+  const activeTabData = displayData.filter((tab: any) => (tab._id === activeTab || activeTab === "all"))
 
   return (
     <section
@@ -203,9 +203,10 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               exit="exit"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 max-w-7xl mx-auto"
             >
-              {activeTabData.paths?.map((path: any) => {
+              {activeTabData.map(rec => {
+              return rec.paths?.map((path: any) => {
                 const isHovered = hoveredCard === (path._id || path.id);
-
+                
                 return (
                   <motion.div
                     key={path._id || path.id}
@@ -327,13 +328,14 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                     </Card>
                   </motion.div>
                 )
+              })
               })}
-            </motion.div>
-          )}
+              </motion.div>
+            )}
         </AnimatePresence>
 
-        {/* --- COMPARISON SECTION --- */}
-        <motion.div
+{/* --- COMPARISON SECTION --- */}
+<motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
