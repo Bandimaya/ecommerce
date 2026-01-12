@@ -281,20 +281,30 @@ const Shop = () => {
                             </div>
                         </div>
 
-                        {/* --- PRODUCT GRID --- */}
-                        <div className="min-h-[60vh]">
-                            {loading ? (
-                                <ProductGridSkeleton columns={3} count={9} />
-                            ) : filteredProducts.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-24">
-                                    {filteredProducts.map((product: any) => {
+                         <div className="space-y-2">
+                    <CategoryButton
+                        active={selectedCategory === "all"}
+                        onClick={() => { setSelectedCategory("all"); setIsMobileFiltersOpen(false); }}
+                        label="All Products"
+                        count={products.length}
+                    />
+                    {categories.map((category: any) => (
+                        <div key={category._id+'maincategoryproduct'}>
+                            <CategoryButton
+                                key={category._id}
+                                active={selectedCategory === category._id}
+                                onClick={() => { setSelectedCategory(category._id); setIsMobileFiltersOpen(false); }}
+                                label={category.title}
+                                count={products.filter((p: any) => p.categories?.some((c: any) => c._id === category._id)).length}
+                            />
+                            {filteredProducts.filter(product => product.categories?.some((c: any) => c._id === category._id)).map((product: any) => {
                                         const displayImage = product.media?.[0]?.url || '/placeholder.png';
                                         const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
                                         const displayCategory = product.categories?.[0]?.title || "Item";
 
                                         return (
                                             <motion.div
-                                                key={product._id}
+                                                key={product._id+"sub"+category._id}
                                                 layoutId={`product-card-container-${product._id}`}
                                                 className="relative h-[400px] w-full group cursor-pointer perspective-1000"
                                                 initial="rest"
@@ -377,11 +387,110 @@ const Shop = () => {
                                             </motion.div>
                                         );
                                     })}
+
+                        </div>
+                    ))}
+                </div>
+
+                        {/* --- PRODUCT GRID --- */}
+                        {/* <div className="min-h-[60vh]">
+                            {loading ? (
+                                <ProductGridSkeleton columns={3} count={9} />
+                            ) : filteredProducts.length > 0 ? (
+                                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-24">
+                                    {filteredProducts.map((product: any) => {
+                                        const displayImage = product.media?.[0]?.url || '/placeholder.png';
+                                        const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
+                                        const displayCategory = product.categories?.[0]?.title || "Item";
+
+                                        return (
+                                            <motion.div
+                                                key={product._id}
+                                                layoutId={`product-card-container-${product._id}`}
+                                                className="relative h-[400px] w-full group cursor-pointer perspective-1000"
+                                                initial="rest"
+                                                whileHover={isMobile || isModalOpen ? undefined : "hover"}
+                                                animate={selectedProduct?._id === product._id ? "selected" : "rest"}
+                                                variants={{ rest: {}, hover: {}, selected: { scale: 1 } }}
+                                                onClick={() => !isModalOpen && setSelectedProduct(product)}
+                                            >
+                                                <motion.div
+                                                    className="absolute inset-0 top-12 rounded-[10px] border bg-white shadow-lg overflow-hidden"
+                                                    variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0 } }}
+                                                    transition={{ duration: 0.4, ease: "easeOut" }}
+                                                >
+                                                    <div className="absolute inset-0 flex flex-col justify-end p-8 z-10">
+                                                        <motion.div
+                                                            className="mt-24 space-y-4"
+                                                            variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0, transition: { delay: 0.1, duration: 0.4 } } }}
+                                                        >
+                                                            <div className="flex justify-between items-start">
+                                                                <div>
+                                                                    <p className="text-[10px] font-black uppercase text-blue-600 mb-1">{displayCategory}</p>
+                                                                    <h3 className="text-xl font-bold leading-tight text-slate-900">{product.name}</h3>
+                                                                </div>
+                                                                <span className="text-xl font-black text-slate-900">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
+                                                            </div>
+                                                            <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
+                                                                <span className="text-xs font-bold text-slate-400 flex items-center">View Details <ChevronRight className="ml-1 w-3 h-3" /></span>
+                                                                <Button size="icon" className="h-10 w-10 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product)} disabled={cartLoading}>
+                                                                    {cartLoading ? <Loader2 className="w-4 h-4 text-white animate-spin" /> : <ShoppingCart className="w-4 h-4 text-white" />}
+                                                                </Button>
+                                                            </div>
+                                                        </motion.div>
+                                                    </div>
+                                                </motion.div>
+
+                                                <motion.div
+                                                    layoutId={`product-image-container-${product._id}`}
+                                                    className="absolute z-30 overflow-hidden shadow-xl bg-white"
+                                                    variants={{
+                                                        rest: {
+                                                            top: 0, left: 0, right: 0, margin: "0 auto",
+                                                            width: "100%", height: "100%",
+                                                            borderRadius: "10px",
+                                                            y: 48, scale: 1,
+                                                        },
+                                                        hover: {
+                                                            top: -20, left: 0, right: 0, margin: "0 auto",
+                                                            width: "240px", height: "240px",
+                                                            borderRadius: "10px",
+                                                            y: 0, scale: 1.05,
+                                                        },
+                                                        selected: {
+                                                            width: "100%", height: "100%",
+                                                            borderRadius: "0px",
+                                                            y: 0, scale: 1,
+                                                            left: 0, right: 0, margin: "0"
+                                                        }
+                                                    }}
+                                                    transition={SMOOTH_SPRING}
+                                                    style={{ willChange: 'transform, width, height' }}
+                                                >
+                                                    <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
+                                                        <img src={displayImage} alt={product.name} className="object-cover object-center w-full h-full" />
+                                                        <motion.div
+                                                            className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent pointer-events-none"
+                                                            variants={{ rest: { opacity: 1 }, hover: { opacity: 0 }, selected: { opacity: 0 } }}
+                                                        />
+                                                        <motion.div
+                                                            className="absolute bottom-8 left-8 text-white pointer-events-none"
+                                                            variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 }, selected: { opacity: 0 } }}
+                                                        >
+                                                            <p className="text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-1">{displayCategory}</p>
+                                                            <h3 className="text-2xl font-black leading-tight">{product.name}</h3>
+                                                            <p className="text-white/80 font-bold mt-1">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
+                                                        </motion.div>
+                                                    </div>
+                                                </motion.div>
+                                            </motion.div>
+                                        );
+                                    })}
                                 </div>
                             ) : (
                                 <EmptyState resetFilters={() => { setSearchQuery(""); setSelectedCategory("all"); }} />
                             )}
-                        </div>
+                        </div> */}
                     </main>
                 </div>
             </div>
