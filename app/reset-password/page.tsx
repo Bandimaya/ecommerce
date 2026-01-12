@@ -1,48 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Loader2, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
-import { apiFetch } from "@/lib/axios";
+import { Loader2, CheckCircle, AlertCircle, ArrowLeft, Lock } from "lucide-react";
 
-const ForgotPassword = () => {
+const ResetPassword = () => {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+
+  const token = searchParams.get("token") || "";
+  const email = searchParams.get("email") || "";
+
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  // Simple password validation
+  const validatePassword = (password: string) => password.length >= 6;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    setSuccess(false);
 
-    if (!email.trim()) {
-      setError("Email is required");
+    if (!newPassword || !confirmPassword) {
+      setError("All fields are required");
       return;
     }
 
-    if (!validateEmail(email)) {
-      setError("Please enter a valid email address");
+    if (newPassword !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    if (!validatePassword(newPassword)) {
+      setError("Password must be at least 6 characters");
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await apiFetch("/auth/forgot-password", {
+      const res = await fetch("/api/auth/reset-password", {
         method: "POST",
-        data: { email },
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, token, new_pass: newPassword }),
       });
 
-      setSuccess(true);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.message || "Failed to reset password");
+      } else {
+        setSuccess(true);
+      }
     } catch (err) {
       setError("Something went wrong. Please try again.");
     } finally {
@@ -66,10 +82,10 @@ const ForgotPassword = () => {
 
         <div className="px-8 pt-8 pb-6 text-center">
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            Forgot Password
+            Reset Password
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
-            Enter your email to receive a reset link
+            Enter a new password for <strong>{email}</strong>
           </p>
         </div>
 
@@ -79,7 +95,7 @@ const ForgotPassword = () => {
               <CheckCircle className="w-6 h-6 text-green-600" />
             </div>
             <p className="text-sm text-muted-foreground">
-              If an account exists for <strong>{email}</strong>, you will receive password reset instructions.
+              Your password has been reset successfully.
             </p>
             <Button
               onClick={() => router.push("/login")}
@@ -92,12 +108,12 @@ const ForgotPassword = () => {
           <form onSubmit={handleSubmit} className="px-8 pb-8 space-y-6">
             <div className="space-y-2">
               <div className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <input
-                  type="email"
-                  value={email}
+                  type="password"
+                  value={newPassword}
                   onChange={(e) => {
-                    setEmail(e.target.value);
+                    setNewPassword(e.target.value);
                     if (error) setError("");
                   }}
                   placeholder=" "
@@ -114,9 +130,37 @@ const ForgotPassword = () => {
                     peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:-translate-y-2.5
                     ${error ? "text-destructive" : ""}`}
                 >
-                  Email Address
+                  New Password
                 </label>
               </div>
+
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => {
+                    setConfirmPassword(e.target.value);
+                    if (error) setError("");
+                  }}
+                  placeholder=" "
+                  className={`peer w-full pl-10 pr-3 pt-5 pb-2 bg-background/50 border-2 rounded-xl outline-none transition-all duration-200
+                    ${error
+                      ? "border-destructive focus:border-destructive bg-destructive/5"
+                      : "border-border/50 focus:border-primary focus:shadow-[0_0_0_4px_rgba(var(--primary),0.1)] hover:border-border"
+                    }`}
+                />
+                <label
+                  className={`absolute left-10 top-3.5 text-muted-foreground text-sm transition-all duration-200 origin-[0]
+                    peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
+                    peer-focus:scale-75 peer-focus:-translate-y-2.5
+                    peer-[:not(:placeholder-shown)]:scale-75 peer-[:not(:placeholder-shown)]:-translate-y-2.5
+                    ${error ? "text-destructive" : ""}`}
+                >
+                  Confirm Password
+                </label>
+              </div>
+
               {error && (
                 <div className="flex items-center gap-1 text-xs text-destructive mt-1">
                   <AlertCircle className="w-3 h-3" />
@@ -133,21 +177,12 @@ const ForgotPassword = () => {
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending Link...
+                  Resetting...
                 </>
               ) : (
-                "Send Reset Link"
+                "Reset Password"
               )}
             </Button>
-
-            <div className="text-center">
-              <Link
-                href="/login"
-                className="text-sm text-primary font-medium hover:underline"
-              >
-                Back to Login
-              </Link>
-            </div>
           </form>
         )}
       </motion.div>
@@ -155,4 +190,4 @@ const ForgotPassword = () => {
   );
 };
 
-export default ForgotPassword;
+export default ResetPassword;

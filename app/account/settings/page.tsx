@@ -210,7 +210,7 @@ export default function AccountSettings() {
         if (!addr.street.trim()) errors.street = "Street is required";
         if (!addr.city.trim()) errors.city = "City is required";
         if (!addr.state.trim()) errors.state = "State is required";
-        if (!addr.pincode.trim()) { errors.pincode = "Pincode is required"; } 
+        if (!addr.pincode.trim()) { errors.pincode = "Pincode is required"; }
         else if (addr.pincode.length < 5 || addr.pincode.length > 6) { errors.pincode = "Invalid length"; }
       }
 
@@ -250,7 +250,7 @@ export default function AccountSettings() {
       toast({ title: "Missing Fields", description: "Please fill in all required fields.", variant: "destructive" });
       return;
     }
-    
+
     console.log("Saving new address:", newAddrData);
     toast({ title: "Address Added", description: "New address saved successfully." });
     // Reset or API call here
@@ -259,17 +259,26 @@ export default function AccountSettings() {
   // --- Handlers: Password ---
   const verifyOldPassword = async () => {
     if (!oldPassword) return toast({ title: "Enter your old password", variant: "destructive" });
-    try {
-      setVerifyingPassword(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsOldPasswordVerified(true);
-      toast({ title: "Password verified", description: "You can now set a new password." });
-    } catch (err: any) {
+    apiFetch('/auth/login', {
+      method: 'POST',
+      data: {
+        email: user?.email,
+        password: oldPassword
+      }
+    }).then(async (res) => {
+      if (res.token) {
+        setVerifyingPassword(true);
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setIsOldPasswordVerified(true);
+        toast({ title: "Password verified", description: "You can now set a new password." });
+      }
+    }).catch((err) => {
+      console.error("error: ", err);
       toast({ title: "Incorrect password", variant: "destructive" });
       setIsOldPasswordVerified(false);
-    } finally {
+    }).finally(() => {
       setVerifyingPassword(false);
-    }
+    })
   };
 
   const handleChangePassword = async () => {
@@ -285,11 +294,15 @@ export default function AccountSettings() {
 
     try {
       setChangingPassword(true);
-      await apiFetch('/api/auth/change-password', { method: 'POST', body: JSON.stringify({ oldPassword, newPassword }) });
-      toast({ title: "Password changed successfully" });
-      setOldPassword(""); setNewPassword(""); setConfirmPassword("");
-      setIsOldPasswordVerified(false); setShowPasswordSection(false);
-      setPasswordErrors({});
+      apiFetch('/auth/reset-password', { method: 'POST', data: { email: user?.email, curr_pass: oldPassword, new_pass: newPassword } })
+        .then((res) => {
+          if (res.message === 'Password has been updated successfully') {
+            toast({ title: "Password changed successfully" });
+            setOldPassword(""); setNewPassword(""); setConfirmPassword("");
+            setIsOldPasswordVerified(false); setShowPasswordSection(false);
+            setPasswordErrors({});
+          }
+        })
     } catch (err: any) {
       toast({ title: "Failed to change password", description: err.message, variant: "destructive" });
     } finally {
@@ -407,8 +420,8 @@ export default function AccountSettings() {
                 <input value={addresses[activeTab].street} onChange={(e) => handleAddressChange('street', e.target.value)} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.street ? 'border-destructive' : 'border-input'}`} placeholder="e.g. Main Road" />
               </div>
               <div>
-                 <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Village / Area</label>
-                 <input value={addresses[activeTab].village} onChange={(e) => handleAddressChange('village', e.target.value)} className="w-full bg-background border border-input text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none" placeholder="e.g. Downtown" />
+                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Village / Area</label>
+                <input value={addresses[activeTab].village} onChange={(e) => handleAddressChange('village', e.target.value)} className="w-full bg-background border border-input text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none" placeholder="e.g. Downtown" />
               </div>
               <div>
                 <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Pincode <span className="text-destructive">*</span></label>
@@ -435,158 +448,158 @@ export default function AccountSettings() {
       {/* --- Section 3: NEW ADDRESS FORM (Matches Image) --- */}
       <section className="w-full bg-white border border-border rounded-lg overflow-hidden shadow-sm">
         <button onClick={() => setShowNewAddressForm(!showNewAddressForm)} className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors">
-            <div className="flex flex-col items-start">
-                <h2 className="font-bold text-xl text-foreground">Addresses</h2>
-                <p className="text-sm text-muted-foreground">Add New Address</p>
-            </div>
-            {showNewAddressForm ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
+          <div className="flex flex-col items-start">
+            <h2 className="font-bold text-xl text-foreground">Addresses</h2>
+            <p className="text-sm text-muted-foreground">Add New Address</p>
+          </div>
+          {showNewAddressForm ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
         </button>
-        
+
         {showNewAddressForm && (
-            <div className="p-6 pt-0 border-t border-border mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    
-                    {/* Left Column: Location Details */}
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">City</label>
-                                <select 
-                                    value={newAddrData.city}
-                                    onChange={(e) => handleNewAddressChange('city', e.target.value)}
-                                    className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-yellow-400 outline-none"
-                                >
-                                    <option value="">Select City</option>
-                                    <option value="Doha">Doha</option>
-                                    <option value="Al Rayyan">Al Rayyan</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Zone Name or Number</label>
-                                <select 
-                                    value={newAddrData.zone}
-                                    onChange={(e) => handleNewAddressChange('zone', e.target.value)}
-                                    className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-yellow-400 outline-none"
-                                >
-                                    <option value="">Select Zone</option>
-                                    <option value="Zone 1">Zone 1</option>
-                                    <option value="Zone 55">Zone 55</option>
-                                </select>
-                            </div>
-                        </div>
+          <div className="p-6 pt-0 border-t border-border mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
 
-                        <div className="grid grid-cols-2 gap-4">
-                             <div>
-                                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Street Name or Number</label>
-                                <input 
-                                    value={newAddrData.street}
-                                    onChange={(e) => handleNewAddressChange('street', e.target.value)}
-                                    className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
-                                />
-                             </div>
-                             <div>
-                                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Building Name or Number</label>
-                                <input 
-                                    value={newAddrData.building}
-                                    onChange={(e) => handleNewAddressChange('building', e.target.value)}
-                                    className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
-                                />
-                             </div>
-                        </div>
-
-                        <div>
-                            <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Country</label>
-                            <div className="relative">
-                                <Globe className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-                                <input 
-                                    value={newAddrData.country}
-                                    onChange={(e) => handleNewAddressChange('country', e.target.value)}
-                                    className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none uppercase"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-2 block">Address Type</label>
-                            <div className="flex gap-6">
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="radio" 
-                                        name="addressType" 
-                                        checked={newAddrData.type === 'Home'}
-                                        onChange={() => handleNewAddressChange('type', 'Home')}
-                                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" 
-                                    />
-                                    <span className="font-medium text-sm">Home</span>
-                                </label>
-                                <label className="flex items-center gap-2 cursor-pointer">
-                                    <input 
-                                        type="radio" 
-                                        name="addressType" 
-                                        checked={newAddrData.type === 'Work'}
-                                        onChange={() => handleNewAddressChange('type', 'Work')}
-                                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" 
-                                    />
-                                    <span className="font-medium text-sm">Work</span>
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right Column: Personal Information */}
-                    <div className="space-y-4">
-                        <h3 className="font-semibold text-foreground">Personal Information</h3>
-                        
-                        <div>
-                             <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Mobile Number</label>
-                             <div className="flex gap-2">
-                                <div className="w-20 bg-background border border-input rounded-lg flex items-center justify-center text-sm font-medium">
-                                    {newAddrData.mobileCode}
-                                </div>
-                                <input 
-                                    value={newAddrData.mobileNumber}
-                                    onChange={(e) => handleNewAddressChange('mobileNumber', e.target.value)}
-                                    className="flex-1 bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
-                                    placeholder="50580237"
-                                />
-                             </div>
-                        </div>
-
-                        <div>
-                            <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Name</label>
-                            <div className="relative">
-                                <User className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-                                <input 
-                                    value={newAddrData.name}
-                                    onChange={(e) => handleNewAddressChange('name', e.target.value)}
-                                    className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
-                                />
-                            </div>
-                        </div>
-
-                         <div>
-                            <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Email</label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
-                                <input 
-                                    value={newAddrData.email}
-                                    onChange={(e) => handleNewAddressChange('email', e.target.value)}
-                                    className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-8 flex justify-center">
-                    <button 
-                        onClick={handleSaveNewAddressForm}
-                        className="bg-[#EAB308] hover:bg-[#CA8A04] text-white px-8 py-3 rounded-full font-bold shadow-md transition-all transform hover:scale-105"
+              {/* Left Column: Location Details */}
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">City</label>
+                    <select
+                      value={newAddrData.city}
+                      onChange={(e) => handleNewAddressChange('city', e.target.value)}
+                      className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-yellow-400 outline-none"
                     >
-                        Save New Address
-                    </button>
+                      <option value="">Select City</option>
+                      <option value="Doha">Doha</option>
+                      <option value="Al Rayyan">Al Rayyan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Zone Name or Number</label>
+                    <select
+                      value={newAddrData.zone}
+                      onChange={(e) => handleNewAddressChange('zone', e.target.value)}
+                      className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-yellow-400 outline-none"
+                    >
+                      <option value="">Select Zone</option>
+                      <option value="Zone 1">Zone 1</option>
+                      <option value="Zone 55">Zone 55</option>
+                    </select>
+                  </div>
                 </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Street Name or Number</label>
+                    <input
+                      value={newAddrData.street}
+                      onChange={(e) => handleNewAddressChange('street', e.target.value)}
+                      className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Building Name or Number</label>
+                    <input
+                      value={newAddrData.building}
+                      onChange={(e) => handleNewAddressChange('building', e.target.value)}
+                      className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Country</label>
+                  <div className="relative">
+                    <Globe className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+                    <input
+                      value={newAddrData.country}
+                      onChange={(e) => handleNewAddressChange('country', e.target.value)}
+                      className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none uppercase"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-2 block">Address Type</label>
+                  <div className="flex gap-6">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="addressType"
+                        checked={newAddrData.type === 'Home'}
+                        onChange={() => handleNewAddressChange('type', 'Home')}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="font-medium text-sm">Home</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="addressType"
+                        checked={newAddrData.type === 'Work'}
+                        onChange={() => handleNewAddressChange('type', 'Work')}
+                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                      />
+                      <span className="font-medium text-sm">Work</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Personal Information */}
+              <div className="space-y-4">
+                <h3 className="font-semibold text-foreground">Personal Information</h3>
+
+                <div>
+                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Mobile Number</label>
+                  <div className="flex gap-2">
+                    <div className="w-20 bg-background border border-input rounded-lg flex items-center justify-center text-sm font-medium">
+                      {newAddrData.mobileCode}
+                    </div>
+                    <input
+                      value={newAddrData.mobileNumber}
+                      onChange={(e) => handleNewAddressChange('mobileNumber', e.target.value)}
+                      className="flex-1 bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                      placeholder="50580237"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Name</label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+                    <input
+                      value={newAddrData.name}
+                      onChange={(e) => handleNewAddressChange('name', e.target.value)}
+                      className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
+                    <input
+                      value={newAddrData.email}
+                      onChange={(e) => handleNewAddressChange('email', e.target.value)}
+                      className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
+
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={handleSaveNewAddressForm}
+                className="bg-[#EAB308] hover:bg-[#CA8A04] text-white px-8 py-3 rounded-full font-bold shadow-md transition-all transform hover:scale-105"
+              >
+                Save New Address
+              </button>
+            </div>
+          </div>
         )}
       </section>
 

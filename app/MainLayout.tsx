@@ -22,9 +22,9 @@ function RenderLayout({ children }: any) {
 
     return <div className="min-h-screen flex flex-col">
         <CircuitBackground />
-        {!pathname.includes('/login') && <Navbar />}
+        {!pathname.includes('/login') && !pathname.includes('/reset-password') && <Navbar />}
         <main className="flex-1">{children}</main>
-        {!pathname.includes('/login') && <Footer />}
-        {!pathname.includes('/login') && <ChatBot />}
+        {!pathname.includes('/login')&& !pathname.includes('/reset-password') && <Footer />}
+        {!pathname.includes('/login')&& !pathname.includes('/reset-password') && <ChatBot />}
     </div>
 }
