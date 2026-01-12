@@ -367,7 +367,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
         </div>
 
         <div className="mt-16 sm:mt-24 text-center">
-          <Button aria-label="View full catalog" className="rounded-full px-10 py-3 text-lg font-semibold border-2 bg-white/50 backdrop-blur-sm hover:bg-emerald-50 transition-colors" style={{ borderColor: '#10b981', color: '#064e3b' }}>
+          <Button onClick={() => router.push('/shop')} aria-label="View full catalog" className="rounded-full px-10 py-3 text-lg font-semibold border-2 bg-white/50 backdrop-blur-sm hover:bg-emerald-50 transition-colors" style={{ borderColor: '#10b981', color: '#064e3b' }}>
             <span className="flex items-center gap-3">View Full Catalog <ArrowRight className="w-5 h-5 text-emerald-600" /></span>
           </Button>
         </div>
