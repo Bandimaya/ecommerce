@@ -103,6 +103,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
     { label: "Benefits", path: "/admin/benefits", icon: Gift },
     { label: "Certifications", path: "/admin/certifications", icon: FileBadge },
     { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquareQuote },
+    { label: "FAQs", path: "/admin/faqs", icon: MessageSquareQuote },
 
     // Academic / Portfolio
     { label: "Stem courses", path: "/admin/stem-courses", icon: Library },
