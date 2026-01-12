@@ -145,10 +145,6 @@ export default function AccountSettings() {
   const settingsLoading = (useSettings() as any).loading;
   const themeLoading = (useTheme() as any).isLoading;
 
-  if (userLoading || settingsLoading || themeLoading) {
-    return <SettingsSkeleton />;
-  }
-
   // --- Validation Helpers ---
   const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isNumeric = (val: string) => /^\d+$/.test(val);
@@ -176,7 +172,13 @@ export default function AccountSettings() {
       data.append("email", email);
       data.append("phone", phone);
       if (avatar) data.append("avatar", avatar);
-      await updateProfile(data);
+      let payload = {
+        name: name,
+        email: email,
+        phone: phone
+      }
+      // await updateProfile(data);
+      await updateProfile(payload);
       toast({ title: "Profile updated successfully" });
     } catch (err: any) {
       toast({ title: err.message || "Failed to update profile", variant: "destructive" });
@@ -301,6 +303,30 @@ export default function AccountSettings() {
     { id: 'school', label: 'School', icon: GraduationCap },
     { id: 'college', label: 'College', icon: Building2 },
   ];
+  const [showModal, setShowModal] = useState(false)
+
+  const handleOpenModal = () => {
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+
+  const handleSaveNewAddress = () => {
+    // Save new address logic here (e.g., push to address list)
+    // After saving, close the modal and reset the form
+    setShowModal(false);
+    setAddresses({
+      ...addresses,
+      [activeTab]: { doorNo: "", street: "", village: "", pincode: "", city: "", state: "" }, // reset form
+    });
+  };
+
+  if (userLoading || settingsLoading || themeLoading) {
+    return <SettingsSkeleton />;
+  }
 
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-6 text-foreground">
