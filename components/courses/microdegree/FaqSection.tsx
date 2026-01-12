@@ -35,7 +35,7 @@ const FAQ_DATA = [
 ];
 
 export default function FaqSection() {
-    const [faqData, setfaqData] = React.useState<Testimonial[]>([]);
+    const [faqData, setfaqData] = React.useState<any[]>([]);
 
   useEffect(() => {
     apiFetch('/faq').then((data) => setfaqData(data)).catch((err) => console.error(err));

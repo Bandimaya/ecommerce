@@ -391,7 +391,7 @@ const CompetitionWidget = () => {
                                         <div>
                                             <h2 className="text-2xl font-bold leading-tight text-slate-800">{activeEvent?.title}</h2>
 <p className="text-sm font-medium text-[var(--primary)] line-clamp-2">
-  {evt.subtitle}
+  {activeEvent?.subtitle}
 </p>
                                         </div>
 

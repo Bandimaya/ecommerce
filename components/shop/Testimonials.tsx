@@ -184,10 +184,10 @@ const AnimatedTestimonials = ({
 // --- Main Export: ParentTestimonialsAnimated ---
 
 export default function ParentTestimonialsAnimated() {
-    const [parentTestimonials, setParentTestimonials] = React.useState<Testimonial[]>([]);
+    const [parentTestimonials, setParentTestimonials] = React.useState<any[]>([]);
 
   useEffect(() => {
-    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial) => testimonial.testimonial_type === 'product'))).catch((err) => console.error(err));
+    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial: any) => testimonial.testimonial_type === 'product'))).catch((err) => console.error(err));
   }, [])
 
   console.log(parentTestimonials)

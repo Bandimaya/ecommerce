@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Quote } from "lucide-react";
 import React, { useEffect, useState, useCallback } from "react";
 import { IMAGE_URL } from "@/lib/constants";
+import { apiFetch } from "@/lib/axios";
 
 // --- Data ---
 const TESTIMONIALS = [
@@ -30,10 +31,10 @@ const TESTIMONIALS = [
 
 // --- Main Section Component ---
 export default function ParentTestimonials() {
-      const [parentTestimonials, setParentTestimonials] = React.useState<Testimonial[]>([]);
+      const [parentTestimonials, setParentTestimonials] = React.useState<any[]>([]);
 
   useEffect(() => {
-    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial) => testimonial.testimonial_type === 'product'))).catch((err) => console.error(err));
+    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial: any) => testimonial.testimonial_type === 'product'))).catch((err) => console.error(err));
   }, [])
 
     return (

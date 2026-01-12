@@ -41,7 +41,7 @@ export default function TestimonialsPage() {
   const [search, setSearch] = useState("");
 
   // Form Data
-  const [form, setForm] = useState({ quote: "", name: "", designation: "" });
+  const [form, setForm] = useState({ quote: "", name: "", designation: "", testimonial_type: "" });
   const [file, setFile] = useState<File | null>(null);
   const [url, setUrl] = useState(""); // Kept for API flexibility if needed
   const [preview, setPreview] = useState<string | null>(null);

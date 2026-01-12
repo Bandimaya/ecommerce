@@ -44,7 +44,7 @@ export default function ParentTestimonialsSection() {
   const [parentTestimonials, setParentTestimonials] = React.useState<Testimonial[]>([]);
 
   useEffect(() => {
-    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial) => testimonial.testimonial_type === 'course'))).catch((err) => console.error(err));
+    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial: any) => testimonial.testimonial_type === 'course'))).catch((err) => console.error(err));
   }, [])
   return (
     <section className="py-24 bg-[#FFF0F5] overflow-hidden">
