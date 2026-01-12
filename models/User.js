@@ -32,12 +32,14 @@ const UserSchema = new Schema(
       default: "user",
     },
     // Structured address for better shipping logic
-    address: {
-      line: { type: String, default: "" },
-      city: { type: String, default: "" },
-      state: { type: String, default: "" },
-      pincode: { type: String, default: "" },
-    },
+    addresses: [
+      {
+        line: { type: String, default: "" },
+        city: { type: String, default: "" },
+        state: { type: String, default: "" },
+        pincode: { type: String, default: "" },
+      },
+    ],
     isActive: {
       type: Boolean,
       default: true,

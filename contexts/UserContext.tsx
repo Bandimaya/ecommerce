@@ -103,7 +103,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateProfile = async (formData: any) => {
-    const response = await apiFetch("/users/update", {
+    const response = await apiFetch("/users", {
       method: "PATCH",
       data: formData
     });
