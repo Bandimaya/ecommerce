@@ -30,7 +30,7 @@ interface HeroSectionProps {
 const SLIDES: Slide[] = [
   {
     id: 1,
-    image: "/assets/hero/1st.jpeg",
+    image: "/assets/hero/WhatsApp Image 2026-01-11 at 11.17.06 PM.jpeg",
     alt: "Smart Home Interface",
     videoUrl: "/videos/smart-home-demo.mp4",
     content: {
@@ -314,16 +314,20 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
           const isActive = index === currentIndex;
           return (
             <div key={slide.id} className={`bg-slide ${isActive ? 'active' : ''}`} aria-hidden={!isActive}>
-              <Image
-                src={slide.image}
-                alt={slide.alt}
-                fill
-                priority={index === 0}
-                className={`bg-image ${isActive ? 'ken-burns' : ''}`}
-                quality={90}
-                sizes="100vw"
-                style={{ objectFit: 'cover' }}
-              />
+            <img
+  src={slide.image}
+  alt={slide.alt}
+  // width={1920}
+  // fill
+  // width={undefined}
+  // height={1080}
+  // priority={index === 0}
+  className={`bg-image ${isActive ? 'ken-burns' : ''}`}
+  // quality={90}
+  // sizes="100vw"
+  style={{ height: '100%', width: '100vw' }}
+/>
+
               <div className="overlay-gradient" />
             </div>
           );
