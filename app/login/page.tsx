@@ -237,6 +237,15 @@ const Login = () => {
                 )}
               </div>
 
+              <div className="flex justify-end">
+                <Link
+                  href="/forgotpassword"
+                  className="text-sm text-primary font-medium hover:underline transition-all"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+
               {/* Submit Button */}
               <motion.div whileTap={{ scale: 0.98 }}>
                 <Button
