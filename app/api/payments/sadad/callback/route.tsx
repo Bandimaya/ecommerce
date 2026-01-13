@@ -138,63 +138,80 @@
 //   }
 // }
 import { NextResponse } from 'next/server';
+import crypto from 'crypto';
 
 export async function POST(request: Request) {
   try {
-    // 1. Parse the incoming Form Data from Sadad
+    // 1. Parse form data
     const formData = await request.formData();
-    const data: Record<string, any> = {};
-    
+    const data: Record<string, string> = {};
+
     formData.forEach((value, key) => {
-      data[key] = value as string;
+      data[key] = value.toString();
     });
 
-    console.log("Received Callback Data:", data);
+    console.log('📥 Sadad Webhook Data:', data);
 
-    // 2. Prepare the validation request
-    // According to your image, we need to send the data as JSON
-    // to https://sadadqa.com/userbusinesses/validateChecksum
-    // (Note: Verify if the domain is sadadqa.com or sadad.qa based on your specific environment)
-    
-    const SADAD_API_URL = 'https://api.sadadqatar.com/api-v4/userbusinesses/validateChecksum'; 
-    const SECRET_KEY = process.env.NEXT_PUBLIC_SADAD_SECRET_KEY || 'YOUR_SECRET_KEY';
-    const REGISTERED_DOMAIN = "https://stempark.logybyte.in"; // IMPORTANT: This must match the domain you registered with Sadad
-
-    // 3. Call Sadad's Validation API
-    const validationResponse = await fetch(SADAD_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'secretkey': SECRET_KEY,
-        'Origin': REGISTERED_DOMAIN // The documentation specifically asks for this header
-      },
-      body: JSON.stringify(data)
-    });
-
-
-    console.log("Sadad Validation Response Status:", validationResponse.status, validationResponse);
-
-    const validationResult = await validationResponse.json();
-
-    console.log("Sadad Validation Result:", validationResult);
-
-    // 4. Check the result
-    if (validationResult.result === true) {
-      // ✅ SUCCESS! 
-      // The transaction is valid and paid.
-      // Update your database here (e.g., set Order Status to 'PAID')
-      
-      console.log("✅ Payment Verified Successfully");
-      return NextResponse.json({ status: 'success', message: 'Transaction verified' });
-    } else {
-      // ❌ FAILED
-      // This is a fake request or a failed transaction
-      console.error("❌ Payment Verification Failed: Invalid Checksum");
-      return NextResponse.json({ status: 'failed', message: 'Invalid Checksum' }, { status: 400 });
+    // 2. Extract checksumhash
+    const receivedChecksum = data.checksumhash;
+    if (!receivedChecksum) {
+      return NextResponse.json(
+        { status: 'failed', message: 'Checksum missing' },
+        { status: 400 }
+      );
     }
 
+    // 3. Remove checksumhash
+    delete data.checksumhash;
+
+    // 4. Sort keys alphabetically
+    const sortedKeys = Object.keys(data).sort();
+
+    // 5. Build checksum string
+    const SECRET_KEY = process.env.SADAD_SECRET_KEY!;
+    let checksumString = SECRET_KEY;
+
+    for (const key of sortedKeys) {
+      checksumString += data[key];
+    }
+
+    // 6. Generate SHA256 hash
+    const generatedChecksum = crypto
+      .createHash('sha256')
+      .update(checksumString)
+      .digest('hex');
+
+    // 7. Compare hashes
+    if (generatedChecksum !== receivedChecksum) {
+      console.error('❌ Invalid checksum');
+      return NextResponse.json(
+        { status: 'failed', message: 'Invalid checksum' },
+        { status: 400 }
+      );
+    }
+
+    console.log('✅ Checksum verified successfully');
+
+    // 8. Validate transaction status
+    if (data.STATUS === 'TXN_SUCCESS' && data.RESPCODE === '1') {
+      console.log('💰 Payment successful');
+
+      // TODO:
+      // - Update order status
+      // - Save transaction_number
+      // - Mark order as PAID
+
+      return NextResponse.json({ status: 'success' });
+    }
+
+    console.log('⚠️ Transaction failed');
+    return NextResponse.json({ status: 'failed' }, { status: 200 });
+
   } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    console.error('🔥 Webhook Error:', error);
+    return NextResponse.json(
+      { status: 'error', message: 'Server error' },
+      { status: 500 }
+    );
   }
 }
