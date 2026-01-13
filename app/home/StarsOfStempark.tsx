@@ -301,39 +301,44 @@ export default function Stars() {
                                 </div>
                             </motion.div>
                         ) : (
-                            /* VIDEO PLAYER STATE */
-                            <motion.div
-                                key="video-player"
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute inset-0 bg-black z-30 flex items-center justify-center"
-                            >
-                                <button
-                                    onClick={() => {
-                                        setIsVideoOpen(false);
-                                        handleManualInteraction();
-                                    }}
-                                    className="absolute top-6 left-6 lg:left-auto lg:right-6 z-40 p-3 bg-background/10 hover:bg-background/20 text-white rounded-full transition-colors backdrop-blur-md border border-white/10"
-                                >
-                                    <X className="w-6 h-6" />
-                                </button>
+/* VIDEO PLAYER STATE */
+<motion.div
+    key="video-player"
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    exit={{ opacity: 0 }}
+    // Added 'overflow-hidden' to ensure video corners match container
+    className="absolute inset-0 bg-black z-30 flex items-center justify-center overflow-hidden" 
+>
+    <button
+        onClick={() => {
+            setIsVideoOpen(false);
+            handleManualInteraction();
+        }}
+        className="absolute top-6 left-6 lg:left-auto lg:right-6 z-40 p-3 bg-background/10 hover:bg-background/20 text-white rounded-full transition-colors backdrop-blur-md border border-white/10"
+    >
+        <X className="w-6 h-6" />
+    </button>
 
-                                {activeStar?.video ? (
-                                    <video
-                                        width="640"
-                                        height="360"
-                                        controls
-                                        autoPlay={false}
-                                    >
-                                        <source src={getVideoSrc(activeStar.video)} />
-                                    </video>
-                                ) : (
-                                    <div className="text-center text-muted-foreground">
-                                        <p>Video content loading...</p>
-                                    </div>
-                                )}
-                            </motion.div>
+    {activeStar?.video ? (
+        <video
+            // CHANGED: Use Tailwind classes to fill the parent container
+            className="w-full h-full object-cover" 
+            controls
+            // CHANGED: Enable autoplay so it starts immediately
+            autoPlay 
+            // ADDED: Prevents full-screen forcing on some mobile devices
+            playsInline 
+        >
+            <source src={getVideoSrc(activeStar.video)} />
+            Your browser does not support the video tag.
+        </video>
+    ) : (
+        <div className="text-center text-muted-foreground">
+            <p>Video content loading...</p>
+        </div>
+    )}
+</motion.div>
                         )}
                     </AnimatePresence>
                 </div>

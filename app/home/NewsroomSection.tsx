@@ -55,7 +55,13 @@ export default function NewsroomSection() {
   useEffect(() => {
     apiFetch('/news')
       .then((response: any) => {
-        setData(response);
+        let finalData = response || [];
+        // SAFETY FIX: If we have fewer than 6 news items, duplicate them 
+        // to ensure the scrolling track is longer than wide monitors.
+        if (finalData.length > 0 && finalData.length < 6) {
+           finalData = [...finalData, ...finalData, ...finalData];
+        }
+        setData(finalData);
       }).catch((error) => {
         console.error('Error fetching news:', error);
       });
@@ -84,11 +90,11 @@ export default function NewsroomSection() {
       <div className="relative z-10 w-full pb-10">
 
         {/* Gradient Fades */}
-        <div className="absolute left-0 top-0 bottom-0 w-20 md:w-40 z-20 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-20 md:w-40 z-20 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-20 md:w-40 z-20 bg-gradient-to-r from-background via-background/90 to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-20 md:w-40 z-20 bg-gradient-to-l from-background via-background/90 to-transparent pointer-events-none" />
 
-        {/* Marquee Track */}
-        <div className="marquee-container flex overflow-hidden">
+        {/* Marquee Wrapper */}
+        <div className="marquee-wrapper select-none flex overflow-hidden">
           <div className="marquee-track flex gap-6 px-4">
             
             {/* Set 1 */}
@@ -107,17 +113,24 @@ export default function NewsroomSection() {
 
       <style jsx>{`
         .marquee-track {
+          display: flex;
           width: max-content;
+          /* Adjusted speed for larger cards */
           animation: scroll 60s linear infinite;
         }
 
-        .marquee-container:hover .marquee-track {
+        .marquee-wrapper:hover .marquee-track {
           animation-play-state: paused;
         }
 
         @keyframes scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(calc(-50% - 1.5rem)); /* Adjust for gap-6 (1.5rem) */ }
+          0% { 
+            transform: translateX(0); 
+          }
+          100% { 
+            /* Move exactly -50% (the width of one full set) for a seamless loop */
+            transform: translateX(-50%); 
+          }
         }
       `}</style>
     </section>

@@ -1,10 +1,9 @@
 'use client';
 
-import Image from 'next/image';
+import { useEffect, useState } from 'react';
 // Adjust the import path based on where you saved the previous file
 import BackgroundGrid from './marqueeBackground/BackgroundGrid';
 import { apiFetch } from '@/lib/axios';
-import { useEffect, useState } from 'react';
 import { IMAGE_URL } from '@/lib/constants';
 
 export default function PartnersSection() {
@@ -13,9 +12,15 @@ export default function PartnersSection() {
     useEffect(() => {
         apiFetch('/partner-images')
             .then((response) => {
-                setData(response);
+                let finalData = response || [];
+                // SAFETY FIX: If fewer than 6 partners, duplicate the array 
+                // to ensure the marquee track is long enough for wide screens.
+                if (finalData.length > 0 && finalData.length < 6) {
+                    finalData = [...finalData, ...finalData, ...finalData];
+                }
+                setData(finalData);
             }).catch((error) => {
-                console.error('Error fetching award images:', error);
+                console.error('Error fetching partner images:', error);
             });
     }, [])
 
@@ -52,7 +57,7 @@ export default function PartnersSection() {
                 <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-l from-background via-background/95 to-transparent pointer-events-none" />
 
                 {/* Scrolling Container */}
-                <div className="marquee-container flex overflow-hidden select-none py-4">
+                <div className="marquee-wrapper select-none flex overflow-hidden py-4">
                     <div className="marquee-track flex gap-8 md:gap-12 px-4">
 
                         {/* 1. First Set of Logos */}
@@ -81,17 +86,25 @@ export default function PartnersSection() {
 
             <style jsx>{`
                 .marquee-track {
+                    display: flex;
                     width: max-content;
+                    /* Adjusted animation timing for a slightly slower, smoother scroll */
                     animation: scroll 50s linear infinite;
                 }
 
-                .marquee-container:hover .marquee-track {
+                /* Pause animation on hover */
+                .marquee-wrapper:hover .marquee-track {
                     animation-play-state: paused;
                 }
 
                 @keyframes scroll {
-                    0% { transform: translateX(0); }
-                    100% { transform: translateX(calc(-50% - 2rem)); }
+                    0% { 
+                        transform: translateX(0); 
+                    }
+                    100% { 
+                        /* Move exactly -50% (the width of one full set) for a seamless loop */
+                        transform: translateX(-50%); 
+                    }
                 }
             `}</style>
         </section>

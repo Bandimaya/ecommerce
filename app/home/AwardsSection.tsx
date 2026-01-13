@@ -12,7 +12,13 @@ export default function AwardsSection() {
   useEffect(() => {
     apiFetch('/award-images')
       .then((response) => {
-        setData(response);
+        // SAFETY FIX: If we have fewer than 6 images, duplicate them logic-side
+        // so the marquee is never too short for wide screens.
+        let finalData = response || [];
+        if (finalData.length > 0 && finalData.length < 6) {
+             finalData = [...finalData, ...finalData, ...finalData]; 
+        }
+        setData(finalData);
       }).catch((error) => {
         console.error('Error fetching award images:', error);
       });
@@ -21,16 +27,13 @@ export default function AwardsSection() {
   return (
     <section className="relative py-20 bg-gradient-to-b from-white to-gray-50 overflow-hidden">
 
-      {/* --- REPLACEMENT: Background Component --- */}
       <BackgroundGrid
-        color="rgba(0, 0, 0, 0.05)" // Or "var(--border-color)"
+        color="rgba(0, 0, 0, 0.05)"
         cellSize={40}
         className="z-0"
       />
 
       <div className="relative z-10 container mx-auto px-4 mb-12 text-center">
-
-        {/* Header Section */}
         <div className="max-w-3xl mx-auto space-y-4">
           <h2 className="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-700 to-indigo-600 tracking-tight">
             Shining Globally
@@ -40,20 +43,21 @@ export default function AwardsSection() {
           </p>
           <div className="w-24 h-1.5 bg-indigo-500 mx-auto rounded-full mt-6 opacity-80"></div>
         </div>
-
       </div>
 
       {/* Marquee Slider Container */}
-      <div className="relative z-10 w-full">
+      <div className="relative z-10 w-full overflow-hidden">
 
-        {/* Gradient Fades for Smooth Edges */}
-        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 z-10 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none" />
-        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 z-10 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none" />
+        {/* Gradient Fades */}
+        <div className="absolute left-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-r from-white via-white/80 to-transparent pointer-events-none" />
+        <div className="absolute right-0 top-0 bottom-0 w-24 md:w-48 z-20 bg-gradient-to-l from-white via-white/80 to-transparent pointer-events-none" />
 
         {/* The Sliding Track */}
-        <div className="marquee-container flex overflow-hidden select-none">
+        {/* We use a wrapper to ensure flex behavior works efficiently */}
+        <div className="marquee-wrapper select-none flex">
+          
           <div className="marquee-track flex gap-8 md:gap-16 py-8">
-
+            
             {/* 1. First Set */}
             {data.map((src: any, idx) => (
               <img
@@ -64,7 +68,7 @@ export default function AwardsSection() {
               />
             ))}
 
-            {/* 2. Second Set */}
+            {/* 2. Second Set (Exact Duplicate) */}
             {data.map((src: any, idx) => (
               <img
                 key={`set2-${idx}`}
@@ -80,13 +84,16 @@ export default function AwardsSection() {
 
       {/* CSS Animation Styles */}
       <style jsx>{`
-        /* --- Marquee Logic --- */
         .marquee-track {
+          display: flex;
+          /* Ensure the track is wide enough to hold children horizontally */
           width: max-content;
+          /* IMPORTANT: Move exactly -50% to create a perfect loop with 2 sets */
           animation: scroll 40s linear infinite;
         }
         
-        .marquee-container:hover .marquee-track {
+        /* Pause on hover */
+        .marquee-wrapper:hover .marquee-track {
           animation-play-state: paused;
         }
 
@@ -95,8 +102,8 @@ export default function AwardsSection() {
             transform: translateX(0);
           }
           100% {
-            /* Adjusted calculation to account for half width + gap adjustment */
-            transform: translateX(calc(-50% - 2rem));
+            /* Move exactly half the width (the length of one full set) */
+            transform: translateX(-50%);
           }
         }
       `}</style>
