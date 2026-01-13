@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
     if (!orderId) {
       return NextResponse.redirect(
-        new URL('${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed', request.url)
+        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payments/failed`, request.url)
       );
     }
 
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     const receivedChecksum = data.checksumhash;
     if (!receivedChecksum) {
       return NextResponse.redirect(
-        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed?orderId=${orderId}`, request.url)
+        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payments/failed?orderId=${orderId}`, request.url)
       );
     }
 
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
       });
 
       return NextResponse.redirect(
-        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed?orderId=${orderId}`, request.url)
+        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payments/failed?orderId=${orderId}`, request.url)
       );
     }
 
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
 
     if (alreadyProcessed) {
       return NextResponse.redirect(
-        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?orderId=${orderId}`, request.url)
+        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payments/success?orderId=${orderId}`, request.url)
       );
     }
 
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
       );
 
       return NextResponse.redirect(
-        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payment/success?orderId=${orderId}`, request.url)
+        new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payments/success?orderId=${orderId}`, request.url)
       );
     }
 
@@ -119,13 +119,13 @@ export async function POST(request: Request) {
     );
 
     return NextResponse.redirect(
-      new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed?orderId=${orderId}`, request.url)
+      new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payments/failed?orderId=${orderId}`, request.url)
     );
 
   } catch (error) {
     console.error('🔥 Sadad Callback Error:', error);
     return NextResponse.redirect(
-      new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payment/failed`, request.url)
+      new URL(`${process.env.NEXT_PUBLIC_BASE_URL}/payments/failed`, request.url)
     );
   }
 }
