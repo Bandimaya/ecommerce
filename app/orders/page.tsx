@@ -72,6 +72,7 @@ const OrdersPage = () => {
                 </div>
                 <div className="text-right">
                   <div className="font-semibold">{o.orderStatus}</div>
+                  <div className="font-semibold">{o?.payment?.status ?? 'Not Paid'}</div>
                   <div className="text-sm text-muted-foreground">
                     {o.currency} {o.totalAmount}
                   </div>
