@@ -130,7 +130,7 @@ export const POST = withAuth(async (req: NextRequest, user: UserPayload) => {
     const order = await Order.create({
       userId: user.id,
       region: isIndia ? "IN" : "OUT",
-      currency: isIndia ? "INR" : "USD",
+      currency: isIndia ? "INR" : "QAR",
       items: orderItems,
       totalAmount: calculatedTotal,
       paymentStatus: "PENDING",

@@ -106,6 +106,11 @@ const ProductSchema = new Schema(
       default: false,
     },
 
+    isDiykit: {
+      type: Boolean,
+      default: false,
+    },
+
     productData: {
       type: Object,
     },

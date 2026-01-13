@@ -95,6 +95,7 @@ export async function POST(req: NextRequest) {
       brand: formData.get("brand") || null,
       media,
       isFeatured: formData.get("isFeatured") === "true",
+      isDiykit: formData.get("isDiykit") === "true",
       discount: Number(formData.get("discount") || 0),
       isActive: formData.get("isActive") === "true",
       isOnlyProduct: formData.get("isOnlyProduct") === "true",
@@ -208,6 +209,7 @@ export async function PUT(req: NextRequest) {
     product.discount = Number(formData.get("discount") || 0);
     product.brand = formData.get("brand") || null;
     product.isFeatured = formData.get("isFeatured") === "true";
+    product.isDiykit = formData.get("isDiykit") === "true";
     product.isActive = formData.get("isActive") === "true";
     product.isOnlyProduct = formData.get("isOnlyProduct") === "true";
     product.pricing = pricing.map((p: any) => ({ ...p, originalPrice: Number(p.originalPrice) }));

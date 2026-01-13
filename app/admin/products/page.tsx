@@ -196,7 +196,7 @@ const VariantNode = ({ nodes, path = [], depth = 1, addNode, updateNodeDeep, lev
                       return (
                         <div key={pIdx} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm relative group/price">
                           {/* Remove Market Button */}
-                          {!['INR', 'USD'].includes(pGroup.currency) && (
+                          {!['INR', 'QAR'].includes(pGroup.currency) && (
                             <button
                               type="button"
                               onClick={() => {
@@ -406,7 +406,7 @@ export default function Products() {
   const [brands, setBrands] = useState([]);
   const initialPricing = [
     { region: "Domestic", currency: "INR", originalPrice: "", salePrice: "" },
-    { region: "Overseas", currency: "USD", originalPrice: "", salePrice: "" }
+    { region: "Overseas", currency: "QAR", originalPrice: "", salePrice: "" }
   ];
 
   const [form, setForm]: any = useState({
@@ -423,6 +423,7 @@ export default function Products() {
     isActive: true,
     isFeatured: false,
     isOnlyProduct: false,
+    isDiykit: false,
     productData: {},
     variants: [],
     sku: "",
@@ -526,6 +527,7 @@ export default function Products() {
       isActive: true,
       isFeatured: false,
       isOnlyProduct: false,
+      isDiykit: false,
       productData: {},
       variants: [],
       sku: "",
@@ -757,7 +759,7 @@ export default function Products() {
     weight: 0,
     pricing: [
       { region: "Domestic", currency: "INR", originalPrice: "", salePrice: "" },
-      { region: "Overseas", currency: "USD", originalPrice: "", salePrice: "" }
+      { region: "Overseas", currency: "QAR", originalPrice: "", salePrice: "" }
     ],
     inventory: { stock: 0, reserved: 0, lowStockThreshold: 5 },
     dimensions: { length: 0, width: 0, height: 0 },
@@ -975,7 +977,7 @@ export default function Products() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {form.pricing.map((priceGroup: any, idx: any) => (
                         <div key={idx} className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm relative group">
-                            {!['INR', 'USD'].includes(priceGroup.currency) && (
+                            {!['INR', 'QAR'].includes(priceGroup.currency) && (
                                 <button
                                     type="button"
                                     onClick={() => handleRemoveRegion(idx)}
@@ -1027,6 +1029,10 @@ export default function Products() {
                     <label className="flex items-center gap-2 cursor-pointer select-none border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                         <input type="checkbox" name="isFeatured" checked={form.isFeatured} onChange={handleChange} className="w-4 h-4 text-orange-500 rounded focus:ring-orange-500" />
                         <span className="text-sm font-medium text-gray-700">Featured</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer select-none border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                        <input type="checkbox" name="isOnlyProduct" checked={form.isDiykit} onChange={handleChange} className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500" />
+                        <span className="text-sm font-medium text-gray-700">DIY Kit</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer select-none border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                         <input type="checkbox" name="isOnlyProduct" checked={form.isOnlyProduct} onChange={handleChange} className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500" />

@@ -18,7 +18,7 @@ import { Label } from "@/components/ui/label"
 const Cart = () => {
     const { cartItems, updateQuantity, removeFromCart, total, clearCart } = useCart()
     const [loading, setLoading] = useState(false)
-    const { isIndia, currencyCode } = useSettings()
+    const { isIndia } = useSettings()
     const { user }: any = useUser()
     const [isCheckingOut, setIsCheckingOut] = useState(false)
     const [shippingMethod, setShippingMethod] = useState("standard")

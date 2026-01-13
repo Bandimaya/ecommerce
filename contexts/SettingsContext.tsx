@@ -48,7 +48,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     const isInd = code === "IN";
     setIsIndia(isInd);
     setCountryCode(code);
-    setCurrencyCode(countryToCurrency?.[code] ?? "USD");
+    setCurrencyCode(countryToCurrency?.[code] ?? "QAR");
     try {
       localStorage.setItem("user-location", code);
     } catch (e) {
@@ -118,7 +118,9 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
         isIndia,
         countryCode,
         currencyCode,
-        isMobile,        setLocation,      }}
+        isMobile,
+        setLocation,
+      }}
     >
       {children}
     </SettingsContext.Provider>

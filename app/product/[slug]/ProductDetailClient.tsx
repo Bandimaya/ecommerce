@@ -236,7 +236,7 @@ const ProductDetailClient = ({ product }: any) => {
 
                                 {originalPrice && (
                                     <span className="text-xl text-muted-foreground line-through">
-                                        {isIndia ? "₹" : (currencyCode === 'QAR' ? 'ر.ق' : '$')}{originalPrice?.toFixed(2)}
+                                        {isIndia ? "₹" : 'ر.ق'}{originalPrice?.toFixed(2)}
                                     </span>
                                 )}
                             </div>

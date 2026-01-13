@@ -15,7 +15,7 @@ export const GET = async (req: Request) => {
 
     if (!cart) return NextResponse.json({ items: [], subtotal: 0 });
 
-    const userCurrency = cart.currencyCode || "USD";
+    const userCurrency = cart.currencyCode || "QAR";
     let subtotal = 0;
 
     const itemsWithLivePrices = await Promise.all(
