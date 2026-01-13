@@ -295,7 +295,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
                   variants={desktopVariants}
                   initial="farRight"
                   animate={state}
-                  className="absolute w-[900px] h-[500px] rounded-3xl bg-white shadow-2xl border border-slate-100/50 overflow-hidden cursor-pointer"
+                  className="w-[900px] h-[500px] rounded-3xl bg-white shadow-2xl border border-slate-100/50 overflow-hidden cursor-pointer"
                   style={{ zIndex, transformStyle: "preserve-3d" }}
                   onClick={() => {
                     if (state === 'left') handlePrev();

@@ -15,7 +15,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { apiFetch } from '@/lib/axios';
 import { IMAGE_URL } from '@/lib/constants';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useSettings } from '@/contexts/SettingsContext';
 
 // --- Types ---
@@ -174,6 +174,7 @@ const CourseShowcase = () => {
   const activeCourse = courses[activeIndex];
   const router = useRouter();
   const { contact } = useSettings();
+  const pathname = usePathname();
 
   return (
     <section className="relative w-full py-20 overflow-hidden bg-slate-50">
@@ -189,7 +190,9 @@ const CourseShowcase = () => {
       <div className="container relative z-10 mx-auto px-4 max-w-7xl">
 
         {/* Header */}
-        <div className="text-center mb-16">
+        {
+          pathname !== '/'?
+          <div className="text-center mb-16">
           <motion.div
             initial={{ scaleX: 0 }}
             whileInView={{ scaleX: 1 }}
@@ -213,6 +216,70 @@ const CourseShowcase = () => {
             Master skills that <span className="text-blue-600">define the future.</span>
           </motion.h2>
         </div>
+        :<div className="text-center mb-16">
+                  <motion.div
+                    initial={{ scaleX: 0 }}
+                    whileInView={{ scaleX: 1 }}
+                    transition={{ duration: 0.8 }}
+                    viewport={{ once: true }}
+                    className="flex justify-center items-center gap-3 mb-6"
+                  >
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '48px' }}
+                      transition={{ duration: 0.5 }}
+                      className="h-[2px]"
+                      style={{ backgroundColor: `var(--accent, #3b82f6)` }}
+                    />
+                    <span
+                      className="text-xs font-bold uppercase tracking-widest"
+                      style={{ color: `var(--accent, #3b82f6)` }}
+                    >
+                      Interactive Jargon Buster
+                    </span>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: '48px' }}
+                      transition={{ duration: 0.5 }}
+                      className="h-[2px]"
+                      style={{ backgroundColor: `var(--accent, #3b82f6)` }}
+                    />
+                  </motion.div>
+        
+                  <motion.h2
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    viewport={{ once: true }}
+                    className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight"
+                  >
+                    Your Guide to{' '}
+                    <motion.span
+                      // animate={{ color: data?.[activeIndex]?.accentColor }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      AI, Robotics Kits & Coding
+                    </motion.span>
+                  </motion.h2>
+        
+                  <motion.p
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    viewport={{ once: true }}
+                    className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed"
+                  >
+                    Easy explanations of common terms kickstart your child’s{' '}
+                    <motion.span
+                      // animate={{ color: data?.[activeIndex]?.accentColor }}
+                      transition={{ duration: 0.5 }}
+                      className="font-semibold"
+                    >
+                      innovation journey.
+                    </motion.span>
+                  </motion.p>
+                </div>
+}
 
         {/* --- DESKTOP 3D CAROUSEL --- */}
         {!isMobile ? (

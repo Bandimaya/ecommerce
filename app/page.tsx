@@ -9,7 +9,7 @@ import FeaturedProducts from "./home/FeaturedProducts"
 import MissionVision from "./home/MissionVision"
 import ProgramsSection from "./home/ProgramsSection"
 import NewsletterSection from "./home/NewsletterSection"
-import BreakingJargon from "./home/BreakingJargon"
+// import BreakingJargon from "./home/BreakingJargon"
 import PreferLearn from "./home/PreferLearn"
 import VideoModal from "@/app/home/VideoModal"
 
@@ -26,6 +26,7 @@ import WhyStempark from "./home/WhyStempark"
 import PaymentSuccess from "@/components/payment/PaymentSuccess"
 import PaymentFailure from "@/components/payment/PaymentFailure"
 import { motion } from "framer-motion"
+import BentoGrid from "@/components/courses/microdegree/BentoGrid"
 
 
 const Index = () => {
@@ -73,7 +74,9 @@ const Index = () => {
           />
         </motion.div>
 
-        <BreakingJargon />
+        {/* <BreakingJargon /> */}
+
+        <BentoGrid /> 
 
         {/* <TrustBadges getCSSVar={getCSSVar} /> */}
         <RequestCallBanner />

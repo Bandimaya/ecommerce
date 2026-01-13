@@ -57,7 +57,7 @@ const starsData = [
     }
 ];
 
-export default function StarsOfAvishkaar() {
+export default function Stars() {
     // 1. Initialize data immediately with static data to ensure content is present
     const [data, setData] = useState(starsData);
 

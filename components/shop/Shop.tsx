@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 // ----------------------------------------------------------------------
 const SMOOTH_SPRING: Transition = {
     type: "spring",
-    stiffness: 160,
+    stiffness: 180, // Slightly increased for snappier modal open
     damping: 25,
     mass: 1
 };
@@ -97,7 +97,7 @@ const MagnifierLens = ({ mouseX, mouseY, imageSrc, containerWidth, containerHeig
 };
 
 // ----------------------------------------------------------------------
-// COMPONENT: Product Carousel Row (Handles 10 items per row + Navigation)
+// COMPONENT: Product Carousel Row
 // ----------------------------------------------------------------------
 const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode, rowIndex: number }) => {
     const rowRef = useRef<HTMLDivElement>(null);
@@ -107,9 +107,7 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
     const checkScroll = () => {
         if (!rowRef.current) return;
         const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
-        
-        // Use Math.ceil to handle fractional pixels from browser zooming
-        const isAtStart = scrollLeft <= 1; // 1px buffer
+        const isAtStart = scrollLeft <= 1; 
         const isAtEnd = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 1;
 
         setCanScrollLeft(!isAtStart);
@@ -119,7 +117,6 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
     useEffect(() => {
         checkScroll();
         window.addEventListener('resize', checkScroll);
-        // Check after a short delay to allow images/layout to settle
         const timeout = setTimeout(checkScroll, 500);
         return () => {
             window.removeEventListener('resize', checkScroll);
@@ -129,28 +126,24 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
 
     const scroll = (direction: 'left' | 'right') => {
         if (!rowRef.current) return;
-        const scrollAmount = rowRef.current.clientWidth * 0.75; // Scroll 75% of view width
+        const scrollAmount = rowRef.current.clientWidth * 0.75; 
         rowRef.current.scrollBy({
             left: direction === 'left' ? -scrollAmount : scrollAmount,
             behavior: 'smooth'
         });
-        // Check scroll buttons after animation
         setTimeout(checkScroll, 400); 
     };
 
     return (
         <div className="relative group/row">
-            {/* Row Label (Optional) */}
             {rowIndex > 0 && (
                 <div className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2 pl-1">Page {rowIndex + 1}</div>
             )}
-
-            {/* Left Button - High Z-Index & Disabled Logic */}
             <button
                 onClick={() => scroll('left')}
                 disabled={!canScrollLeft}
                 className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -ml-6", // Positioned half-out
+                    "absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -ml-6", 
                     "bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center transition-all duration-300",
                     "flex",
                     !canScrollLeft ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100 hover:bg-slate-900 hover:text-white"
@@ -158,8 +151,6 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
             >
                 <ChevronLeft className="w-6 h-6" />
             </button>
-
-            {/* Scroll Container */}
             <div
                 ref={rowRef}
                 onScroll={checkScroll}
@@ -168,13 +159,11 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
             >
                 {children}
             </div>
-
-            {/* Right Button - High Z-Index & Disabled Logic */}
             <button
                 onClick={() => scroll('right')}
                 disabled={!canScrollRight}
                 className={cn(
-                    "absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -mr-6", // Positioned half-out
+                    "absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -mr-6", 
                     "bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center transition-all duration-300",
                     "flex",
                     !canScrollRight ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100 hover:bg-slate-900 hover:text-white"
@@ -195,8 +184,6 @@ const Shop = () => {
     // --- STATE ---
     const [selectedCategory, setSelectedCategory] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
-    
-    // Category Menu State
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
 
     // Animation/Modal State
@@ -210,7 +197,6 @@ const Shop = () => {
     const [isMobileWidth, setIsMobileWidth] = useState(false);
     const { addToCart, loading: cartLoading } = useCart();
 
-    // Refs & Motion Values
     const popupImageContainerRef = useRef<HTMLDivElement>(null);
     const mouseX = useMotionValue(0);
     const mouseY = useMotionValue(0);
@@ -230,23 +216,26 @@ const Shop = () => {
         const checkMobile = () => setIsMobileWidth(window.innerWidth < 768);
         checkMobile();
         window.addEventListener('resize', checkMobile);
+        
+        // Scroll locking logic
         if (selectedProduct) {
             document.body.style.overflow = 'hidden';
+            // Also hide the main scrollbar to prevent layout shift if possible
+            document.body.style.paddingRight = 'var(--scrollbar-width, 0px)';
         } else {
             document.body.style.overflow = 'unset';
+            document.body.style.paddingRight = '0px';
         }
+
         return () => {
             window.removeEventListener('resize', checkMobile);
             document.body.style.overflow = 'unset';
+            document.body.style.paddingRight = '0px';
         };
     }, [selectedProduct]);
 
     useEffect(() => {
-        if (selectedProduct) {
-            setIsModalOpen(true);
-        } else {
-            setIsModalOpen(false);
-        }
+        setIsModalOpen(!!selectedProduct);
     }, [selectedProduct]);
 
     const isMobile = isMobileWidth;
@@ -282,7 +271,7 @@ const Shop = () => {
     };
 
     const handlePopupMouseEnter = () => {
-        if (isMobile || !popupImageContainerRef.current || isModalOpen) return;
+        if (isMobile || !popupImageContainerRef.current || !isModalOpen) return;
         const rect = popupImageContainerRef.current.getBoundingClientRect();
         setPopupDims({ width: rect.width, height: rect.height });
         setIsHoveringPopup(true);
@@ -307,7 +296,6 @@ const Shop = () => {
                 {/* --- HEADER SECTION --- */}
                 <div className="sticky top-[60px] md:top-[80px] z-40 mb-6 md:mb-10 -mx-4 px-4 md:-mx-12 md:px-12 py-2 md:py-4 bg-[var(--background)]/95 backdrop-blur-md transition-all rounded-b-2xl md:rounded-none shadow-sm md:shadow-none">
                     
-                    {/* Search & Controls */}
                     <div className="flex flex-col gap-4 max-w-4xl mx-auto">
                         <div className="bg-[var(--background)] border border-[var(--border)] p-1.5 md:p-2 rounded-[12px] shadow-sm flex items-center gap-2 md:gap-4 w-full">
                             <div className="relative flex-1 group">
@@ -321,17 +309,15 @@ const Shop = () => {
                                 />
                             </div>
                             
-                            {/* Product Count Separator (Desktop) */}
                             <div className="hidden md:flex items-center gap-2 px-6 border-l border-[var(--border)] h-8 shrink-0">
                                 <span className="text-sm font-bold text-[var(--muted-foreground)]">{filteredProducts.length} Products</span>
                             </div>
                             
-                            {/* Filter Toggle Button (Desktop & Mobile) */}
                             <button 
                                 onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
                                 className={cn(
                                     "flex items-center justify-center w-10 h-10 rounded-[8px] transition-colors shrink-0",
-                                    "md:ml-0", // No extra margin needed due to flex gap
+                                    "md:ml-0", 
                                     isCategoryMenuOpen ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                                 )}
                             >
@@ -339,7 +325,6 @@ const Shop = () => {
                             </button>
                         </div>
 
-                        {/* Collapsible Menu Container */}
                         <AnimatePresence>
                             {isCategoryMenuOpen && (
                                 <motion.div 
@@ -348,7 +333,6 @@ const Shop = () => {
                                     exit={{ height: 0, opacity: 0 }}
                                     className="overflow-hidden"
                                 >
-                                    {/* DESKTOP LAYOUT (Flex Wrap) */}
                                     <div className="hidden md:block">
                                         <div className="w-full h-px bg-[var(--border)] my-4 opacity-50" />
                                         <div className="flex flex-wrap items-center justify-center gap-3 pb-4">
@@ -370,7 +354,6 @@ const Shop = () => {
                                         </div>
                                     </div>
 
-                                    {/* MOBILE LAYOUT (Grid) */}
                                     <div className="md:hidden">
                                         <div className="grid grid-cols-2 gap-2 pt-2 pb-4">
                                             <CategoryButtonMobile
@@ -405,25 +388,16 @@ const Shop = () => {
                              <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-[var(--muted-foreground)]" /></div>
                         ) : filteredProducts.length > 0 ? (
                             categories.map((category: any) => {
-                                // Filter products for this specific category section
                                 const categoryProducts = filteredProducts.filter(product => product.categories?.some((c: any) => c._id === category._id));
-                                
-                                // Don't render empty category sections
                                 if (categoryProducts.length === 0) return null;
-
-                                // Only render this section if "All" is selected OR this specific category is selected
                                 if(selectedCategory !== "all" && selectedCategory !== category._id) return null;
 
-                                // --- CHUNK THE PRODUCTS INTO GROUPS OF 10 ---
                                 const productChunks = chunkArray(categoryProducts, 10);
 
                                 return (
                                     <div key={category._id + 'maincategoryproduct'} className="space-y-6 md:space-y-8">
-                                            
-                                            {/* SECTION HEADER */}
                                             <div className="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4 md:pb-6">
                                                 <h3 className="text-xl md:text-3xl font-black text-[var(--foreground)] tracking-tight">{category.title}</h3>
-                                                
                                                 {selectedCategory === "all" && (
                                                      <Button 
                                                         variant="ghost" 
@@ -436,7 +410,6 @@ const Shop = () => {
                                                 )}
                                             </div>
 
-                                            {/* ITERATE OVER CHUNKS (ROWS OF 10) */}
                                             <div className="space-y-12 px-10">
                                                 {productChunks.map((chunk: any[], chunkIndex: number) => (
                                                     <ProductCarouselRow key={`${category._id}-chunk-${chunkIndex}`} rowIndex={chunkIndex}>
@@ -457,7 +430,6 @@ const Shop = () => {
                                                                     onClick={() => !isModalOpen && setSelectedProduct(product)}
                                                                 >
                                                                     <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full">
-                                                                        
                                                                         <motion.div
                                                                             className="absolute inset-0 top-0 md:top-12 rounded-[12px] border bg-white shadow-sm group-hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
                                                                             variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0 } }}
@@ -475,7 +447,6 @@ const Shop = () => {
                                                                                         </div>
                                                                                         <span className="text-lg font-black text-slate-900 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
                                                                                      </div>
-                                                                                     
                                                                                      <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center mt-2">
                                                                                         <span className="text-xs font-bold text-slate-400 flex items-center">Details <ChevronRight className="ml-1 w-3 h-3" /></span>
                                                                                         <Button size="icon" className="h-8 w-8 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product)} disabled={cartLoading}>
@@ -515,12 +486,10 @@ const Shop = () => {
                                                                         >
                                                                             <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
                                                                                 <img src={displayImage} alt={product.name} className="object-cover object-center w-full h-full" />
-                                                                                
                                                                                 <motion.div
                                                                                     className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none md:from-black/70 md:via-black/0"
                                                                                     variants={{ rest: { opacity: 1 }, hover: { opacity: 0 }, selected: { opacity: 0 } }}
                                                                                 />
-                                                                                
                                                                                 <motion.div
                                                                                     className="absolute bottom-4 left-4 md:bottom-6 md:left-6 text-white pointer-events-none pr-4"
                                                                                     variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 }, selected: { opacity: 0 } }}
@@ -549,51 +518,64 @@ const Shop = () => {
             </div>
 
             {/* --- PRODUCT DETAIL MODAL --- */}
+            {/* UPDATED MODAL LOGIC */}
             <AnimatePresence>
                 {selectedProduct && (
-                    <div className="fixed inset-0 z-[100] flex items-end md:items-start justify-center pointer-events-none pt-0 md:pt-24 pb-0 md:pb-4 px-0 md:px-4">
+                    <div 
+                        className="fixed inset-0 z-[999] flex items-end md:items-center justify-center pointer-events-none pt-0 md:pt-0 px-0 md:px-4 pb-0 md:pb-0"
+                    >
+                        {/* BACKDROP */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="absolute inset-0 bg-slate-900/70 backdrop-blur-md pointer-events-auto"
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 bg-slate-950/60 backdrop-blur-[8px] pointer-events-auto"
                             onClick={() => setSelectedProduct(null)}
                         />
 
+                        {/* MODAL CARD */}
                         <motion.div
                             key="modal-card"
                             layoutId={`product-card-container-${selectedProduct._id}`}
-                            className="relative w-full h-[90vh] md:h-full md:max-h-full sm:w-[90vw] md:max-w-6xl bg-white rounded-t-[20px] md:rounded-[10px] overflow-hidden shadow-2xl flex flex-col pointer-events-auto z-[110]"
+                            className="relative w-full h-[90vh] md:h-auto md:max-h-[90vh] md:max-w-6xl bg-white rounded-t-[24px] md:rounded-[24px] overflow-hidden shadow-2xl flex flex-col pointer-events-auto z-[1000] isolate"
                             onClick={(e) => e.stopPropagation()}
                             transition={SMOOTH_SPRING}
+                            // ENHANCED MOBILE DRAG LOGIC
                             drag={isMobile ? "y" : false}
                             dragConstraints={{ top: 0, bottom: 0 }}
-                            dragElastic={0.2}
+                            dragElastic={0.1} // Resistance feel
+                            dragSnapToOrigin={true} // Bounces back if not dismissed
                             onDragEnd={(e, { offset, velocity }) => {
-                                if (offset.y > 100 || velocity.y > 500) {
+                                const swipe = Math.abs(velocity.y) * offset.y;
+                                if (offset.y > 150 || (offset.y > 50 && velocity.y > 400)) {
                                     setSelectedProduct(null);
                                 }
                             }}
                         >
-                            {/* Mobile Drag Handle */}
-                            <div className="md:hidden absolute top-0 left-0 right-0 h-6 z-50 flex justify-center items-center pointer-events-none">
-                                <div className="w-12 h-1.5 rounded-full bg-slate-300/50 mt-2" />
+                            {/* Mobile Drag Indicator */}
+                            <div className="md:hidden absolute top-0 left-0 right-0 h-8 z-50 flex justify-center pt-3 pointer-events-none">
+                                <div className="w-12 h-1.5 rounded-full bg-slate-200" />
                             </div>
 
-                            <button onClick={() => setSelectedProduct(null)} className="hidden md:block absolute top-4 right-4 md:top-8 md:right-8 z-50 p-3 rounded-[10px] bg-slate-100 hover:bg-slate-200 transition-all shadow-sm">
-                                <X className="w-6 h-6 text-slate-900" />
+                            {/* Desktop Close Button */}
+                            <button onClick={() => setSelectedProduct(null)} className="hidden md:flex absolute top-6 right-6 z-50 p-3 rounded-full bg-slate-100 hover:bg-slate-200 transition-all shadow-sm group">
+                                <X className="w-5 h-5 text-slate-700 group-hover:text-slate-900" />
                             </button>
                              
-                            {/* Mobile Close Button */}
-                             <button onClick={() => setSelectedProduct(null)} className="md:hidden absolute top-4 right-4 z-50 p-2 rounded-full bg-black/20 text-white backdrop-blur-sm">
+                            {/* Mobile Close Button (Moved slightly to avoid overlap) */}
+                             <button onClick={() => setSelectedProduct(null)} className="md:hidden absolute top-5 right-5 z-50 p-2 rounded-full bg-slate-100/80 backdrop-blur-sm text-slate-800 shadow-sm">
                                 <X className="w-5 h-5" />
                             </button>
 
-                            <div className="flex flex-col md:flex-row h-full overflow-y-auto md:overflow-hidden">
+                            <div className="flex flex-col md:flex-row h-full overflow-hidden">
+                                {/* LEFT: IMAGE SIDE */}
                                 <div
                                     ref={popupImageContainerRef}
-                                    className="w-full h-[40vh] md:h-auto md:w-3/5 bg-slate-50 relative overflow-hidden cursor-crosshair flex-shrink-0 group"
-                                    onMouseEnter={handlePopupMouseEnter} onMouseLeave={() => setIsHoveringPopup(false)} onMouseMove={handlePopupMouseMove}
+                                    className="w-full h-[45vh] md:h-[600px] md:w-3/5 bg-slate-50 relative overflow-hidden flex-shrink-0 group"
+                                    onMouseEnter={handlePopupMouseEnter} 
+                                    onMouseLeave={() => setIsHoveringPopup(false)} 
+                                    onMouseMove={handlePopupMouseMove}
                                 >
                                     <motion.div
                                         layoutId={`product-image-container-${selectedProduct._id}`}
@@ -604,6 +586,8 @@ const Shop = () => {
                                     >
                                         <img src={selectedProduct.media?.[0]?.url || '/placeholder.png'} alt={selectedProduct.name} className="object-cover object-center w-full h-full" />
                                     </motion.div>
+                                    
+                                    {/* Desktop Magnifier */}
                                     {!isMobile && (
                                         <AnimatePresence>
                                             {isHoveringPopup && popupDims.width > 0 && (
@@ -613,37 +597,51 @@ const Shop = () => {
                                     )}
                                 </div>
 
-                                <div className="w-full md:w-2/5 flex flex-col bg-white min-h-[50vh] md:h-full">
-                                    <div className="flex-1 overflow-y-auto p-6 md:p-12">
-                                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-                                            <div className="flex items-center gap-3 mb-4 md:mb-8">
-                                                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 md:px-4 py-1.5 rounded-[10px]">{selectedProduct.categories?.[0]?.title || "Product"}</span>
+                                {/* RIGHT: CONTENT SIDE */}
+                                <div className="w-full md:w-2/5 flex flex-col bg-white h-full relative">
+                                    <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
+                                        <motion.div 
+                                            initial={{ opacity: 0, y: 20 }} 
+                                            animate={{ opacity: 1, y: 0 }} 
+                                            transition={{ delay: 0.15, duration: 0.4 }}
+                                        >
+                                            <div className="flex items-center gap-3 mb-4 md:mb-6">
+                                                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{selectedProduct.categories?.[0]?.title || "Product"}</span>
                                                 <span className="text-[10px] md:text-xs font-bold text-slate-500 flex items-center gap-1.5"><Package className="w-4 h-4" /> Ages 8+</span>
                                             </div>
-                                            <h2 className="text-2xl md:text-5xl font-black mb-3 md:mb-6 text-slate-900 leading-none tracking-tight">{selectedProduct.name}</h2>
-                                            <div className="flex items-center gap-5 mb-6 md:mb-10 pb-6 md:pb-10 border-b border-slate-100">
-                                                <span className="text-3xl md:text-4xl font-black text-slate-900">${selectedProduct.pricing?.[0]?.salePrice || 0}</span>
-                                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-yellow-50 border border-yellow-100">
-                                                    <Star className="w-4 h-4 md:w-5 md:h-5 text-yellow-500 fill-current" />
-                                                    <span className="text-yellow-700 font-bold text-base md:text-lg">4.9</span>
+
+                                            <h2 className="text-2xl md:text-4xl font-black mb-3 md:mb-6 text-slate-900 leading-tight">{selectedProduct.name}</h2>
+                                            
+                                            <div className="flex items-center gap-4 mb-6 md:mb-8 pb-6 border-b border-slate-100">
+                                                <span className="text-3xl font-black text-slate-900">${selectedProduct.pricing?.[0]?.salePrice || 0}</span>
+                                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100">
+                                                    <Star className="w-4 h-4 text-amber-500 fill-current" />
+                                                    <span className="text-amber-700 font-bold text-sm">4.9</span>
                                                 </div>
                                             </div>
-                                            <div className="space-y-6 md:space-y-8 pb-20 md:pb-0">
+
+                                            <div className="space-y-6 pb-4">
                                                 <div>
-                                                    <h4 className="font-black text-slate-900 mb-4 flex items-center gap-2 uppercase text-xs md:text-sm tracking-widest"><Brain className="w-5 h-5 text-blue-500" /> Learning Outcomes</h4>
-                                                    <div className="grid grid-cols-1 gap-2 md:gap-3">
+                                                    <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-xs md:text-sm uppercase tracking-wider"><Brain className="w-4 h-4 text-blue-500" /> Key Features</h4>
+                                                    <div className="grid grid-cols-1 gap-2">
                                                         {["Problem-solving skills", "Critical thinking", "Engineering principles", "Hands-on learning"].map((outcome, idx) => (
-                                                            <div key={idx} className="flex items-center gap-3 text-xs md:text-sm font-bold text-slate-600 bg-slate-50 p-3 md:p-4 rounded-[10px] border border-slate-100">
-                                                                <div className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />{outcome}
+                                                            <div key={idx} className="flex items-center gap-3 text-xs md:text-sm font-medium text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100/50">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />{outcome}
                                                             </div>
                                                         ))}
                                                     </div>
                                                 </div>
+                                                
+                                                <p className="text-slate-600 text-sm leading-relaxed">
+                                                    This premium STEM kit is designed to challenge and inspire. Built with high-quality components, it offers a hands-on introduction to engineering concepts.
+                                                </p>
                                             </div>
                                         </motion.div>
                                     </div>
-                                    <div className="p-4 md:p-12 border-t border-slate-100 bg-white z-10 sticky bottom-0 md:relative shadow-[0_-5px_20px_rgba(0,0,0,0.05)] md:shadow-none">
-                                        <Button onClick={(e) => handleAddToCart(e, selectedProduct)} className="w-full py-6 md:py-8 text-lg md:text-xl rounded-[10px] font-black bg-slate-900 text-white shadow-2xl hover:bg-blue-600 transition-all active:scale-[0.98]">
+
+                                    {/* FOOTER ACTION */}
+                                    <div className="p-4 md:p-8 border-t border-slate-100 bg-white sticky bottom-0 z-20">
+                                        <Button onClick={(e) => handleAddToCart(e, selectedProduct)} className="w-full py-6 text-lg rounded-xl font-bold bg-slate-900 text-white shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98]">
                                             Add to Cart — ${selectedProduct.pricing?.[0]?.salePrice || 0}
                                         </Button>
                                     </div>
@@ -658,7 +656,7 @@ const Shop = () => {
 };
 
 // --- SUB COMPONENTS ---
-
+// Unchanged sub-components below
 const CategoryButton = ({ active, onClick, label, count }: { active: boolean, onClick: () => void, label: string, count: number }) => (
     <button
         onClick={onClick}

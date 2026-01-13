@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
-import { ArrowRight, Star, X, ChevronRight, ShoppingCart, Brain, Package } from "lucide-react"
+import { ArrowRight, Star, X, ChevronRight, ChevronLeft, ShoppingCart, Brain, Package } from "lucide-react"
 import {
   motion,
   useReducedMotion,
@@ -9,13 +9,13 @@ import {
   useMotionValue,
   useTransform,
   MotionValue,
-  Transition // 1. IMPORTED TRANSITION TYPE
+  Transition
 } from "framer-motion"
 
 // IMPORT DATA
 import { apiFetch } from "@/lib/axios"
 import { useSettings } from "@/contexts/SettingsContext"
-import { getDisplayPrice } from "@/lib/utils"
+import { getDisplayPrice, cn } from "@/lib/utils" // Ensure cn is imported
 import { CURRENCY_OPTIONS, IMAGE_URL } from "@/lib/constants"
 import { toast } from "@/hooks/useToast"
 import { useCart } from "@/contexts/CartContext"
@@ -25,7 +25,6 @@ import ProductGridSkeleton from "@/components/ui/ProductGridSkeleton"
 // ----------------------------------------------------------------------
 // CONFIG: Animation Physics
 // ----------------------------------------------------------------------
-// 2. FIXED: STRICTLY TYPED CONSTANT
 const SMOOTH_SPRING: Transition = { 
   type: "spring", 
   stiffness: 380, 
@@ -52,6 +51,88 @@ interface FeaturedProductsProps {
   getCSSVar?: (varName: string, fallback?: string) => string
   isMobile?: boolean
 }
+
+// ----------------------------------------------------------------------
+// COMPONENT: Horizontal Carousel Row
+// ----------------------------------------------------------------------
+const ProductCarouselRow = ({ children }: { children: React.ReactNode }) => {
+    const rowRef = useRef<HTMLDivElement>(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(true);
+
+    const checkScroll = () => {
+        if (!rowRef.current) return;
+        const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
+        // Allow a 1px buffer for calculation errors
+        const isAtStart = scrollLeft <= 1; 
+        const isAtEnd = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 1;
+
+        setCanScrollLeft(!isAtStart);
+        setCanScrollRight(!isAtEnd);
+    };
+
+    useEffect(() => {
+        checkScroll();
+        window.addEventListener('resize', checkScroll);
+        // Delay check to allow images/layout to settle
+        const timeout = setTimeout(checkScroll, 500); 
+        return () => {
+            window.removeEventListener('resize', checkScroll);
+            clearTimeout(timeout);
+        };
+    }, [children]);
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (!rowRef.current) return;
+        const scrollAmount = rowRef.current.clientWidth * 0.75; // Scroll 75% of view
+        rowRef.current.scrollBy({
+            left: direction === 'left' ? -scrollAmount : scrollAmount,
+            behavior: 'smooth'
+        });
+        setTimeout(checkScroll, 400); 
+    };
+
+    return (
+        <div className="relative group/row w-full">
+            {/* Left Gradient Mask & Button */}
+            <div className={`absolute left-0 top-0 bottom-0 z-40 flex items-center transition-opacity duration-300 ${!canScrollLeft ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                 <div className="absolute inset-0 bg-gradient-to-r from-[#f0fdf4] to-transparent w-20 pointer-events-none" />
+                 <button
+                    onClick={() => scroll('left')}
+                    className="relative ml-4 w-10 h-10 bg-white border border-emerald-100 rounded-full shadow-lg flex items-center justify-center text-emerald-900 hover:bg-emerald-900 hover:text-white transition-all hover:scale-110 active:scale-95"
+                >
+                    <ChevronLeft className="w-5 h-5" />
+                </button>
+            </div>
+
+            {/* Scroll Container */}
+            <div
+                ref={rowRef}
+                onScroll={checkScroll}
+                className="flex items-stretch gap-6 overflow-x-auto overflow-y-hidden pb-12 pt-4 px-4 md:px-12 scrollbar-hide snap-x snap-mandatory"
+                style={{ 
+                    scrollbarWidth: 'none', 
+                    msOverflowStyle: 'none',
+                    // Create padding for the first/last items so they aren't flush with screen edge
+                    scrollPaddingLeft: '2rem' 
+                }}
+            >
+                {children}
+            </div>
+
+            {/* Right Gradient Mask & Button */}
+            <div className={`absolute right-0 top-0 bottom-0 z-40 flex items-center justify-end transition-opacity duration-300 ${!canScrollRight ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                 <div className="absolute inset-0 bg-gradient-to-l from-[#f0fdf4] to-transparent w-20 pointer-events-none" />
+                 <button
+                    onClick={() => scroll('right')}
+                    className="relative mr-4 w-10 h-10 bg-white border border-emerald-100 rounded-full shadow-lg flex items-center justify-center text-emerald-900 hover:bg-emerald-900 hover:text-white transition-all hover:scale-110 active:scale-95"
+                >
+                    <ChevronRight className="w-5 h-5" />
+                </button>
+            </div>
+        </div>
+    );
+};
 
 // ----------------------------------------------------------------------
 // INTERNAL COMPONENTS 
@@ -154,6 +235,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
     
     if (isModalOpen) {
       document.body.style.overflow = 'hidden';
+      // Optional: Add padding-right for scrollbar if needed
     } else {
       document.body.style.overflow = 'unset';
     }
@@ -241,36 +323,42 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
     >
       <BackgroundDecorations type="products" />
 
-      <div className="container relative z-10 px-4 mx-auto">
-        <div className="flex justify-center items-center gap-3 mb-10 sm:mb-16">
+      <div className="w-full max-w-[2000px] mx-auto relative z-10">
+        <div className="flex justify-center items-center gap-3 mb-10 sm:mb-12">
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-emerald-600" />
           <span className="text-xs font-bold uppercase tracking-widest text-emerald-700">Premium STEM Collection</span>
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-emerald-600" />
         </div>
 
-        <div className="flex justify-center px-0 sm:px-4">
+        <div className="relative w-full">
           {loading ? (
-            <ProductGridSkeleton columns={3} count={6} />
+             <div className="px-4 md:px-12">
+                <ProductGridSkeleton columns={3} count={3} />
+             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-8 gap-y-24 w-full max-w-7xl">
+            <ProductCarouselRow>
               {featuredProducts.map((product: any) => {
                 const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
                 const isSelected = selectedProduct?._id === product._id;
                 const imageUrl = product.image?.startsWith('http') ? product.image : IMAGE_URL + product.image;
 
                 return (
-                  <div key={getId(product)} className="h-[400px] w-full relative">
+                  <div 
+                    key={getId(product)} 
+                    // FIXED DIMENSIONS FOR HORIZONTAL SCROLL
+                    className="h-[420px] w-[280px] md:w-[340px] flex-shrink-0 snap-start relative perspective-1000"
+                  >
                     <motion.div
                       layoutId={`product-card-container-${getId(product)}`}
-                      className={`relative h-full w-full group cursor-pointer perspective-1000 ${isSelected ? "z-0 opacity-0" : "z-10"}`}
+                      className={`relative h-full w-full group cursor-pointer ${isSelected ? "z-0 opacity-0" : "z-10"}`}
                       initial="rest"
                       whileHover={isMobile || isModalOpen ? undefined : "hover"}
                       animate="rest"
                       onClick={() => handleProductClick(product)}
                     >
-                      {/* CARD BASE (The white card that appears behind) */}
+                      {/* CARD BASE */}
                       <motion.div
-                        className="absolute inset-0 top-12 rounded-[10px] border bg-white shadow-xl overflow-hidden"
+                        className="absolute inset-0 top-12 rounded-[16px] border bg-white shadow-xl overflow-hidden"
                         variants={{
                             rest: { opacity: 0, y: 15 },
                             hover: { opacity: 1, y: 0 }
@@ -278,9 +366,9 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                         transition={SMOOTH_SPRING}
                         style={{ borderColor: cssVars.border() }}
                       >
-                        <div className="absolute inset-0 flex flex-col justify-end p-8 z-10">
+                        <div className="absolute inset-0 flex flex-col justify-end p-6 z-10">
                           <motion.div
-                            className="mt-24 space-y-4"
+                            className="mt-auto space-y-3"
                             variants={{
                               rest: { opacity: 0, y: 15 },
                               hover: { opacity: 1, y: 0, transition: { delay: 0.1 } }
@@ -291,18 +379,18 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                                 <p className="text-[10px] font-black uppercase tracking-tighter text-emerald-600 mb-1">
                                   {product.category}
                                 </p>
-                                <h3 className="text-xl font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
+                                <h3 className="text-lg font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
                               </div>
-                              <span className="text-xl font-black text-slate-900 shrink-0 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
+                              <span className="text-lg font-black text-slate-900 shrink-0 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
                             </div>
 
-                            <div className="pt-4 border-t border-slate-100 flex justify-between items-center">
+                            <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
                               <span className="text-xs font-bold text-slate-400 flex items-center">
-                                View Details <ChevronRight className="ml-1 w-3 h-3" />
+                                Details <ChevronRight className="ml-1 w-3 h-3" />
                               </span>
                               <Button
                                 onClick={(e: any) => handleAddToCart(e, product)}
-                                className="h-10 w-10 rounded-full bg-emerald-600 hover:bg-emerald-800 transition-colors shadow-md flex items-center justify-center p-0"
+                                className="h-9 w-9 rounded-full bg-emerald-600 hover:bg-emerald-800 transition-colors shadow-md flex items-center justify-center p-0"
                               >
                                 <ShoppingCart className="w-4 h-4 text-white" />
                               </Button>
@@ -311,21 +399,21 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                         </div>
                       </motion.div>
 
-                      {/* FLOATING IMAGE (LayoutId Shared) */}
+                      {/* FLOATING IMAGE */}
                       <motion.div
                         layoutId={`product-image-container-${getId(product)}`}
-                        className="absolute z-30 overflow-hidden shadow-2xl bg-white"
+                        className="absolute z-30 overflow-hidden shadow-md group-hover:shadow-2xl bg-white"
                         variants={{
                             rest: {
                                 top: 0, left: 0, right: 0, margin: "0 auto",
                                 width: "100%", height: "100%",
-                                borderRadius: "10px",
+                                borderRadius: "16px",
                                 y: 48, scale: 1
                             },
                             hover: {
                                 top: -20, left: 0, right: 0, margin: "0 auto",
-                                width: "240px", height: "240px",
-                                borderRadius: "10px",
+                                width: "220px", height: "220px",
+                                borderRadius: "16px",
                                 y: 0, scale: 1.05
                             }
                         }}
@@ -339,7 +427,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                             className="object-cover object-center w-full h-full"
                           />
 
-                          {/* Overlay for Rest State readability */}
+                          {/* Overlay */}
                           <motion.div
                             className="absolute inset-0 bg-gradient-to-t from-emerald-950/80 via-transparent to-transparent pointer-events-none"
                             variants={{ rest: { opacity: 1 }, hover: { opacity: 0 } }}
@@ -348,13 +436,13 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                           
                           {/* Text on Image (Rest State) */}
                           <motion.div
-                            className="absolute bottom-8 left-8 text-white pointer-events-none"
+                            className="absolute bottom-6 left-6 right-6 text-white pointer-events-none"
                             variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 } }}
                             transition={{ duration: 0.3 }}
                           >
                             <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-300 mb-1">{product.category}</p>
-                            <h3 className="text-2xl font-black leading-tight line-clamp-1">{product.name}</h3>
-                            <p className="text-white/80 font-bold mt-1">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
+                            <h3 className="text-xl font-black leading-tight line-clamp-2 mb-2">{product.name}</h3>
+                            <p className="text-white/90 font-bold">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
                           </motion.div>
                         </div>
                       </motion.div>
@@ -362,11 +450,11 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                   </div>
                 );
               })}
-            </div>
+            </ProductCarouselRow>
           )}
         </div>
 
-        <div className="mt-16 sm:mt-24 text-center">
+        <div className="mt-12 text-center">
           <Button onClick={() => router.push('/shop')} aria-label="View full catalog" className="rounded-full px-10 py-3 text-lg font-semibold border-2 bg-white/50 backdrop-blur-sm hover:bg-emerald-50 transition-colors" style={{ borderColor: '#10b981', color: '#064e3b' }}>
             <span className="flex items-center gap-3">View Full Catalog <ArrowRight className="w-5 h-5 text-emerald-600" /></span>
           </Button>
@@ -376,15 +464,13 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
       {/* --- PRODUCT DETAIL MODAL --- */}
       <AnimatePresence mode="wait">
         {selectedProduct && (
-          // 3. FIXED: ADDED TOP SPACING FOR MOBILE (top-16) TO START AFTER NAVBAR
-          <div className="fixed inset-0 top-16 md:top-0 z-[50] flex items-center justify-center pointer-events-none px-4 pb-4 md:pt-0">
+          <div className="fixed inset-0 top-20 md:top-15 z-[50] flex items-center justify-center pointer-events-none px-4 pb-4 md:pt-0">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-emerald-950/80 backdrop-blur-md pointer-events-auto"
-              // Fix: ensure backdrop covers full screen even if container is pushed down
               style={{ top: 0 }} 
               onClick={() => setSelectedProduct(null)}
             />
