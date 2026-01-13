@@ -1031,7 +1031,7 @@ export default function Products() {
                         <span className="text-sm font-medium text-gray-700">Featured</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer select-none border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                        <input type="checkbox" name="isOnlyProduct" checked={form.isDiykit} onChange={handleChange} className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500" />
+                        <input type="checkbox" name="isDiykit" checked={form.isDiykit} onChange={handleChange} className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500" />
                         <span className="text-sm font-medium text-gray-700">DIY Kit</span>
                     </label>
                     <label className="flex items-center gap-2 cursor-pointer select-none border border-gray-200 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors">
