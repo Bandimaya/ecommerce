@@ -236,7 +236,7 @@ Date: ${new Date(order.order.createdAt).toLocaleString()}
           </div>
 
           <button
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push("/")}
             className="mt-4 text-slate-600 flex items-center gap-2 justify-center"
           >
             <ArrowLeft size={16} /> Back to Dashboard

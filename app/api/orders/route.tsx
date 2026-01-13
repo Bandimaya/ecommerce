@@ -8,6 +8,7 @@ import User from "@/models/User";
 import ContactInfo from "@/models/ContactInfo";
 import { UserPayload, withAuth } from "@/lib/withAuth";
 import sendEmail from "@/lib/email";
+import Payment from "@/models/Payments";
 
 type Pricing = {
   region: string;
@@ -174,15 +175,53 @@ async function sendOrderEmails(order: any, user: any) {
 }
 
 // ------------------ GET USER ORDERS ------------------
-export const GET = withAuth(async (req: NextRequest, user: UserPayload) => {
-  try {
-    const orders = await Order.find({ userId: user.id })
-      .populate({ path: 'items.productId' })
-      .populate('userId')
-      .sort({ createdAt: -1 });
+export const GET = withAuth(
+  async (req: NextRequest, user: UserPayload) => {
+    try {
+      // 1️⃣ Fetch user's orders
+      const orders = await Order.find({ userId: user.id })
+        .populate({ path: 'items.productId' })
+        .populate('userId')
+        .sort({ createdAt: -1 })
+        .lean(); // ⚠️ important for performance
 
-    return NextResponse.json(orders);
-  } catch (error: any) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+      if (!orders.length) {
+        return NextResponse.json([]);
+      }
+
+      // 2️⃣ Get all orderIds
+      const orderIds = orders.map(o => o._id.toString());
+
+      // 3️⃣ Fetch latest payment per order
+      const payments = await Payment.aggregate([
+        { $match: { orderId: { $in: orderIds } } },
+        { $sort: { createdAt: -1 } },
+        {
+          $group: {
+            _id: '$orderId',
+            payment: { $first: '$$ROOT' },
+          },
+        },
+      ]);
+
+      // 4️⃣ Convert payments to map for fast lookup
+      const paymentMap = new Map(
+        payments.map(p => [p._id, p.payment])
+      );
+
+      // 5️⃣ Attach payment to each order
+      const result = orders.map(order => ({
+        ...order,
+        payment: paymentMap.get(order._id.toString()) || null,
+      }));
+
+      return NextResponse.json(result);
+
+    } catch (error: any) {
+      return NextResponse.json(
+        { message: error.message },
+        { status: 500 }
+      );
+    }
   }
-});
+);
