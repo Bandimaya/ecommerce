@@ -225,11 +225,13 @@ export default function AccountSettings() {
     return isValid;
   };
 
+  console.log(user?.email)
+
   const handleSaveAddresses = async () => {
     if (!validateAddressForm()) return;
     try {
       setSavingAddress(true);
-      await apiFetch('/api/user/address', { method: 'PUT', body: JSON.stringify(addresses) });
+      await apiFetch(`/users/${user?.email}/addresses`, { method: 'PUT', data: addresses });
       toast({ title: "Addresses updated successfully" });
       setAddressErrors({});
     } catch (err: any) {
