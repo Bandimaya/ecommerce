@@ -66,7 +66,7 @@ export default function StarsOfAvishkaar() {
 
     // 3. Set the currentIndex to that valid index (fallback to 0 if none found)
     const [currentIndex, setCurrentIndex] = useState(initialIndex !== -1 ? initialIndex : 0);
-    
+
     const [isVideoOpen, setIsVideoOpen] = useState(false);
     const [isAutoPlay, setIsAutoPlay] = useState(true);
     const [direction, setDirection] = useState(0);
@@ -129,9 +129,7 @@ export default function StarsOfAvishkaar() {
     // Helper to generate correct embed URL
     const getVideoSrc = (url: string) => {
         if (!url) return "";
-        // Check if query params exist to append correctly
-        const separator = url.includes('?') ? '&' : '?';
-        return `${url}${separator}autoplay=1&rel=0&modestbranding=1`;
+        return `${IMAGE_URL}${url}`;
     };
 
     // --- Reusable Navigation Component ---
@@ -223,6 +221,8 @@ export default function StarsOfAvishkaar() {
         </div>
     );
 
+    console.log(getVideoSrc(activeStar.video))
+
     return (
         <section className="relative w-full h-auto lg:min-h-[850px] bg-background font-sans overflow-hidden flex flex-col py-8 lg:py-0">
 
@@ -283,7 +283,7 @@ export default function StarsOfAvishkaar() {
                                     <button
                                         onClick={() => {
                                             // Explicitly handle video open logic
-                                            if (activeStar?.videoUrl) {
+                                            if (activeStar?.video) {
                                                 setIsVideoOpen(true);
                                                 setIsAutoPlay(false);
                                             }
@@ -319,14 +319,15 @@ export default function StarsOfAvishkaar() {
                                     <X className="w-6 h-6" />
                                 </button>
 
-                                {activeStar?.videoUrl ? (
-                                    <iframe
-                                        src={getVideoSrc(activeStar.videoUrl)}
-                                        className="w-full h-full"
-                                        allow="autoplay; encrypted-media"
-                                        allowFullScreen
-                                        title={activeStar.name}
-                                    />
+                                {activeStar?.video ? (
+                                    <video
+                                        width="640"
+                                        height="360"
+                                        controls
+                                        autoPlay={false}
+                                    >
+                                        <source src={getVideoSrc(activeStar.video)} />
+                                    </video>
                                 ) : (
                                     <div className="text-center text-muted-foreground">
                                         <p>Video content loading...</p>

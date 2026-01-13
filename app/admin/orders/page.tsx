@@ -41,9 +41,8 @@ export default function Orders() {
           <div>
             <div className="flex items-center gap-2 text-indigo-600 mb-1">
               <ShoppingBag className="w-5 h-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">Sales Management</span>
+              <h1 className="text-3xl font-black text-slate-900 tracking-tight">Orders</h1>
             </div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Orders</h1>
           </div>
 
           <div className="flex items-center gap-3">

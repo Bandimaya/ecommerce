@@ -18,7 +18,7 @@ import { FeatureShowcase } from '@/components/courses/microdegree/FeatureShowcas
 export default function Courses() {
   return (
     <div id="shop" className="microdegree-page">
-      <FilterSidebar />
+      {/* <FilterSidebar /> */}
       
       {/* Main Content Area next to the sidebar */}
       <div> 

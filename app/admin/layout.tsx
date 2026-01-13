@@ -90,28 +90,28 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
     { label: "Section Courses", path: "/admin/section-courses", icon: GraduationCap },
     { label: "Events", path: "/admin/events", icon: CalendarDays },
     { label: "Winners", path: "/admin/winners", icon: Trophy },
-    { label: "Stempark Features", path: "/admin/stempark-features", icon: Zap },
+    { label: "STEM Park Features", path: "/admin/stempark-features", icon: Zap },
 
     // Media & Assets
-    { label: "Award Images", path: "/admin/award-images", icon: ImageIcon },
-    { label: "Partner Images", path: "/admin/partner-images", icon: Handshake },
-    { label: "Videos", path: "/admin/videos", icon: Video },
+    { label: "Award Gallery", path: "/admin/award-images", icon: ImageIcon },
+    { label: "Partner Logos", path: "/admin/partner-images", icon: Handshake },
+    { label: "Video Gallery", path: "/admin/videos", icon: Video },
 
     // Engagement
-    { label: "News", path: "/admin/news", icon: Newspaper },
+    { label: "Newsroom", path: "/admin/news", icon: Newspaper },
     { label: "Stars", path: "/admin/stars", icon: Star },
-    { label: "Benefits", path: "/admin/benefits", icon: Gift },
+    { label: "Benefits & Features", path: "/admin/benefits", icon: Gift },
     { label: "Certifications", path: "/admin/certifications", icon: FileBadge },
-    { label: "Testimonials", path: "/admin/testimonials", icon: MessageSquareQuote },
+    { label: "Parent Testimonials", path: "/admin/testimonials", icon: MessageSquareQuote },
     { label: "FAQs", path: "/admin/faqs", icon: MessageSquareQuote },
 
     // Academic / Portfolio
-    { label: "Stem courses", path: "/admin/stem-courses", icon: Library },
-    { label: "Projects", path: "/admin/projects", icon: Rocket },
+    { label: "STEM Courses", path: "/admin/stem-courses", icon: Library },
+    { label: "Student Projects", path: "/admin/projects", icon: Rocket },
     { label: "Programs", path: "/admin/programs", icon: BookOpen },
 
     // E-Commerce / Business
-    { label: "Brands", path: "/admin/brands", icon: BadgeCheck },
+    // { label: "Brands", path: "/admin/brands", icon: BadgeCheck },
     { label: "Categories", path: "/admin/categories", icon: Tags },
     { label: "Products", path: "/admin/products", icon: Package },
     { label: "Orders", path: "/admin/orders", icon: ShoppingCart },
@@ -119,7 +119,7 @@ function Sidebar({ isMobileOpen, setIsMobileOpen, isCollapsed, setIsCollapsed, i
 
     // System
     { label: "Contact Info", path: "/admin/contact-info", icon: Phone },
-    { label: "Customization", path: "/admin/customization", icon: Palette }
+    // { label: "Customization", path: "/admin/customization", icon: Palette }
   ];
 
   const handleMobileLogout = () => {

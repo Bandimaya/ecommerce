@@ -25,7 +25,8 @@ import {
   Globe,
   Mail,
   User,
-  Plus
+  Plus,
+  X 
 } from "lucide-react";
 
 // --- Types ---
@@ -45,7 +46,6 @@ type AddressErrors = {
   [key in AddressType]?: Partial<AddressDetail>;
 };
 
-// New Type for the specific form in the image
 type NewAddressForm = {
   city: string;
   zone: string;
@@ -79,23 +79,27 @@ export default function AccountSettings() {
   const [activeTab, setActiveTab] = useState<AddressType>('home');
   const [addressErrors, setAddressErrors] = useState<AddressErrors>({});
 
-  // --- NEW: Add New Address Form State (Based on Image) ---
-  const [showNewAddressForm, setShowNewAddressForm] = useState(true); // Default open or closed
+  // --- POPUP MODAL STATE ---
+  const [showModal, setShowModal] = useState(false);
+  const [newAddressLabel, setNewAddressLabel] = useState(""); 
+  const emptyAddress: AddressDetail = { doorNo: "", street: "", village: "", city: "", state: "", pincode: "" };
+  
+  const [newPopupAddress, setNewPopupAddress] = useState<AddressDetail>({ ...emptyAddress });
+
+  // --- NEW: Add New Address Form State ---
+  const [showNewAddressForm, setShowNewAddressForm] = useState(true); 
   const [newAddrData, setNewAddrData] = useState<NewAddressForm>({
     city: "",
     zone: "",
     street: "",
     building: "",
-    country: "QATAR", // Default as per image
+    country: "QATAR",
     type: "Home",
-    mobileCode: "+974", // Default as per image
+    mobileCode: "+974",
     mobileNumber: "",
     name: "",
     email: ""
   });
-
-  // Initialize all address types
-  const emptyAddress: AddressDetail = { doorNo: "", street: "", village: "", city: "", state: "", pincode: "" };
 
   const [addresses, setAddresses] = useState<Record<AddressType, AddressDetail>>({
     home: { ...emptyAddress },
@@ -121,7 +125,6 @@ export default function AccountSettings() {
       setPhone((user as any).phone?.toString() || "");
       setAvatarPreview(user.avatar || null);
 
-      // Pre-fill the "Add New Address" personal info if available
       setNewAddrData(prev => ({
         ...prev,
         name: user.name || "",
@@ -146,9 +149,7 @@ export default function AccountSettings() {
   const themeLoading = (useTheme() as any).isLoading;
 
   // --- Validation Helpers ---
-  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isNumeric = (val: string) => /^\d+$/.test(val);
-  const isAlphaOnly = (val: string) => /^[a-zA-Z\s]*$/.test(val);
 
   // --- Handlers: Profile ---
   const handleAvatarChange = (e: any) => {
@@ -167,17 +168,11 @@ export default function AccountSettings() {
 
     try {
       setSavingProfile(true);
-      const data = new FormData();
-      data.append("name", name);
-      data.append("email", email);
-      data.append("phone", phone);
-      if (avatar) data.append("avatar", avatar);
       let payload = {
         name: name,
         email: email,
         phone: phone
       }
-      // await updateProfile(data);
       await updateProfile(payload);
       toast({ title: "Profile updated successfully" });
     } catch (err: any) {
@@ -225,8 +220,6 @@ export default function AccountSettings() {
     return isValid;
   };
 
-  console.log(user?.email)
-
   const handleSaveAddresses = async () => {
     if (!validateAddressForm()) return;
     try {
@@ -241,21 +234,45 @@ export default function AccountSettings() {
     }
   };
 
-  // --- Handler: NEW Image Based Form ---
+  // --- Handlers: POPUP MODAL ---
+  const handleOpenModal = () => {
+    setNewAddressLabel("");
+    setNewPopupAddress({ ...emptyAddress });
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
+  const handlePopupAddressChange = (field: keyof AddressDetail, value: string) => {
+    if (field === 'pincode' && value && !isNumeric(value)) return;
+    setNewPopupAddress(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSavePopupAddress = () => {
+    if (!newAddressLabel) return toast({title: "Please label this address (e.g. Home 2)", variant: "destructive"});
+    if (!newPopupAddress.city || !newPopupAddress.doorNo || !newPopupAddress.street) {
+      return toast({ title: "Missing Fields", description: "Door No, Street and City are required.", variant: "destructive" });
+    }
+
+    console.log("Saving Popup Address:", { label: newAddressLabel, ...newPopupAddress });
+    toast({ title: "Address Added", description: `${newAddressLabel} has been saved.` });
+    handleCloseModal();
+  };
+
+  // --- Handler: NEW Image Based Form (Section 3) ---
   const handleNewAddressChange = (field: keyof NewAddressForm, value: string) => {
     setNewAddrData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSaveNewAddressForm = async () => {
-    // Simple validation
     if (!newAddrData.city || !newAddrData.street || !newAddrData.mobileNumber || !newAddrData.name) {
       toast({ title: "Missing Fields", description: "Please fill in all required fields.", variant: "destructive" });
       return;
     }
-
     console.log("Saving new address:", newAddrData);
     toast({ title: "Address Added", description: "New address saved successfully." });
-    // Reset or API call here
   };
 
   // --- Handlers: Password ---
@@ -318,33 +335,20 @@ export default function AccountSettings() {
     { id: 'school', label: 'School', icon: GraduationCap },
     { id: 'college', label: 'College', icon: Building2 },
   ];
-  const [showModal, setShowModal] = useState(false)
 
-  const handleOpenModal = () => {
-    setShowModal(true);
-  };
-
-  const handleCloseModal = () => {
-    setShowModal(false);
-  };
-
-
-  const handleSaveNewAddress = () => {
-    // Save new address logic here (e.g., push to address list)
-    // After saving, close the modal and reset the form
-    setShowModal(false);
-    setAddresses({
-      ...addresses,
-      [activeTab]: { doorNo: "", street: "", village: "", pincode: "", city: "", state: "" }, // reset form
-    });
-  };
+  // --- Styles ---
+  // Shared styles to ensure consistency across all forms (Main, Popup, New Form)
+  const labelStyle = "text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block";
+  const inputStyle = "w-full bg-background border border-input text-foreground rounded-lg px-4 py-2 focus:ring-2 focus:ring-ring outline-none transition-all";
+  const selectStyle = "w-full bg-background border border-input text-foreground rounded-lg px-4 py-2 focus:ring-2 focus:ring-ring outline-none transition-all appearance-none";
+  const primaryBtnStyle = "px-6 py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold shadow-md hover:bg-primary/90 transition-all flex items-center justify-center gap-2";
 
   if (userLoading || settingsLoading || themeLoading) {
     return <SettingsSkeleton />;
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-6 text-foreground">
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 space-y-6 text-foreground relative">
       <h1 className="text-3xl font-black mb-6 text-foreground">Settings</h1>
 
       {/* --- Section 1: Basic Profile --- */}
@@ -370,21 +374,21 @@ export default function AccountSettings() {
 
           <div className="md:col-span-2 space-y-4">
             <div>
-              <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Full Name <span className="text-destructive">*</span></label>
-              <input value={name} onChange={(e) => setName(e.target.value)} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none transition-all ${profileError && !name.trim() ? 'border-destructive' : 'border-input'}`} />
+              <label className={labelStyle}>Full Name <span className="text-destructive">*</span></label>
+              <input value={name} onChange={(e) => setName(e.target.value)} className={`${inputStyle} ${profileError && !name.trim() ? 'border-destructive' : ''}`} />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Email Address</label>
-              <input value={email} onChange={(e) => setEmail(e.target.value)} className="w-full bg-muted border border-input text-muted-foreground rounded-lg px-4 py-2 mt-1 outline-none cursor-not-allowed" disabled />
+              <label className={labelStyle}>Email Address</label>
+              <input value={email} onChange={(e) => setEmail(e.target.value)} className={`${inputStyle} bg-muted text-muted-foreground cursor-not-allowed`} disabled />
             </div>
             <div>
-              <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider flex items-center gap-1"><Phone className="w-3 h-3" /> Mobile Number</label>
-              <input value={phone} type="tel" maxLength={10} placeholder="e.g. 9876543210" onChange={(e) => { const val = e.target.value; if (val === "" || isNumeric(val)) setPhone(val); }} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none transition-all ${profileError && phone.length !== 10 ? 'border-destructive' : 'border-input'}`} />
+              <label className={labelStyle}>Mobile Number</label>
+              <input value={phone} type="tel" maxLength={10} placeholder="e.g. 9876543210" onChange={(e) => { const val = e.target.value; if (val === "" || isNumeric(val)) setPhone(val); }} className={`${inputStyle} ${profileError && phone.length !== 10 ? 'border-destructive' : ''}`} />
             </div>
             {profileError && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {profileError}</p>}
             <div className="pt-2">
-              <button onClick={handleProfileSave} disabled={savingProfile} className={`px-6 py-2.5 rounded-xl text-primary-foreground font-semibold shadow-md transition-all ${savingProfile ? 'bg-muted text-muted-foreground' : 'bg-primary hover:bg-primary/90'}`}>
-                {savingProfile ? <span className="flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Saving...</span> : <span className="flex items-center gap-2"><Save className="w-4 h-4" /> Save Changes</span>}
+              <button onClick={handleProfileSave} disabled={savingProfile} className={primaryBtnStyle}>
+                {savingProfile ? <> <Loader2 className="w-4 h-4 animate-spin" /> Saving... </> : <> <Save className="w-4 h-4" /> Save Changes </>}
               </button>
             </div>
           </div>
@@ -393,10 +397,23 @@ export default function AccountSettings() {
 
       {/* --- Section 2: Existing Address Management --- */}
       <section className="w-full bg-card border bg-white border-border rounded-lg overflow-hidden shadow-sm">
-        <button onClick={() => setShowAddressSection(!showAddressSection)} className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors">
-          <h2 className="font-semibold text-xl flex items-center gap-2 text-foreground"><MapPin className="w-5 h-5 text-muted-foreground" /> Address Details (Existing)</h2>
+        <div className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors cursor-pointer" onClick={() => setShowAddressSection(!showAddressSection)}>
+          <div className="flex items-center gap-4">
+             <h2 className="font-semibold text-xl flex items-center gap-2 text-foreground"><MapPin className="w-5 h-5 text-muted-foreground" /> Address Details (Existing)</h2>
+             
+             {/* Add New Address Button */}
+             <button 
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleOpenModal();
+                }}
+                className="flex items-center gap-1 text-xs bg-primary text-primary-foreground px-3 py-1.5 rounded-full hover:bg-primary/90 transition shadow-sm z-10"
+             >
+                <Plus className="w-3 h-3" /> Add New Address
+             </button>
+          </div>
           {showAddressSection ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
-        </button>
+        </div>
 
         {showAddressSection && (
           <div className="p-6 pt-0 border-t border-border bg-muted/20">
@@ -414,62 +431,62 @@ export default function AccountSettings() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Door No / Flat No <span className="text-destructive">*</span></label>
-                <input value={addresses[activeTab].doorNo} onChange={(e) => handleAddressChange('doorNo', e.target.value)} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.doorNo ? 'border-destructive' : 'border-input'}`} placeholder="e.g. 12-B" />
+                <label className={labelStyle}>Door No / Flat No <span className="text-destructive">*</span></label>
+                <input value={addresses[activeTab].doorNo} onChange={(e) => handleAddressChange('doorNo', e.target.value)} className={`${inputStyle} ${addressErrors[activeTab]?.doorNo ? 'border-destructive' : ''}`} placeholder="e.g. 12-B" />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Street Name <span className="text-destructive">*</span></label>
-                <input value={addresses[activeTab].street} onChange={(e) => handleAddressChange('street', e.target.value)} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.street ? 'border-destructive' : 'border-input'}`} placeholder="e.g. Main Road" />
+                <label className={labelStyle}>Street Name <span className="text-destructive">*</span></label>
+                <input value={addresses[activeTab].street} onChange={(e) => handleAddressChange('street', e.target.value)} className={`${inputStyle} ${addressErrors[activeTab]?.street ? 'border-destructive' : ''}`} placeholder="e.g. Main Road" />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Village / Area</label>
-                <input value={addresses[activeTab].village} onChange={(e) => handleAddressChange('village', e.target.value)} className="w-full bg-background border border-input text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none" placeholder="e.g. Downtown" />
+                <label className={labelStyle}>Village / Area</label>
+                <input value={addresses[activeTab].village} onChange={(e) => handleAddressChange('village', e.target.value)} className={inputStyle} placeholder="e.g. Downtown" />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Pincode <span className="text-destructive">*</span></label>
-                <input value={addresses[activeTab].pincode} onChange={(e) => handleAddressChange('pincode', e.target.value)} maxLength={6} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.pincode ? 'border-destructive' : 'border-input'}`} placeholder="e.g. 500001" />
+                <label className={labelStyle}>Pincode <span className="text-destructive">*</span></label>
+                <input value={addresses[activeTab].pincode} onChange={(e) => handleAddressChange('pincode', e.target.value)} maxLength={6} className={`${inputStyle} ${addressErrors[activeTab]?.pincode ? 'border-destructive' : ''}`} placeholder="e.g. 500001" />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">City <span className="text-destructive">*</span></label>
-                <input value={addresses[activeTab].city} onChange={(e) => handleAddressChange('city', e.target.value)} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.city ? 'border-destructive' : 'border-input'}`} placeholder="e.g. New York" />
+                <label className={labelStyle}>City <span className="text-destructive">*</span></label>
+                <input value={addresses[activeTab].city} onChange={(e) => handleAddressChange('city', e.target.value)} className={`${inputStyle} ${addressErrors[activeTab]?.city ? 'border-destructive' : ''}`} placeholder="e.g. New York" />
               </div>
               <div>
-                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">State <span className="text-destructive">*</span></label>
-                <input value={addresses[activeTab].state} onChange={(e) => handleAddressChange('state', e.target.value)} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${addressErrors[activeTab]?.state ? 'border-destructive' : 'border-input'}`} placeholder="e.g. NY" />
+                <label className={labelStyle}>State <span className="text-destructive">*</span></label>
+                <input value={addresses[activeTab].state} onChange={(e) => handleAddressChange('state', e.target.value)} className={`${inputStyle} ${addressErrors[activeTab]?.state ? 'border-destructive' : ''}`} placeholder="e.g. NY" />
               </div>
             </div>
             <div className="mt-8 flex justify-end border-t border-border pt-4">
               <button onClick={handleSaveAddresses} disabled={savingAddress} className="px-6 py-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors flex items-center gap-2 shadow-lg">
-                {savingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save All Addresses
+                {savingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Address        
               </button>
             </div>
           </div>
         )}
       </section>
 
-      {/* --- Section 3: NEW ADDRESS FORM (Matches Image) --- */}
+      {/* --- Section 3: NEW ADDRESS FORM (STYLED TO MATCH MAIN SCREEN) --- */}
       <section className="w-full bg-white border border-border rounded-lg overflow-hidden shadow-sm">
         <button onClick={() => setShowNewAddressForm(!showNewAddressForm)} className="w-full p-6 flex items-center justify-between hover:bg-muted/50 transition-colors">
           <div className="flex flex-col items-start">
-            <h2 className="font-bold text-xl text-foreground">Addresses</h2>
-            <p className="text-sm text-muted-foreground">Add New Address</p>
+            <h2 className="font-semibold text-xl flex items-center gap-2 text-foreground"><MapPin className="w-5 h-5 text-muted-foreground" /> Detailed Address Form</h2>
+            <p className="text-sm text-muted-foreground ml-7">Add specific location details</p>
           </div>
           {showNewAddressForm ? <ChevronUp className="w-5 h-5 text-muted-foreground" /> : <ChevronDown className="w-5 h-5 text-muted-foreground" />}
         </button>
 
         {showNewAddressForm && (
           <div className="p-6 pt-0 border-t border-border mt-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
 
               {/* Left Column: Location Details */}
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">City</label>
+                    <label className={labelStyle}>City</label>
                     <select
                       value={newAddrData.city}
                       onChange={(e) => handleNewAddressChange('city', e.target.value)}
-                      className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-yellow-400 outline-none"
+                      className={selectStyle}
                     >
                       <option value="">Select City</option>
                       <option value="Doha">Doha</option>
@@ -477,11 +494,11 @@ export default function AccountSettings() {
                     </select>
                   </div>
                   <div>
-                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Zone Name or Number</label>
+                    <label className={labelStyle}>Zone Name/Number</label>
                     <select
                       value={newAddrData.zone}
                       onChange={(e) => handleNewAddressChange('zone', e.target.value)}
-                      className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2.5 focus:ring-2 focus:ring-yellow-400 outline-none"
+                      className={selectStyle}
                     >
                       <option value="">Select Zone</option>
                       <option value="Zone 1">Zone 1</option>
@@ -492,55 +509,55 @@ export default function AccountSettings() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Street Name or Number</label>
+                    <label className={labelStyle}>Street Name / No</label>
                     <input
                       value={newAddrData.street}
                       onChange={(e) => handleNewAddressChange('street', e.target.value)}
-                      className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                      className={inputStyle}
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Building Name or Number</label>
+                    <label className={labelStyle}>Building Name / No</label>
                     <input
                       value={newAddrData.building}
                       onChange={(e) => handleNewAddressChange('building', e.target.value)}
-                      className="w-full bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                      className={inputStyle}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Country</label>
+                  <label className={labelStyle}>Country</label>
                   <div className="relative">
                     <Globe className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
                     <input
                       value={newAddrData.country}
                       onChange={(e) => handleNewAddressChange('country', e.target.value)}
-                      className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none uppercase"
+                      className={`${inputStyle} pl-10 uppercase`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-2 block">Address Type</label>
-                  <div className="flex gap-6">
-                    <label className="flex items-center gap-2 cursor-pointer">
+                  <label className={labelStyle}>Address Type</label>
+                  <div className="flex gap-6 mt-2">
+                    <label className="flex items-center gap-2 cursor-pointer bg-muted px-4 py-2 rounded-lg hover:bg-muted/80 transition-colors">
                       <input
                         type="radio"
                         name="addressType"
                         checked={newAddrData.type === 'Home'}
                         onChange={() => handleNewAddressChange('type', 'Home')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        className="w-4 h-4 text-primary border-input focus:ring-primary"
                       />
                       <span className="font-medium text-sm">Home</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
+                    <label className="flex items-center gap-2 cursor-pointer bg-muted px-4 py-2 rounded-lg hover:bg-muted/80 transition-colors">
                       <input
                         type="radio"
                         name="addressType"
                         checked={newAddrData.type === 'Work'}
                         onChange={() => handleNewAddressChange('type', 'Work')}
-                        className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500"
+                        className="w-4 h-4 text-primary border-input focus:ring-primary"
                       />
                       <span className="font-medium text-sm">Work</span>
                     </label>
@@ -550,55 +567,55 @@ export default function AccountSettings() {
 
               {/* Right Column: Personal Information */}
               <div className="space-y-4">
-                <h3 className="font-semibold text-foreground">Personal Information</h3>
+                <h3 className="font-semibold text-foreground border-b pb-2 mb-4">Personal Information</h3>
 
                 <div>
-                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Mobile Number</label>
+                  <label className={labelStyle}>Mobile Number</label>
                   <div className="flex gap-2">
-                    <div className="w-20 bg-background border border-input rounded-lg flex items-center justify-center text-sm font-medium">
+                    <div className="w-20 bg-muted border border-input rounded-lg flex items-center justify-center text-sm font-medium text-muted-foreground">
                       {newAddrData.mobileCode}
                     </div>
                     <input
                       value={newAddrData.mobileNumber}
                       onChange={(e) => handleNewAddressChange('mobileNumber', e.target.value)}
-                      className="flex-1 bg-background border border-input text-foreground rounded-lg px-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                      className={inputStyle}
                       placeholder="50580237"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Name</label>
+                  <label className={labelStyle}>Name</label>
                   <div className="relative">
                     <User className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
                     <input
                       value={newAddrData.name}
                       onChange={(e) => handleNewAddressChange('name', e.target.value)}
-                      className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                      className={`${inputStyle} pl-10`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider mb-1 block">Email</label>
+                  <label className={labelStyle}>Email</label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-2.5 w-4 h-4 text-muted-foreground" />
                     <input
                       value={newAddrData.email}
                       onChange={(e) => handleNewAddressChange('email', e.target.value)}
-                      className="w-full bg-background border border-input text-foreground rounded-lg pl-10 pr-3 py-2 focus:ring-2 focus:ring-yellow-400 outline-none"
+                      className={`${inputStyle} pl-10`}
                     />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 flex justify-center">
+            <div className="mt-8 flex justify-end border-t border-border pt-4">
               <button
                 onClick={handleSaveNewAddressForm}
-                className="bg-[#EAB308] hover:bg-[#CA8A04] text-white px-8 py-3 rounded-full font-bold shadow-md transition-all transform hover:scale-105"
+                className={primaryBtnStyle}
               >
-                Save New Address
+                <Save className="w-4 h-4" /> Save New Address
               </button>
             </div>
           </div>
@@ -616,9 +633,9 @@ export default function AccountSettings() {
           <div className="p-6 pt-0 border-t border-border bg-muted/20">
             <div className="max-w-md mx-auto mt-6 space-y-4">
               <div className={`transition-opacity duration-300 ${isOldPasswordVerified ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
-                <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Current Password</label>
+                <label className={labelStyle}>Current Password</label>
                 <div className="flex gap-2 mt-1">
-                  <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} disabled={isOldPasswordVerified} className="flex-1 bg-background border border-input text-foreground rounded-lg px-4 py-2 focus:ring-2 focus:ring-ring outline-none" placeholder="Enter current password" />
+                  <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} disabled={isOldPasswordVerified} className={inputStyle} placeholder="Enter current password" />
                   {!isOldPasswordVerified && (
                     <button onClick={verifyOldPassword} disabled={verifyingPassword || !oldPassword} className="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg text-sm font-medium transition-colors">
                       {verifyingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify"}
@@ -631,13 +648,13 @@ export default function AccountSettings() {
               {isOldPasswordVerified && (
                 <div className="animate-in fade-in slide-in-from-top-4 space-y-4 pt-4 border-t border-dashed border-border">
                   <div>
-                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">New Password</label>
-                    <input type="password" value={newPassword} onChange={(e) => { setNewPassword(e.target.value); setPasswordErrors(prev => ({ ...prev, new: undefined })); }} className={`w-full bg-background border text-foreground rounded-lg px-4 py-2 mt-1 focus:ring-2 focus:ring-ring outline-none ${passwordErrors.new ? 'border-destructive' : 'border-input'}`} placeholder="Min. 8 chars, 1 Upper, 1 Special" />
+                    <label className={labelStyle}>New Password</label>
+                    <input type="password" value={newPassword} onChange={(e) => { setNewPassword(e.target.value); setPasswordErrors(prev => ({ ...prev, new: undefined })); }} className={`${inputStyle} ${passwordErrors.new ? 'border-destructive' : ''}`} placeholder="Min. 8 chars, 1 Upper, 1 Special" />
                     {passwordErrors.new && <p className="text-xs text-destructive mt-1">{passwordErrors.new}</p>}
                   </div>
                   <div>
-                    <label className="text-xs font-semibold uppercase text-muted-foreground tracking-wider">Confirm New Password</label>
-                    <input type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setPasswordErrors(prev => ({ ...prev, confirm: undefined })); }} className={`w-full bg-background border rounded-lg px-4 py-2 mt-1 focus:ring-2 outline-none ${passwordErrors.confirm ? 'border-destructive focus:ring-destructive' : 'border-input focus:ring-ring'}`} placeholder="Re-enter new password" />
+                    <label className={labelStyle}>Confirm New Password</label>
+                    <input type="password" value={confirmPassword} onChange={(e) => { setConfirmPassword(e.target.value); setPasswordErrors(prev => ({ ...prev, confirm: undefined })); }} className={`${inputStyle} ${passwordErrors.confirm ? 'border-destructive' : ''}`} placeholder="Re-enter new password" />
                     {passwordErrors.confirm && <p className="text-xs text-destructive mt-1">{passwordErrors.confirm}</p>}
                   </div>
                   <button onClick={handleChangePassword} disabled={changingPassword || !newPassword || !confirmPassword} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-md mt-2">
@@ -649,6 +666,77 @@ export default function AccountSettings() {
           </div>
         )}
       </section>
+
+      {/* --- POPUP MODAL COMPONENT (STYLED TO MATCH MAIN SCREEN) --- */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+           {/* Modal Container */}
+           <div className="bg-card bg-white rounded-xl shadow-2xl w-full max-w-lg overflow-hidden border border-border transform transition-all scale-100">
+             
+             {/* Header */}
+             <div className="bg-muted/20 px-6 py-4 flex items-center justify-between border-b border-border">
+                 <h3 className="text-lg font-bold text-foreground">Add New Address</h3>
+                 <button onClick={handleCloseModal} className="text-muted-foreground hover:text-destructive transition-colors">
+                    <X className="w-5 h-5" />
+                 </button>
+             </div>
+
+             {/* Body */}
+             <div className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                 
+                 {/* Address Label / Type */}
+                 <div>
+                    <label className={labelStyle}>Address Label <span className="text-destructive">*</span></label>
+                    <input 
+                      value={newAddressLabel} 
+                      onChange={(e) => setNewAddressLabel(e.target.value)} 
+                      className={inputStyle} 
+                      placeholder="e.g. Home 2, Office 3" 
+                    />
+                 </div>
+
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <div>
+                     <label className={labelStyle}>Door No / Flat No <span className="text-destructive">*</span></label>
+                     <input value={newPopupAddress.doorNo} onChange={(e) => handlePopupAddressChange('doorNo', e.target.value)} className={inputStyle} placeholder="e.g. 12-B" />
+                   </div>
+                   <div>
+                     <label className={labelStyle}>Street Name <span className="text-destructive">*</span></label>
+                     <input value={newPopupAddress.street} onChange={(e) => handlePopupAddressChange('street', e.target.value)} className={inputStyle} placeholder="e.g. Main Road" />
+                   </div>
+                   <div>
+                     <label className={labelStyle}>Village / Area</label>
+                     <input value={newPopupAddress.village} onChange={(e) => handlePopupAddressChange('village', e.target.value)} className={inputStyle} placeholder="e.g. Downtown" />
+                   </div>
+                   <div>
+                     <label className={labelStyle}>Pincode</label>
+                     <input value={newPopupAddress.pincode} onChange={(e) => handlePopupAddressChange('pincode', e.target.value)} maxLength={6} className={inputStyle} placeholder="e.g. 500001" />
+                   </div>
+                   <div>
+                     <label className={labelStyle}>City <span className="text-destructive">*</span></label>
+                     <input value={newPopupAddress.city} onChange={(e) => handlePopupAddressChange('city', e.target.value)} className={inputStyle} placeholder="e.g. New York" />
+                   </div>
+                   <div>
+                     <label className={labelStyle}>State</label>
+                     <input value={newPopupAddress.state} onChange={(e) => handlePopupAddressChange('state', e.target.value)} className={inputStyle} placeholder="e.g. NY" />
+                   </div>
+                 </div>
+             </div>
+
+             {/* Footer */}
+             <div className="bg-muted/20 px-6 py-4 flex justify-end gap-3 border-t border-border">
+                 <button onClick={handleCloseModal} className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted transition-colors">
+                   Cancel
+                 </button>
+                 <button onClick={handleSavePopupAddress} className={primaryBtnStyle}>
+                    <Save className="w-4 h-4" /> Save New Address
+                 </button>
+             </div>
+
+           </div>
+        </div>
+      )}
+
     </div>
   );
 }

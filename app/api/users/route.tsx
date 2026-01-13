@@ -9,9 +9,9 @@ export const GET = withAuth(async (req: NextRequest, user: UserPayload) => {
 
   try {
     // Optional: restrict to admin
-    if (user.role !== "admin") {
-      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-    }
+    // if (user.role !== "admin") {
+    //   return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    // 
 
     const users = await User.find().select("-password");
     return NextResponse.json(users);
