@@ -39,10 +39,11 @@ const PaymentSuccess: React.FC = () => {
       return
     }
 
+    let timer: NodeJS.Timeout
+
     const fetchOrder = async () => {
       try {
         const res = await apiFetch(`/orders/${orderId}`)
-
         setOrder(res)
       } catch (err: any) {
         setError(err.message)
@@ -51,9 +52,13 @@ const PaymentSuccess: React.FC = () => {
       }
     }
 
-    fetchOrder()
-  }, [orderId])
+    // ⏱ wait 3 seconds before fetching
+    timer = setTimeout(fetchOrder, 3000)
 
+    // 🧹 cleanup (important)
+    return () => clearTimeout(timer)
+
+  }, [orderId])
   /* ================= HANDLERS ================= */
 
   const handlePrint = () => window.print()
