@@ -23,7 +23,7 @@ const Cart = () => {
     const [isCheckingOut, setIsCheckingOut] = useState(false)
     const [shippingMethod, setShippingMethod] = useState("standard")
 
-    const currencySymbol = isIndia ? "₹" : "$"
+    const currencySymbol = isIndia ? "₹" : ""
     const shippingCost = total >= 50 ? 0 : 5.99
     const grandTotal = total + shippingCost
 

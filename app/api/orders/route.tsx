@@ -139,11 +139,6 @@ export const POST = withAuth(async (req: NextRequest, user: UserPayload) => {
       shippingAddress,
     });
 
-    await Cart.findOneAndUpdate(
-      { userId: user.id },
-      { items: [] }
-    );
-
     // Async email (non-blocking)
     sendOrderEmails(order, user).catch(console.error);
 
