@@ -31,11 +31,11 @@ const TESTIMONIALS = [
 
 // --- Main Section Component ---
 export default function ParentTestimonials() {
-      const [parentTestimonials, setParentTestimonials] = React.useState<any[]>([]);
+    const [parentTestimonials, setParentTestimonials] = React.useState<any[]>([]);
 
-  useEffect(() => {
-    apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial: any) => testimonial.testimonial_type === 'product'))).catch((err) => console.error(err));
-  }, [])
+    useEffect(() => {
+        apiFetch('/testimonials').then((data) => setParentTestimonials(data.filter((testimonial: any) => testimonial.testimonial_type === 'product'))).catch((err) => console.error(err));
+    }, [])
 
     return (
         <section className="py-24 bg-[#fcfcfd] relative overflow-hidden">

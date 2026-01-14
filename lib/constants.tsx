@@ -10,11 +10,12 @@ export const CURRENCY_OPTIONS = [
 ];
 
 export const countryToCurrency: Record<string, string> = {
-  SA: "SAR", // Saudi Arabia
+  // SA: "SAR", // Saudi Arabia
   IN: "INR", // India
-  OM: "OMR", // Oman
-  BH: "BHD", // Bahrain
-  AE: "AED", // UAE
+  QAR: "QAR", // Oman
+  // OM: "OMR", // Oman
+  // BH: "BHD", // Bahrain
+  // AE: "AED", // UAE
 };
 
 export const IMAGE_URL = process.env.NEXT_PUBLIC_IMAGES_BASE_URL;

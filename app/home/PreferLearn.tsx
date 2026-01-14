@@ -5,13 +5,13 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { 
-  Zap, 
-  Users, 
-  Star, 
-  ChevronRight, 
-  PlayCircle, 
-  Clock, 
+import {
+  Zap,
+  Users,
+  Star,
+  ChevronRight,
+  PlayCircle,
+  Clock,
   BarChart,
   X,
   Award,
@@ -62,13 +62,13 @@ const useSavedCourses = () => {
   }, [])
 
   const toggleSave = (id: string) => {
-    const newIds = savedIds.includes(id) 
+    const newIds = savedIds.includes(id)
       ? savedIds.filter(savedId => savedId !== id)
       : [...savedIds, id]
-    
+
     setSavedIds(newIds)
     localStorage.setItem('saved_courses', JSON.stringify(newIds))
-    
+
     if (!savedIds.includes(id)) {
       alert("Added to wishlist")
     }
@@ -83,7 +83,7 @@ const handleShare = async (course: any) => {
   const shareData = {
     title: course.title || course.name,
     text: `Check out this course: ${course.title || course.name}`,
-    url: window.location.href, 
+    url: window.location.href,
   }
 
   if (navigator.share) {
@@ -94,16 +94,16 @@ const handleShare = async (course: any) => {
     }
   } else {
     navigator.clipboard.writeText(window.location.href)
-    alert("Link copied to clipboard!") 
+    alert("Link copied to clipboard!")
   }
 }
 
 const handleDownloadSyllabus = (course: any) => {
   if (!course.syllabusPdf && !course.syllabusUrl) {
-    alert("Syllabus not available for download yet.") 
+    alert("Syllabus not available for download yet.")
     return
   }
-  
+
   const link = document.createElement('a')
   link.href = course.syllabusPdf || course.syllabusUrl
   link.download = `${course.title || 'course'}-syllabus.pdf`
@@ -111,7 +111,7 @@ const handleDownloadSyllabus = (course: any) => {
   document.body.appendChild(link)
   link.click()
   document.body.removeChild(link)
-  alert("Download started") 
+  alert("Download started")
 }
 
 // --- Components ---
@@ -121,7 +121,7 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
   const modalRef = useRef<HTMLDivElement>(null)
   const [activeTab, setActiveTab] = useState("overview")
   const [showEnrollModal, setShowEnrollModal] = useState(false)
-  
+
   const tabs = [
     { id: "overview", label: "Overview", icon: BookOpen, show: true },
     { id: "curriculum", label: "Curriculum", icon: Award, show: !!(course.curriculum && course.curriculum.length > 0) },
@@ -148,7 +148,7 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
         className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-sm"
         onClick={onClose}
       />
-      
+
       <div className="fixed inset-0 z-[10000] top-20 md:top-20 flex items-center justify-center p-4 pointer-events-none">
         <motion.div
           ref={modalRef}
@@ -181,17 +181,17 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
 
           {/* --- RIGHT COLUMN: CONTENT (50%) --- */}
           <div className="w-full md:w-1/2 flex flex-col h-full bg-white overflow-hidden">
-            
+
             {/* Header Content (Moved from Image Overlay to here) */}
             <div className="px-6 pt-6 pb-2 flex-shrink-0">
               <div className="flex items-start justify-between gap-4 mb-2">
-                 <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-0">
+                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-0">
                   {course.ageRange || "All Ages"}
                 </Badge>
                 {/* Mobile View Rating (since stats bar might scroll) */}
                 <div className="flex items-center gap-1 md:hidden">
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    <span className="font-bold text-sm">{course.rating || "New"}</span>
+                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                  <span className="font-bold text-sm">{course.rating || "New"}</span>
                 </div>
               </div>
 
@@ -230,11 +230,10 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 py-3 border-b-2 font-medium text-sm transition-all whitespace-nowrap ${
-                        activeTab === tab.id 
-                          ? "border-blue-600 text-blue-600" 
+                      className={`flex items-center gap-2 py-3 border-b-2 font-medium text-sm transition-all whitespace-nowrap ${activeTab === tab.id
+                          ? "border-blue-600 text-blue-600"
                           : "border-transparent text-slate-500 hover:text-slate-800"
-                      }`}
+                        }`}
                     >
                       <Icon className="w-4 h-4" />
                       {tab.label}
@@ -254,7 +253,7 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
                       {course.description || "No description provided."}
                     </p>
                   </div>
-                  
+
                   {course.outcomes && course.outcomes.length > 0 && (
                     <div>
                       <h3 className="text-lg font-bold text-slate-900 mb-3">What You'll Learn</h3>
@@ -270,7 +269,7 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
                   )}
                 </div>
               )}
-              
+
               {activeTab === "curriculum" && course.curriculum && (
                 <div className="space-y-3">
                   {course.curriculum.map((module: any, index: number) => (
@@ -279,7 +278,7 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
                         <div>
                           <div className="font-semibold text-slate-900 text-sm">{module.title || `Module ${index + 1}`}</div>
                           <div className="text-xs text-slate-500 mt-0.5">
-                            {module.lessonsCount ? `${module.lessonsCount} lessons` : ''} 
+                            {module.lessonsCount ? `${module.lessonsCount} lessons` : ''}
                             {module.duration ? ` • ${module.duration}` : ''}
                           </div>
                         </div>
@@ -289,28 +288,28 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
                   ))}
                 </div>
               )}
-              
+
               {activeTab === "instructor" && course.instructor && (
                 <div>
-                   <div className="flex items-center gap-4 mb-4">
-                      <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100">
-                        <img 
-                          src={course.instructor.avatar ? (IMAGE_URL + course.instructor.avatar) : "https://placehold.co/100"} 
-                          alt={course.instructor.name}
-                          className="w-full h-full object-cover" 
-                        />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-lg text-slate-900">{course.instructor.name}</h4>
-                        <p className="text-slate-500 text-sm">{course.instructor.role || "Instructor"}</p>
-                      </div>
-                   </div>
-                   <p className="text-slate-600 text-sm leading-relaxed">
-                      {course.instructor.bio}
-                   </p>
+                  <div className="flex items-center gap-4 mb-4">
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100">
+                      <img
+                        src={course.instructor.avatar ? (IMAGE_URL + course.instructor.avatar) : "https://placehold.co/100"}
+                        alt={course.instructor.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-lg text-slate-900">{course.instructor.name}</h4>
+                      <p className="text-slate-500 text-sm">{course.instructor.role || "Instructor"}</p>
+                    </div>
+                  </div>
+                  <p className="text-slate-600 text-sm leading-relaxed">
+                    {course.instructor.bio}
+                  </p>
                 </div>
               )}
-              
+
               {activeTab === "reviews" && course.reviews && (
                 <div className="space-y-3">
                   {course.reviews.map((review: any, index: number) => (
@@ -341,8 +340,8 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
             <div className="px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0 z-10">
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-                  <Button 
-                    variant="outline" 
+                  <Button
+                    variant="outline"
                     size="icon"
                     className={`h-10 w-10 ${isSaved ? "text-red-500 border-red-200 bg-red-50" : ""}`}
                     onClick={onToggleSave}
@@ -350,9 +349,9 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
                   >
                     <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
                   </Button>
-                  
-                  <Button 
-                    variant="outline" 
+
+                  <Button
+                    variant="outline"
                     size="icon"
                     className="h-10 w-10"
                     onClick={() => handleShare(course)}
@@ -360,9 +359,9 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
                   >
                     <Share2 className="w-4 h-4" />
                   </Button>
-                  
-                  <Button 
-                    variant="outline" 
+
+                  <Button
+                    variant="outline"
                     size="icon"
                     className="h-10 w-10"
                     onClick={() => handleDownloadSyllabus(course)}
@@ -371,17 +370,17 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
                     <Download className="w-4 h-4" />
                   </Button>
                 </div>
-                
+
                 <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end flex-1">
                   <div className="text-right">
-                    <div className="text-xl font-bold text-slate-900">
+                    {/* <div className="text-xl font-bold text-slate-900">
                       {course.price === 0 ? "Free" : `₹${course.price}`}
-                    </div>
+                    </div> */}
                     {course.originalPrice && (
                       <div className="text-xs text-slate-500 line-through">₹{course.originalPrice}</div>
                     )}
                   </div>
-                  <Button 
+                  <Button
                     onClick={() => setShowEnrollModal(true)}
                     className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg px-6"
                   >
@@ -398,9 +397,9 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
 
       <AnimatePresence>
         {showEnrollModal && (
-          <EnrollModal 
-            course={course} 
-            onClose={() => setShowEnrollModal(false)} 
+          <EnrollModal
+            course={course}
+            onClose={() => setShowEnrollModal(false)}
           />
         )}
       </AnimatePresence>
@@ -410,7 +409,7 @@ const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProp
 
 const EnrollModal = ({ course, onClose }: { course: any; onClose: () => void }) => {
   useScrollLock(true)
-  
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
     window.addEventListener('keydown', handleEscape)
@@ -434,7 +433,7 @@ const EnrollModal = ({ course, onClose }: { course: any; onClose: () => void }) 
         className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors"
         >
@@ -451,7 +450,7 @@ const EnrollModal = ({ course, onClose }: { course: any; onClose: () => void }) 
         </div>
 
         <div className="space-y-3 mb-6">
-          <Button 
+          <Button
             onClick={() => {
               window.open(`https://wa.me/1234567890?text=${encodeURIComponent(messageText)}`, '_blank')
               onClose()
@@ -461,8 +460,8 @@ const EnrollModal = ({ course, onClose }: { course: any; onClose: () => void }) 
             <Phone size={20} />
             Continue on WhatsApp
           </Button>
-          
-          <Button 
+
+          <Button
             onClick={() => {
               window.location.href = `mailto:info@example.com?subject=Enquiry: ${course.title}&body=${messageText}`
               onClose()
@@ -498,11 +497,11 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
 
   const cardVariants = {
     hidden: { opacity: 0, y: 30, scale: 0.95 },
-    visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1, 
-      transition: { type: "spring" as const, stiffness: 120, damping: 20 } 
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: { type: "spring" as const, stiffness: 120, damping: 20 }
     },
     hover: { y: -8, transition: { duration: 0.3 } }
   }
@@ -516,17 +515,17 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
           apiFetch('/sections'),
           apiFetch('/section-courses')
         ])
-        
+
         // Map sections to their courses
         const mappedData = sectionsData.map((section: any) => {
-          const courses = coursesData.filter((item: any) => 
+          const courses = coursesData.filter((item: any) =>
             // Handle different ID structures from APIs
             (item.sectionId?._id === section._id) || (item.sectionId === section._id)
           )
-          return { 
-            ...section, 
-            paths: courses, 
-            label: section.name || section.label 
+          return {
+            ...section,
+            paths: courses,
+            label: section.name || section.label
           }
         }).filter((section: any) => section.paths.length > 0) // Only show sections with courses
 
@@ -556,7 +555,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
       </div>
 
       <div className="container px-4 sm:px-6 mx-auto relative z-10 max-w-7xl">
-        
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -566,9 +565,9 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
           className="text-center mb-10 sm:mb-16"
         >
           <motion.div className="flex justify-center items-center gap-4 mb-4">
-             <motion.div className="h-[2px]" initial={{ width: 0 }} whileInView={{ width: '40px' }} transition={{ duration: 0.5, delay: 0.2 }} style={{ backgroundColor: v('--primary', '#3b82f6') }} />
-             <span className="text-xs sm:text-sm font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: v('--primary', '#3b82f6') }}>Personalized Learning</span>
-             <motion.div className="h-[2px]" initial={{ width: 0 }} whileInView={{ width: '40px' }} transition={{ duration: 0.5, delay: 0.2 }} style={{ backgroundColor: v('--primary', '#3b82f6') }} />
+            <motion.div className="h-[2px]" initial={{ width: 0 }} whileInView={{ width: '40px' }} transition={{ duration: 0.5, delay: 0.2 }} style={{ backgroundColor: v('--primary', '#3b82f6') }} />
+            <span className="text-xs sm:text-sm font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: v('--primary', '#3b82f6') }}>Personalized Learning</span>
+            <motion.div className="h-[2px]" initial={{ width: 0 }} whileInView={{ width: '40px' }} transition={{ duration: 0.5, delay: 0.2 }} style={{ backgroundColor: v('--primary', '#3b82f6') }} />
           </motion.div>
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
             <span style={{ color: v('--foreground', '#020817') }}>How Would Your Child</span>{" "}
@@ -584,7 +583,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
         )}
 
         {!loading && data.length === 0 && (
-           <div className="text-center py-10 text-slate-500">No courses available at the moment.</div>
+          <div className="text-center py-10 text-slate-500">No courses available at the moment.</div>
         )}
 
         {/* Dynamic Toggle Switcher */}
@@ -601,7 +600,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                 )}
                 <span>All</span>
               </button>
-              
+
               {data.map((tab) => {
                 const isActive = activeTab === tab._id
                 return (
@@ -633,11 +632,11 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
               exit="exit"
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 max-w-7xl mx-auto"
             >
-              {activeTabData.flatMap((section) => 
+              {activeTabData.flatMap((section) =>
                 section.paths?.map((course: any) => {
                   const isHovered = hoveredCard === course._id;
                   const isSaved = savedIds.includes(course._id);
-                  
+
                   return (
                     <motion.div
                       key={course._id}
@@ -647,7 +646,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                       onMouseLeave={() => setHoveredCard(null)}
                       whileHover="hover"
                     >
-                      <Card 
+                      <Card
                         className="group relative h-[400px] w-full overflow-hidden border transition-all duration-500 flex flex-col hover:shadow-2xl hover:border-primary/50 cursor-pointer"
                         style={{ backgroundColor: v('--card', '#ffffff'), borderColor: v('--border', '#e2e8f0') }}
                         onClick={() => setSelectedCourse(course)}
@@ -719,7 +718,7 @@ const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varN
                           </CardContent>
 
                           <CardFooter className="p-5 pt-0">
-                            <Button 
+                            <Button
                               className="w-full h-10 text-sm font-medium rounded-lg shadow-md group/btn transition-all duration-300 border-0"
                               style={{ backgroundColor: isHovered ? '#ffffff' : v('--primary', '#3b82f6'), color: isHovered ? '#000000' : v('--primary-foreground', '#ffffff') }}
                             >

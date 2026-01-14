@@ -107,7 +107,7 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
     const checkScroll = () => {
         if (!rowRef.current) return;
         const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
-        const isAtStart = scrollLeft <= 1; 
+        const isAtStart = scrollLeft <= 1;
         const isAtEnd = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 1;
 
         setCanScrollLeft(!isAtStart);
@@ -126,12 +126,12 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
 
     const scroll = (direction: 'left' | 'right') => {
         if (!rowRef.current) return;
-        const scrollAmount = rowRef.current.clientWidth * 0.75; 
+        const scrollAmount = rowRef.current.clientWidth * 0.75;
         rowRef.current.scrollBy({
             left: direction === 'left' ? -scrollAmount : scrollAmount,
             behavior: 'smooth'
         });
-        setTimeout(checkScroll, 400); 
+        setTimeout(checkScroll, 400);
     };
 
     return (
@@ -143,7 +143,7 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
                 onClick={() => scroll('left')}
                 disabled={!canScrollLeft}
                 className={cn(
-                    "absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -ml-6", 
+                    "absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -ml-6",
                     "bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center transition-all duration-300",
                     "flex",
                     !canScrollLeft ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100 hover:bg-slate-900 hover:text-white"
@@ -163,7 +163,7 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
                 onClick={() => scroll('right')}
                 disabled={!canScrollRight}
                 className={cn(
-                    "absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -mr-6", 
+                    "absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -mr-6",
                     "bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center transition-all duration-300",
                     "flex",
                     !canScrollRight ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100 hover:bg-slate-900 hover:text-white"
@@ -216,7 +216,7 @@ const Shop = () => {
         const checkMobile = () => setIsMobileWidth(window.innerWidth < 768);
         checkMobile();
         window.addEventListener('resize', checkMobile);
-        
+
         // Scroll locking logic
         if (selectedProduct) {
             document.body.style.overflow = 'hidden';
@@ -241,7 +241,7 @@ const Shop = () => {
     const isMobile = isMobileWidth;
 
     // --- HANDLERS ---
-    const handleAddToCart = (e: React.MouseEvent, product: any) => {
+    const handleAddToCart = (e: React.MouseEvent, product: any, curreny: any) => {
         e.stopPropagation();
         const price = product.pricing?.[0]?.salePrice || 0;
         const image = product.media?.[0]?.url;
@@ -252,7 +252,7 @@ const Shop = () => {
                 name: product.name,
                 price: price,
                 image: image,
-                currency: "USD",
+                currency: curreny,
             }, 1);
             toast({ title: 'Added to cart', description: `${product.name} added to cart`, className: "bg-emerald-600 text-white border-none" });
         } else {
@@ -292,10 +292,10 @@ const Shop = () => {
             <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-0"></div>
 
             <div className="w-full max-w-[2000px] mx-auto px-4 md:px-12 py-8 relative z-10">
-                
+
                 {/* --- HEADER SECTION --- */}
                 <div className="sticky top-[60px] md:top-[80px] z-40 mb-6 md:mb-10 -mx-4 px-4 md:-mx-12 md:px-12 py-2 md:py-4 bg-[var(--background)]/95 backdrop-blur-md transition-all rounded-b-2xl md:rounded-none shadow-sm md:shadow-none">
-                    
+
                     <div className="flex flex-col gap-4 max-w-4xl mx-auto">
                         <div className="bg-[var(--background)] border border-[var(--border)] p-1.5 md:p-2 rounded-[12px] shadow-sm flex items-center gap-2 md:gap-4 w-full">
                             <div className="relative flex-1 group">
@@ -308,26 +308,26 @@ const Shop = () => {
                                     className="w-full bg-transparent pl-10 pr-4 py-2 md:py-3 text-sm md:text-base outline-none text-[var(--foreground)] placeholder:text-slate-400"
                                 />
                             </div>
-                            
+
                             <div className="hidden md:flex items-center gap-2 px-6 border-l border-[var(--border)] h-8 shrink-0">
                                 <span className="text-sm font-bold text-[var(--muted-foreground)]">{filteredProducts.length} Products</span>
                             </div>
-                            
-                            <button 
+
+                            <button
                                 onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
                                 className={cn(
                                     "flex items-center justify-center w-10 h-10 rounded-[8px] transition-colors shrink-0",
-                                    "md:ml-0", 
+                                    "md:ml-0",
                                     isCategoryMenuOpen ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                                 )}
                             >
-                                {isCategoryMenuOpen ? <X className="w-5 h-5"/> : <Filter className="w-5 h-5"/>}
+                                {isCategoryMenuOpen ? <X className="w-5 h-5" /> : <Filter className="w-5 h-5" />}
                             </button>
                         </div>
 
                         <AnimatePresence>
                             {isCategoryMenuOpen && (
-                                <motion.div 
+                                <motion.div
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: "auto", opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
@@ -385,128 +385,128 @@ const Shop = () => {
                 <main className="min-w-0 pb-20">
                     <div className="space-y-16">
                         {loading ? (
-                             <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-[var(--muted-foreground)]" /></div>
+                            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-[var(--muted-foreground)]" /></div>
                         ) : filteredProducts.length > 0 ? (
                             categories.map((category: any) => {
                                 const categoryProducts = filteredProducts.filter(product => product.categories?.some((c: any) => c._id === category._id));
                                 if (categoryProducts.length === 0) return null;
-                                if(selectedCategory !== "all" && selectedCategory !== category._id) return null;
+                                if (selectedCategory !== "all" && selectedCategory !== category._id) return null;
 
                                 const productChunks = chunkArray(categoryProducts, 10);
 
                                 return (
                                     <div key={category._id + 'maincategoryproduct'} className="space-y-6 md:space-y-8">
-                                            <div className="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4 md:pb-6">
-                                                <h3 className="text-xl md:text-3xl font-black text-[var(--foreground)] tracking-tight">{category.title}</h3>
-                                                {selectedCategory === "all" && (
-                                                     <Button 
-                                                        variant="ghost" 
-                                                        onClick={() => { setSelectedCategory(category._id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                                                        className="group flex items-center gap-1 md:gap-2 text-xs md:text-sm font-bold text-[var(--muted-foreground)] hover:text-blue-600 hover:bg-blue-50 transition-all rounded-[10px] px-2 md:px-4"
-                                                     >
-                                                        <span className="hidden md:inline">View all</span> {categoryProducts.length}
-                                                        <ArrowRight className="w-3 h-3 md:w-4 md:h-4 transition-transform group-hover:translate-x-1" />
-                                                     </Button>
-                                                )}
-                                            </div>
+                                        <div className="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4 md:pb-6">
+                                            <h3 className="text-xl md:text-3xl font-black text-[var(--foreground)] tracking-tight">{category.title}</h3>
+                                            {selectedCategory === "all" && (
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => { setSelectedCategory(category._id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                                    className="group flex items-center gap-1 md:gap-2 text-xs md:text-sm font-bold text-[var(--muted-foreground)] hover:text-blue-600 hover:bg-blue-50 transition-all rounded-[10px] px-2 md:px-4"
+                                                >
+                                                    <span className="hidden md:inline">View all</span> {categoryProducts.length}
+                                                    <ArrowRight className="w-3 h-3 md:w-4 md:h-4 transition-transform group-hover:translate-x-1" />
+                                                </Button>
+                                            )}
+                                        </div>
 
-                                            <div className="space-y-12 px-10">
-                                                {productChunks.map((chunk: any[], chunkIndex: number) => (
-                                                    <ProductCarouselRow key={`${category._id}-chunk-${chunkIndex}`} rowIndex={chunkIndex}>
-                                                        {chunk.map((product: any) => {
-                                                            const displayImage = product.media?.[0]?.url || '/placeholder.png';
-                                                            const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
-                                                            const displayCategory = product.categories?.[0]?.title || "Item";
+                                        <div className="space-y-12 px-10">
+                                            {productChunks.map((chunk: any[], chunkIndex: number) => (
+                                                <ProductCarouselRow key={`${category._id}-chunk-${chunkIndex}`} rowIndex={chunkIndex}>
+                                                    {chunk.map((product: any) => {
+                                                        const displayImage = product.media?.[0]?.url || '/placeholder.png';
+                                                        const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
+                                                        const displayCategory = product.categories?.[0]?.title || "Item";
 
-                                                            return (
-                                                                <motion.div
-                                                                    key={product._id + "sub" + category._id}
-                                                                    layoutId={`product-card-container-${product._id}`}
-                                                                    className="relative group cursor-pointer perspective-1000 flex-shrink-0 w-[260px] md:w-[320px] snap-start"
-                                                                    initial="rest"
-                                                                    whileHover={isMobile || isModalOpen ? undefined : "hover"}
-                                                                    animate={selectedProduct?._id === product._id ? "selected" : "rest"}
-                                                                    variants={{ rest: {}, hover: {}, selected: { scale: 1 } }}
-                                                                    onClick={() => !isModalOpen && setSelectedProduct(product)}
-                                                                >
-                                                                    <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full">
-                                                                        <motion.div
-                                                                            className="absolute inset-0 top-0 md:top-12 rounded-[12px] border bg-white shadow-sm group-hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
-                                                                            variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0 } }}
-                                                                            transition={{ duration: 0.4, ease: "easeOut" }}
-                                                                        >
-                                                                            <div className="mt-auto p-4 md:p-6 space-y-2 md:space-y-4 z-10 bg-white">
-                                                                                 <motion.div
-                                                                                    initial={false}
-                                                                                    variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
-                                                                                 >
-                                                                                     <div className="flex justify-between items-start">
-                                                                                        <div>
-                                                                                            <p className="text-[9px] md:text-[10px] font-black uppercase text-blue-600 mb-0.5 md:mb-1">{displayCategory}</p>
-                                                                                            <h3 className="text-lg font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
-                                                                                        </div>
-                                                                                        <span className="text-lg font-black text-slate-900 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
-                                                                                     </div>
-                                                                                     <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center mt-2">
-                                                                                        <span className="text-xs font-bold text-slate-400 flex items-center">Details <ChevronRight className="ml-1 w-3 h-3" /></span>
-                                                                                        <Button size="icon" className="h-8 w-8 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product)} disabled={cartLoading}>
-                                                                                                {cartLoading ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <ShoppingCart className="w-3 h-3 text-white" />}
-                                                                                        </Button>
-                                                                                     </div>
-                                                                                 </motion.div>
-                                                                            </div>
-                                                                        </motion.div>
+                                                        return (
+                                                            <motion.div
+                                                                key={product._id + "sub" + category._id}
+                                                                layoutId={`product-card-container-${product._id}`}
+                                                                className="relative group cursor-pointer perspective-1000 flex-shrink-0 w-[260px] md:w-[320px] snap-start"
+                                                                initial="rest"
+                                                                whileHover={isMobile || isModalOpen ? undefined : "hover"}
+                                                                animate={selectedProduct?._id === product._id ? "selected" : "rest"}
+                                                                variants={{ rest: {}, hover: {}, selected: { scale: 1 } }}
+                                                                onClick={() => !isModalOpen && setSelectedProduct(product)}
+                                                            >
+                                                                <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full">
+                                                                    <motion.div
+                                                                        className="absolute inset-0 top-0 md:top-12 rounded-[12px] border bg-white shadow-sm group-hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
+                                                                        variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0 } }}
+                                                                        transition={{ duration: 0.4, ease: "easeOut" }}
+                                                                    >
+                                                                        <div className="mt-auto p-4 md:p-6 space-y-2 md:space-y-4 z-10 bg-white">
+                                                                            <motion.div
+                                                                                initial={false}
+                                                                                variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
+                                                                            >
+                                                                                <div className="flex justify-between items-start">
+                                                                                    <div>
+                                                                                        <p className="text-[9px] md:text-[10px] font-black uppercase text-blue-600 mb-0.5 md:mb-1">{displayCategory}</p>
+                                                                                        <h3 className="text-lg font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
+                                                                                    </div>
+                                                                                    <span className="text-lg font-black text-slate-900 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
+                                                                                </div>
+                                                                                <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center mt-2">
+                                                                                    <span className="text-xs font-bold text-slate-400 flex items-center">Details <ChevronRight className="ml-1 w-3 h-3" /></span>
+                                                                                    <Button size="icon" className="h-8 w-8 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product, currency)} disabled={cartLoading}>
+                                                                                        {cartLoading ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <ShoppingCart className="w-3 h-3 text-white" />}
+                                                                                    </Button>
+                                                                                </div>
+                                                                            </motion.div>
+                                                                        </div>
+                                                                    </motion.div>
 
-                                                                        <motion.div
-                                                                            layoutId={`product-image-container-${product._id}`}
-                                                                            className="absolute z-30 overflow-hidden shadow-md group-hover:shadow-2xl bg-white"
-                                                                            variants={{
-                                                                                rest: {
-                                                                                    top: 0, left: 0, right: 0, margin: "0 auto",
-                                                                                    width: "100%", height: "100%",
-                                                                                    borderRadius: "12px",
-                                                                                    y: isMobile ? 0 : 48,
-                                                                                    scale: 1,
-                                                                                },
-                                                                                hover: {
-                                                                                    top: -20, left: 0, right: 0, margin: "0 auto",
-                                                                                    width: "200px", height: "200px",
-                                                                                    borderRadius: "12px",
-                                                                                    y: 0, scale: 1.05,
-                                                                                },
-                                                                                selected: {
-                                                                                    width: "100%", height: "100%",
-                                                                                    borderRadius: "0px",
-                                                                                    y: 0, scale: 1,
-                                                                                    left: 0, right: 0, margin: "0"
-                                                                                }
-                                                                            }}
-                                                                            transition={SMOOTH_SPRING}
-                                                                            style={{ willChange: 'transform, width, height' }}
-                                                                        >
-                                                                            <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
-                                                                                <img src={displayImage} alt={product.name} className="object-cover object-center w-full h-full" />
-                                                                                <motion.div
-                                                                                    className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none md:from-black/70 md:via-black/0"
-                                                                                    variants={{ rest: { opacity: 1 }, hover: { opacity: 0 }, selected: { opacity: 0 } }}
-                                                                                />
-                                                                                <motion.div
-                                                                                    className="absolute bottom-4 left-4 md:bottom-6 md:left-6 text-white pointer-events-none pr-4"
-                                                                                    variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 }, selected: { opacity: 0 } }}
-                                                                                >
-                                                                                    <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-0.5 md:mb-1">{displayCategory}</p>
-                                                                                    <h3 className="text-lg md:text-xl font-black leading-tight line-clamp-2">{product.name}</h3>
-                                                                                    <p className="text-white/80 font-bold mt-1 text-sm">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
-                                                                                </motion.div>
-                                                                            </div>
-                                                                        </motion.div>
-                                                                    </div>
-                                                                </motion.div>
-                                                            );
-                                                        })}
-                                                    </ProductCarouselRow>
-                                                ))}
-                                            </div>
+                                                                    <motion.div
+                                                                        layoutId={`product-image-container-${product._id}`}
+                                                                        className="absolute z-30 overflow-hidden shadow-md group-hover:shadow-2xl bg-white"
+                                                                        variants={{
+                                                                            rest: {
+                                                                                top: 0, left: 0, right: 0, margin: "0 auto",
+                                                                                width: "100%", height: "100%",
+                                                                                borderRadius: "12px",
+                                                                                y: isMobile ? 0 : 48,
+                                                                                scale: 1,
+                                                                            },
+                                                                            hover: {
+                                                                                top: -20, left: 0, right: 0, margin: "0 auto",
+                                                                                width: "200px", height: "200px",
+                                                                                borderRadius: "12px",
+                                                                                y: 0, scale: 1.05,
+                                                                            },
+                                                                            selected: {
+                                                                                width: "100%", height: "100%",
+                                                                                borderRadius: "0px",
+                                                                                y: 0, scale: 1,
+                                                                                left: 0, right: 0, margin: "0"
+                                                                            }
+                                                                        }}
+                                                                        transition={SMOOTH_SPRING}
+                                                                        style={{ willChange: 'transform, width, height' }}
+                                                                    >
+                                                                        <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
+                                                                            <img src={displayImage} alt={product.name} className="object-cover object-center w-full h-full" />
+                                                                            <motion.div
+                                                                                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none md:from-black/70 md:via-black/0"
+                                                                                variants={{ rest: { opacity: 1 }, hover: { opacity: 0 }, selected: { opacity: 0 } }}
+                                                                            />
+                                                                            <motion.div
+                                                                                className="absolute bottom-4 left-4 md:bottom-6 md:left-6 text-white pointer-events-none pr-4"
+                                                                                variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 }, selected: { opacity: 0 } }}
+                                                                            >
+                                                                                <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-0.5 md:mb-1">{displayCategory}</p>
+                                                                                <h3 className="text-lg md:text-xl font-black leading-tight line-clamp-2">{product.name}</h3>
+                                                                                <p className="text-white/80 font-bold mt-1 text-sm">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
+                                                                            </motion.div>
+                                                                        </div>
+                                                                    </motion.div>
+                                                                </div>
+                                                            </motion.div>
+                                                        );
+                                                    })}
+                                                </ProductCarouselRow>
+                                            ))}
+                                        </div>
                                     </div>
                                 )
                             })
@@ -521,7 +521,7 @@ const Shop = () => {
             {/* UPDATED MODAL LOGIC */}
             <AnimatePresence>
                 {selectedProduct && (
-                    <div 
+                    <div
                         className="fixed inset-0 z-[999] flex items-end md:items-center justify-center pointer-events-none pt-0 md:pt-0 px-0 md:px-4 pb-0 md:pb-0"
                     >
                         {/* BACKDROP */}
@@ -562,9 +562,9 @@ const Shop = () => {
                             <button onClick={() => setSelectedProduct(null)} className="hidden md:flex absolute top-6 right-6 z-50 p-3 rounded-full bg-slate-100 hover:bg-slate-200 transition-all shadow-sm group">
                                 <X className="w-5 h-5 text-slate-700 group-hover:text-slate-900" />
                             </button>
-                             
+
                             {/* Mobile Close Button (Moved slightly to avoid overlap) */}
-                             <button onClick={() => setSelectedProduct(null)} className="md:hidden absolute top-5 right-5 z-50 p-2 rounded-full bg-slate-100/80 backdrop-blur-sm text-slate-800 shadow-sm">
+                            <button onClick={() => setSelectedProduct(null)} className="md:hidden absolute top-5 right-5 z-50 p-2 rounded-full bg-slate-100/80 backdrop-blur-sm text-slate-800 shadow-sm">
                                 <X className="w-5 h-5" />
                             </button>
 
@@ -573,8 +573,8 @@ const Shop = () => {
                                 <div
                                     ref={popupImageContainerRef}
                                     className="w-full h-[45vh] md:h-[600px] md:w-3/5 bg-slate-50 relative overflow-hidden flex-shrink-0 group"
-                                    onMouseEnter={handlePopupMouseEnter} 
-                                    onMouseLeave={() => setIsHoveringPopup(false)} 
+                                    onMouseEnter={handlePopupMouseEnter}
+                                    onMouseLeave={() => setIsHoveringPopup(false)}
                                     onMouseMove={handlePopupMouseMove}
                                 >
                                     <motion.div
@@ -586,7 +586,7 @@ const Shop = () => {
                                     >
                                         <img src={selectedProduct.media?.[0]?.url || '/placeholder.png'} alt={selectedProduct.name} className="object-cover object-center w-full h-full" />
                                     </motion.div>
-                                    
+
                                     {/* Desktop Magnifier */}
                                     {!isMobile && (
                                         <AnimatePresence>
@@ -598,54 +598,59 @@ const Shop = () => {
                                 </div>
 
                                 {/* RIGHT: CONTENT SIDE */}
-                                <div className="w-full md:w-2/5 flex flex-col bg-white h-full relative">
-                                    <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
-                                        <motion.div 
-                                            initial={{ opacity: 0, y: 20 }} 
-                                            animate={{ opacity: 1, y: 0 }} 
-                                            transition={{ delay: 0.15, duration: 0.4 }}
-                                        >
-                                            <div className="flex items-center gap-3 mb-4 md:mb-6">
-                                                <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{selectedProduct.categories?.[0]?.title || "Product"}</span>
-                                                <span className="text-[10px] md:text-xs font-bold text-slate-500 flex items-center gap-1.5"><Package className="w-4 h-4" /> Ages 8+</span>
-                                            </div>
-
-                                            <h2 className="text-2xl md:text-4xl font-black mb-3 md:mb-6 text-slate-900 leading-tight">{selectedProduct.name}</h2>
-                                            
-                                            <div className="flex items-center gap-4 mb-6 md:mb-8 pb-6 border-b border-slate-100">
-                                                <span className="text-3xl font-black text-slate-900">${selectedProduct.pricing?.[0]?.salePrice || 0}</span>
-                                                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100">
-                                                    <Star className="w-4 h-4 text-amber-500 fill-current" />
-                                                    <span className="text-amber-700 font-bold text-sm">4.9</span>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-6 pb-4">
-                                                <div>
-                                                    <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-xs md:text-sm uppercase tracking-wider"><Brain className="w-4 h-4 text-blue-500" /> Key Features</h4>
-                                                    <div className="grid grid-cols-1 gap-2">
-                                                        {["Problem-solving skills", "Critical thinking", "Engineering principles", "Hands-on learning"].map((outcome, idx) => (
-                                                            <div key={idx} className="flex items-center gap-3 text-xs md:text-sm font-medium text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100/50">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />{outcome}
-                                                            </div>
-                                                        ))}
+                                {(() => {
+                                    const { displayPrice, currency }: any = getDisplayPrice(selectedProduct.pricing, countryCode);
+                                    return <>
+                                        <div className="w-full md:w-2/5 flex flex-col bg-white h-full relative">
+                                            <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.15, duration: 0.4 }}
+                                                >
+                                                    <div className="flex items-center gap-3 mb-4 md:mb-6">
+                                                        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{selectedProduct.categories?.[0]?.title || "Product"}</span>
+                                                        <span className="text-[10px] md:text-xs font-bold text-slate-500 flex items-center gap-1.5"><Package className="w-4 h-4" /> Ages 8+</span>
                                                     </div>
-                                                </div>
-                                                
-                                                <p className="text-slate-600 text-sm leading-relaxed">
-                                                    This premium STEM kit is designed to challenge and inspire. Built with high-quality components, it offers a hands-on introduction to engineering concepts.
-                                                </p>
-                                            </div>
-                                        </motion.div>
-                                    </div>
 
-                                    {/* FOOTER ACTION */}
-                                    <div className="p-4 md:p-8 border-t border-slate-100 bg-white sticky bottom-0 z-20">
-                                        <Button onClick={(e) => handleAddToCart(e, selectedProduct)} className="w-full py-6 text-lg rounded-xl font-bold bg-slate-900 text-white shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98]">
-                                            Add to Cart — ${selectedProduct.pricing?.[0]?.salePrice || 0}
-                                        </Button>
-                                    </div>
-                                </div>
+                                                    <h2 className="text-2xl md:text-4xl font-black mb-3 md:mb-6 text-slate-900 leading-tight">{selectedProduct.name}</h2>
+
+                                                    <div className="flex items-center gap-4 mb-6 md:mb-8 pb-6 border-b border-slate-100">
+                                                        <span className="text-3xl font-black text-slate-900">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
+                                                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100">
+                                                            <Star className="w-4 h-4 text-amber-500 fill-current" />
+                                                            <span className="text-amber-700 font-bold text-sm">4.9</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-6 pb-4">
+                                                        <div>
+                                                            <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-xs md:text-sm uppercase tracking-wider"><Brain className="w-4 h-4 text-blue-500" /> Key Features</h4>
+                                                            <div className="grid grid-cols-1 gap-2">
+                                                                {["Problem-solving skills", "Critical thinking", "Engineering principles", "Hands-on learning"].map((outcome, idx) => (
+                                                                    <div key={idx} className="flex items-center gap-3 text-xs md:text-sm font-medium text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100/50">
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />{outcome}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        <p className="text-slate-600 text-sm leading-relaxed">
+                                                            This premium STEM kit is designed to challenge and inspire. Built with high-quality components, it offers a hands-on introduction to engineering concepts.
+                                                        </p>
+                                                    </div>
+                                                </motion.div>
+                                            </div>
+
+                                            {/* FOOTER ACTION */}
+                                            <div className="p-4 md:p-8 border-t border-slate-100 bg-white sticky bottom-0 z-20">
+                                                <Button onClick={(e) => handleAddToCart(e, selectedProduct, currency)} className="w-full py-6 text-lg rounded-xl font-bold bg-slate-900 text-white shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98]">
+                                                    Add to Cart — {CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </>
+                                })()}
                             </div>
                         </motion.div>
                     </div>
@@ -662,14 +667,14 @@ const CategoryButton = ({ active, onClick, label, count }: { active: boolean, on
         onClick={onClick}
         className={cn(
             "flex items-center gap-3 px-6 py-3 rounded-[12px] text-sm font-bold transition-all whitespace-nowrap border active:scale-95",
-            active 
-                ? "bg-slate-900 text-white border-slate-900 shadow-xl ring-2 ring-slate-900 ring-offset-2" 
+            active
+                ? "bg-slate-900 text-white border-slate-900 shadow-xl ring-2 ring-slate-900 ring-offset-2"
                 : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 shadow-sm"
         )}
     >
         {label}
         <span className={cn(
-            "text-[10px] px-2 py-0.5 rounded-[6px] transition-colors font-extrabold", 
+            "text-[10px] px-2 py-0.5 rounded-[6px] transition-colors font-extrabold",
             active ? "bg-white text-slate-900" : "bg-slate-100 text-slate-500"
         )}>
             {count}
@@ -682,14 +687,14 @@ const CategoryButtonMobile = ({ active, onClick, label, count }: { active: boole
         onClick={onClick}
         className={cn(
             "flex flex-col items-center justify-center gap-1 p-3 rounded-[10px] text-xs font-bold transition-all border active:scale-95",
-            active 
-                ? "bg-slate-900 text-white border-slate-900 shadow-md" 
+            active
+                ? "bg-slate-900 text-white border-slate-900 shadow-md"
                 : "bg-white text-slate-600 border-slate-200"
         )}
     >
         <span>{label}</span>
         <span className={cn(
-            "text-[9px] px-1.5 py-0.5 rounded-[4px] font-extrabold opacity-80", 
+            "text-[9px] px-1.5 py-0.5 rounded-[4px] font-extrabold opacity-80",
             active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
         )}>
             {count}

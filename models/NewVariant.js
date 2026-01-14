@@ -35,7 +35,7 @@ const VariantSchema = new Schema(
     pricing: [
       {
         region: { type: String, default: "Domestic" },
-        currency: { type: String, required: true, default: "USD" },
+        currency: { type: String, required: true, default: "INR" },
         originalPrice: { type: Number, required: true },
         salePrice: { type: Number, default: null },
       },

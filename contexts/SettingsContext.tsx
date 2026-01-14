@@ -82,7 +82,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
     if (cachedLocation) {
       setIsIndia(cachedLocation === "IN");
       setCountryCode(cachedLocation);
-      setCurrencyCode(countryToCurrency?.[cachedLocation] ?? "USD");
+      setCurrencyCode(countryToCurrency?.[cachedLocation] ?? "QAR");
     } else {
       // Only fetch if we don't know the location yet
       fetch("https://ipapi.co/json/")
@@ -95,7 +95,7 @@ export const SettingsProvider = ({ children }: { children: ReactNode }) => {
           const isInd = countryCode === "IN";
           setIsIndia(isInd);
           setCountryCode(countryCode);
-          setCurrencyCode(countryToCurrency[countryCode] ?? "USD");
+          setCurrencyCode(countryToCurrency[countryCode] ?? "QAR");
           localStorage.setItem("user-location", countryCode);
         })
         .catch((err) => {

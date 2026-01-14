@@ -761,20 +761,30 @@ const CourseShowcase = () => {
                           </p>
                         </div>
 
-                        <div className="mt-4 pt-4 border-t border-slate-100 flex gap-3">
-                          <button
-                            className="flex-1 py-3 rounded-xl font-bold text-slate-700 bg-slate-50 border border-slate-200 active:scale-95 transition-transform"
-                            onClick={(e) => { e.stopPropagation(); setSelectedCourse(activeCourse); }}
-                          >
-                            Details
-                          </button>
-                          <button
-                            className="flex-[2] py-3 rounded-xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-200 active:scale-95 transition-transform"
-                            onClick={(e) => { e.stopPropagation(); setSelectedCourse(activeCourse); }}
-                          >
-                            Enroll
-                          </button>
-                        </div>
+                        {
+                          pathname !== '/' ? <div className="mt-4 pt-4 border-t border-slate-100 flex gap-3">
+                            <button
+                              className="flex-1 py-3 rounded-xl font-bold text-slate-700 bg-slate-50 border border-slate-200 active:scale-95 transition-transform"
+                              onClick={(e) => { e.stopPropagation(); setSelectedCourse(activeCourse); }}
+                            >
+                              Details
+                            </button>
+                            <button
+                              className="flex-[2] py-3 rounded-xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-200 active:scale-95 transition-transform"
+                              onClick={(e) => { e.stopPropagation(); setSelectedCourse(activeCourse); }}
+                            >
+                              Enroll
+                            </button>
+                          </div>
+                            : <div className="mt-4 pt-4 border-t border-slate-100 flex gap-3">
+                              <button
+                                className="flex-[2] py-3 rounded-xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-200 active:scale-95 transition-transform"
+                                onClick={(e) => { e.stopPropagation(); router.push('/courses') }}
+                              >
+                                Explore Course
+                              </button>
+                            </div>
+                        }
                       </div>
                     </motion.div>
                   </motion.div>

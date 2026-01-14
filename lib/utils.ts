@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getDisplayPrice(pricing: any[], userCountryCode: string) {
-  const currency = countryToCurrency[userCountryCode] || "USD";
+  const currency = countryToCurrency[userCountryCode] || "QAR";
 
   // Try exact currency match first
   let priceObj = (pricing ?? []).find(p => p.currency === currency);
@@ -23,7 +23,7 @@ export function getDisplayPrice(pricing: any[], userCountryCode: string) {
 
   if (!priceObj) return 0;
 
-  return { displayPrice: priceObj.salePrice ?? priceObj.originalPrice ?? 0, currency: priceObj.currency || "USD" };
+  return { displayPrice: priceObj.salePrice ?? priceObj.originalPrice ?? 0, currency: priceObj.currency || "QAR" };
 }
 
 

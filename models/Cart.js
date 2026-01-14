@@ -15,7 +15,7 @@ const CartSchema = new Schema(
     },
     currencyCode: {
       type: String,
-      default: "USD",
+      default: "QAR",
     },
     items: [
       {
