@@ -56,7 +56,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     refreshCart();
-  }, []);
+  }, [user]);
 
   console.log(user)
 

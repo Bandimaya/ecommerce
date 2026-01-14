@@ -44,6 +44,7 @@ const Cart = () => {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setAddress({ ...address, [e.target.name]: e.target.value })
     }
+    const { countryCode } = useSettings();
 
     const handleCheckout = async () => {
         if (!address.addressLine || !address.phone || !address.city || !address.pincode) {
@@ -78,41 +79,46 @@ const Cart = () => {
             //     data: { orderId: res._id },
             // });
 
-            const paymentRes = await apiFetch("/payments/sadad", {
-                method: "POST",
-                data: { orderId: res._id },
-            });
+            if (countryCode !== 'IN') {
+                const paymentRes = await apiFetch("/payments/sadad", {
+                    method: "POST",
+                    data: { orderId: res._id },
+                });
 
-            // Create & submit form
-            const form = document.createElement("form");
-            form.method = "POST";
-            form.action = paymentRes.actionUrl;
+                // Create & submit form
+                const form = document.createElement("form");
+                form.method = "POST";
+                form.action = paymentRes.actionUrl;
 
-            Object.entries(paymentRes.payload).forEach(([key, value]) => {
-                if (Array.isArray(value)) {
-                    value.forEach((v, i) => {
-                        Object.entries(v).forEach(([k, val]) => {
-                            const input = document.createElement("input");
-                            input.type = "hidden";
-                            input.name = `productdetail[${i}][${k}]`;
-                            input.value = String(val);
-                            form.appendChild(input);
+                Object.entries(paymentRes.payload).forEach(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        value.forEach((v, i) => {
+                            Object.entries(v).forEach(([k, val]) => {
+                                const input = document.createElement("input");
+                                input.type = "hidden";
+                                input.name = `productdetail[${i}][${k}]`;
+                                input.value = String(val);
+                                form.appendChild(input);
+                            });
                         });
-                    });
-                } else {
-                    const input = document.createElement("input");
-                    input.type = "hidden";
-                    input.name = key;
-                    input.value = String(value);
-                    form.appendChild(input);
-                }
-            });
+                    } else {
+                        const input = document.createElement("input");
+                        input.type = "hidden";
+                        input.name = key;
+                        input.value = String(value);
+                        form.appendChild(input);
+                    }
+                });
 
-            document.body.appendChild(form);
-            form.submit();
-            // window.location.href = response.data.redirectUrl;
+                document.body.appendChild(form);
+                form.submit();
+                // window.location.href = response.data.redirectUrl;
 
-            setIsCheckingOut(false)
+                setIsCheckingOut(false)
+            }
+            else {
+                alert('Payment is not supported yet!')
+            }
             // Could redirect to order confirmation page
         } catch (err: any) {
             toast({
