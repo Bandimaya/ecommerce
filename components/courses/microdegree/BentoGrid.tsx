@@ -20,6 +20,7 @@ import { motion, AnimatePresence, Transition, PanInfo } from 'framer-motion';
 import { apiFetch } from '@/lib/axios';
 import { IMAGE_URL } from '@/lib/constants';
 import { useSettings } from '@/contexts/SettingsContext';
+import { usePathname, useRouter } from 'next/navigation';
 
 // --- CONFIG: Animation Physics ---
 const SMOOTH_SPRING: Transition = {
@@ -33,14 +34,14 @@ const SMOOTH_SPRING: Transition = {
 const useScrollLock = (isLocked: boolean) => {
   useEffect(() => {
     if (typeof document === 'undefined') return;
-    
+
     const body = document.body;
-    
+
     if (isLocked) {
       // Prevent scrolling by hiding overflow
       const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
       body.style.overflow = 'hidden';
-      
+
       if (scrollBarWidth > 0) {
         body.style.paddingRight = `${scrollBarWidth}px`;
       }
@@ -87,7 +88,7 @@ export interface Course {
 // ===============================================
 const InnerEnrollModal = ({ onClose, course, contact }: any) => {
   useScrollLock(true);
-  
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -103,7 +104,7 @@ const InnerEnrollModal = ({ onClose, course, contact }: any) => {
         className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full relative overflow-hidden cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
+        <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors z-10"
         >
@@ -131,7 +132,7 @@ const InnerEnrollModal = ({ onClose, course, contact }: any) => {
           >
             <Phone size={20} /> Continue to WhatsApp
           </button>
-          
+
           <button
             onClick={() => {
               const subject = `Enquiry about ${course.title}`;
@@ -157,10 +158,10 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
   const [showEnrollPopup, setShowEnrollPopup] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'curriculum'>('overview');
   const modalRef = useRef<HTMLDivElement>(null);
-  
+
   // Apply scroll lock when modal is open
   useScrollLock(true);
-  
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -171,7 +172,7 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
         }
       }
     };
-    
+
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, [showEnrollPopup, onClose]);
@@ -184,9 +185,9 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[10000] bg-slate-900/40 backdrop-blur-xl"
-        onClick={onClose} 
+        onClick={onClose}
       />
-      
+
       {/* Main Modal Container - Updated with top-20 md:top-15 */}
       <div className="fixed inset-0 z-[10000] flex items-start justify-center p-2 md:p-4 pointer-events-none overflow-y-auto">
         <motion.div
@@ -210,7 +211,7 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
 
           {/* Left Column: Image */}
           <div className="md:w-5/12 relative h-48 md:h-auto overflow-hidden flex-shrink-0 bg-slate-900">
-            <motion.div 
+            <motion.div
               layoutId={`course-image-container-${course._id}`}
               className="w-full h-full opacity-90"
               transition={SMOOTH_SPRING}
@@ -224,7 +225,7 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
             </motion.div>
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent md:bg-gradient-to-r md:from-transparent md:to-black/10" />
 
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -241,7 +242,7 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
           </div>
 
           {/* Right Column: Content */}
-          <motion.div 
+          <motion.div
             className="md:w-7/12 flex flex-col relative bg-white overflow-hidden"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -252,7 +253,7 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
               <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight mb-3">
                 {course.title}
               </h1>
-              
+
               <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500 mb-6">
                 <div className="flex items-center gap-1.5">
                   <Clock size={16} className="text-blue-500" />
@@ -270,18 +271,16 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
                 <button
                   onClick={() => setActiveTab('overview')}
                   disabled={showEnrollPopup}
-                  className={`pb-3 px-1 mr-6 text-base font-bold border-b-2 transition-colors ${
-                    activeTab === 'overview' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'
-                  }`}
+                  className={`pb-3 px-1 mr-6 text-base font-bold border-b-2 transition-colors ${activeTab === 'overview' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'
+                    }`}
                 >
                   Overview
                 </button>
                 <button
                   onClick={() => setActiveTab('curriculum')}
                   disabled={showEnrollPopup}
-                  className={`pb-3 px-1 mr-6 text-base font-bold border-b-2 transition-colors ${
-                    activeTab === 'curriculum' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'
-                  }`}
+                  className={`pb-3 px-1 mr-6 text-base font-bold border-b-2 transition-colors ${activeTab === 'curriculum' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'
+                    }`}
                 >
                   Curriculum
                 </button>
@@ -314,20 +313,20 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
 
                   {course.instructor && (
                     <div className="border-t border-slate-100 pt-6">
-                       <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4">Your Instructor</h4>
-                       <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                          <div className="w-16 h-16 rounded-full bg-blue-100 overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
-                            {course.instructor.avatar ? (
-                              <img src={IMAGE_URL + course.instructor.avatar} alt={course.instructor.name} className="w-full h-full object-cover"/>
-                            ) : (
-                              <span className="text-blue-600 font-bold text-xl">{course.instructor.name.charAt(0)}</span>
-                            )}
-                          </div>
-                          <div>
-                            <p className="font-bold text-slate-900 text-lg">{course.instructor.name}</p>
-                            <p className="text-sm text-slate-500">{course.instructor.role}</p>
-                          </div>
-                       </div>
+                      <h4 className="text-sm font-bold text-slate-900 uppercase tracking-wide mb-4">Your Instructor</h4>
+                      <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                        <div className="w-16 h-16 rounded-full bg-blue-100 overflow-hidden border-2 border-white shadow-sm flex items-center justify-center">
+                          {course.instructor.avatar ? (
+                            <img src={IMAGE_URL + course.instructor.avatar} alt={course.instructor.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-blue-600 font-bold text-xl">{course.instructor.name.charAt(0)}</span>
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-bold text-slate-900 text-lg">{course.instructor.name}</p>
+                          <p className="text-sm text-slate-500">{course.instructor.role}</p>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -335,13 +334,13 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
                 <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300 pb-10">
                   <div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-6">
                     <p className="text-sm text-blue-800 font-medium flex items-center gap-2">
-                       <BookOpen size={16} /> 
-                       {course.curriculum?.length 
-                         ? `This course consists of ${course.curriculum.length} comprehensive modules.`
-                         : "Curriculum details are being updated."}
+                      <BookOpen size={16} />
+                      {course.curriculum?.length
+                        ? `This course consists of ${course.curriculum.length} comprehensive modules.`
+                        : "Curriculum details are being updated."}
                     </p>
                   </div>
-                  
+
                   {course.curriculum && course.curriculum.length > 0 ? (
                     course.curriculum.map((module, i) => (
                       <div key={i} className="group flex gap-5 p-4 rounded-2xl hover:bg-slate-50 transition-colors cursor-default border border-transparent hover:border-slate-100">
@@ -352,9 +351,9 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
                           <h5 className="font-bold text-slate-800 text-lg">{module.title}</h5>
                           {module.desc && <p className="text-sm text-slate-500 mt-1 leading-relaxed">{module.desc}</p>}
                           {module.duration && (
-                             <div className="flex items-center gap-1 mt-2 text-xs font-medium text-slate-400">
-                               <Clock size={12} /> {module.duration}
-                             </div>
+                            <div className="flex items-center gap-1 mt-2 text-xs font-medium text-slate-400">
+                              <Clock size={12} /> {module.duration}
+                            </div>
                           )}
                         </div>
                       </div>
@@ -398,7 +397,7 @@ const CourseModal = ({ course, onClose, contact }: { course: Course; onClose: ()
 
       <AnimatePresence>
         {showEnrollPopup && (
-          <InnerEnrollModal 
+          <InnerEnrollModal
             course={course}
             contact={contact}
             onClose={() => setShowEnrollPopup(false)}
@@ -420,6 +419,8 @@ const CourseShowcase = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const { contact } = useSettings();
+  const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     apiFetch('/stem-courses')
@@ -541,23 +542,96 @@ const CourseShowcase = () => {
 
       <div className="container relative z-10 mx-auto px-4 max-w-7xl">
         {/* Header */}
-        <div className="text-center mb-8 md:mb-16">
-          <motion.div
-            initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} transition={{ duration: 0.8 }} viewport={{ once: true }}
-            className="flex justify-center items-center gap-3 mb-6"
-          >
-            <div className="h-[2px] w-8 md:w-12 bg-blue-600" />
-            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-blue-600">World-Class Curriculum</span>
-            <div className="h-[2px] w-8 md:w-12 bg-blue-600" />
-          </motion.div>
+        {
+          pathname !== '/' ?
+            <div className="text-center mb-16">
+              <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+                className="flex justify-center items-center gap-3 mb-6"
+              >
+                <div className="h-[2px] w-12 bg-blue-600" />
+                <span className="text-xs font-bold uppercase tracking-widest text-blue-600">
+                  World-Class Curriculum
+                </span>
+                <div className="h-[2px] w-12 bg-blue-600" />
+              </motion.div>
 
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}
-            className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight"
-          >
-            Master skills that <span className="text-blue-600">define the future.</span>
-          </motion.h2>
-        </div>
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight"
+              >
+                Master skills that <span className="text-blue-600">define the future.</span>
+              </motion.h2>
+            </div>
+            : <div className="text-center mb-16">
+              <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true }}
+                className="flex justify-center items-center gap-3 mb-6"
+              >
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: '48px' }}
+                  transition={{ duration: 0.5 }}
+                  className="h-[2px]"
+                  style={{ backgroundColor: `var(--accent, #3b82f6)` }}
+                />
+                <span
+                  className="text-xs font-bold uppercase tracking-widest"
+                  style={{ color: `var(--accent, #3b82f6)` }}
+                >
+                  Interactive Jargon Buster
+                </span>
+                <motion.div
+                  initial={{ width: 0 }}
+                  whileInView={{ width: '48px' }}
+                  transition={{ duration: 0.5 }}
+                  className="h-[2px]"
+                  style={{ backgroundColor: `var(--accent, #3b82f6)` }}
+                />
+              </motion.div>
+
+              <motion.h2
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="text-3xl md:text-5xl font-bold text-slate-900 mb-4 tracking-tight"
+              >
+                Your Guide to{' '}
+                <motion.span
+                  // animate={{ color: data?.[activeIndex]?.accentColor }}
+                  transition={{ duration: 0.5 }}
+                >
+                  AI, Robotics Kits & Coding
+                </motion.span>
+              </motion.h2>
+
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                viewport={{ once: true }}
+                className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed"
+              >
+                Easy explanations of common terms kickstart your child’s{' '}
+                <motion.span
+                  // animate={{ color: data?.[activeIndex]?.accentColor }}
+                  transition={{ duration: 0.5 }}
+                  className="font-semibold"
+                >
+                  innovation journey.
+                </motion.span>
+              </motion.p>
+            </div>
+        }
 
         {/* --- CAROUSEL RENDERER --- */}
         {!isMobile ? (
@@ -580,7 +654,7 @@ const CourseShowcase = () => {
                     if (state === 'right') handleNext();
                   }}
                 >
-                  <motion.div 
+                  <motion.div
                     layoutId={`course-card-container-${course._id}`}
                     className="w-full h-full rounded-3xl bg-white shadow-2xl border border-slate-100/50 overflow-hidden cursor-pointer grid grid-cols-12 hover:shadow-3xl transition-shadow duration-300"
                   >
@@ -609,17 +683,22 @@ const CourseShowcase = () => {
                           <div className="flex items-center gap-2 text-slate-500 font-medium"><Clock size={18} className="text-blue-500" /><span>{course.duration || '8 Weeks'}</span></div>
                           <div className="flex items-center gap-2 text-slate-500 font-medium"><Users size={18} className="text-blue-500" /><span>{course.students || '1.2k'} Students</span></div>
                         </div>
-                        <div className="flex items-center gap-4 mt-auto">
-                          <button onClick={(e) => { e.stopPropagation(); setSelectedCourse(course); }} className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all hover:border-slate-300">View Details</button>
-                          <button onClick={(e) => { e.stopPropagation(); setSelectedCourse(course); }} className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200">Enroll Now <ArrowRight size={18} /></button>
-                        </div>
+                        {
+                          pathname !== '/' ? <div className="flex items-center gap-4 mt-auto">
+                            <button onClick={(e) => { e.stopPropagation(); setSelectedCourse(course); }} className="flex items-center gap-2 px-6 py-3 rounded-full font-semibold text-slate-600 border border-slate-200 hover:bg-slate-50 transition-all hover:border-slate-300">View Details</button>
+                            <button onClick={(e) => { e.stopPropagation(); setSelectedCourse(course); }} className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200">Enroll Now <ArrowRight size={18} /></button>
+                          </div>
+                            : <div className="flex items-center gap-4 mt-auto">
+                              <button onClick={(e) => { router.push('/courses') }} className="flex items-center gap-2 px-8 py-3 rounded-full font-semibold text-white bg-blue-600 hover:bg-blue-700 transition-all shadow-lg hover:shadow-blue-200">Explore Course <ArrowRight size={18} /></button>
+                            </div>
+                        }
                       </div>
                     </div>
                   </motion.div>
                 </motion.div>
               );
             })}
-             <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between px-4 pointer-events-none z-40 max-w-6xl mx-auto">
+            <div className="absolute top-1/2 left-0 right-0 -translate-y-1/2 flex justify-between px-4 pointer-events-none z-40 max-w-6xl mx-auto">
               <button onClick={handlePrev} className="pointer-events-auto w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-white hover:scale-110 transition-all active:scale-95"><ChevronLeft size={28} /></button>
               <button onClick={handleNext} className="pointer-events-auto w-14 h-14 rounded-full bg-white/90 backdrop-blur-sm border border-slate-200 shadow-xl flex items-center justify-center text-slate-700 hover:bg-white hover:scale-110 transition-all active:scale-95"><ChevronRight size={28} /></button>
             </div>
@@ -629,7 +708,7 @@ const CourseShowcase = () => {
           /* MOBILE VIEW                             */
           /* ======================================= */
           <div className="relative w-full max-w-sm mx-auto flex flex-col items-center">
-            
+
             {/* 1. FIXED HEIGHT CARD CONTAINER (Aspect Ratio 3:4) */}
             <div className="relative w-full aspect-[3/4] max-h-[600px] mb-6">
               <AnimatePresence initial={false} mode="popLayout" custom={direction}>
@@ -647,8 +726,8 @@ const CourseShowcase = () => {
                     onDragEnd={onDragEnd}
                     className="absolute inset-0 cursor-grab active:cursor-grabbing"
                   >
-                    <motion.div 
-                      layoutId={`course-card-container-${activeCourse._id}`} 
+                    <motion.div
+                      layoutId={`course-card-container-${activeCourse._id}`}
                       className="w-full h-full bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-100 flex flex-col"
                       onClick={() => setSelectedCourse(activeCourse)}
                     >
@@ -671,37 +750,37 @@ const CourseShowcase = () => {
                       {/* Mobile Content Section (Remaining Height) */}
                       <div className="flex-1 p-6 flex flex-col justify-between bg-white relative">
                         <div>
-                           <div className="flex items-center gap-4 mb-4 text-xs text-slate-500 font-semibold uppercase tracking-wide">
-                              <span className="flex items-center gap-1"><Clock size={14} className="text-blue-500"/> {activeCourse.duration || '8 Weeks'}</span>
-                              <span className="w-1 h-1 bg-slate-300 rounded-full" />
-                              <span className="flex items-center gap-1"><Users size={14} className="text-blue-500"/> {activeCourse.students || '100+'}</span>
-                           </div>
-                           {/* TRUNCATE DESCRIPTION to prevent layout jumps */}
-                           <p className="text-slate-600 leading-relaxed text-sm line-clamp-3">
-                             {activeCourse.description}
-                           </p>
+                          <div className="flex items-center gap-4 mb-4 text-xs text-slate-500 font-semibold uppercase tracking-wide">
+                            <span className="flex items-center gap-1"><Clock size={14} className="text-blue-500" /> {activeCourse.duration || '8 Weeks'}</span>
+                            <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                            <span className="flex items-center gap-1"><Users size={14} className="text-blue-500" /> {activeCourse.students || '100+'}</span>
+                          </div>
+                          {/* TRUNCATE DESCRIPTION to prevent layout jumps */}
+                          <p className="text-slate-600 leading-relaxed text-sm line-clamp-3">
+                            {activeCourse.description}
+                          </p>
                         </div>
 
                         <div className="mt-4 pt-4 border-t border-slate-100 flex gap-3">
-                           <button 
-                             className="flex-1 py-3 rounded-xl font-bold text-slate-700 bg-slate-50 border border-slate-200 active:scale-95 transition-transform"
-                             onClick={(e) => { e.stopPropagation(); setSelectedCourse(activeCourse); }}
-                           >
-                             Details
-                           </button>
-                           <button 
-                             className="flex-[2] py-3 rounded-xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-200 active:scale-95 transition-transform"
-                             onClick={(e) => { e.stopPropagation(); setSelectedCourse(activeCourse); }}
-                           >
-                             Enroll
-                           </button>
+                          <button
+                            className="flex-1 py-3 rounded-xl font-bold text-slate-700 bg-slate-50 border border-slate-200 active:scale-95 transition-transform"
+                            onClick={(e) => { e.stopPropagation(); setSelectedCourse(activeCourse); }}
+                          >
+                            Details
+                          </button>
+                          <button
+                            className="flex-[2] py-3 rounded-xl font-bold text-white bg-blue-600 shadow-lg shadow-blue-200 active:scale-95 transition-transform"
+                            onClick={(e) => { e.stopPropagation(); setSelectedCourse(activeCourse); }}
+                          >
+                            Enroll
+                          </button>
                         </div>
                       </div>
                     </motion.div>
                   </motion.div>
                 )}
               </AnimatePresence>
-              
+
               {/* Stack Depth Effect */}
               <div className="absolute top-3 left-3 right-3 bottom-0 bg-white rounded-3xl border border-slate-200 shadow-sm z-[-1] opacity-50 scale-95 origin-bottom" />
               <div className="absolute top-6 left-6 right-6 bottom-0 bg-white rounded-3xl border border-slate-200 shadow-sm z-[-2] opacity-25 scale-90 origin-bottom" />
@@ -709,28 +788,27 @@ const CourseShowcase = () => {
 
             {/* 2. FIXED BUTTON CONTAINER (Always below the card container) */}
             <div className="w-full max-w-[280px] h-[60px] flex items-center justify-between">
-               <button onClick={handlePrev} className="p-4 bg-white rounded-full text-slate-600 shadow-md border border-slate-100 active:scale-90 transition-transform">
-                 <ChevronLeft size={24} />
-               </button>
-               
-               {/* Dots Indicator */}
-               <div className="flex items-center gap-2">
-                 {courses.map((_, idx) => (
-                   <motion.div
-                     key={idx}
-                     className={`h-2 rounded-full transition-colors duration-300 ${
-                       idx === activeIndex ? 'bg-blue-600' : 'bg-slate-300'
-                     }`}
-                     animate={{
-                       width: idx === activeIndex ? 20 : 8,
-                     }}
-                   />
-                 ))}
-               </div>
+              <button onClick={handlePrev} className="p-4 bg-white rounded-full text-slate-600 shadow-md border border-slate-100 active:scale-90 transition-transform">
+                <ChevronLeft size={24} />
+              </button>
 
-               <button onClick={handleNext} className="p-4 bg-white rounded-full text-slate-600 shadow-md border border-slate-100 active:scale-90 transition-transform">
-                 <ChevronRight size={24} />
-               </button>
+              {/* Dots Indicator */}
+              <div className="flex items-center gap-2">
+                {courses.map((_, idx) => (
+                  <motion.div
+                    key={idx}
+                    className={`h-2 rounded-full transition-colors duration-300 ${idx === activeIndex ? 'bg-blue-600' : 'bg-slate-300'
+                      }`}
+                    animate={{
+                      width: idx === activeIndex ? 20 : 8,
+                    }}
+                  />
+                ))}
+              </div>
+
+              <button onClick={handleNext} className="p-4 bg-white rounded-full text-slate-600 shadow-md border border-slate-100 active:scale-90 transition-transform">
+                <ChevronRight size={24} />
+              </button>
             </div>
           </div>
         )}

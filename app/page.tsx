@@ -27,6 +27,7 @@ import PaymentSuccess from "@/components/payment/PaymentSuccess"
 import PaymentFailure from "@/components/payment/PaymentFailure"
 import { motion } from "framer-motion"
 import BentoGrid from "@/components/courses/microdegree/BentoGrid"
+import BreakingJargon from "./home/BreakingJargon"
 
 
 const Index = () => {
