@@ -85,7 +85,7 @@ export const POST = withAuth(async (req: NextRequest, user: UserPayload) => {
         throw new Error(`Insufficient stock for ${item.productId.name}`);
       }
 
-      const region = isIndia ? "Domestic" : "International";
+      const region = isIndia ? "Domestic" : "Overseas";
 
       const {
         price: finalPrice,
