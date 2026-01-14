@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import Order from '@/models/Order';
 import { connectDB } from '@/lib/db';
 import Payment from '@/models/Payments';
+import Cart from '@/models/Cart';
 
 export async function POST(request: Request) {
   await connectDB();
@@ -73,6 +74,12 @@ export async function POST(request: Request) {
       );
     }
 
+    const order = await Order.findById(orderId)
+
+    if (!order) {
+      return NextResponse.json({ message: "Order not found" }, { status: 400 });
+    }
+
     // 4️⃣ SUCCESS CASE
     if (data.STATUS === 'TXN_SUCCESS' && data.RESPCODE === '1') {
       await Payment.create({
@@ -93,6 +100,11 @@ export async function POST(request: Request) {
           paymentStatus: 'PAID',
           transactionNumber: data.transaction_number,
         }
+      );
+
+      await Cart.findOneAndUpdate(
+        { userId: order.userId },
+        { items: [] }
       );
 
       return NextResponse.redirect(

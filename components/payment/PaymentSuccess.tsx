@@ -11,6 +11,7 @@ import {
 } from "lucide-react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { apiFetch } from "@/lib/axios"
+import { CURRENCY_OPTIONS } from "@/lib/constants"
 
 /* ===== CONFIGURATION ===== */
 const TRACE_COUNT = 50
@@ -68,7 +69,7 @@ const PaymentSuccess: React.FC = () => {
 
     const text = `Payment ${order.order.paymentStatus}
 Transaction: ${order.payment.transactionNumber}
-Amount: ₹${order.payment.amount}`
+Amount: ${CURRENCY_OPTIONS.find(c => c.code === order.currency)?.symbol}${order.payment.amount}`
 
     if (navigator.share) {
       await navigator.share({
@@ -91,7 +92,7 @@ Payment Receipt
 ---------------
 Order ID: ${order.order._id}
 Transaction: ${order.payment.transactionNumber}
-Amount: ₹${order.payment.amount}
+Amount: ${CURRENCY_OPTIONS.find(c => c.code === order.currency)?.symbol}${order.payment.amount}
 Status: ${order.order.paymentStatus}
 Date: ${new Date(order.order.createdAt).toLocaleString()}
 `
@@ -205,7 +206,7 @@ Date: ${new Date(order.order.createdAt).toLocaleString()}
           <h2 className="text-3xl font-bold mb-6">Payment Successful</h2>
 
           <div className="space-y-4 bg-slate-50 p-6 rounded-xl mb-6">
-            <Row label="Amount" value={`₹${order.payment.amount}`} size="lg" />
+            <Row label="Amount" value={`${CURRENCY_OPTIONS.find(c => c.code === order.currency)?.symbol}${order.payment.amount}`} size="lg" />
             <Row label="Transaction ID" value={order.payment.transactionNumber} mono />
             <Row label="Order ID" value={order.order._id} mono />
             <Row
