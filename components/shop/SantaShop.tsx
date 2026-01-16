@@ -344,7 +344,7 @@ const SantaShop = () => {
                 {chunks.map((chunk, chunkIndex) => (
                   <ProductCarouselRow key={`${category}-${chunkIndex}`} rowIndex={chunkIndex}>
                     {chunk.map((product) => {
-                      const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
+                      const { displayPrice, currency, countryCodeValue }: any = getDisplayPrice(product.pricing, countryCode);
 
                       return <motion.div
                         key={product._id + "santa-shop-card"}
@@ -379,7 +379,7 @@ const SantaShop = () => {
                                   <h3 className="text-lg font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
                                 </div>
                                 <span className="text-lg font-black text-slate-900 whitespace-nowrap ml-2">
-                                  {CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}
+                                  {currency}{displayPrice}
                                 </span>
                               </div>
 
@@ -440,7 +440,7 @@ const SantaShop = () => {
                               <p className="text-[10px] font-bold uppercase tracking-widest text-blue-300 mb-1">{product.category}</p>
                               <h3 className="text-xl font-black leading-tight mb-1 truncate">{product.title}</h3>
                               <p className="text-white/90 font-bold">
-                                {CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}
+                                {currency}{displayPrice}
                               </p>
                             </motion.div>
                           </div>
@@ -480,7 +480,7 @@ const SantaShop = () => {
               </button>
 
               {(() => {
-                const { displayPrice, currency }: any = getDisplayPrice(selectedProduct.pricing, countryCode);
+                const { displayPrice, currency, countryCodeValue }: any = getDisplayPrice(selectedProduct.pricing, countryCode);
 
                 return <>
                   <div className="flex flex-col md:flex-row h-full">
@@ -533,7 +533,7 @@ const SantaShop = () => {
 
                       <div className="flex items-center gap-5 mb-6 md:mb-10 pb-6 md:pb-10 border-b border-slate-100">
                         <span className="text-3xl md:text-4xl font-black text-slate-900">
-                          {CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}
+                          {currency}{displayPrice}
                         </span>
                         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-yellow-50 border border-yellow-100">
                           <Star className="w-5 h-5 text-yellow-500 fill-current" />
@@ -558,7 +558,7 @@ const SantaShop = () => {
                         onClick={(e) => handleAddToCart(e, selectedProduct, '')}
                         disabled={cartLoading}
                       >
-                        Add to Cart — {CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}
+                        Add to Cart — {currency}{displayPrice}
                       </Button>
                     </div>
                   </div>

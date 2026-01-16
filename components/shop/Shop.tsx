@@ -415,7 +415,7 @@ const Shop = () => {
                                                 <ProductCarouselRow key={`${category._id}-chunk-${chunkIndex}`} rowIndex={chunkIndex}>
                                                     {chunk.map((product: any) => {
                                                         const displayImage = product.media?.[0]?.url || '/placeholder.png';
-                                                        const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
+                                                        const { displayPrice, currency, countryCodeValue }: any = getDisplayPrice(product.pricing, countryCode);
                                                         const displayCategory = product.categories?.[0]?.title || "Item";
 
                                                         return (
@@ -445,11 +445,11 @@ const Shop = () => {
                                                                                         <p className="text-[9px] md:text-[10px] font-black uppercase text-blue-600 mb-0.5 md:mb-1">{displayCategory}</p>
                                                                                         <h3 className="text-lg font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
                                                                                     </div>
-                                                                                    <span className="text-lg font-black text-slate-900 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
+                                                                                    <span className="text-lg font-black text-slate-900 ml-2">{currency}{displayPrice}</span>
                                                                                 </div>
                                                                                 <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center mt-2">
                                                                                     <span className="text-xs font-bold text-slate-400 flex items-center">Details <ChevronRight className="ml-1 w-3 h-3" /></span>
-                                                                                    <Button size="icon" className="h-8 w-8 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product, currency)} disabled={cartLoading}>
+                                                                                    <Button size="icon" className="h-8 w-8 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product, countryCodeValue)} disabled={cartLoading}>
                                                                                         {cartLoading ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <ShoppingCart className="w-3 h-3 text-white" />}
                                                                                     </Button>
                                                                                 </div>
@@ -496,7 +496,7 @@ const Shop = () => {
                                                                             >
                                                                                 <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-0.5 md:mb-1">{displayCategory}</p>
                                                                                 <h3 className="text-lg md:text-xl font-black leading-tight line-clamp-2">{product.name}</h3>
-                                                                                <p className="text-white/80 font-bold mt-1 text-sm">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
+                                                                                <p className="text-white/80 font-bold mt-1 text-sm">{currency}{displayPrice}</p>
                                                                             </motion.div>
                                                                         </div>
                                                                     </motion.div>
@@ -599,7 +599,7 @@ const Shop = () => {
 
                                 {/* RIGHT: CONTENT SIDE */}
                                 {(() => {
-                                    const { displayPrice, currency }: any = getDisplayPrice(selectedProduct.pricing, countryCode);
+                                    const { displayPrice, currency, countryCodeValue }: any = getDisplayPrice(selectedProduct.pricing, countryCode);
                                     return <>
                                         <div className="w-full md:w-2/5 flex flex-col bg-white h-full relative">
                                             <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
@@ -616,7 +616,7 @@ const Shop = () => {
                                                     <h2 className="text-2xl md:text-4xl font-black mb-3 md:mb-6 text-slate-900 leading-tight">{selectedProduct.name}</h2>
 
                                                     <div className="flex items-center gap-4 mb-6 md:mb-8 pb-6 border-b border-slate-100">
-                                                        <span className="text-3xl font-black text-slate-900">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
+                                                        <span className="text-3xl font-black text-slate-900">{currency}{displayPrice}</span>
                                                         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100">
                                                             <Star className="w-4 h-4 text-amber-500 fill-current" />
                                                             <span className="text-amber-700 font-bold text-sm">4.9</span>
@@ -644,8 +644,8 @@ const Shop = () => {
 
                                             {/* FOOTER ACTION */}
                                             <div className="p-4 md:p-8 border-t border-slate-100 bg-white sticky bottom-0 z-20">
-                                                <Button onClick={(e) => handleAddToCart(e, selectedProduct, currency)} className="w-full py-6 text-lg rounded-xl font-bold bg-slate-900 text-white shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98]">
-                                                    Add to Cart — {CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}
+                                                <Button onClick={(e) => handleAddToCart(e, selectedProduct, countryCodeValue)} className="w-full py-6 text-lg rounded-xl font-bold bg-slate-900 text-white shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98]">
+                                                    Add to Cart — {currency}{displayPrice}
                                                 </Button>
                                             </div>
                                         </div>

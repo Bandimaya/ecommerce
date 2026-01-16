@@ -3,7 +3,7 @@
 import { Trash2, Plus, Minus, ArrowLeft, ShoppingBag, ShieldCheck, Truck, CreditCard, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCart } from "@/contexts/CartContext"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { toast } from "@/hooks/use-toast"
 import { useSettings } from "@/contexts/SettingsContext"
 import { Input } from "@/components/ui/input"
@@ -26,6 +26,8 @@ const Cart = () => {
     const currencySymbol = isIndia ? "₹" : ""
     const shippingCost = total >= 50 ? 0 : 5.99
     const grandTotal = total + shippingCost
+    const [addresses, setAddresses] = useState<any>([])
+    const [selectedAddressId, setSelectedAddressId] = useState("");
 
     const [address, setAddress] = useState({
         firstName: user?.name?.split(' ')[0] || "",
@@ -41,28 +43,20 @@ const Cart = () => {
 
     const prefersReducedMotion = useReducedMotion()
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setAddress({ ...address, [e.target.name]: e.target.value })
-    }
     const { countryCode } = useSettings();
 
     const handleCheckout = async () => {
-        if (!address.addressLine || !address.phone || !address.city || !address.pincode) {
-            return toast({
-                title: "Missing Details",
-                description: "Please fill in all required shipping fields.",
-                variant: "destructive",
-                className: "bg-gradient-to-r from-destructive/90 to-destructive"
-            })
-        }
-
         setLoading(true)
         try {
             const res = await apiFetch(`/orders`, {
                 method: "POST",
                 data: {
                     isIndia: isIndia,
-                    shippingAddress: address,
+                    shippingAddress: {
+                        ...address,
+                        email: user?.email,
+                        phone: user?.phone
+                    },
                     shippingMethod: shippingMethod,
                 },
             })
@@ -151,6 +145,17 @@ const Cart = () => {
             transition: { type: "spring", stiffness: 300, damping: 24 }
         }
     }
+
+    useEffect(() => {
+        apiFetch(`/users/${user.email}/addresses`)
+            .then((res: any) => {
+                if (Array.isArray(res))
+                    setAddresses(res)
+            })
+            .catch(() => {
+                console.log("error")
+            })
+    }, [])
 
     if (cartItems.length === 0) {
         return (
@@ -440,134 +445,75 @@ const Cart = () => {
                                             Shipping Information
                                         </h2>
 
+                                        {/* Saved Addresses */}
+                                        {addresses?.length > 0 && (
+                                            <div className="mb-8">
+                                                <h3 className="text-lg font-semibold mb-4 text-[var(--title-color)]">
+                                                    Select Shipping Address
+                                                </h3>
+
+                                                <RadioGroup
+                                                    value={selectedAddressId ?? ""}
+                                                    onValueChange={(id) => {
+                                                        setSelectedAddressId(id);
+                                                        const selected = addresses.find((a: any) => a._id === id);
+                                                        if (selected) {
+                                                            setAddress(prev => ({
+                                                                ...prev,
+                                                                ...selected,
+                                                            }));
+                                                        }
+                                                    }}
+                                                    className="space-y-3"
+                                                >
+                                                    {addresses.map((addr: any) => (
+                                                        <div
+                                                            key={addr._id}
+                                                            className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition
+            ${selectedAddressId === addr._id
+                                                                    ? "border-primary bg-primary/5"
+                                                                    : "border-border hover:border-primary/40"
+                                                                }`}
+                                                        >
+                                                            <RadioGroupItem value={addr._id!} id={addr._id!} />
+
+                                                            <Label htmlFor={addr._id!} className="flex-1 cursor-pointer">
+                                                                <div className="flex justify-between items-start">
+                                                                    <div>
+                                                                        <p className="font-medium">{addr.label}</p>
+
+                                                                        <p className="text-sm text-muted-foreground mt-1">
+                                                                            {addr.doorNo && `${addr.doorNo}, `}
+                                                                            {addr.street}, {addr.city}
+                                                                        </p>
+
+                                                                        {addr.country === "IN" && (
+                                                                            <p className="text-sm text-muted-foreground">
+                                                                                {addr.state} – {addr.pincode}
+                                                                            </p>
+                                                                        )}
+
+                                                                        {addr.country === "INTL" && (
+                                                                            <p className="text-sm text-muted-foreground">
+                                                                                {addr.countryName}
+                                                                            </p>
+                                                                        )}
+                                                                    </div>
+
+                                                                    {addr.isDefault && (
+                                                                        <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary">
+                                                                            Default
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </Label>
+                                                        </div>
+                                                    ))}
+                                                </RadioGroup>
+                                            </div>
+                                        )}
+
                                         <div className="space-y-6">
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="text-sm font-medium text-[var(--label-color)] mb-2 block"
-                                                        style={{ '--label-color': 'hsl(var(--foreground))' } as React.CSSProperties}>
-                                                        First Name
-                                                    </label>
-                                                    <Input
-                                                        name="firstName"
-                                                        value={address.firstName}
-                                                        placeholder="John"
-                                                        onChange={handleInputChange}
-                                                        className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                        style={{
-                                                            '--input-bg': 'hsl(var(--background))',
-                                                            '--input-border': 'hsl(var(--border))',
-                                                            '--input-focus': 'hsl(var(--primary))',
-                                                        } as React.CSSProperties}
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
-                                                        Last Name
-                                                    </label>
-                                                    <Input
-                                                        name="lastName"
-                                                        value={address.lastName}
-                                                        placeholder="Doe"
-                                                        onChange={handleInputChange}
-                                                        className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
-                                                    Email Address
-                                                </label>
-                                                <Input
-                                                    name="email"
-                                                    value={address.email}
-                                                    placeholder="john@example.com"
-                                                    onChange={handleInputChange}
-                                                    className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
-                                                    Phone Number
-                                                </label>
-                                                <Input
-                                                    name="phone"
-                                                    value={address.phone}
-                                                    placeholder="+1 234 567 8900"
-                                                    onChange={handleInputChange}
-                                                    className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                />
-                                            </div>
-
-                                            <div>
-                                                <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
-                                                    Street Address
-                                                </label>
-                                                <Input
-                                                    name="addressLine"
-                                                    value={address.addressLine}
-                                                    placeholder="123 Main St, Apt 4B"
-                                                    onChange={handleInputChange}
-                                                    className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                />
-                                            </div>
-
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
-                                                        City
-                                                    </label>
-                                                    <Input
-                                                        value={address.city}
-                                                        name="city"
-                                                        placeholder="New York"
-                                                        onChange={handleInputChange}
-                                                        className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                    />
-                                                </div>
-                                                <div>
-                                                    <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
-                                                        Postal Code
-                                                    </label>
-                                                    <Input
-                                                        name="pincode"
-                                                        value={address.pincode}
-                                                        placeholder="10001"
-                                                        onChange={handleInputChange}
-                                                        className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div>
-                                                <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
-                                                    State / Province
-                                                </label>
-                                                <Input
-                                                    name="state"
-                                                    placeholder="New York"
-                                                    value={address.state}
-                                                    onChange={handleInputChange}
-                                                    className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                />
-                                            </div>
-
-                                            {!isIndia && (
-                                                <div>
-                                                    <label className="text-sm font-medium text-[var(--label-color)] mb-2 block">
-                                                        Country
-                                                    </label>
-                                                    <Input
-                                                        name="country"
-                                                        placeholder="United States"
-                                                        value={address.country}
-                                                        onChange={handleInputChange}
-                                                        className="bg-[var(--input-bg)] border-[var(--input-border)] focus:border-[var(--input-focus)]"
-                                                    />
-                                                </div>
-                                            )}
-
                                             {/* Shipping Method */}
                                             <div className="pt-6 border-t border-[var(--border-divider)]"
                                                 style={{ '--border-divider': 'hsl(var(--border))' } as React.CSSProperties}>

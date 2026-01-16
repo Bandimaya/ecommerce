@@ -1,7 +1,6 @@
 import { apiUrl } from "./constants";
 
 export function getToken() {
-  if (typeof window === 'undefined') return null;
   try {
     const raw = localStorage.getItem('user');
     if (!raw) return null;
@@ -20,7 +19,7 @@ export const apiFetch = async (url: string, options: any = {}, isURL = false) =>
   // Determine if body is FormData
   const isFormData = data instanceof FormData;
 
-  console.log(isURL, "ISHJN")
+  console.log(isURL, "ISHJN", getToken())
   let res;
   try {
     res = await fetch(`${!isURL ? apiUrl : ""}${url}`, {

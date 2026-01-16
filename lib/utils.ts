@@ -7,13 +7,13 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getDisplayPrice(pricing: any[], userCountryCode: string) {
-  const currency = countryToCurrency[userCountryCode] || "QAR";
+  const currency = userCountryCode === 'IN' ? "₹" : "ر.ق";
 
   // Try exact currency match first
-  let priceObj = (pricing ?? []).find(p => p.currency === currency);
+  let priceObj = (pricing ?? []).find(p => p.currency === (countryToCurrency[userCountryCode] || 'QAR'));
 
   // Fallbacks
-  if (!priceObj && currency === "INR") {
+  if (!priceObj && countryToCurrency[userCountryCode] === "INR") {
     priceObj = (pricing ?? []).find(p => p.region === "Domestic");
   }
 
@@ -23,10 +23,10 @@ export function getDisplayPrice(pricing: any[], userCountryCode: string) {
 
   if (!priceObj) return 0;
 
-  return { displayPrice: priceObj.salePrice ?? priceObj.originalPrice ?? 0, currency: priceObj.currency || "QAR" };
+  return { displayPrice: priceObj.salePrice ?? priceObj.originalPrice ?? 0, currency: currency || "ر.ق", countryCodeValue: countryToCurrency[userCountryCode] };
 }
 
 
-export function returnWhatsappLink(number: string|undefined, message: string) {
+export function returnWhatsappLink(number: string | undefined, message: string) {
   return `https://wa.me/${number}?text=${message}`;
 }

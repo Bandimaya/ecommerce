@@ -5,13 +5,13 @@ import { apiFetch } from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import OrdersSkeleton from "@/components/ui/OrdersSkeleton";
 import InvoiceModal from "./InvoiceModal"; // Import the new component
-import { 
-  Box, 
-  CalendarDays, 
-  CreditCard, 
-  Truck, 
-  CheckCircle2, 
-  Clock, 
+import {
+  Box,
+  CalendarDays,
+  CreditCard,
+  Truck,
+  CheckCircle2,
+  Clock,
   AlertOctagon,
   Receipt
 } from "lucide-react";
@@ -20,10 +20,10 @@ const OrdersPage = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // New state for handling the modal
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
-  
+
   const router = useRouter();
 
   useEffect(() => {
@@ -83,9 +83,9 @@ const OrdersPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#F8F9FC] p-4 sm:p-6 lg:p-12">
-         <div className="max-w-6xl mx-auto">
-            <OrdersSkeleton count={3} />
-         </div>
+        <div className="max-w-6xl mx-auto">
+          <OrdersSkeleton count={3} />
+        </div>
       </div>
     );
   }
@@ -93,19 +93,19 @@ const OrdersPage = () => {
   return (
     // ID 'main-content' helps us hide this during print if needed
     <div id="main-content" className="min-h-screen bg-[#F8F9FC] p-4 sm:p-6 lg:p-12 font-sans text-slate-900">
-      
+
       {/* WRAPPER DIV for the Invoice Modal with ID for Print targeting */}
       {selectedInvoice && (
         <div id="invoice-root">
-          <InvoiceModal 
-            order={selectedInvoice} 
-            onClose={() => setSelectedInvoice(null)} 
+          <InvoiceModal
+            order={selectedInvoice}
+            onClose={() => setSelectedInvoice(null)}
           />
         </div>
       )}
 
       <div className="max-w-6xl mx-auto print:hidden">
-        
+
         <header className="mb-8 md:mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">My Orders</h1>
@@ -140,34 +140,34 @@ const OrdersPage = () => {
         ) : (
           <div className="flex flex-col gap-6 md:gap-8">
             {orders.map((o: any) => (
-              <div 
-                key={o._id} 
+              <div
+                key={o._id}
                 className="group relative bg-white rounded-2xl md:rounded-3xl overflow-hidden border border-slate-200 shadow-sm hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
               >
                 <div className="flex flex-col lg:flex-row items-stretch">
-                  
+
                   {/* LEFT SECTION */}
                   <div className="flex-1 p-5 md:p-8 lg:border-r border-slate-100 min-w-0">
                     <div className="flex flex-wrap items-start justify-between gap-y-4 gap-x-8 mb-8 pb-6 border-b border-slate-50">
                       <div>
-                         <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider mb-1.5">
-                            <Box size={14} />
-                            <span>Order ID</span>
-                         </div>
-                         <div className="font-mono text-lg md:text-xl text-slate-900 font-bold tracking-tight break-all">
-                           #{o._id.toString().slice(-6).toUpperCase()}
-                         </div>
+                        <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider mb-1.5">
+                          <Box size={14} />
+                          <span>Order ID</span>
+                        </div>
+                        <div className="font-mono text-lg md:text-xl text-slate-900 font-bold tracking-tight break-all">
+                          #{o._id.toString().slice(-6).toUpperCase()}
+                        </div>
                       </div>
                       <div>
                         <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider mb-1.5">
-                            <CalendarDays size={14} />
-                            <span>Date Placed</span>
-                         </div>
-                         <div className="text-slate-700 font-medium whitespace-nowrap">
-                           {new Date(o.createdAt).toLocaleDateString("en-US", {
-                             day: 'numeric', month: 'short', year: 'numeric'
-                           })}
-                         </div>
+                          <CalendarDays size={14} />
+                          <span>Date Placed</span>
+                        </div>
+                        <div className="text-slate-700 font-medium whitespace-nowrap">
+                          {new Date(o.createdAt).toLocaleDateString("en-US", {
+                            day: 'numeric', month: 'short', year: 'numeric'
+                          })}
+                        </div>
                       </div>
                     </div>
 
@@ -219,26 +219,29 @@ const OrdersPage = () => {
                     </div>
 
                     <div className="pt-6 border-t border-slate-200 mt-auto">
-                       <div className="flex items-end justify-between gap-2 mb-1">
-                          <span className="text-sm font-semibold text-slate-500">Grand Total</span>
-                          <CreditCard size={16} className="text-slate-400 mb-1" />
-                       </div>
-                       <div className="text-3xl font-black text-slate-900 tracking-tight whitespace-nowrap">
-                          {o.currency} {o.totalAmount}
-                       </div>
-                       <p className="text-xs text-slate-400 mt-2">
-                         Includes all applicable taxes
-                       </p>
+                      <div className="flex items-end justify-between gap-2 mb-1">
+                        <span className="text-sm font-semibold text-slate-500">Grand Total</span>
+                        <CreditCard size={16} className="text-slate-400 mb-1" />
+                      </div>
+                      <div className="text-3xl font-black text-slate-900 tracking-tight whitespace-nowrap">
+                        {o.currency} {o.totalAmount}
+                      </div>
+                      <p className="text-xs text-slate-400 mt-2">
+                        Includes all applicable taxes
+                      </p>
                     </div>
-                    
+
                     {/* View Invoice Button triggers Modal */}
-                    <button 
-                      onClick={() => setSelectedInvoice(o)}
-                      className="w-full py-3 px-4 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-bold shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2"
-                    >
-                      <Receipt size={16} />
-                      View Invoice
-                    </button>
+                    {
+                      o?.payment?.status === 'SUCCESS' &&
+                      <button
+                        onClick={() => setSelectedInvoice(o)}
+                        className="w-full py-3 px-4 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-bold shadow-sm hover:bg-slate-50 hover:border-slate-300 transition-all flex items-center justify-center gap-2"
+                      >
+                        <Receipt size={16} />
+                        View Invoice
+                      </button>
+                    }
                   </div>
                 </div>
               </div>

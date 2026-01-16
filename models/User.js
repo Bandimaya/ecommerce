@@ -34,10 +34,20 @@ const UserSchema = new Schema(
     // Structured address for better shipping logic
     addresses: [
       {
-        line: { type: String, default: "" },
-        city: { type: String, default: "" },
+        label: { type: String, required: true },
+        country: { type: String, default: "" },
+        street: { type: String, required: true },
+        city: { type: String, required: true },
         state: { type: String, default: "" },
+
+        doorNo: { type: String, default: "" },
+        village: { type: String, default: "" },
         pincode: { type: String, default: "" },
+
+        zone: { type: String, default: "" },
+        building: { type: String, default: "" },
+
+        isDefault: { type: Boolean, default: false },
       },
     ],
     isActive: {

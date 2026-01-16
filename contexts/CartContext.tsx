@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useUser } from "./UserContext";
 import { useSettings } from "./SettingsContext";
-import { apiFetch } from "@/lib/axios";
+import { apiFetch, getToken } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
@@ -45,7 +45,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return
     setLoading(true);
     try {
-      const res = await apiFetch(`/cart`, {});
+      const res = await apiFetch(`/cart`);
       setCartItems(res.items || []);
     } catch (err) {
       console.error("Failed to fetch cart", err);
@@ -56,7 +56,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     refreshCart();
-  }, [user]);
+  }, [user, getToken()]);
 
   console.log(user)
 

@@ -3,6 +3,7 @@ export const apiUrl = "/api";
 
 export const CURRENCY_OPTIONS = [
   { code: "SAR", label: "SAR - Saudi Riyal", symbol: "﷼" },
+  { code: "QAR", label: "QAR - Qatari Rial", symbol: "ر.ق" },
   { code: "INR", label: "INR - Indian Rupee", symbol: "₹" },
   { code: "OMR", label: "OMR - Omani Rial", symbol: "﷼" },
   { code: "BHD", label: "BHD - Bahraini Dinar", symbol: ".د.ب" },

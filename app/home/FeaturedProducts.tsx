@@ -338,7 +338,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
           ) : (
             <ProductCarouselRow>
               {featuredProducts.map((product: any) => {
-                const { displayPrice, currency }: any = getDisplayPrice(product.pricing, countryCode);
+                const { displayPrice, currency, countryCodeValue }: any = getDisplayPrice(product.pricing, countryCode);
                 const isSelected = selectedProduct?._id === product._id;
                 const imageUrl = product.image?.startsWith('http') ? product.image : IMAGE_URL + product.image;
 
@@ -381,7 +381,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                                 </p>
                                 <h3 className="text-lg font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
                               </div>
-                              <span className="text-lg font-black text-slate-900 shrink-0 ml-2">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</span>
+                              <span className="text-lg font-black text-slate-900 shrink-0 ml-2">{currency}&nbsp;{displayPrice}</span>
                             </div>
 
                             <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
@@ -389,7 +389,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                                 Details <ChevronRight className="ml-1 w-3 h-3" />
                               </span>
                               <Button
-                                onClick={(e: any) => handleAddToCart(e, product, currency)}
+                                onClick={(e: any) => handleAddToCart(e, product, countryCodeValue)}
                                 className="h-9 w-9 rounded-full bg-emerald-600 hover:bg-emerald-800 transition-colors shadow-md flex items-center justify-center p-0"
                               >
                                 <ShoppingCart className="w-4 h-4 text-white" />
@@ -442,7 +442,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                           >
                             <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-300 mb-1">{product.category}</p>
                             <h3 className="text-xl font-black leading-tight line-clamp-2 mb-2">{product.name}</h3>
-                            <p className="text-white/90 font-bold">{CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}</p>
+                            <p className="text-white/90 font-bold">{currency}{displayPrice}</p>
                           </motion.div>
                         </div>
                       </motion.div>
@@ -533,7 +533,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
 
                   {/* Right Side (Content) */}
                   {(() => {
-                    const { displayPrice, currency }: any = getDisplayPrice(selectedProduct.pricing, countryCode);
+                    const { displayPrice, currency, countryCodeValue }: any = getDisplayPrice(selectedProduct.pricing, countryCode);
                     return <>
                       <div className="w-full md:w-2/5 flex flex-col bg-white h-full overflow-hidden relative">
                         <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
@@ -559,7 +559,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                             <div className="flex items-center gap-5 mb-8 pb-8 border-b border-emerald-50">
                               <span className="text-3xl font-black text-slate-900">
 
-                                {CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}
+                                {currency}{displayPrice}
                               </span>
                               <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-yellow-50 border border-yellow-100">
                                 <Star className="w-4 h-4 text-yellow-500 fill-current" />
@@ -596,11 +596,11 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
                           className="p-6 md:p-8 border-t border-emerald-50 bg-white z-10"
                         >
                           <Button
-                            onClick={(e: any) => handleAddToCart(e, selectedProduct, currency)}
+                            onClick={(e: any) => handleAddToCart(e, selectedProduct, countryCodeValue)}
                             className="w-full py-6 text-lg rounded-xl font-black bg-emerald-900 text-white shadow-xl hover:bg-emerald-700 transition-all active:scale-[0.98] flex items-center justify-center gap-3"
                           >
                             <ShoppingCart className="w-5 h-5" />
-                            Add to Cart — {CURRENCY_OPTIONS.find(c => c.code === currency)?.symbol}{displayPrice}
+                            Add to Cart — {currency}{displayPrice}
                           </Button>
                         </motion.div>
                       </div>
