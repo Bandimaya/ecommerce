@@ -30,7 +30,7 @@ import { useRouter } from "next/navigation";
 // ----------------------------------------------------------------------
 const SMOOTH_SPRING: Transition = {
     type: "spring",
-    stiffness: 180, // Slightly increased for snappier modal open
+    stiffness: 180,
     damping: 25,
     mass: 1
 };
@@ -175,6 +175,56 @@ const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode,
     );
 };
 
+// ----------------------------------------------------------------------
+// SKELETON COMPONENTS
+// ----------------------------------------------------------------------
+const ProductCardSkeleton = () => {
+    return (
+        <div className="w-[260px] md:w-[320px] flex-shrink-0">
+            <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full rounded-[12px] bg-slate-100 border border-slate-200 overflow-hidden">
+                <div className="absolute inset-0 bg-slate-200 animate-pulse" />
+                {/* Fake Card Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-white z-10">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="space-y-2 w-full mr-4">
+                            <div className="h-2.5 w-16 bg-slate-200 rounded animate-pulse" />
+                            <div className="h-5 w-3/4 bg-slate-200 rounded animate-pulse" />
+                        </div>
+                        <div className="h-5 w-12 bg-slate-200 rounded animate-pulse shrink-0" />
+                    </div>
+                    <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center">
+                        <div className="h-3 w-12 bg-slate-200 rounded animate-pulse" />
+                        <div className="h-8 w-8 bg-slate-200 rounded-[10px] animate-pulse" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const ShopSkeleton = () => {
+    return (
+        <div className="space-y-8 md:space-y-12">
+            {[1, 2, 3].map((categoryIndex) => (
+                <div key={categoryIndex} className="space-y-6 md:space-y-8">
+                    {/* Header Skeleton */}
+                    <div className="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4 md:pb-6">
+                        <div className="h-8 w-48 md:w-64 bg-slate-200/60 rounded animate-pulse" />
+                        <div className="hidden md:block h-8 w-24 bg-slate-100 rounded-lg animate-pulse" />
+                    </div>
+                    
+                    {/* Row Skeleton */}
+                    <div className="flex gap-4 md:gap-6 overflow-hidden pb-8 pt-4 -mx-4 px-4 md:-mx-12 md:px-12 opacity-80">
+                        {[1, 2, 3, 4, 5].map((cardIndex) => (
+                            <ProductCardSkeleton key={cardIndex} />
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
 
 // ----------------------------------------------------------------------
 // MAIN SHOP COMPONENT
@@ -208,8 +258,22 @@ const Shop = () => {
 
     useEffect(() => {
         setLoading(true);
-        apiFetch('/categories').then(setCategories).catch(() => { });
-        apiFetch('/products').then(setProducts).catch(() => { }).finally(() => setLoading(false));
+        // Simulate a slight delay if data loads too fast to show skeleton effect (remove in production if needed)
+        const fetchData = async () => {
+            try {
+                const [cats, prods] = await Promise.all([
+                    apiFetch('/categories'),
+                    apiFetch('/products')
+                ]);
+                setCategories(cats);
+                setProducts(prods);
+            } catch (error) {
+                console.error("Error loading shop data", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, [])
 
     useEffect(() => {
@@ -385,7 +449,7 @@ const Shop = () => {
                 <main className="min-w-0 pb-20">
                     <div className="space-y-16">
                         {loading ? (
-                            <div className="flex justify-center py-20"><Loader2 className="w-8 h-8 animate-spin text-[var(--muted-foreground)]" /></div>
+                            <ShopSkeleton />
                         ) : filteredProducts.length > 0 ? (
                             categories.map((category: any) => {
                                 const categoryProducts = filteredProducts.filter(product => product.categories?.some((c: any) => c._id === category._id));
@@ -518,7 +582,6 @@ const Shop = () => {
             </div>
 
             {/* --- PRODUCT DETAIL MODAL --- */}
-            {/* UPDATED MODAL LOGIC */}
             <AnimatePresence>
                 {selectedProduct && (
                     <div
@@ -563,7 +626,7 @@ const Shop = () => {
                                 <X className="w-5 h-5 text-slate-700 group-hover:text-slate-900" />
                             </button>
 
-                            {/* Mobile Close Button (Moved slightly to avoid overlap) */}
+                            {/* Mobile Close Button */}
                             <button onClick={() => setSelectedProduct(null)} className="md:hidden absolute top-5 right-5 z-50 p-2 rounded-full bg-slate-100/80 backdrop-blur-sm text-slate-800 shadow-sm">
                                 <X className="w-5 h-5" />
                             </button>

@@ -79,6 +79,43 @@ const useIsMobile = (breakpoint = 1024) => {
   return isMobile;
 };
 
+// --- HELPER COMPONENTS ---
+
+const DescriptionWithReadMore = ({ 
+  text, 
+  limit = 120, 
+  onReadMore, 
+  className 
+}: { 
+  text: string, 
+  limit?: number, 
+  onReadMore: () => void, 
+  className?: string 
+}) => {
+  if (!text) return null;
+  const isLong = text.length > limit;
+  const displayText = isLong ? text.slice(0, limit).trim() + "... " : text;
+
+  return (
+    <div className={className}>
+      <p className="inline">
+        {displayText}
+      </p>
+      {isLong && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onReadMore();
+          }}
+          className="text-blue-600 font-bold hover:underline inline-flex items-center gap-0.5 ml-1 text-sm whitespace-nowrap"
+        >
+          Read More
+        </button>
+      )}
+    </div>
+  );
+};
+
 // --- SKELETON COMPONENT ---
 
 const CourseSkeleton = ({ isMobile }: { isMobile: boolean }) => {
@@ -255,7 +292,6 @@ const CourseDetailModal = ({ course, onClose, contact }: { course: Course, onClo
             <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
               {activeTab === 'overview' ? (
                 <div className="animate-in fade-in duration-300 space-y-8">
-                  {/* UPDATED DESCRIPTION RENDERING */}
                   <div className="text-slate-600 text-base md:text-lg leading-relaxed whitespace-pre-line">
                     {course.description}
                   </div>
@@ -410,17 +446,23 @@ const DesktopCarousel = ({
                   <div className="z-10 flex flex-col h-full justify-center">
                     <span className="text-blue-600 font-bold uppercase tracking-wider text-xs mb-2">{course.category || 'STEM'}</span>
                     <h3 className="text-3xl font-bold text-slate-900 mb-4 leading-tight line-clamp-2">{course.title}</h3>
-                    {/* Fixed Desktop Description height */}
-                    <div className="h-[72px] mb-6 overflow-hidden">
-                       <p className="text-slate-600 line-clamp-3 leading-relaxed">{course.description}</p>
+                    
+                    {/* UPDATED: Description with Read More */}
+                    <div className="mb-6 h-[72px] relative">
+                      <DescriptionWithReadMore 
+                        text={course.description}
+                        limit={120}
+                        onReadMore={() => onSelect(course)}
+                        className="text-slate-600 leading-relaxed text-base"
+                      />
                     </div>
                     
-                    <div className="flex gap-6 mb-8 text-sm font-semibold text-slate-500">
+                    <div className="flex gap-6 mb-8 text-sm font-semibold text-slate-500 mt-auto">
                       <span className="flex items-center gap-2"><Clock size={16} className="text-blue-500"/> {course.duration || 'Self Paced'}</span>
                       <span className="flex items-center gap-2"><Users size={16} className="text-blue-500"/> {course.students || '1k+'} Students</span>
                     </div>
 
-                    <div className="flex gap-4 mt-auto">
+                    <div className="flex gap-4">
                       {pathname !== '/' ? (
                         <>
                           <button onClick={(e) => {e.stopPropagation(); onSelect(course)}} className="px-6 py-3 rounded-full border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition-colors">Details</button>
@@ -517,12 +559,13 @@ const MobileCarousel = ({
               </div>
               
               {/* UPDATED MOBILE TEXT AREA */}
-              <div className="flex-1 min-h-0 overflow-hidden mb-4 relative">
-                 <p className="text-slate-600 text-sm leading-relaxed line-clamp-[6] whitespace-pre-line">
-                   {activeCourse.description}
-                 </p>
-                 {/* Visual fade for truncation */}
-                 <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none" />
+              <div className="flex-1 min-h-0 mb-4 relative overflow-y-auto custom-scrollbar">
+                 <DescriptionWithReadMore 
+                   text={activeCourse.description}
+                   limit={150}
+                   onReadMore={() => onSelect(activeCourse)}
+                   className="text-slate-600 text-sm leading-relaxed"
+                 />
               </div>
               
               <div className="mt-auto pt-4 border-t border-slate-100 flex-shrink-0">

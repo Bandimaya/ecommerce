@@ -1,756 +1,811 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { useState, useMemo, useEffect, useRef } from "react";
 import {
-  Zap,
-  Users,
-  Star,
-  ChevronRight,
-  PlayCircle,
-  Clock,
-  BarChart,
-  X,
-  Award,
-  CheckCircle,
-  BookOpen,
-  Download,
-  Share2,
-  Heart,
-  MessageCircle,
-  Phone,
-  Mail,
-  Loader2
-} from "lucide-react"
-import { apiFetch } from "@/lib/axios"
-import { IMAGE_URL } from "@/lib/constants"
+    Search, X, ChevronRight, ChevronLeft,
+    PackageSearch, ShoppingCart, Loader2,
+    Package, Brain, Star, ArrowRight,
+    Filter
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn, getDisplayPrice } from "@/lib/utils";
+import {
+    motion,
+    AnimatePresence,
+    useMotionValue,
+    useTransform,
+    useSpring,
+    MotionValue,
+    Transition
+} from "framer-motion";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "@/hooks/use-toast";
+import { apiFetch } from "@/lib/axios";
+import { useSettings } from "@/contexts/SettingsContext";
+import { CURRENCY_OPTIONS } from "@/lib/constants";
+import { useRouter } from "next/navigation";
 
-interface PreferLearnProps {
-  getCSSVar?: (varName: string, fallback?: string) => string
-}
+// ----------------------------------------------------------------------
+// CONFIG: Animation Physics
+// ----------------------------------------------------------------------
+const SMOOTH_SPRING: Transition = {
+    type: "spring",
+    stiffness: 180,
+    damping: 25,
+    mass: 1
+};
 
-interface CourseModalProps {
-  course: any
-  onClose: () => void
-  isSaved: boolean
-  onToggleSave: () => void
-}
-
-// --- Custom Hooks ---
-
-const useScrollLock = (isLocked: boolean) => {
-  useEffect(() => {
-    if (isLocked && typeof document !== 'undefined') {
-      const originalStyle = window.getComputedStyle(document.body).overflow
-      document.body.style.overflow = 'hidden'
-      return () => { document.body.style.overflow = originalStyle }
+// ----------------------------------------------------------------------
+// HELPER: Utilities
+// ----------------------------------------------------------------------
+const chunkArray = (array: any[], size: number) => {
+    const chunked = [];
+    for (let i = 0; i < array.length; i += size) {
+        chunked.push(array.slice(i, i + size));
     }
-  }, [isLocked])
-}
+    return chunked;
+};
 
-const useSavedCourses = () => {
-  const [savedIds, setSavedIds] = useState<string[]>([])
+// ----------------------------------------------------------------------
+// HELPER: Components
+// ----------------------------------------------------------------------
 
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('saved_courses')
-      if (saved) setSavedIds(JSON.parse(saved))
-    }
-  }, [])
+const DescriptionWithReadMore = ({ 
+    text, 
+    limit = 200, // Higher limit for modal view
+    className 
+}: { 
+    text: string, 
+    limit?: number, 
+    className?: string 
+}) => {
+    const [isExpanded, setIsExpanded] = useState(false);
+    
+    if (!text) return <p className={cn("text-slate-400 italic", className)}>No description available.</p>;
+    
+    const isLong = text.length > limit;
+    const displayText = isExpanded || !isLong ? text : text.slice(0, limit).trim() + "...";
 
-  const toggleSave = (id: string) => {
-    const newIds = savedIds.includes(id)
-      ? savedIds.filter(savedId => savedId !== id)
-      : [...savedIds, id]
-
-    setSavedIds(newIds)
-    localStorage.setItem('saved_courses', JSON.stringify(newIds))
-
-    if (!savedIds.includes(id)) {
-      alert("Added to wishlist")
-    }
-  }
-
-  return { savedIds, toggleSave }
-}
-
-// --- Helper Functions ---
-
-const handleShare = async (course: any) => {
-  const shareData = {
-    title: course.title || course.name,
-    text: `Check out this course: ${course.title || course.name}`,
-    url: window.location.href,
-  }
-
-  if (navigator.share) {
-    try {
-      await navigator.share(shareData)
-    } catch (err) {
-      console.log('Error sharing:', err)
-    }
-  } else {
-    navigator.clipboard.writeText(window.location.href)
-    alert("Link copied to clipboard!")
-  }
-}
-
-const handleDownloadSyllabus = (course: any) => {
-  if (!course.syllabusPdf && !course.syllabusUrl) {
-    alert("Syllabus not available for download yet.")
-    return
-  }
-
-  const link = document.createElement('a')
-  link.href = course.syllabusPdf || course.syllabusUrl
-  link.download = `${course.title || 'course'}-syllabus.pdf`
-  link.target = "_blank"
-  document.body.appendChild(link)
-  link.click()
-  document.body.removeChild(link)
-  alert("Download started")
-}
-
-// --- Components ---
-
-const CourseModal = ({ course, onClose, isSaved, onToggleSave }: CourseModalProps) => {
-  useScrollLock(true)
-  const modalRef = useRef<HTMLDivElement>(null)
-  const [activeTab, setActiveTab] = useState("overview")
-  const [showEnrollModal, setShowEnrollModal] = useState(false)
-
-  const tabs = [
-    { id: "overview", label: "Overview", icon: BookOpen, show: true },
-    { id: "curriculum", label: "Curriculum", icon: Award, show: !!(course.curriculum && course.curriculum.length > 0) },
-    { id: "instructor", label: "Instructor", icon: Users, show: !!course.instructor },
-    { id: "reviews", label: "Reviews", icon: Star, show: !!(course.reviews && course.reviews.length > 0) }
-  ].filter(tab => tab.show)
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        showEnrollModal ? setShowEnrollModal(false) : onClose()
-      }
-    }
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [showEnrollModal, onClose])
-
-  return (
-    <>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[10000] bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      <div className="fixed inset-0 z-[10000] top-20 md:top-20 flex items-center justify-center p-4 pointer-events-none">
-        <motion.div
-          ref={modalRef}
-          initial={{ scale: 0.95, opacity: 0, y: 20 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.95, opacity: 0, y: 20 }}
-          // UPDATED: Layout Logic
-          // flex-col on mobile (stack), md:flex-row on desktop (side-by-side)
-          className="relative w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden h-[90vh] flex flex-col md:flex-row pointer-events-auto"
-        >
-          {/* Close Button - Positioned top right of the whole modal */}
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 z-50 p-2 bg-white/80 backdrop-blur-sm rounded-full text-slate-600 hover:bg-slate-100 hover:text-slate-900 shadow-sm border border-slate-200"
-          >
-            <X size={20} />
-          </button>
-
-          {/* --- LEFT COLUMN: IMAGE (50%) --- */}
-          <div className="w-full md:w-1/2 h-48 md:h-full relative bg-slate-100 flex-shrink-0">
-            <img
-              src={course.image ? (IMAGE_URL + course.image) : "https://placehold.co/800x800?text=Course+Image"}
-              alt={course.title}
-              className="w-full h-full object-cover"
-              onError={(e) => { (e.target as HTMLImageElement).src = "https://placehold.co/800x800?text=No+Image" }}
-            />
-            {/* Overlay gradient for aesthetics only, no text here anymore */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
-          </div>
-
-          {/* --- RIGHT COLUMN: CONTENT (50%) --- */}
-          <div className="w-full md:w-1/2 flex flex-col h-full bg-white overflow-hidden">
-
-            {/* Header Content (Moved from Image Overlay to here) */}
-            <div className="px-6 pt-6 pb-2 flex-shrink-0">
-              <div className="flex items-start justify-between gap-4 mb-2">
-                <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 border-0">
-                  {course.ageRange || "All Ages"}
-                </Badge>
-                {/* Mobile View Rating (since stats bar might scroll) */}
-                <div className="flex items-center gap-1 md:hidden">
-                  <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                  <span className="font-bold text-sm">{course.rating || "New"}</span>
-                </div>
-              </div>
-
-              <h2 className="text-2xl md:text-3xl font-bold mb-2 leading-tight text-slate-900">
-                {course.title || course.name}
-              </h2>
-              <p className="text-slate-500 text-sm md:text-base line-clamp-2">
-                {course.shortDescription || course.description}
-              </p>
-            </div>
-
-            {/* Stats Bar */}
-            <div className="px-6 py-4 border-b border-slate-100 flex-shrink-0 overflow-x-auto no-scrollbar">
-              <div className="flex items-center gap-6 min-w-max">
-                <div className="flex items-center gap-2 hidden md:flex">
-                  <div className="p-1.5 bg-blue-50 rounded-lg"><Star className="w-4 h-4 text-yellow-500 fill-yellow-500" /></div>
-                  <div className="text-xs font-medium text-slate-700">{course.rating || "New"} Rating</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-green-50 rounded-lg"><Clock className="w-4 h-4 text-green-600" /></div>
-                  <div className="text-xs font-medium text-slate-700">{course.duration || "Self Paced"}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="p-1.5 bg-amber-50 rounded-lg"><BarChart className="w-4 h-4 text-amber-600" /></div>
-                  <div className="text-xs font-medium text-slate-700">{course.level || "Beginner"}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Tabs Navigation */}
-            <div className="px-6 pt-2 flex-shrink-0 border-b border-slate-100">
-              <div className="flex space-x-4 overflow-x-auto no-scrollbar">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon
-                  return (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center gap-2 py-3 border-b-2 font-medium text-sm transition-all whitespace-nowrap ${activeTab === tab.id
-                          ? "border-blue-600 text-blue-600"
-                          : "border-transparent text-slate-500 hover:text-slate-800"
-                        }`}
-                    >
-                      <Icon className="w-4 h-4" />
-                      {tab.label}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Scrollable Tab Content */}
-            <div className="flex-1 overflow-y-auto p-6 scroll-smooth bg-slate-50/50">
-              {activeTab === "overview" && (
-                <div className="space-y-6">
-                  <div>
-                    <h3 className="text-lg font-bold text-slate-900 mb-3">About this Course</h3>
-                    <p className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
-                      {course.description || "No description provided."}
-                    </p>
-                  </div>
-
-                  {course.outcomes && course.outcomes.length > 0 && (
-                    <div>
-                      <h3 className="text-lg font-bold text-slate-900 mb-3">What You'll Learn</h3>
-                      <div className="grid grid-cols-1 gap-2">
-                        {course.outcomes.map((item: string, index: number) => (
-                          <div key={index} className="flex items-start gap-3 p-2.5 bg-white border border-slate-100 rounded-lg shadow-sm">
-                            <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span className="text-sm text-slate-700">{item}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === "curriculum" && course.curriculum && (
-                <div className="space-y-3">
-                  {course.curriculum.map((module: any, index: number) => (
-                    <div key={index} className="bg-white border border-slate-200 rounded-lg p-3 hover:border-blue-300 transition-colors shadow-sm">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-semibold text-slate-900 text-sm">{module.title || `Module ${index + 1}`}</div>
-                          <div className="text-xs text-slate-500 mt-0.5">
-                            {module.lessonsCount ? `${module.lessonsCount} lessons` : ''}
-                            {module.duration ? ` • ${module.duration}` : ''}
-                          </div>
-                        </div>
-                        <PlayCircle className="w-4 h-4 text-slate-400" />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {activeTab === "instructor" && course.instructor && (
-                <div>
-                  <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-100">
-                      <img
-                        src={course.instructor.avatar ? (IMAGE_URL + course.instructor.avatar) : "https://placehold.co/100"}
-                        alt={course.instructor.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg text-slate-900">{course.instructor.name}</h4>
-                      <p className="text-slate-500 text-sm">{course.instructor.role || "Instructor"}</p>
-                    </div>
-                  </div>
-                  <p className="text-slate-600 text-sm leading-relaxed">
-                    {course.instructor.bio}
-                  </p>
-                </div>
-              )}
-
-              {activeTab === "reviews" && course.reviews && (
-                <div className="space-y-3">
-                  {course.reviews.map((review: any, index: number) => (
-                    <div key={index} className="bg-white border border-slate-200 rounded-lg p-3 shadow-sm">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-xs">
-                            {review.user ? review.user.charAt(0) : "U"}
-                          </div>
-                          <div>
-                            <div className="font-bold text-slate-900 text-sm">{review.user || "User"}</div>
-                            <div className="flex items-center gap-0.5">
-                              {[...Array(5)].map((_, i) => (
-                                <Star key={i} className={`w-2.5 h-2.5 ${i < (review.rating || 5) ? 'text-yellow-500 fill-yellow-500' : 'text-slate-300'}`} />
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-slate-600 text-sm">{review.comment}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Footer Actions */}
-            <div className="px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0 z-10">
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-start">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className={`h-10 w-10 ${isSaved ? "text-red-500 border-red-200 bg-red-50" : ""}`}
-                    onClick={onToggleSave}
-                    title="Save Course"
-                  >
-                    <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-10 w-10"
-                    onClick={() => handleShare(course)}
-                    title="Share"
-                  >
-                    <Share2 className="w-4 h-4" />
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-10 w-10"
-                    onClick={() => handleDownloadSyllabus(course)}
-                    title="Download Syllabus"
-                  >
-                    <Download className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-end flex-1">
-                  <div className="text-right">
-                    {/* <div className="text-xl font-bold text-slate-900">
-                      {course.price === 0 ? "Free" : `₹${course.price}`}
-                    </div> */}
-                    {course.originalPrice && (
-                      <div className="text-xs text-slate-500 line-through">₹{course.originalPrice}</div>
-                    )}
-                  </div>
-                  <Button
-                    onClick={() => setShowEnrollModal(true)}
-                    className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg px-6"
-                  >
-                    Enroll Now
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </motion.div>
-      </div>
-
-      <AnimatePresence>
-        {showEnrollModal && (
-          <EnrollModal
-            course={course}
-            onClose={() => setShowEnrollModal(false)}
-          />
-        )}
-      </AnimatePresence>
-    </>
-  )
-}
-
-const EnrollModal = ({ course, onClose }: { course: any; onClose: () => void }) => {
-  useScrollLock(true)
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [onClose])
-
-  const messageText = `Hi, I'm interested in the course: ${course.title || course.name}.`
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[20000] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0, y: 20 }}
-        animate={{ scale: 1, opacity: 1, y: 0 }}
-        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-        className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full relative"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-100 transition-colors"
-        >
-          <X size={20} className="text-slate-400" />
-        </button>
-
-        <div className="text-center mb-6">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <MessageCircle size={28} className="text-blue-600" />
-          </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-2">Start Learning Today</h3>
-          <p className="text-slate-600 mb-1">You're inquiring about:</p>
-          <p className="font-semibold text-blue-600 text-lg mb-4">{course.title || course.name}</p>
+    return (
+        <div className={className}>
+            <p className="inline leading-relaxed">
+                {displayText}
+            </p>
+            {isLong && (
+                <button
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setIsExpanded(!isExpanded);
+                    }}
+                    className="text-blue-600 font-bold hover:underline inline-flex items-center gap-0.5 ml-1 text-sm whitespace-nowrap"
+                >
+                    {isExpanded ? "Show Less" : "Read More"}
+                </button>
+            )}
         </div>
+    );
+};
 
-        <div className="space-y-3 mb-6">
-          <Button
-            onClick={() => {
-              window.open(`https://wa.me/1234567890?text=${encodeURIComponent(messageText)}`, '_blank')
-              onClose()
-            }}
-            className="w-full h-12 gap-3 bg-green-500 hover:bg-green-600 text-white"
-          >
-            <Phone size={20} />
-            Continue on WhatsApp
-          </Button>
-
-          <Button
-            onClick={() => {
-              window.location.href = `mailto:info@example.com?subject=Enquiry: ${course.title}&body=${messageText}`
-              onClose()
-            }}
-            variant="outline"
-            className="w-full h-12 gap-3"
-          >
-            <Mail size={20} />
-            Send Email Inquiry
-          </Button>
-        </div>
-      </motion.div>
-    </motion.div>
-  )
+interface MagnifierLensProps {
+    mouseX: MotionValue<number>;
+    mouseY: MotionValue<number>;
+    imageSrc: string;
+    containerWidth: number;
+    containerHeight: number;
 }
 
-const PreferLearn = ({ getCSSVar = (varName, fallback) => fallback ? `var(${varName}, ${fallback})` : `var(${varName})` }: PreferLearnProps) => {
-  const [activeTab, setActiveTab] = useState<string>("all")
-  const [hoveredCard, setHoveredCard] = useState<string | number | null>(null)
-  const [selectedCourse, setSelectedCourse] = useState<any>(null)
-  const [data, setData] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const containerRef = useRef<HTMLDivElement>(null)
-  const { savedIds, toggleSave } = useSavedCourses()
+const MagnifierLens = ({ mouseX, mouseY, imageSrc, containerWidth, containerHeight }: MagnifierLensProps) => {
+    const lensSize = 160;
+    const zoomLevel = 2.5;
 
-  const v = (name: string, fb: string) => getCSSVar(name, fb)
+    const smoothX = useSpring(mouseX, { stiffness: 200, damping: 30 });
+    const smoothY = useSpring(mouseY, { stiffness: 200, damping: 30 });
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.1 } },
-    exit: { opacity: 0, transition: { duration: 0.2 } }
-  }
+    const lensX = useTransform(smoothX, (m) => m - lensSize / 2);
+    const lensY = useTransform(smoothY, (m) => m - lensSize / 2);
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: { type: "spring" as const, stiffness: 120, damping: 20 }
-    },
-    hover: { y: -8, transition: { duration: 0.3 } }
-  }
+    const bgX = useTransform(smoothX, [0, containerWidth], ["0%", "100%"], { clamp: true });
+    const bgY = useTransform(smoothY, [0, containerHeight], ["0%", "100%"], { clamp: true });
 
-  // Real-time data fetching
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      try {
-        const [sectionsData, coursesData] = await Promise.all([
-          apiFetch('/sections'),
-          apiFetch('/section-courses')
-        ])
-
-        // Map sections to their courses
-        const mappedData = sectionsData.map((section: any) => {
-          const courses = coursesData.filter((item: any) =>
-            // Handle different ID structures from APIs
-            (item.sectionId?._id === section._id) || (item.sectionId === section._id)
-          )
-          return {
-            ...section,
-            paths: courses,
-            label: section.name || section.label
-          }
-        }).filter((section: any) => section.paths.length > 0) // Only show sections with courses
-
-        setData(mappedData)
-      } catch (error) {
-        console.error("Failed to fetch learning paths:", error)
-        // alert("Could not load courses. Please check your connection.")
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [])
-
-  const displayData = data
-  const activeTabData = activeTab === "all" ? displayData : displayData.filter((tab) => tab._id === activeTab)
-
-  return (
-    <section
-      className="relative py-12 sm:py-20 overflow-hidden w-full"
-      ref={containerRef}
-      style={{ backgroundColor: v('--background', '#ffffff'), fontFamily: v('--font-display', 'system-ui, sans-serif') }}
-    >
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 opacity-40" style={{ background: `radial-gradient(circle at 50% 0%, ${v('--primary', '#3b82f6')}15 0%, transparent 70%)` }} />
-      </div>
-
-      <div className="container px-4 sm:px-6 mx-auto relative z-10 max-w-7xl">
-
-        {/* Header */}
+    return (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          viewport={{ once: true }}
-          className="text-center mb-10 sm:mb-16"
-        >
-          <motion.div className="flex justify-center items-center gap-4 mb-4">
-            <motion.div className="h-[2px]" initial={{ width: 0 }} whileInView={{ width: '40px' }} transition={{ duration: 0.5, delay: 0.2 }} style={{ backgroundColor: v('--primary', '#3b82f6') }} />
-            <span className="text-xs sm:text-sm font-bold uppercase tracking-widest whitespace-nowrap" style={{ color: v('--primary', '#3b82f6') }}>Personalized Learning</span>
-            <motion.div className="h-[2px]" initial={{ width: 0 }} whileInView={{ width: '40px' }} transition={{ duration: 0.5, delay: 0.2 }} style={{ backgroundColor: v('--primary', '#3b82f6') }} />
-          </motion.div>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
-            <span style={{ color: v('--foreground', '#020817') }}>How Would Your Child</span>{" "}
-            <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">Prefer to Learn?</span>
-          </h2>
-        </motion.div>
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            style={{
+                position: 'absolute',
+                top: 0, left: 0,
+                width: lensSize, height: lensSize,
+                borderRadius: '50%',
+                border: '4px solid white',
+                boxShadow: '0 10px 40px rgba(0,0,0,0.2), inset 0 0 20px rgba(0,0,0,0.1)',
+                pointerEvents: 'none',
+                x: lensX, y: lensY,
+                zIndex: 60,
+                backgroundColor: 'white',
+                backgroundImage: `url(${imageSrc})`,
+                backgroundRepeat: 'no-repeat',
+                backgroundSize: `${containerWidth * zoomLevel}px ${containerHeight * zoomLevel}px`,
+                backgroundPositionX: bgX,
+                backgroundPositionY: bgY
+            }}
+        />
+    );
+};
 
-        {/* Loading State */}
-        {loading && (
-          <div className="flex justify-center items-center py-20">
-            <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
-          </div>
-        )}
+// ----------------------------------------------------------------------
+// COMPONENT: Product Carousel Row
+// ----------------------------------------------------------------------
+const ProductCarouselRow = ({ children, rowIndex }: { children: React.ReactNode, rowIndex: number }) => {
+    const rowRef = useRef<HTMLDivElement>(null);
+    const [canScrollLeft, setCanScrollLeft] = useState(false);
+    const [canScrollRight, setCanScrollRight] = useState(true);
 
-        {!loading && data.length === 0 && (
-          <div className="text-center py-10 text-slate-500">No courses available at the moment.</div>
-        )}
+    const checkScroll = () => {
+        if (!rowRef.current) return;
+        const { scrollLeft, scrollWidth, clientWidth } = rowRef.current;
+        const isAtStart = scrollLeft <= 1;
+        const isAtEnd = Math.ceil(scrollLeft + clientWidth) >= scrollWidth - 1;
 
-        {/* Dynamic Toggle Switcher */}
-        {!loading && data.length > 0 && (
-          <div className="flex justify-center mb-10 w-full">
-            <div className="flex flex-wrap justify-center gap-2 p-2 rounded-2xl border shadow-sm backdrop-blur-md w-full max-w-fit" style={{ backgroundColor: `color-mix(in srgb, ${v('--card', '#fff')} 80%, transparent)`, borderColor: v('--border', '#e2e8f0') }}>
-              <button
-                onClick={() => setActiveTab('all')}
-                className="relative cursor-pointer px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 z-10 flex items-center justify-center gap-2"
-                style={{ color: activeTab === 'all' ? v('--primary-foreground', '#ffffff') : v('--muted-foreground', '#64748b') }}
-              >
-                {activeTab === 'all' && (
-                  <motion.div layoutId="activeTabBackground" className="absolute inset-0 rounded-xl shadow-md -z-10" style={{ backgroundColor: v('--primary', '#3b82f6') }} />
+        setCanScrollLeft(!isAtStart);
+        setCanScrollRight(!isAtEnd);
+    };
+
+    useEffect(() => {
+        checkScroll();
+        window.addEventListener('resize', checkScroll);
+        const timeout = setTimeout(checkScroll, 500);
+        return () => {
+            window.removeEventListener('resize', checkScroll);
+            clearTimeout(timeout);
+        };
+    }, [children]);
+
+    const scroll = (direction: 'left' | 'right') => {
+        if (!rowRef.current) return;
+        const scrollAmount = rowRef.current.clientWidth * 0.75;
+        rowRef.current.scrollBy({
+            left: direction === 'left' ? -scrollAmount : scrollAmount,
+            behavior: 'smooth'
+        });
+        setTimeout(checkScroll, 400);
+    };
+
+    return (
+        <div className="relative group/row">
+            {rowIndex > 0 && (
+                <div className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2 pl-1">Page {rowIndex + 1}</div>
+            )}
+            <button
+                onClick={() => scroll('left')}
+                disabled={!canScrollLeft}
+                className={cn(
+                    "absolute left-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -ml-6",
+                    "bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center transition-all duration-300",
+                    "flex",
+                    !canScrollLeft ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100 hover:bg-slate-900 hover:text-white"
                 )}
-                <span>All</span>
-              </button>
-
-              {data.map((tab) => {
-                const isActive = activeTab === tab._id
-                return (
-                  <button
-                    key={tab._id}
-                    onClick={() => setActiveTab(tab._id)}
-                    className="relative cursor-pointer px-4 sm:px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 z-10"
-                    style={{ color: isActive ? v('--primary-foreground', '#ffffff') : v('--muted-foreground', '#64748b') }}
-                  >
-                    {isActive && (
-                      <motion.div layoutId="activeTabBackground" className="absolute inset-0 rounded-xl shadow-md -z-10" style={{ backgroundColor: v('--primary', '#3b82f6') }} />
-                    )}
-                    <span>{tab.label}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Cards Grid */}
-        <AnimatePresence mode="wait">
-          {!loading && activeTabData.length > 0 && (
-            <motion.div
-              key={activeTab}
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 max-w-7xl mx-auto"
             >
-              {activeTabData.flatMap((section) =>
-                section.paths?.map((course: any) => {
-                  const isHovered = hoveredCard === course._id;
-                  const isSaved = savedIds.includes(course._id);
+                <ChevronLeft className="w-6 h-6" />
+            </button>
+            <div
+                ref={rowRef}
+                onScroll={checkScroll}
+                className="flex items-stretch gap-4 md:gap-6 overflow-x-auto overflow-y-hidden pb-8 pt-4 -mx-4 px-4 md:-mx-12 md:px-12 scrollbar-hide snap-x snap-mandatory"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+                {children}
+            </div>
+            <button
+                onClick={() => scroll('right')}
+                disabled={!canScrollRight}
+                className={cn(
+                    "absolute right-0 top-1/2 -translate-y-1/2 z-50 w-12 h-12 -mr-6",
+                    "bg-white border border-slate-200 rounded-full shadow-xl flex items-center justify-center transition-all duration-300",
+                    "flex",
+                    !canScrollRight ? "opacity-0 pointer-events-none scale-90" : "opacity-100 scale-100 hover:bg-slate-900 hover:text-white"
+                )}
+            >
+                <ChevronRight className="w-6 h-6" />
+            </button>
+        </div>
+    );
+};
 
-                  return (
-                    <motion.div
-                      key={course._id}
-                      variants={cardVariants}
-                      className="h-full"
-                      onMouseEnter={() => setHoveredCard(course._id)}
-                      onMouseLeave={() => setHoveredCard(null)}
-                      whileHover="hover"
-                    >
-                      <Card
-                        className="group relative h-[400px] w-full overflow-hidden border transition-all duration-500 flex flex-col hover:shadow-2xl hover:border-primary/50 cursor-pointer"
-                        style={{ backgroundColor: v('--card', '#ffffff'), borderColor: v('--border', '#e2e8f0') }}
-                        onClick={() => setSelectedCourse(course)}
-                      >
-                        {/* Background Image */}
-                        <motion.div
-                          className="absolute top-0 left-0 w-full z-0 overflow-hidden"
-                          initial={{ height: "50%" }}
-                          animate={{ height: isHovered ? "100%" : "50%" }}
-                          transition={{ duration: 0.4, ease: [0.32, 0.72, 0, 1] }}
-                        >
-                          <img
-                            src={course.image ? (IMAGE_URL + course.image) : "https://placehold.co/600x400"}
-                            alt={course.title}
-                            className="w-full h-full object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-110"
-                          />
-                          <motion.div
-                            className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: isHovered ? 1 : 0 }}
-                            transition={{ duration: 0.3 }}
-                          />
-                        </motion.div>
-
-                        <div className="relative z-10 flex flex-col h-full w-full">
-                          {/* Top Badges */}
-                          <div className="p-3 flex justify-between items-start w-full absolute top-0 left-0 z-20">
-                            <Badge className="bg-white/90 text-black backdrop-blur-md text-[10px] px-2 py-0.5 border-0 font-bold shadow-sm">
-                              {course.ageRange || "8+ Years"}
-                            </Badge>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleSave(course._id);
-                              }}
-                              className={`p-1.5 rounded-full backdrop-blur-sm transition-colors ${isSaved ? "bg-red-500 text-white" : "bg-black/40 text-white hover:bg-black/60"}`}
-                            >
-                              <Heart className={`w-3.5 h-3.5 ${isSaved ? "fill-current" : ""}`} />
-                            </button>
-                          </div>
-
-                          <div className="mt-auto" />
-
-                          {/* Content */}
-                          <CardContent className="p-5 pt-2 flex flex-col gap-2 relative">
-                            {/* Play Button */}
-                            <motion.div
-                              className="absolute -top-12 right-4"
-                              animate={{ opacity: isHovered ? 1 : 0, y: isHovered ? 0 : 10, scale: isHovered ? 1 : 0.8 }}
-                            >
-                              <div className="bg-white/20 backdrop-blur-md p-2 rounded-full border border-white/30 shadow-lg">
-                                <PlayCircle className="w-8 h-8 text-white fill-white/20" />
-                              </div>
-                            </motion.div>
-
-                            <h3 className="text-lg font-bold leading-tight line-clamp-2 transition-colors duration-300" style={{ color: isHovered ? '#ffffff' : v('--foreground', '#020817') }}>
-                              {course.title || course.name}
-                            </h3>
-
-                            <p className="text-xs line-clamp-2 leading-relaxed transition-colors duration-300" style={{ color: isHovered ? '#e2e8f0' : v('--muted-foreground', '#64748b') }}>
-                              {course.description}
-                            </p>
-
-                            <div className="flex items-center gap-3 mt-2 text-[11px] font-medium transition-colors duration-300" style={{ color: isHovered ? '#cbd5e1' : v('--muted-foreground', '#64748b') }}>
-                              <div className="flex items-center gap-1"><Clock className="w-3 h-3" />{course.duration || "Self Paced"}</div>
-                              <div className="w-[1px] h-3 bg-current opacity-30" />
-                              <div className="flex items-center gap-1"><BarChart className="w-3 h-3" />{course.level || "Beginner"}</div>
-                            </div>
-                          </CardContent>
-
-                          <CardFooter className="p-5 pt-0">
-                            <Button
-                              className="w-full h-10 text-sm font-medium rounded-lg shadow-md group/btn transition-all duration-300 border-0"
-                              style={{ backgroundColor: isHovered ? '#ffffff' : v('--primary', '#3b82f6'), color: isHovered ? '#000000' : v('--primary-foreground', '#ffffff') }}
-                            >
-                              <span className="flex items-center justify-center gap-2">
-                                View Details <ChevronRight className="w-3 h-3 group-hover/btn:translate-x-1 transition-transform" />
-                              </span>
-                            </Button>
-                          </CardFooter>
+// ----------------------------------------------------------------------
+// SKELETON COMPONENTS
+// ----------------------------------------------------------------------
+const ProductCardSkeleton = () => {
+    return (
+        <div className="w-[260px] md:w-[320px] flex-shrink-0">
+            <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full rounded-[12px] bg-slate-100 border border-slate-200 overflow-hidden">
+                <div className="absolute inset-0 bg-slate-200 animate-pulse" />
+                <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 bg-white z-10">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="space-y-2 w-full mr-4">
+                            <div className="h-2.5 w-16 bg-slate-200 rounded animate-pulse" />
+                            <div className="h-5 w-3/4 bg-slate-200 rounded animate-pulse" />
                         </div>
-                      </Card>
-                    </motion.div>
-                  )
-                })
-              )}
-            </motion.div>
-          )}
-        </AnimatePresence>
+                        <div className="h-5 w-12 bg-slate-200 rounded animate-pulse shrink-0" />
+                    </div>
+                    <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center">
+                        <div className="h-3 w-12 bg-slate-200 rounded animate-pulse" />
+                        <div className="h-8 w-8 bg-slate-200 rounded-[10px] animate-pulse" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
-      </div>
+const ShopSkeleton = () => {
+    return (
+        <div className="space-y-8 md:space-y-12">
+            {[1, 2, 3].map((categoryIndex) => (
+                <div key={categoryIndex} className="space-y-6 md:space-y-8">
+                    <div className="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4 md:pb-6">
+                        <div className="h-8 w-48 md:w-64 bg-slate-200/60 rounded animate-pulse" />
+                        <div className="hidden md:block h-8 w-24 bg-slate-100 rounded-lg animate-pulse" />
+                    </div>
+                    
+                    <div className="flex gap-4 md:gap-6 overflow-hidden pb-8 pt-4 -mx-4 px-4 md:-mx-12 md:px-12 opacity-80">
+                        {[1, 2, 3, 4, 5].map((cardIndex) => (
+                            <ProductCardSkeleton key={cardIndex} />
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
 
-      <AnimatePresence>
-        {selectedCourse && (
-          <CourseModal
-            course={selectedCourse}
-            onClose={() => setSelectedCourse(null)}
-            isSaved={savedIds.includes(selectedCourse._id)}
-            onToggleSave={() => toggleSave(selectedCourse._id)}
-          />
+
+// ----------------------------------------------------------------------
+// MAIN SHOP COMPONENT
+// ----------------------------------------------------------------------
+
+const Shop = () => {
+    // --- STATE ---
+    const [selectedCategory, setSelectedCategory] = useState("all");
+    const [searchQuery, setSearchQuery] = useState("");
+    const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+
+    // Animation/Modal State
+    const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+    const [isHoveringPopup, setIsHoveringPopup] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const navigate = useRouter();
+
+    const [popupDims, setPopupDims] = useState({ width: 0, height: 0 });
+    const [isMobileWidth, setIsMobileWidth] = useState(false);
+    const { addToCart, loading: cartLoading } = useCart();
+
+    const popupImageContainerRef = useRef<HTMLDivElement>(null);
+    const mouseX = useMotionValue(0);
+    const mouseY = useMotionValue(0);
+
+    const [products, setProducts] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [categories, setCategories] = useState<any[]>([]);
+    const { countryCode } = useSettings();
+
+    useEffect(() => {
+        setLoading(true);
+        const fetchData = async () => {
+            try {
+                const [cats, prods] = await Promise.all([
+                    apiFetch('/categories'),
+                    apiFetch('/products')
+                ]);
+                setCategories(cats);
+                setProducts(prods);
+            } catch (error) {
+                console.error("Error loading shop data", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [])
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobileWidth(window.innerWidth < 768);
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+
+        if (selectedProduct) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.paddingRight = 'var(--scrollbar-width, 0px)';
+        } else {
+            document.body.style.overflow = 'unset';
+            document.body.style.paddingRight = '0px';
+        }
+
+        return () => {
+            window.removeEventListener('resize', checkMobile);
+            document.body.style.overflow = 'unset';
+            document.body.style.paddingRight = '0px';
+        };
+    }, [selectedProduct]);
+
+    useEffect(() => {
+        setIsModalOpen(!!selectedProduct);
+    }, [selectedProduct]);
+
+    const isMobile = isMobileWidth;
+
+    // --- HANDLERS ---
+    const handleAddToCart = (e: React.MouseEvent, product: any, curreny: any) => {
+        e.stopPropagation();
+        const price = product.pricing?.[0]?.salePrice || 0;
+        const image = product.media?.[0]?.url;
+
+        if (product.variants.length === 0) {
+            addToCart({
+                productId: product._id,
+                name: product.name,
+                price: price,
+                image: image,
+                currency: curreny,
+            }, 1);
+            toast({ title: 'Added to cart', description: `${product.name} added to cart`, className: "bg-emerald-600 text-white border-none" });
+        } else {
+            navigate.push(`/product/${product.slug}`);
+        }
+    };
+
+    const handlePopupMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (!popupImageContainerRef.current || isMobile) return;
+        const rect = popupImageContainerRef.current.getBoundingClientRect();
+        if (rect.width !== popupDims.width || rect.height !== popupDims.height) {
+            setPopupDims({ width: rect.width, height: rect.height });
+        }
+        mouseX.set(e.clientX - rect.left);
+        mouseY.set(e.clientY - rect.top);
+    };
+
+    const handlePopupMouseEnter = () => {
+        if (isMobile || !popupImageContainerRef.current || !isModalOpen) return;
+        const rect = popupImageContainerRef.current.getBoundingClientRect();
+        setPopupDims({ width: rect.width, height: rect.height });
+        setIsHoveringPopup(true);
+    };
+
+    // --- FILTERING ---
+    const filteredProducts = useMemo(() => {
+        return products.filter((product: any) => {
+            const matchesCategory = selectedCategory === "all" || product?.categories?.some((cat: any) => cat._id === selectedCategory);
+            const matchesSearch = product?.name?.toLowerCase().includes(searchQuery?.toLowerCase());
+            return matchesCategory && matchesSearch;
+        });
+    }, [products, selectedCategory, searchQuery]);
+
+
+    return (
+        <div className="h-auto bg-[var(--background)] text-[var(--foreground)] font-sans relative">
+            <div className="fixed inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-0"></div>
+
+            <div className="w-full max-w-[2000px] mx-auto px-4 md:px-12 py-8 relative z-10">
+
+                {/* --- HEADER SECTION --- */}
+                <div className="sticky top-[60px] md:top-[80px] z-40 mb-6 md:mb-10 -mx-4 px-4 md:-mx-12 md:px-12 py-2 md:py-4 bg-[var(--background)]/95 backdrop-blur-md transition-all rounded-b-2xl md:rounded-none shadow-sm md:shadow-none">
+
+                    <div className="flex flex-col gap-4 max-w-4xl mx-auto">
+                        <div className="bg-[var(--background)] border border-[var(--border)] p-1.5 md:p-2 rounded-[12px] shadow-sm flex items-center gap-2 md:gap-4 w-full">
+                            <div className="relative flex-1 group">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[var(--muted-foreground)]" />
+                                <input
+                                    type="text"
+                                    placeholder="Search..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="w-full bg-transparent pl-10 pr-4 py-2 md:py-3 text-sm md:text-base outline-none text-[var(--foreground)] placeholder:text-slate-400"
+                                />
+                            </div>
+
+                            <div className="hidden md:flex items-center gap-2 px-6 border-l border-[var(--border)] h-8 shrink-0">
+                                <span className="text-sm font-bold text-[var(--muted-foreground)]">{filteredProducts.length} Products</span>
+                            </div>
+
+                            <button
+                                onClick={() => setIsCategoryMenuOpen(!isCategoryMenuOpen)}
+                                className={cn(
+                                    "flex items-center justify-center w-10 h-10 rounded-[8px] transition-colors shrink-0",
+                                    "md:ml-0",
+                                    isCategoryMenuOpen ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                                )}
+                            >
+                                {isCategoryMenuOpen ? <X className="w-5 h-5" /> : <Filter className="w-5 h-5" />}
+                            </button>
+                        </div>
+
+                        <AnimatePresence>
+                            {isCategoryMenuOpen && (
+                                <motion.div
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: "auto", opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    className="overflow-hidden"
+                                >
+                                    <div className="hidden md:block">
+                                        <div className="w-full h-px bg-[var(--border)] my-4 opacity-50" />
+                                        <div className="flex flex-wrap items-center justify-center gap-3 pb-4">
+                                            <CategoryButton
+                                                active={selectedCategory === "all"}
+                                                onClick={() => setSelectedCategory("all")}
+                                                label="All Products"
+                                                count={products.length}
+                                            />
+                                            {categories.map((category: any) => (
+                                                <CategoryButton
+                                                    key={category._id}
+                                                    active={selectedCategory === category._id}
+                                                    onClick={() => setSelectedCategory(category._id)}
+                                                    label={category.title}
+                                                    count={products.filter((p: any) => p.categories?.some((c: any) => c._id === category._id)).length}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <div className="md:hidden">
+                                        <div className="grid grid-cols-2 gap-2 pt-2 pb-4">
+                                            <CategoryButtonMobile
+                                                active={selectedCategory === "all"}
+                                                onClick={() => { setSelectedCategory("all"); setIsCategoryMenuOpen(false); }}
+                                                label="All"
+                                                count={products.length}
+                                            />
+                                            {categories.map((category: any) => (
+                                                <CategoryButtonMobile
+                                                    key={category._id}
+                                                    active={selectedCategory === category._id}
+                                                    onClick={() => { setSelectedCategory(category._id); setIsCategoryMenuOpen(false); }}
+                                                    label={category.title}
+                                                    count={products.filter((p: any) => p.categories?.some((c: any) => c._id === category._id)).length}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className="text-center text-xs text-slate-400 pb-2 border-b border-dashed border-slate-200">
+                                            Showing {filteredProducts.length} results
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                    </div>
+                </div>
+
+                <main className="min-w-0 pb-20">
+                    <div className="space-y-16">
+                        {loading ? (
+                            <ShopSkeleton />
+                        ) : filteredProducts.length > 0 ? (
+                            categories.map((category: any) => {
+                                const categoryProducts = filteredProducts.filter(product => product.categories?.some((c: any) => c._id === category._id));
+                                if (categoryProducts.length === 0) return null;
+                                if (selectedCategory !== "all" && selectedCategory !== category._id) return null;
+
+                                const productChunks = chunkArray(categoryProducts, 10);
+
+                                return (
+                                    <div key={category._id + 'maincategoryproduct'} className="space-y-6 md:space-y-8">
+                                        <div className="flex items-center justify-between border-b border-dashed border-[var(--border)] pb-4 md:pb-6">
+                                            <h3 className="text-xl md:text-3xl font-black text-[var(--foreground)] tracking-tight">{category.title}</h3>
+                                            {selectedCategory === "all" && (
+                                                <Button
+                                                    variant="ghost"
+                                                    onClick={() => { setSelectedCategory(category._id); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                                                    className="group flex items-center gap-1 md:gap-2 text-xs md:text-sm font-bold text-[var(--muted-foreground)] hover:text-blue-600 hover:bg-blue-50 transition-all rounded-[10px] px-2 md:px-4"
+                                                >
+                                                    <span className="hidden md:inline">View all</span> {categoryProducts.length}
+                                                    <ArrowRight className="w-3 h-3 md:w-4 md:h-4 transition-transform group-hover:translate-x-1" />
+                                                </Button>
+                                            )}
+                                        </div>
+
+                                        <div className="space-y-12 px-10">
+                                            {productChunks.map((chunk: any[], chunkIndex: number) => (
+                                                <ProductCarouselRow key={`${category._id}-chunk-${chunkIndex}`} rowIndex={chunkIndex}>
+                                                    {chunk.map((product: any) => {
+                                                        const displayImage = product.media?.[0]?.url || '/placeholder.png';
+                                                        const { displayPrice, currency, countryCodeValue }: any = getDisplayPrice(product.pricing, countryCode);
+                                                        const displayCategory = product.categories?.[0]?.title || "Item";
+
+                                                        return (
+                                                            <motion.div
+                                                                key={product._id + "sub" + category._id}
+                                                                layoutId={`product-card-container-${product._id}`}
+                                                                className="relative group cursor-pointer perspective-1000 flex-shrink-0 w-[260px] md:w-[320px] snap-start"
+                                                                initial="rest"
+                                                                whileHover={isMobile || isModalOpen ? undefined : "hover"}
+                                                                animate={selectedProduct?._id === product._id ? "selected" : "rest"}
+                                                                variants={{ rest: {}, hover: {}, selected: { scale: 1 } }}
+                                                                onClick={() => !isModalOpen && setSelectedProduct(product)}
+                                                            >
+                                                                <div className="relative aspect-[4/5] sm:aspect-[3/4] w-full">
+                                                                    <motion.div
+                                                                        className="absolute inset-0 top-0 md:top-12 rounded-[12px] border bg-white shadow-sm group-hover:shadow-xl transition-shadow duration-300 overflow-hidden flex flex-col"
+                                                                        variants={{ rest: { opacity: 0, y: 15 }, hover: { opacity: 1, y: 0 } }}
+                                                                        transition={{ duration: 0.4, ease: "easeOut" }}
+                                                                    >
+                                                                        <div className="mt-auto p-4 md:p-6 space-y-2 md:space-y-4 z-10 bg-white">
+                                                                            <motion.div
+                                                                                initial={false}
+                                                                                variants={{ rest: { opacity: 0 }, hover: { opacity: 1 } }}
+                                                                            >
+                                                                                <div className="flex justify-between items-start">
+                                                                                    <div>
+                                                                                        <p className="text-[9px] md:text-[10px] font-black uppercase text-blue-600 mb-0.5 md:mb-1">{displayCategory}</p>
+                                                                                        <h3 className="text-lg font-bold leading-tight text-slate-900 line-clamp-2">{product.name}</h3>
+                                                                                    </div>
+                                                                                    <span className="text-lg font-black text-slate-900 ml-2">{currency}{displayPrice}</span>
+                                                                                </div>
+                                                                                <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center mt-2">
+                                                                                    <span className="text-xs font-bold text-slate-400 flex items-center">Details <ChevronRight className="ml-1 w-3 h-3" /></span>
+                                                                                    <Button size="icon" className="h-8 w-8 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product, countryCodeValue)} disabled={cartLoading}>
+                                                                                        {cartLoading ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <ShoppingCart className="w-3 h-3 text-white" />}
+                                                                                    </Button>
+                                                                                </div>
+                                                                            </motion.div>
+                                                                        </div>
+                                                                    </motion.div>
+
+                                                                    <motion.div
+                                                                        layoutId={`product-image-container-${product._id}`}
+                                                                        className="absolute z-30 overflow-hidden shadow-md group-hover:shadow-2xl bg-white"
+                                                                        variants={{
+                                                                            rest: {
+                                                                                top: 0, left: 0, right: 0, margin: "0 auto",
+                                                                                width: "100%", height: "100%",
+                                                                                borderRadius: "12px",
+                                                                                y: isMobile ? 0 : 48,
+                                                                                scale: 1,
+                                                                            },
+                                                                            hover: {
+                                                                                top: -20, left: 0, right: 0, margin: "0 auto",
+                                                                                width: "200px", height: "200px",
+                                                                                borderRadius: "12px",
+                                                                                y: 0, scale: 1.05,
+                                                                            },
+                                                                            selected: {
+                                                                                width: "100%", height: "100%",
+                                                                                borderRadius: "0px",
+                                                                                y: 0, scale: 1,
+                                                                                left: 0, right: 0, margin: "0"
+                                                                            }
+                                                                        }}
+                                                                        transition={SMOOTH_SPRING}
+                                                                        style={{ willChange: 'transform, width, height' }}
+                                                                    >
+                                                                        <div className="relative w-full h-full bg-slate-100 flex items-center justify-center">
+                                                                            <img src={displayImage} alt={product.name} className="object-cover object-center w-full h-full" />
+                                                                            <motion.div
+                                                                                className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none md:from-black/70 md:via-black/0"
+                                                                                variants={{ rest: { opacity: 1 }, hover: { opacity: 0 }, selected: { opacity: 0 } }}
+                                                                            />
+                                                                            <motion.div
+                                                                                className="absolute bottom-4 left-4 md:bottom-6 md:left-6 text-white pointer-events-none pr-4"
+                                                                                variants={{ rest: { opacity: 1, y: 0 }, hover: { opacity: 0, y: 20 }, selected: { opacity: 0 } }}
+                                                                            >
+                                                                                <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest text-blue-400 mb-0.5 md:mb-1">{displayCategory}</p>
+                                                                                <h3 className="text-lg md:text-xl font-black leading-tight line-clamp-2">{product.name}</h3>
+                                                                                <p className="text-white/80 font-bold mt-1 text-sm">{currency}{displayPrice}</p>
+                                                                            </motion.div>
+                                                                        </div>
+                                                                    </motion.div>
+                                                                </div>
+                                                            </motion.div>
+                                                        );
+                                                    })}
+                                                </ProductCarouselRow>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )
+                            })
+                        ) : (
+                            <EmptyState resetFilters={() => { setSearchQuery(""); setSelectedCategory("all"); }} />
+                        )}
+                    </div>
+                </main>
+            </div>
+
+            {/* --- PRODUCT DETAIL MODAL --- */}
+            <AnimatePresence>
+                {selectedProduct && (
+                    <div
+                        // UPDATED Z-INDEX TO BE COMPATIBLE WITH TOASTER
+                        className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center pointer-events-none pt-0 md:pt-0 px-0 md:px-4 pb-0 md:pb-0"
+                    >
+                        {/* BACKDROP */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="absolute inset-0 bg-slate-950/60 backdrop-blur-[8px] pointer-events-auto"
+                            onClick={() => setSelectedProduct(null)}
+                        />
+
+                        {/* MODAL CARD */}
+                        <motion.div
+                            key="modal-card"
+                            layoutId={`product-card-container-${selectedProduct._id}`}
+                            className="relative w-full h-[90vh] md:h-auto md:max-h-[90vh] md:max-w-6xl bg-white rounded-t-[24px] md:rounded-[24px] overflow-hidden shadow-2xl flex flex-col pointer-events-auto z-[10000] isolate"
+                            onClick={(e) => e.stopPropagation()}
+                            transition={SMOOTH_SPRING}
+                            // ENHANCED MOBILE DRAG LOGIC
+                            drag={isMobile ? "y" : false}
+                            dragConstraints={{ top: 0, bottom: 0 }}
+                            dragElastic={0.1} // Resistance feel
+                            dragSnapToOrigin={true} // Bounces back if not dismissed
+                            onDragEnd={(e, { offset, velocity }) => {
+                                const swipe = Math.abs(velocity.y) * offset.y;
+                                if (offset.y > 150 || (offset.y > 50 && velocity.y > 400)) {
+                                    setSelectedProduct(null);
+                                }
+                            }}
+                        >
+                            {/* Mobile Drag Indicator */}
+                            <div className="md:hidden absolute top-0 left-0 right-0 h-8 z-50 flex justify-center pt-3 pointer-events-none">
+                                <div className="w-12 h-1.5 rounded-full bg-slate-200" />
+                            </div>
+
+                            {/* Desktop Close Button */}
+                            <button onClick={() => setSelectedProduct(null)} className="hidden md:flex absolute top-6 right-6 z-50 p-3 rounded-full bg-slate-100 hover:bg-slate-200 transition-all shadow-sm group">
+                                <X className="w-5 h-5 text-slate-700 group-hover:text-slate-900" />
+                            </button>
+
+                            {/* Mobile Close Button */}
+                            <button onClick={() => setSelectedProduct(null)} className="md:hidden absolute top-5 right-5 z-50 p-2 rounded-full bg-slate-100/80 backdrop-blur-sm text-slate-800 shadow-sm">
+                                <X className="w-5 h-5" />
+                            </button>
+
+                            <div className="flex flex-col md:flex-row h-full overflow-hidden">
+                                {/* LEFT: IMAGE SIDE */}
+                                <div
+                                    ref={popupImageContainerRef}
+                                    className="w-full h-[45vh] md:h-[600px] md:w-3/5 bg-slate-50 relative overflow-hidden flex-shrink-0 group"
+                                    onMouseEnter={handlePopupMouseEnter}
+                                    onMouseLeave={() => setIsHoveringPopup(false)}
+                                    onMouseMove={handlePopupMouseMove}
+                                >
+                                    <motion.div
+                                        layoutId={`product-image-container-${selectedProduct._id}`}
+                                        className="relative w-full h-full z-20 pointer-events-none"
+                                        initial={false}
+                                        animate={{ width: "100%", height: "100%", borderRadius: "0px", y: 0, scale: 1, left: 0, right: 0, margin: "0" }}
+                                        transition={SMOOTH_SPRING}
+                                    >
+                                        <img src={selectedProduct.media?.[0]?.url || '/placeholder.png'} alt={selectedProduct.name} className="object-cover object-center w-full h-full" />
+                                    </motion.div>
+
+                                    {/* Desktop Magnifier */}
+                                    {!isMobile && (
+                                        <AnimatePresence>
+                                            {isHoveringPopup && popupDims.width > 0 && (
+                                                <MagnifierLens mouseX={mouseX} mouseY={mouseY} imageSrc={selectedProduct.media?.[0]?.url || '/placeholder.png'} containerWidth={popupDims.width} containerHeight={popupDims.height} />
+                                            )}
+                                        </AnimatePresence>
+                                    )}
+                                </div>
+
+                                {/* RIGHT: CONTENT SIDE */}
+                                {(() => {
+                                    const { displayPrice, currency, countryCodeValue }: any = getDisplayPrice(selectedProduct.pricing, countryCode);
+                                    return <>
+                                        <div className="w-full md:w-2/5 flex flex-col bg-white h-full relative">
+                                            <div className="flex-1 overflow-y-auto p-6 md:p-10 scrollbar-hide">
+                                                <motion.div
+                                                    initial={{ opacity: 0, y: 20 }}
+                                                    animate={{ opacity: 1, y: 0 }}
+                                                    transition={{ delay: 0.15, duration: 0.4 }}
+                                                >
+                                                    <div className="flex items-center gap-3 mb-4 md:mb-6">
+                                                        <span className="text-[10px] md:text-xs font-black uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full">{selectedProduct.categories?.[0]?.title || "Product"}</span>
+                                                        <span className="text-[10px] md:text-xs font-bold text-slate-500 flex items-center gap-1.5"><Package className="w-4 h-4" /> Ages 8+</span>
+                                                    </div>
+
+                                                    <h2 className="text-2xl md:text-4xl font-black mb-3 md:mb-6 text-slate-900 leading-tight">{selectedProduct.name}</h2>
+
+                                                    <div className="flex items-center gap-4 mb-6 md:mb-8 pb-6 border-b border-slate-100">
+                                                        <span className="text-3xl font-black text-slate-900">{currency}{displayPrice}</span>
+                                                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-100">
+                                                            <Star className="w-4 h-4 text-amber-500 fill-current" />
+                                                            <span className="text-amber-700 font-bold text-sm">4.9</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="space-y-6 pb-4">
+                                                        <div>
+                                                            <h4 className="font-bold text-slate-900 mb-3 flex items-center gap-2 text-xs md:text-sm uppercase tracking-wider"><Brain className="w-4 h-4 text-blue-500" /> Key Features</h4>
+                                                            <div className="grid grid-cols-1 gap-2">
+                                                                {["Problem-solving skills", "Critical thinking", "Engineering principles", "Hands-on learning"].map((outcome, idx) => (
+                                                                    <div key={idx} className="flex items-center gap-3 text-xs md:text-sm font-medium text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-100/50">
+                                                                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />{outcome}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+
+                                                        {/* UPDATED: Dynamic Description with Read More */}
+                                                        <DescriptionWithReadMore 
+                                                            text={selectedProduct.description} 
+                                                            className="text-slate-600 text-sm leading-relaxed" 
+                                                        />
+                                                    </div>
+                                                </motion.div>
+                                            </div>
+
+                                            {/* FOOTER ACTION */}
+                                            <div className="p-4 md:p-8 border-t border-slate-100 bg-white sticky bottom-0 z-20">
+                                                <Button onClick={(e) => handleAddToCart(e, selectedProduct, countryCodeValue)} className="w-full py-6 text-lg rounded-xl font-bold bg-slate-900 text-white shadow-xl hover:bg-slate-800 transition-all active:scale-[0.98]">
+                                                    Add to Cart — {currency}{displayPrice}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </>
+                                })()}
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};
+
+// --- SUB COMPONENTS ---
+// Unchanged sub-components below
+const CategoryButton = ({ active, onClick, label, count }: { active: boolean, onClick: () => void, label: string, count: number }) => (
+    <button
+        onClick={onClick}
+        className={cn(
+            "flex items-center gap-3 px-6 py-3 rounded-[12px] text-sm font-bold transition-all whitespace-nowrap border active:scale-95",
+            active
+                ? "bg-slate-900 text-white border-slate-900 shadow-xl ring-2 ring-slate-900 ring-offset-2"
+                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 shadow-sm"
         )}
-      </AnimatePresence>
-    </section>
-  )
-}
+    >
+        {label}
+        <span className={cn(
+            "text-[10px] px-2 py-0.5 rounded-[6px] transition-colors font-extrabold",
+            active ? "bg-white text-slate-900" : "bg-slate-100 text-slate-500"
+        )}>
+            {count}
+        </span>
+    </button>
+);
 
-export default PreferLearn
+const CategoryButtonMobile = ({ active, onClick, label, count }: { active: boolean, onClick: () => void, label: string, count: number }) => (
+    <button
+        onClick={onClick}
+        className={cn(
+            "flex flex-col items-center justify-center gap-1 p-3 rounded-[10px] text-xs font-bold transition-all border active:scale-95",
+            active
+                ? "bg-slate-900 text-white border-slate-900 shadow-md"
+                : "bg-white text-slate-600 border-slate-200"
+        )}
+    >
+        <span>{label}</span>
+        <span className={cn(
+            "text-[9px] px-1.5 py-0.5 rounded-[4px] font-extrabold opacity-80",
+            active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+        )}>
+            {count}
+        </span>
+    </button>
+);
+
+const EmptyState = ({ resetFilters }: { resetFilters: () => void }) => (
+    <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-20 px-4 text-center bg-[var(--card)]/50 rounded-[10px] border border-dashed border-[var(--border)] col-span-full h-[300px] md:h-[400px]">
+        <div className="w-16 h-16 rounded-[10px] bg-[var(--muted)] flex items-center justify-center mb-6"><PackageSearch className="w-8 h-8 text-[var(--muted-foreground)]" /></div>
+        <h3 className="text-xl font-bold text-[var(--foreground)] mb-2">No products found</h3>
+        <p className="text-sm text-[var(--muted-foreground)] max-w-xs mb-8">We couldn't find any products matching your current filters.</p>
+        <Button onClick={resetFilters} variant="outline" className="rounded-[10px] border-[var(--border)] hover:bg-[var(--muted)] px-8">Clear Filters</Button>
+    </motion.div>
+);
+
+export default Shop;
