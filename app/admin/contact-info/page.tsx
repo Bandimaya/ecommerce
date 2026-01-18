@@ -73,15 +73,23 @@ async function getCroppedImg(imageSrc: string, pixelCrop: any): Promise<File> {
 }
 
 export default function ContactInfo() {
-  const { contact, setContact, loading } = useSettings();
+  const { contact, setContact, loading }: any = useSettings();
 
   // --- Form State ---
   const [form, setForm] = useState({
     email: "",
-    phone: "",
-    address: "",
-    whatsapp_number: "",
-    hours: "",
+    india: {
+      phone: "",
+      whatsapp: "",
+      address: "",
+      hours: ""
+    },
+    overseas: {
+      phone: "",
+      whatsapp: "",
+      address: "",
+      hours: ""
+    }
   });
 
   const [logo, setLogo] = useState<File | null>(null);
@@ -100,15 +108,25 @@ export default function ContactInfo() {
   useEffect(() => {
     if (contact) {
       setForm({
-        email: contact.email || "",
-        phone: contact.phone || "",
-        whatsapp_number: contact.whatsapp_number || "",
-        address: contact.address || "",
-        hours: contact.hours || "",
+        email: contact?.email,
+        india: {
+          phone: contact.india?.phone || "",
+          whatsapp: contact.india?.whatsapp || "",
+          address: contact.india?.address || "",
+          hours: contact.india?.hours || "",
+        },
+        overseas: {
+          phone: contact.overseas?.phone || "",
+          whatsapp: contact.overseas?.whatsapp || "",
+          address: contact.overseas?.address || "",
+          hours: contact.overseas?.hours || "",
+        },
       });
 
-      // Assuming your backend serves images correctly
-      setLogoPreview(contact.logo_url ? `${IMAGE_URL}${contact.logo_url}` : "");
+      // Logo preview
+      setLogoPreview(
+        contact.logo_url ? `${IMAGE_URL}${contact.logo_url}` : ""
+      );
     }
   }, [contact]);
 
@@ -125,7 +143,7 @@ export default function ContactInfo() {
     if (!file.type.startsWith("image/")) {
       return toast({ title: "Please upload a valid image file" });
     }
-    
+
     const reader = new FileReader();
     reader.addEventListener("load", () => {
       setCropImage(reader.result as string);
@@ -146,9 +164,9 @@ export default function ContactInfo() {
   const performCrop = async () => {
     try {
       if (!cropImage || !croppedAreaPixels) return;
-      
+
       const croppedFile = await getCroppedImg(cropImage, croppedAreaPixels);
-      
+
       setLogo(croppedFile);
       setLogoPreview(URL.createObjectURL(croppedFile));
       setIsCropOpen(false); // Close modal
@@ -165,17 +183,24 @@ export default function ContactInfo() {
   };
 
   const handleSubmit = async () => {
-    if (!form.email || !form.phone) {
-      return toast({ title: "Email and phone are required" });
+    if (!form.india?.phone || !form.india?.whatsapp) {
+      return toast({ title: "India phone & WhatsApp are required" });
     }
 
     try {
       setSaving(true);
       const data = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        data.append(key, value);
+
+      // Flatten nested form data
+      Object.entries(form).forEach(([section, values]) => {
+        Object.entries(values as Record<string, string>).forEach(
+          ([field, value]) => {
+            data.append(`${section}.${field}`, value || "");
+          }
+        );
       });
 
+      // Logo
       if (logo) {
         data.append("logo", logo);
       }
@@ -227,6 +252,19 @@ export default function ContactInfo() {
     );
   }
 
+  const handleNestedChange = (e: any) => {
+    const { name, value } = e.target;
+    const [section, field] = name.split(".");
+
+    setForm((prev: any) => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [field]: value
+      }
+    }));
+  };
+
   return (
     <div className="max-w-4xl mx-auto p-6 relative">
       {/* Header */}
@@ -244,7 +282,7 @@ export default function ContactInfo() {
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white shadow-xl shadow-blue-900/5 border border-gray-100 rounded-2xl overflow-hidden">
             <div className="p-6 space-y-6">
-              
+
               {/* Logo Upload Section */}
               <div className="space-y-2">
                 <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
@@ -300,55 +338,117 @@ export default function ContactInfo() {
               </div>
 
               {/* Phone */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5" /> Phone Number
-                </label>
-                <input
-                  name="phone"
-                  value={form.phone}
-                  onChange={handleChange}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/20 outline-none"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-                  <Phone className="w-3.5 h-3.5" /> Whatsapp Number
-                </label>
-                <input
-                  name="whatsapp_number"
-                  value={form.whatsapp_number}
-                  onChange={handleChange}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/20 outline-none"
-                />
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-blue-700 uppercase tracking-wider">
+                  🇮🇳 India Contact Details
+                </h3>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5" /> Phone Number (India)
+                  </label>
+                  <input
+                    name="india.phone"
+                    value={form.india.phone}
+                    onChange={handleNestedChange}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5" /> WhatsApp Number (India)
+                  </label>
+                  <input
+                    name="india.whatsapp"
+                    value={form.india.whatsapp}
+                    onChange={handleNestedChange}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5" /> Address (India)
+                  </label>
+                  <textarea
+                    name="india.address"
+                    value={form.india.address}
+                    onChange={handleNestedChange}
+                    rows={3}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5" /> Operating Hours (India)
+                  </label>
+                  <input
+                    name="india.hours"
+                    value={form.india.hours}
+                    onChange={handleNestedChange}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                  />
+                </div>
               </div>
 
-              {/* Address */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5" /> Address
-                </label>
-                <textarea
-                  name="address"
-                  value={form.address}
-                  onChange={handleChange}
-                  rows={3}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/20 outline-none"
-                />
+
+              <div className="space-y-4 pt-6 border-t">
+                <h3 className="text-sm font-bold text-purple-700 uppercase tracking-wider">
+                  🌍 Overseas Contact Details
+                </h3>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5" /> Phone Number (Overseas)
+                  </label>
+                  <input
+                    name="overseas.phone"
+                    value={form.overseas.phone}
+                    onChange={handleNestedChange}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <Phone className="w-3.5 h-3.5" /> WhatsApp Number (Overseas)
+                  </label>
+                  <input
+                    name="overseas.whatsapp"
+                    value={form.overseas.whatsapp}
+                    onChange={handleNestedChange}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5" /> Address (Overseas)
+                  </label>
+                  <textarea
+                    name="overseas.address"
+                    value={form.overseas.address}
+                    onChange={handleNestedChange}
+                    rows={3}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
+                    <Clock className="w-3.5 h-3.5" /> Operating Hours (Overseas)
+                  </label>
+                  <input
+                    name="overseas.hours"
+                    value={form.overseas.hours}
+                    onChange={handleNestedChange}
+                    className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3"
+                  />
+                </div>
               </div>
 
-              {/* Hours */}
-              <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase tracking-wider flex items-center gap-2">
-                  <Clock className="w-3.5 h-3.5" /> Operating Hours
-                </label>
-                <input
-                  name="hours"
-                  value={form.hours}
-                  onChange={handleChange}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500/20 outline-none"
-                />
-              </div>
             </div>
 
             {/* Footer */}
@@ -377,35 +477,87 @@ export default function ContactInfo() {
         <div className="lg:col-span-1">
           <div className="bg-blue-50 rounded-2xl p-6 border border-blue-100 sticky top-6 space-y-4">
             <h3 className="text-blue-900 font-bold text-sm uppercase tracking-wide">Live Preview</h3>
-            
+
             <div className="flex items-center gap-3">
-             {/* Preview in Sidebar as Circle */}
-             <div className="w-16 h-16 rounded-full overflow-hidden bg-white border border-blue-200 shrink-0">
-               {logoPreview ? (
+              {/* Preview in Sidebar as Circle */}
+              <div className="w-16 h-16 rounded-full overflow-hidden bg-white border border-blue-200 shrink-0">
+                {logoPreview ? (
                   <img
                     src={logoPreview}
                     alt="Brand Logo"
                     className="w-full h-full object-cover"
                   />
                 ) : <div className="w-full h-full bg-blue-100" />}
-             </div>
-             <div>
+              </div>
+              <div>
                 <p className="font-bold text-gray-900">Your Brand</p>
                 <p className="text-xs text-gray-500">Footer Component</p>
-             </div>
+              </div>
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-blue-200/50">
-                <div className="flex items-center gap-2 text-sm text-blue-900">
-                    <Mail className="w-4 h-4 opacity-50"/> {form.email || "No email set"}
+            <div className="space-y-4 pt-2 border-t border-blue-200/50">
+
+              {/* 🇮🇳 INDIA */}
+              <div>
+                <h4 className="text-xs font-bold uppercase text-blue-700 mb-2">
+                  🇮🇳 India
+                </h4>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-blue-900">
+                    <Phone className="w-4 h-4 opacity-50" />
+                    {form.india.phone || "No phone set"}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-blue-900">
+                    <Phone className="w-4 h-4 opacity-50" />
+                    {form.india.whatsapp || "No WhatsApp set"}
+                  </div>
+
+                  <div className="flex items-start gap-2 text-sm text-blue-900">
+                    <MapPin className="w-4 h-4 opacity-50 mt-1" />
+                    <span className="whitespace-pre-line">
+                      {form.india.address || "No address set"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-blue-900">
+                    <Clock className="w-4 h-4 opacity-50" />
+                    {form.india.hours || "No hours set"}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-blue-900">
-                    <Phone className="w-4 h-4 opacity-50"/> {form.phone || "No phone set"}
+              </div>
+
+              {/* 🌍 OVERSEAS */}
+              <div className="pt-3 border-t border-blue-100">
+                <h4 className="text-xs font-bold uppercase text-purple-700 mb-2">
+                  🌍 Overseas
+                </h4>
+
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-blue-900">
+                    <Phone className="w-4 h-4 opacity-50" />
+                    {form.overseas.phone || "No phone set"}
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-blue-900">
+                    <Phone className="w-4 h-4 opacity-50" />
+                    {form.overseas.whatsapp || "No WhatsApp set"}
+                  </div>
+
+                  <div className="flex items-start gap-2 text-sm text-blue-900">
+                    <MapPin className="w-4 h-4 opacity-50 mt-1" />
+                    <span className="whitespace-pre-line">
+                      {form.overseas.address || "No address set"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2 text-sm text-blue-900">
+                    <Clock className="w-4 h-4 opacity-50" />
+                    {form.overseas.hours || "No hours set"}
+                  </div>
                 </div>
-                <div className="flex items-start gap-2 text-sm text-blue-900">
-                    <MapPin className="w-4 h-4 opacity-50 mt-1"/> 
-                    <span className="whitespace-pre-line">{form.address || "No address set"}</span>
-                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -415,13 +567,13 @@ export default function ContactInfo() {
       {isCropOpen && cropImage && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
           <div className="bg-white rounded-2xl overflow-hidden w-full max-w-md shadow-2xl flex flex-col max-h-[90vh]">
-            
+
             {/* Modal Header */}
             <div className="px-4 py-3 border-b flex justify-between items-center bg-gray-50">
-                <h3 className="font-bold text-gray-700">Adjust Logo</h3>
-                <AdminButton variant="ghost" onClick={cancelCrop} className="p-1 hover:bg-gray-200 rounded-full transition cursor-pointer">
-                  <X className="w-5 h-5 text-gray-500" />
-                </AdminButton>
+              <h3 className="font-bold text-gray-700">Adjust Logo</h3>
+              <AdminButton variant="ghost" onClick={cancelCrop} className="p-1 hover:bg-gray-200 rounded-full transition cursor-pointer">
+                <X className="w-5 h-5 text-gray-500" />
+              </AdminButton>
             </div>
 
             {/* Cropper Container */}

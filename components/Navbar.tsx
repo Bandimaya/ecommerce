@@ -117,6 +117,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
     { label: "Home", path: "/", icon: <Home className="w-5 h-5" /> },
     { label: "Shop", path: "/shop", icon: <Store className="w-5 h-5" /> },
     { label: "Courses", path: "/courses", icon: <Layers className="w-5 h-5" /> },
+    { label: "Browse Tutors", path: "/browse-tutor", icon: <Layers className="w-5 h-5" /> },
+    { label: "After School", path: "/after-school", icon: <Layers className="w-5 h-5" /> },
     { label: "Join As Tutor", path: "/tutor", icon: <Layers className="w-5 h-5" /> },
     { label: "Contact", path: "/contact", icon: <Phone className="w-5 h-5" /> },
   ];
@@ -150,11 +152,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
       <nav
         ref={navRef}
-        className={`fixed top-0 left-0 right-0 w-full overflow-visible z-[9999] transition-all duration-300 ${
-          scrolled
+        className={`fixed top-0 left-0 right-0 w-full overflow-visible z-[9999] transition-all duration-300 ${scrolled
             ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
             : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
-        }`}
+          }`}
       >
         <div className="container mx-auto px-4">
           <div className="flex h-16 md:h-20 md:px-1 items-gap-20 items-center justify-between">
@@ -165,13 +166,13 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               {/* UPDATED: gap-2 -> gap-[20px] for 20px gap on all screens */}
               <div className="flex items-center gap-[0px]">
                 {/* UPDATED: Added md:-ml-[60px] to move left 60px on desktop */}
-                <div className="w-[104px] h-[158px] md:w-[158px] md:h-[108px] flex-shrink-0 transition-all duration-300 -ml-[20px] md:-ml-[99px] rtl:-mr-[40px] md:rtl:-mr-[60px] rtl:ml-0">
+                {/* <div className="w-[104px] h-[158px] md:w-[158px] md:h-[108px] flex-shrink-0 transition-all duration-300 -ml-[20px] md:-ml-[99px] rtl:-mr-[40px] md:rtl:-mr-[60px] rtl:ml-0">
                   <img
                     src="/assets/favicon.png"
                     alt="STEMPARK"
                     className="w-full h-full object-contain"
                   />
-                </div>
+                </div> */}
                 <span className="text-[20px] md:text-[22px] font-bold hidden md:inline-block max-w-[160px] truncate leading-none site-brand" style={{ color: 'var(--primary)' }}>
                   <span>STEM</span><span className="text-accent">PARK</span>
                 </span>
@@ -185,11 +186,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                   <Link
                     key={link.path}
                     href={link.path}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                      isActive(link.path)
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
                         ? "bg-primary text-white shadow-sm"
                         : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-                    }`}
+                      }`}
                   >
                     {link.label}
                   </Link>
@@ -333,11 +333,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
       {/* Mobile Navigation Overlay */}
       <div
-        className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${
-          isOpen
+        className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
             ? "translate-x-0 opacity-100 visible"
             : "ltr:translate-x-full rtl:-translate-x-full opacity-0 invisible"
-        }`}
+          }`}
         style={{ height: "calc(100vh - 64px)" }}
       >
         <div className="h-full overflow-y-auto bg-white px-4 py-6 flex flex-col">
@@ -359,11 +358,10 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 key={link.path}
                 href={link.path}
                 onClick={() => setIsOpen(false)}
-                className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${
-                  isActive(link.path)
+                className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${isActive(link.path)
                     ? "bg-primary text-white shadow-md"
                     : "text-gray-700 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {link.icon}
                 <span className="text-lg">{link.label}</span>

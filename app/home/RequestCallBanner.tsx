@@ -7,7 +7,7 @@ import { useSettings } from "@/contexts/SettingsContext";
 import { returnWhatsappLink } from "@/lib/utils";
 
 const RequestCallBanner = () => {
-    const { contact } = useSettings()
+    const { contact, isIndia } = useSettings()
 
     return (
         <section className="w-full bg-[var(--card)] overflow-hidden">
@@ -101,7 +101,7 @@ const RequestCallBanner = () => {
                             className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start w-full"
                         >
                             <a
-                                href={`tel:${contact?.phone}`}
+                                href={`tel:${isIndia ? contact?.india?.phone : contact?.overseas?.phone}`}
                                 className="group flex items-center justify-center gap-3 rounded-full px-8 py-4 text-sm font-bold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-105 active:scale-95 bg-[var(--primary)] text-[var(--primary-foreground)]"
                             >
                                 <Phone className="h-5 w-5 fill-current" />
@@ -114,7 +114,7 @@ const RequestCallBanner = () => {
 
                             <a
                                 href={returnWhatsappLink(
-                                    contact?.whatsapp_number,
+                                    isIndia ? contact?.india?.whatsapp : contact?.overseas?.whatsapp,
                                     "Hello, I want to register"
                                 )}
                                 target="_blank"

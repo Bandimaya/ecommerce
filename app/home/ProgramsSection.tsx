@@ -212,7 +212,7 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
 
   const [programsData, setProgramsData] = useState([])
   const router = useRouter()
-  const { contact } = useSettings();
+  const { contact, isIndia } = useSettings();
 
   useEffect(() => {
     apiFetch('/programs')
@@ -309,7 +309,7 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
             </Button>
             {/* Primary Action: Neutral Slate-900 Background */}
             <Button
-              onClick={() => window.open(returnWhatsappLink(contact?.whatsapp_number, `Hello! I would like to register in STEMPARK`), "_blank", "noopener,noreferrer")}
+              onClick={() => window.open(returnWhatsappLink(isIndia ? contact?.india?.whatsapp : contact?.overseas?.whatsapp, `Hello! I would like to register in STEMPARK`), "_blank", "noopener,noreferrer")}
               className="flex-1 md:flex-none bg-slate-900 hover:bg-slate-800 text-white shadow-lg hover:shadow-slate-900/20 transition-all font-medium">
               Talk to an Expert <ChevronRight className="w-4 h-4 ml-1" />
             </Button>

@@ -11,13 +11,18 @@ import {
   ReactNode,
 } from "react";
 
-type ContactType = {
-  email: string;
+type ContactRegion = {
   phone: string;
-  logo_url: string;
-  whatsapp_number: string;
+  whatsapp: string;
   address: string;
   hours: string;
+};
+
+type ContactType = {
+  email: string;
+  logo_url: string;
+  india: ContactRegion;
+  overseas: ContactRegion;
 };
 
 type SettingsContextType = {

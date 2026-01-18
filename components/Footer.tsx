@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/axios";
 
 const Footer = () => {
-  const { contact } = useSettings();
+  const { contact, isIndia } = useSettings();
   // Hard-coded strings to avoid global i18n usage (per user request)
   const brandDescription = 'STEM PARK — hands-on STEM education and kits for curious minds.';
   const quickLinksTitle = 'Quick Links';
@@ -67,6 +67,14 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div>
+            <div>
+              <img
+                style={{ marginLeft: '-30px' }}
+                src="/assets/favicon.png"
+                alt="STEMPARK"
+                className="w-full h-full"
+              />
+            </div>
             <Link href="/" className="inline-block mb-4 group">
               <span className="font-display font-extrabold text-2xl">
                 <span
@@ -342,7 +350,7 @@ const Footer = () => {
                     color: 'var(--footer-text-muted)',
                   }}
                 >
-                  {contact?.phone || "+1 (555) 123-4567"}
+                  {isIndia ? contact?.india?.phone : contact?.overseas?.phone || "+1 (555) 123-4567"}
                 </span>
               </li>
               <li className="flex items-start gap-3">
@@ -360,7 +368,7 @@ const Footer = () => {
                     color: 'var(--footer-text-muted)',
                   }}
                 >
-                  {contact?.address || "123 Innovation Drive, Tech City, TC 12345"}
+                  {isIndia ? contact?.india?.address : contact?.overseas?.address || "123 Innovation Drive, Tech City, TC 12345"}
                 </span>
               </li>
             </ul>

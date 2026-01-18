@@ -26,7 +26,8 @@ const Cart = () => {
 
     const { currency }: any = getDisplayPrice([], countryCode)
     const shippingCost = total >= 50 ? 0 : 5.99
-    const grandTotal = total + shippingCost
+    // const grandTotal = total + shippingCost
+    const grandTotal = total
     const [addresses, setAddresses] = useState<any>([])
     const [selectedAddressId, setSelectedAddressId] = useState("");
 
@@ -514,7 +515,7 @@ const Cart = () => {
 
                                         <div className="space-y-6">
                                             {/* Shipping Method */}
-                                            <div className="pt-6 border-t border-[var(--border-divider)]"
+                                            {/* <div className="pt-6 border-t border-[var(--border-divider)]"
                                                 style={{ '--border-divider': 'hsl(var(--border))' } as React.CSSProperties}>
                                                 <h3 className="text-lg font-semibold text-[var(--title-color)] mb-4">
                                                     Shipping Method
@@ -559,7 +560,7 @@ const Cart = () => {
                                                         </Label>
                                                     </div>
                                                 </RadioGroup>
-                                            </div>
+                                            </div> */}
 
                                             <Button
                                                 variant="ghost"
@@ -604,15 +605,15 @@ const Cart = () => {
                                     <span className="font-medium">{currency}{total.toFixed(2)}</span>
                                 </div>
 
-                                <div className="flex justify-between text-sm">
+                                {/* <div className="flex justify-between text-sm">
                                     <span className="text-[var(--text-muted)]">Shipping</span>
                                     <span className={`font-medium ${shippingCost === 0 ? 'text-[var(--success)]' : ''}`}
                                         style={{ '--success': 'hsl(var(--success))' } as React.CSSProperties}>
                                         {shippingCost === 0 ? "FREE" : `${currency}${shippingCost.toFixed(2)}`}
                                     </span>
-                                </div>
+                                </div> */}
 
-                                {shippingCost > 0 && total < 50 && (
+                                {/* {shippingCost > 0 && total < 50 && (
                                     <motion.div
                                         initial={{ scale: 0.9, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
@@ -630,7 +631,7 @@ const Cart = () => {
                                             Add {currency}{(50 - total).toFixed(2)} more for free shipping!
                                         </p>
                                     </motion.div>
-                                )}
+                                )} */}
 
                                 <div className="border-t border-[var(--border-divider)] pt-4">
                                     <div className="flex justify-between items-center font-bold text-lg">
