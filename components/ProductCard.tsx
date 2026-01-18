@@ -1,7 +1,8 @@
 "use client"
 
-import { Plus, ShoppingCart, Sparkles, Play, Loader2 } from "lucide-react"
+import { Plus, ShoppingCart, Sparkles, Play } from "lucide-react"
 import { Button } from "./ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/hooks/use-toast"
 import { useCart } from "@/contexts/CartContext"
 import { useSettings } from "@/contexts/SettingsContext"
@@ -51,7 +52,7 @@ export default function ProductCard({ product, index = 0 }: any) {
   const price = currentPriceData?.salePrice || currentPriceData?.originalPrice || 0
   const originalPrice = currentPriceData?.originalPrice || 0
   const currencySymbol = CURRENCY_OPTIONS.find(c => c.code === currencyCode)?.symbol || "$"
-  
+
   const discount = originalPrice > price
     ? Math.round(((originalPrice - price) / originalPrice) * 100)
     : 0
@@ -94,7 +95,7 @@ export default function ProductCard({ product, index = 0 }: any) {
       onMouseLeave={() => setIsHovering(false)}
     >
       <Link href={`/product/${product.slug}`} className="block w-full h-full">
-        
+
         {/* --- LAYER 1: TEXT CARD BASE (Sits Behind) --- */}
         <motion.div
           className="absolute inset-0 top-8 rounded-[2rem] border overflow-hidden shadow-sm"
@@ -104,8 +105,8 @@ export default function ProductCard({ product, index = 0 }: any) {
           }}
           variants={{
             rest: { y: 0, boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)" },
-            hover: { 
-              y: -4, 
+            hover: {
+              y: -4,
               boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
             }
           }}
@@ -123,12 +124,12 @@ export default function ProductCard({ product, index = 0 }: any) {
                 <span className="text-[10px] font-black uppercase tracking-widest text-[hsl(var(--muted-foreground))]">
                   {product.categories?.[0]?.title || "Collection"}
                 </span>
-                
+
                 {/* Discount Badge (Moved here for better layout balance) */}
                 {discount > 0 && (
-                   <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
-                     -{discount}%
-                   </span>
+                  <span className="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
+                    -{discount}%
+                  </span>
                 )}
               </div>
 
@@ -136,11 +137,11 @@ export default function ProductCard({ product, index = 0 }: any) {
               <h3 className="text-lg font-bold line-clamp-1" style={{ color: 'hsl(var(--foreground))' }}>
                 {product.name}
               </h3>
-              
+
               {/* Price & Action Row */}
               <div className="flex items-end justify-between pt-2 border-t border-[hsl(var(--border))] mt-3">
                 <div className="flex flex-col pt-3">
-                   {/* Original Price */}
+                  {/* Original Price */}
                   {discount > 0 && (
                     <span className="text-xs text-[hsl(var(--muted-foreground))] line-through decoration-red-400/50">
                       {currencySymbol}{originalPrice.toFixed(2)}
@@ -157,10 +158,10 @@ export default function ProductCard({ product, index = 0 }: any) {
 
                 {/* --- ADD TO CART BUTTON (Integrated into layout) --- */}
                 <motion.div
-                   onClick={handleAddToCart} // Keep functionality
-                   whileHover={{ scale: 1.1 }}
-                   whileTap={{ scale: 0.9 }}
-                   className="cursor-pointer"
+                  onClick={handleAddToCart} // Keep functionality
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="cursor-pointer"
                 >
                   <Button
                     size="icon"
@@ -171,14 +172,14 @@ export default function ProductCard({ product, index = 0 }: any) {
                     }}
                     disabled={cartLoading}
                   >
-                     <motion.div 
-                        className="absolute inset-0 bg-white/20"
-                        initial={{ x: "-100%" }}
-                        whileHover={{ x: "100%" }}
-                        transition={{ duration: 0.5 }}
-                     />
+                    <motion.div
+                      className="absolute inset-0 bg-white/20"
+                      initial={{ x: "-100%" }}
+                      whileHover={{ x: "100%" }}
+                      transition={{ duration: 0.5 }}
+                    />
                     {cartLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin text-white" />
+                      <Skeleton className="w-4 h-4 rounded-full bg-white/50" />
                     ) : hasVariants ? (
                       <Plus className="w-5 h-5" />
                     ) : (
@@ -200,21 +201,21 @@ export default function ProductCard({ product, index = 0 }: any) {
             rest: {
               top: 0, left: 0,
               width: "100%", height: "65%", // Initial large image
-              borderRadius: "2rem", 
+              borderRadius: "2rem",
               y: 0, rotate: 0
             },
             hover: {
               top: -20, left: "50%", x: "-50%",
               width: "85%", height: "55%", // Shrinks and floats
-              borderRadius: "1.5rem", 
+              borderRadius: "1.5rem",
               y: 0, rotate: 2,
-              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)" 
+              boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)"
             }
           }}
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
         >
           <div className="relative w-full h-full bg-[hsl(var(--muted))]">
-            
+
             {/* Gradient Overlay */}
             <motion.div
               className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent z-10 pointer-events-none"
@@ -224,23 +225,23 @@ export default function ProductCard({ product, index = 0 }: any) {
             {/* Media Content */}
             {isVideo ? (
               <>
-              <video
-                src={mediaUrl}
-                className="w-full h-full object-cover"
-                muted
-                loop
-                playsInline
-                onMouseEnter={(e) => e.currentTarget.play()}
-                onMouseLeave={(e) => {
-                  e.currentTarget.pause()
-                  e.currentTarget.currentTime = 0
-                }}
-              />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none opacity-80">
-                 <div className="bg-white/30 backdrop-blur-sm p-3 rounded-full border border-white/50">
+                <video
+                  src={mediaUrl}
+                  className="w-full h-full object-cover"
+                  muted
+                  loop
+                  playsInline
+                  onMouseEnter={(e) => e.currentTarget.play()}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.pause()
+                    e.currentTarget.currentTime = 0
+                  }}
+                />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none opacity-80">
+                  <div className="bg-white/30 backdrop-blur-sm p-3 rounded-full border border-white/50">
                     <Play className="w-5 h-5 text-white fill-current" />
-                 </div>
-              </div>
+                  </div>
+                </div>
               </>
             ) : (
               <img
@@ -266,10 +267,10 @@ export default function ProductCard({ product, index = 0 }: any) {
 
             {/* Shipping Info (Moved to top right of image) */}
             <div className="absolute top-4 right-4 z-20">
-               <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full shadow-sm">
-                  <Sparkles className="w-3 h-3 text-emerald-600" />
-                  <span className="text-[10px] font-black text-emerald-700">{currencyCode}</span>
-               </div>
+              <div className="flex items-center gap-1 bg-white/90 backdrop-blur-md px-2 py-1 rounded-full shadow-sm">
+                <Sparkles className="w-3 h-3 text-emerald-600" />
+                <span className="text-[10px] font-black text-emerald-700">{currencyCode}</span>
+              </div>
             </div>
 
           </div>

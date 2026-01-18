@@ -5,18 +5,18 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { 
-  Eye, 
-  EyeOff, 
-  Loader2, 
-  User, 
-  Mail, 
-  Lock, 
-  AlertCircle, 
-  CheckCircle, 
+import {
+  Eye,
+  EyeOff,
+  User,
+  Mail,
+  Lock,
+  AlertCircle,
+  CheckCircle,
   Phone,
   ArrowLeft // Imported ArrowLeft
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Register = () => {
   // @ts-ignore
@@ -27,7 +27,7 @@ const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    mobile: "", 
+    mobile: "",
     password: "",
     confirmPassword: "",
   });
@@ -41,10 +41,10 @@ const Register = () => {
   // Handle Input Change
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    
+
     // For mobile, restrict to numbers only
     if (name === "mobile" && !/^\d*$/.test(value)) {
-      return; 
+      return;
     }
 
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -61,7 +61,7 @@ const Register = () => {
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const phoneRegex = /^\d{10}$/; 
+    const phoneRegex = /^\d{10}$/;
 
     if (!formData.name.trim()) newErrors.name = "Full name is required";
 
@@ -352,7 +352,7 @@ const Register = () => {
           >
             {loading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Skeleton className="mr-2 h-4 w-4 rounded-full bg-slate-900/10" />
                 Creating account...
               </>
             ) : (

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { apiFetch } from "@/lib/axios";
 import { useRouter } from "next/navigation";
-import { Loader2, ChevronDown, CreditCard } from "lucide-react";
+import { ChevronDown, CreditCard } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import OrdersSkeleton from "@/components/ui/OrdersSkeleton";
 

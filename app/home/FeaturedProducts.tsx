@@ -326,7 +326,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
       <div className="w-full max-w-[2000px] mx-auto relative z-10">
         <div className="flex justify-center items-center gap-3 mb-10 sm:mb-12">
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-emerald-600" />
-          <span className="font-bold uppercase tracking-widest text-emerald-700" style={{fontSize: 'xx-large'}}>Premium STEM Collection</span>
+          <span className="font-bold uppercase tracking-widest text-emerald-700" style={{ fontSize: 'xx-large' }}>Premium STEM Collection</span>
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-emerald-600" />
         </div>
 
@@ -464,14 +464,13 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
       {/* --- PRODUCT DETAIL MODAL --- */}
       <AnimatePresence mode="wait">
         {selectedProduct && (
-          <div className="fixed inset-0 top-20 md:top-15 z-[50] flex items-center justify-center pointer-events-none px-4 pb-4 md:pt-0">
+          <div className="fixed inset-0 z-[50] flex items-center justify-center pointer-events-none px-4 pb-4 md:pt-0">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="fixed inset-0 bg-emerald-950/80 backdrop-blur-md pointer-events-auto"
-              style={{ top: 0 }}
               onClick={() => setSelectedProduct(null)}
             />
 

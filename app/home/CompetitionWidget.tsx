@@ -351,9 +351,9 @@ const CompetitionWidget = () => {
                                                         <span className="text-xs font-bold tracking-widest">EVENT ID: {evt.id}</span>
                                                     </div>
                                                     <h2 className="text-2xl font-bold leading-tight text-slate-800">{evt.title}</h2>
-<p className="text-sm font-medium text-[var(--primary)] line-clamp-2">
-  {evt.subtitle}
-</p>
+                                                    <p className="text-sm font-medium text-[var(--primary)] line-clamp-2">
+                                                        {evt.subtitle}
+                                                    </p>
                                                 </div>
 
                                                 {/* Active Indicator Button */}
@@ -390,9 +390,9 @@ const CompetitionWidget = () => {
                                     <div className="flex-1 p-6 flex flex-col justify-between relative bg-white">
                                         <div>
                                             <h2 className="text-2xl font-bold leading-tight text-slate-800">{activeEvent?.title}</h2>
-<p className="text-sm font-medium text-[var(--primary)] line-clamp-2">
-  {activeEvent?.subtitle}
-</p>
+                                            <p className="text-sm font-medium text-[var(--primary)] line-clamp-2">
+                                                {activeEvent?.subtitle}
+                                            </p>
                                         </div>
 
                                         {/* Updated Mobile Navigation Controls (Inside Card) */}
@@ -464,9 +464,9 @@ const CompetitionWidget = () => {
                                     <h2 className="text-4xl lg:text-5xl font-black text-[var(--accent)] mb-2">{activeEvent?.title}</h2>
                                     <div className="flex items-center gap-2 mb-8">
                                         <span className="bg-[var(--primary)]/10 text-[var(--primary)] px-3 py-1 rounded text-sm font-bold uppercase tracking-wider">{activeEvent?.category}</span>
-<p className="text-sm font-medium text-[var(--primary)] line-clamp-4">
-  {activeEvent?.subtitle}
-</p>
+                                        <p className="text-sm font-medium text-[var(--primary)] line-clamp-4">
+                                            {activeEvent?.subtitle}
+                                        </p>
                                     </div>
 
                                     {/* Stats Card */}
@@ -621,7 +621,7 @@ const CompetitionWidget = () => {
             </div>
             <AnimatePresence>
                 {selectedEvent && (
-                    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-24 pb-4 px-4">
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
                         {/* Backdrop */}
                         <motion.div
                             initial={{ opacity: 0 }}

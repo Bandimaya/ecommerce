@@ -13,10 +13,10 @@ import {
   Pencil,
   Trash2,
   X,
-  Loader2,
   LayoutGrid,
   ImageIcon
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import AdminButton from "@/components/admin/AdminButton";
 
 // 1. Icon Mapping
@@ -347,12 +347,12 @@ export default function JargonPage() {
                     <span className="text-xs font-mono font-medium text-gray-400 bg-gray-50 px-2 py-1 rounded-[10px] border border-gray-100">
                       {item.icon}
                     </span>
-                    
+
                     {/* MODIFIED ACTION BUTTONS */}
                     <div className="flex gap-3">
                       {/* EDIT BUTTON: Round, Blue text default. Hover: Fill Blue, Icon Black */}
-                      <button 
-                        onClick={() => handleEdit(item)} 
+                      <button
+                        onClick={() => handleEdit(item)}
                         className="w-12 h-12 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-black hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
                         title="Edit Term"
                       >
@@ -360,16 +360,16 @@ export default function JargonPage() {
                       </button>
 
                       {/* DELETE BUTTON: Round, Red Border default. Hover: Fill Red, Icon White */}
-                      <button 
-                        onClick={() => handleDelete(item._id)} 
+                      <button
+                        onClick={() => handleDelete(item._id)}
                         disabled={isDeleting}
                         className="w-12 h-12 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
                         title="Delete Term"
                       >
                         {isDeleting ? (
-                           <Loader2 className="w-5 h-5 animate-spin" />
+                          <Skeleton className="w-5 h-5 rounded-full" />
                         ) : (
-                           <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-5 h-5" />
                         )}
                       </button>
                     </div>

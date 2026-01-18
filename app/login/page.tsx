@@ -6,15 +6,15 @@ import { useUser } from "@/contexts/UserContext";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { 
-  Mail, 
-  Lock, 
-  Eye, 
-  EyeOff, 
-  Loader2, 
-  AlertCircle, 
-  ArrowLeft 
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  ArrowLeft
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const Login = () => {
   const { login, loading } = useUser();
@@ -255,7 +255,7 @@ const Login = () => {
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      <Skeleton className="mr-2 h-4 w-4 rounded-full" />
                       Signing in...
                     </>
                   ) : (

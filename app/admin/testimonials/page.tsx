@@ -5,15 +5,15 @@ import {
   Trash2,
   Upload,
   Plus,
-  Loader2,
+  Grid,
+  List,
   MessageSquareQuote,
   X,
   ImageIcon,
   User,
-  Search,
-  Grid,
-  List
+  Search
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios"; // Assuming you have apiFetch for consistency
 import { IMAGE_URL } from "@/lib/constants";
@@ -371,7 +371,7 @@ export default function TestimonialsPage() {
                     className="w-8 h-8 rounded-full border border-red-100 text-red-500 bg-white hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 disabled:opacity-50"
                     title="Remove"
                   >
-                    {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    {isDeleting ? <Skeleton className="w-3.5 h-3.5 rounded-full" /> : <Trash2 className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>
@@ -405,7 +405,7 @@ export default function TestimonialsPage() {
                     className="w-8 h-8 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm disabled:opacity-50"
                     title="Remove"
                   >
-                    {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    {isDeleting ? <Skeleton className="w-3.5 h-3.5 rounded-full" /> : <Trash2 className="w-3.5 h-3.5" />}
                   </button>
                 </div>
               </div>

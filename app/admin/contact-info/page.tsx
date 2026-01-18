@@ -7,7 +7,6 @@ import {
   MapPin,
   Clock,
   Save,
-  Loader2,
   Info,
   Image as ImageIcon,
   X,
@@ -20,7 +19,7 @@ import { apiFetch } from "@/lib/axios";
 import AdminButton from "@/components/admin/AdminButton";
 import Cropper from "react-easy-crop";
 import { IMAGE_URL } from "@/lib/constants";
-import { SkeletonAvatar, SkeletonText, SkeletonLine } from "@/components/ui/skeleton";
+import { SkeletonAvatar, SkeletonText, SkeletonLine, Skeleton } from "@/components/ui/skeleton";
 
 // --- Utility: Create an HTML Image Element ---
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -459,7 +458,7 @@ export default function ContactInfo() {
               <AdminButton onClick={handleSubmit} loading={saving} className="px-8 py-2.5 rounded-xl font-bold">
                 {saving ? (
                   <>
-                    <Loader2 className="w-4 h-4" />
+                    <Skeleton className="w-4 h-4 rounded-full" />
                     Saving…
                   </>
                 ) : (

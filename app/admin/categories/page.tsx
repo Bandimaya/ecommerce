@@ -8,15 +8,14 @@ import {
   Search,
   Grid,
   List,
-  Loader2,
-  X,
-  Save,
-  Layers,
+  AlignLeft,
   CornerDownRight,
-  FolderTree,
+  Layers,
+  X,
   Type,
-  AlignLeft
+  FolderTree
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -74,8 +73,8 @@ export default function CategoriesPage() {
   /* ---------------- FILTER ---------------- */
   // For Grid View: Flat filter
   const filteredCategories = useMemo(() => {
-    return categories.filter(c => 
-      c.title.toLowerCase().includes(search.toLowerCase()) || 
+    return categories.filter(c =>
+      c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.subTitle?.toLowerCase().includes(search.toLowerCase())
     );
   }, [categories, search]);
@@ -155,62 +154,61 @@ export default function CategoriesPage() {
   // Recursive Tree Renderer
   const renderCategoryTree = (parentId = "", depth = 0) => {
     const children = categories.filter((c) => (c.parentCategory || "") === parentId);
-    
+
     if (children.length === 0) return null;
 
     return children.map((c) => {
-        const isDeleting = removingId === c._id;
-        return (
-            <div key={c._id}>
-                <div 
-                    className={`group flex items-center justify-between p-4 mb-3 bg-white border border-gray-200 rounded-[10px] shadow-sm hover:shadow-md transition-all ${
-                        depth > 0 ? "ml-8 border-l-4 border-l-blue-100" : ""
-                    }`}
-                >
-                    <div className="flex items-center gap-4">
-                        {depth > 0 ? (
-                            <CornerDownRight className="w-5 h-5 text-gray-300" />
-                        ) : (
-                            <div className="p-2 bg-blue-50 rounded-[8px] text-blue-600 border border-blue-100">
-                                <Layers className="w-5 h-5" />
-                            </div>
-                        )}
-                        <div>
-                            <h4 className="font-bold text-gray-900 flex items-center gap-2">
-                                {c.title}
-                                {depth === 0 && (
-                                    <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-[6px] uppercase font-medium tracking-wider border border-gray-200">
-                                        Parent
-                                    </span>
-                                )}
-                            </h4>
-                            {(c.subTitle || c.description) && (
-                                <p className="text-sm text-gray-500 line-clamp-1">
-                                    {c.subTitle || c.description}
-                                </p>
-                            )}
-                        </div>
-                    </div>
-
-                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                            onClick={() => handleEdit(c)} 
-                            className="w-8 h-8 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all shadow-sm hover:scale-110"
-                        >
-                            <Pencil className="w-3.5 h-3.5" />
-                        </button>
-                        <button 
-                            onClick={() => handleDelete(c._id)} 
-                            disabled={isDeleting}
-                            className="w-8 h-8 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 disabled:opacity-50"
-                        >
-                            {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                        </button>
-                    </div>
+      const isDeleting = removingId === c._id;
+      return (
+        <div key={c._id}>
+          <div
+            className={`group flex items-center justify-between p-4 mb-3 bg-white border border-gray-200 rounded-[10px] shadow-sm hover:shadow-md transition-all ${depth > 0 ? "ml-8 border-l-4 border-l-blue-100" : ""
+              }`}
+          >
+            <div className="flex items-center gap-4">
+              {depth > 0 ? (
+                <CornerDownRight className="w-5 h-5 text-gray-300" />
+              ) : (
+                <div className="p-2 bg-blue-50 rounded-[8px] text-blue-600 border border-blue-100">
+                  <Layers className="w-5 h-5" />
                 </div>
-                {renderCategoryTree(c._id, depth + 1)}
+              )}
+              <div>
+                <h4 className="font-bold text-gray-900 flex items-center gap-2">
+                  {c.title}
+                  {depth === 0 && (
+                    <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-[6px] uppercase font-medium tracking-wider border border-gray-200">
+                      Parent
+                    </span>
+                  )}
+                </h4>
+                {(c.subTitle || c.description) && (
+                  <p className="text-sm text-gray-500 line-clamp-1">
+                    {c.subTitle || c.description}
+                  </p>
+                )}
+              </div>
             </div>
-        );
+
+            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <button
+                onClick={() => handleEdit(c)}
+                className="w-8 h-8 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all shadow-sm hover:scale-110"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => handleDelete(c._id)}
+                disabled={isDeleting}
+                className="w-8 h-8 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 disabled:opacity-50"
+              >
+                {isDeleting ? <Skeleton className="w-3.5 h-3.5 rounded-full" /> : <Trash2 className="w-3.5 h-3.5" />}
+              </button>
+            </div>
+          </div>
+          {renderCategoryTree(c._id, depth + 1)}
+        </div>
+      );
     });
   };
 
@@ -224,9 +222,9 @@ export default function CategoriesPage() {
             Organize products into hierarchical groups and collections.
           </p>
         </div>
-        <AdminButton 
-          onClick={() => setShowForm(true)} 
-          disabled={showForm} 
+        <AdminButton
+          onClick={() => setShowForm(true)}
+          disabled={showForm}
           className="flex items-center gap-2"
         >
           <PlusCircle className="w-4 h-4" />
@@ -256,84 +254,84 @@ export default function CategoriesPage() {
 
               <form onSubmit={handleSubmit} className="p-6">
                 <div className="flex flex-col gap-6">
-                    <div className="grid md:grid-cols-2 gap-6">
-                        {/* Title Input */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1">
-                                <Type className="w-3.5 h-3.5" /> Title
-                            </label>
-                            <input
-                                name="title"
-                                value={form.title}
-                                onChange={handleChange}
-                                placeholder="e.g. Electronics"
-                                className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-                                required
-                                autoFocus
-                            />
-                        </div>
-
-                        {/* Subtitle Input */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1">
-                                <AlignLeft className="w-3.5 h-3.5" /> Subtitle
-                            </label>
-                            <input
-                                name="subTitle"
-                                value={form.subTitle}
-                                onChange={handleChange}
-                                placeholder="e.g. Gadgets & Devices"
-                                className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-                            />
-                        </div>
-
-                        {/* Parent Category Select */}
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1">
-                                <FolderTree className="w-3.5 h-3.5" /> Parent Category
-                            </label>
-                            <div className="relative">
-                                <select
-                                    name="parentCategory"
-                                    value={form.parentCategory}
-                                    onChange={handleChange}
-                                    className="w-full border border-gray-300 rounded-[10px] pl-3 pr-10 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm appearance-none"
-                                >
-                                    <option value="">None (Top Level Category)</option>
-                                    {categories
-                                        .filter(c => c._id !== editingId)
-                                        .map(c => (
-                                            <option key={c._id} value={c._id}>{c.title}</option>
-                                        ))
-                                    }
-                                </select>
-                                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
-                                    <CornerDownRight className="w-4 h-4" />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Description */}
-                        <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
-                            <textarea
-                                name="description"
-                                value={form.description}
-                                onChange={handleChange}
-                                placeholder="Detailed description of the category..."
-                                className="w-full h-24 border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm resize-none"
-                            />
-                        </div>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Title Input */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1">
+                        <Type className="w-3.5 h-3.5" /> Title
+                      </label>
+                      <input
+                        name="title"
+                        value={form.title}
+                        onChange={handleChange}
+                        placeholder="e.g. Electronics"
+                        className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        required
+                        autoFocus
+                      />
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
-                        <AdminButton type="button" variant="ghost" onClick={handleCloseForm} className="px-5 py-2.5">
-                            Cancel
-                        </AdminButton>
-                        <AdminButton type="submit" loading={submitting} className="px-8 py-2.5">
-                            {editingId ? "Update Category" : "Save Category"}
-                        </AdminButton>
+                    {/* Subtitle Input */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1">
+                        <AlignLeft className="w-3.5 h-3.5" /> Subtitle
+                      </label>
+                      <input
+                        name="subTitle"
+                        value={form.subTitle}
+                        onChange={handleChange}
+                        placeholder="e.g. Gadgets & Devices"
+                        className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                      />
                     </div>
+
+                    {/* Parent Category Select */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-1">
+                        <FolderTree className="w-3.5 h-3.5" /> Parent Category
+                      </label>
+                      <div className="relative">
+                        <select
+                          name="parentCategory"
+                          value={form.parentCategory}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 rounded-[10px] pl-3 pr-10 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm appearance-none"
+                        >
+                          <option value="">None (Top Level Category)</option>
+                          {categories
+                            .filter(c => c._id !== editingId)
+                            .map(c => (
+                              <option key={c._id} value={c._id}>{c.title}</option>
+                            ))
+                          }
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                          <CornerDownRight className="w-4 h-4" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Description */}
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
+                      <textarea
+                        name="description"
+                        value={form.description}
+                        onChange={handleChange}
+                        placeholder="Detailed description of the category..."
+                        className="w-full h-24 border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2 border-t border-gray-100">
+                    <AdminButton type="button" variant="ghost" onClick={handleCloseForm} className="px-5 py-2.5">
+                      Cancel
+                    </AdminButton>
+                    <AdminButton type="submit" loading={submitting} className="px-8 py-2.5">
+                      {editingId ? "Update Category" : "Save Category"}
+                    </AdminButton>
+                  </div>
                 </div>
               </form>
             </div>
@@ -353,13 +351,11 @@ export default function CategoriesPage() {
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
-              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`} title="Grid View (Flat)">
             <Grid className="w-4 h-4" />
           </AdminButton>
-          <AdminButton variant="ghost" onClick={() => setView("tree")} className={`p-2 rounded-[10px] transition-all ${
-              view === "tree" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("tree")} className={`p-2 rounded-[10px] transition-all ${view === "tree" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`} title="Tree View (Hierarchy)">
             <FolderTree className="w-4 h-4" />
           </AdminButton>
@@ -388,34 +384,34 @@ export default function CategoriesPage() {
             return (
               <div key={c._id} className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all p-6 relative">
                 <div className="mb-4">
-                    <div className="flex items-center justify-between mb-2">
-                        <div className="p-2 bg-blue-50 rounded-[8px] text-blue-600 border border-blue-100">
-                            <Layers className="w-5 h-5" />
-                        </div>
-                        {parentName && (
-                            <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-1 rounded-[6px] border border-gray-200 max-w-[100px] truncate">
-                                in {parentName}
-                            </span>
-                        )}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="p-2 bg-blue-50 rounded-[8px] text-blue-600 border border-blue-100">
+                      <Layers className="w-5 h-5" />
                     </div>
-                    <h3 className="font-bold text-gray-900 text-lg mb-1">{c.title}</h3>
-                    <p className="text-sm text-gray-500 line-clamp-2 min-h-[2.5em]">{c.description || c.subTitle || "No description provided."}</p>
+                    {parentName && (
+                      <span className="text-[10px] bg-gray-100 text-gray-500 px-2 py-1 rounded-[6px] border border-gray-200 max-w-[100px] truncate">
+                        in {parentName}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-lg mb-1">{c.title}</h3>
+                  <p className="text-sm text-gray-500 line-clamp-2 min-h-[2.5em]">{c.description || c.subTitle || "No description provided."}</p>
                 </div>
 
                 <div className="flex gap-2 justify-end pt-4 border-t border-gray-50">
-                    <button 
-                        onClick={() => handleEdit(c)}
-                        className="w-8 h-8 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all shadow-sm hover:scale-110"
-                    >
-                        <Pencil className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                        onClick={() => handleDelete(c._id)}
-                        disabled={isDeleting}
-                        className="w-8 h-8 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 disabled:opacity-50"
-                    >
-                        {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                    </button>
+                  <button
+                    onClick={() => handleEdit(c)}
+                    className="w-8 h-8 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all shadow-sm hover:scale-110"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(c._id)}
+                    disabled={isDeleting}
+                    className="w-8 h-8 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 disabled:opacity-50"
+                  >
+                    {isDeleting ? <Skeleton className="w-3.5 h-3.5 rounded-full" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  </button>
                 </div>
               </div>
             );
@@ -424,36 +420,36 @@ export default function CategoriesPage() {
       ) : (
         // TREE VIEW (HIERARCHICAL)
         <div className="space-y-1">
-           {/* If searching, switch to flat list for clarity, else recursive tree */}
-           {search ? (
-               <div className="text-sm text-gray-500 mb-4 italic">Showing search results (hierarchy hidden):</div>
-           ) : null}
-           
-           {search 
-             ? filteredCategories.map(c => { // Flat list for search
-                 const isDeleting = removingId === c._id;
-                 return (
-                    <div key={c._id} className="group flex items-center justify-between p-4 mb-3 bg-white border border-gray-200 rounded-[10px] shadow-sm hover:shadow-md transition-all">
-                        <div className="flex items-center gap-4">
-                            <div className="p-2 bg-gray-50 rounded-[8px] text-gray-600">
-                                <Search className="w-5 h-5" />
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-gray-900">{c.title}</h4>
-                                <p className="text-sm text-gray-500">{c.subTitle}</p>
-                            </div>
-                        </div>
-                        <div className="flex gap-2">
-                            <button onClick={() => handleEdit(c)} className="w-8 h-8 rounded-full border border-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-50"><Pencil className="w-4 h-4" /></button>
-                            <button onClick={() => handleDelete(c._id)} disabled={isDeleting} className="w-8 h-8 rounded-full border border-red-500 text-red-500 flex items-center justify-center hover:bg-red-50">
-                                {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                            </button>
-                        </div>
+          {/* If searching, switch to flat list for clarity, else recursive tree */}
+          {search ? (
+            <div className="text-sm text-gray-500 mb-4 italic">Showing search results (hierarchy hidden):</div>
+          ) : null}
+
+          {search
+            ? filteredCategories.map(c => { // Flat list for search
+              const isDeleting = removingId === c._id;
+              return (
+                <div key={c._id} className="group flex items-center justify-between p-4 mb-3 bg-white border border-gray-200 rounded-[10px] shadow-sm hover:shadow-md transition-all">
+                  <div className="flex items-center gap-4">
+                    <div className="p-2 bg-gray-50 rounded-[8px] text-gray-600">
+                      <Search className="w-5 h-5" />
                     </div>
-                 )
-             })
-             : renderCategoryTree() // Recursive tree for normal view
-           }
+                    <div>
+                      <h4 className="font-bold text-gray-900">{c.title}</h4>
+                      <p className="text-sm text-gray-500">{c.subTitle}</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => handleEdit(c)} className="w-8 h-8 rounded-full border border-blue-100 text-blue-600 flex items-center justify-center hover:bg-blue-50"><Pencil className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(c._id)} disabled={isDeleting} className="w-8 h-8 rounded-full border border-red-500 text-red-500 flex items-center justify-center hover:bg-red-50">
+                      {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              )
+            })
+            : renderCategoryTree() // Recursive tree for normal view
+          }
         </div>
       )}
     </div>

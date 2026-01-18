@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react'
 import { motion } from 'framer-motion'
-import { PhoneCall, Clock, CheckCircle2, Loader2 } from 'lucide-react'
+import { PhoneCall, Clock, CheckCircle2 } from 'lucide-react'
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function RequestCallForm() {
   const [loading, setLoading] = useState(false);
@@ -19,21 +20,21 @@ export default function RequestCallForm() {
   };
 
   return (
-    <motion.section 
+    <motion.section
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       className="max-w-5xl mx-auto w-full"
     >
       <div className="relative bg-white border border-slate-100 rounded-[2.5rem] p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.04)] overflow-hidden">
-        
+
         {/* Decorative Background Element */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-orange-50 rounded-bl-[100px] -z-0 opacity-50" />
 
         <div className="relative z-10">
           {!submitted ? (
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-              
+
               {/* Text Side */}
               <div className="lg:col-span-2 space-y-4">
                 <div className="flex items-center gap-2 text-orange-600">
@@ -50,36 +51,36 @@ export default function RequestCallForm() {
               </div>
 
               {/* Form Side */}
-              <form 
+              <form
                 onSubmit={handleSubmit}
                 className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-4"
               >
                 <div className="space-y-1">
-                  <input 
+                  <input
                     required
-                    name="name" 
-                    placeholder="Full Name" 
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-slate-900 font-bold outline-none transition-all focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 placeholder:text-slate-400" 
+                    name="name"
+                    placeholder="Full Name"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-slate-900 font-bold outline-none transition-all focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 placeholder:text-slate-400"
                   />
                 </div>
                 <div className="space-y-1">
-                  <input 
+                  <input
                     required
-                    name="phone" 
+                    name="phone"
                     type="tel"
-                    placeholder="Mobile Number" 
-                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-slate-900 font-bold outline-none transition-all focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 placeholder:text-slate-400" 
+                    placeholder="Mobile Number"
+                    className="w-full bg-slate-50 border-2 border-slate-100 rounded-2xl px-5 py-4 text-slate-900 font-bold outline-none transition-all focus:bg-white focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 placeholder:text-slate-400"
                   />
                 </div>
-                <button 
+                <button
                   disabled={loading}
                   className="group relative md:col-span-2 h-14 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 overflow-hidden transition-all hover:bg-orange-600 active:scale-[0.98] disabled:opacity-70"
                 >
                   {/* Shimmer Effect */}
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />
-                  
+
                   {loading ? (
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Skeleton className="w-5 h-5 rounded-full" />
                   ) : (
                     <>
                       <PhoneCall className="w-4 h-4 group-hover:animate-bounce" />
@@ -90,7 +91,7 @@ export default function RequestCallForm() {
               </form>
             </div>
           ) : (
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="text-center py-4 space-y-4"
@@ -100,7 +101,7 @@ export default function RequestCallForm() {
               </div>
               <h3 className="text-2xl font-black text-slate-900">Request Sent!</h3>
               <p className="text-slate-500 font-medium">Keep your phone nearby. An expert will reach out shortly.</p>
-              <button 
+              <button
                 onClick={() => setSubmitted(false)}
                 className="text-xs font-bold text-orange-600 uppercase tracking-widest hover:underline cursor-pointer"
               >

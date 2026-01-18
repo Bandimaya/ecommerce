@@ -55,7 +55,7 @@ export default function RootLayout({
         {/* Ensures proper rendering on mobile devices */}
       </head>
       <body>
-        <GTranslate />
+        {/* <GTranslate /> */}
         
         {/* The visible Logo is likely inside this MainLayout component */}
         <MainLayout>

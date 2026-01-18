@@ -1,22 +1,16 @@
 "use client";
 
 import { useState, useEffect, useMemo, ChangeEvent } from "react";
-import { 
-  PlusCircle, 
-  Pencil, 
-  Trash2, 
-  Search, 
-  Grid, 
-  List, 
-  Loader2, 
-  X, 
-  Save, 
-  ImageIcon, 
-  Calendar,
-  Palette,
-  Users,
+import {
+  PlusCircle,
+  Pencil,
+  Trash2,
+  Search,
+  Grid,
+  List,
   LayoutTemplate
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
@@ -138,7 +132,7 @@ export default function CreateEventPage() {
       subtitle: event.subtitle,
       category: event.category,
       thumbnail: event.thumbnail,
-      logo: null, 
+      logo: null,
       color: event.color,
       bgGradient: event.bgGradient,
       count: event.count,
@@ -254,7 +248,7 @@ export default function CreateEventPage() {
                           required
                         />
                       </div>
-                      
+
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Subtitle / Description</label>
                         <textarea
@@ -300,39 +294,39 @@ export default function CreateEventPage() {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Theme Color</label>
                         <div className="flex items-center gap-2">
-                           <input
-                              type="color"
-                              name="color"
-                              value={formData.color}
-                              onChange={handleChange}
-                              className="w-10 h-10 p-1 border border-gray-300 rounded-[10px] cursor-pointer"
-                           />
-                           <span className="text-sm text-gray-500 font-mono">{formData.color}</span>
+                          <input
+                            type="color"
+                            name="color"
+                            value={formData.color}
+                            onChange={handleChange}
+                            className="w-10 h-10 p-1 border border-gray-300 rounded-[10px] cursor-pointer"
+                          />
+                          <span className="text-sm text-gray-500 font-mono">{formData.color}</span>
                         </div>
                       </div>
 
                       <div>
-                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Background Gradient (Tailwind)</label>
-                         <div className="relative">
-                            <Palette className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input
-                              name="bgGradient"
-                              value={formData.bgGradient}
-                              onChange={handleChange}
-                              placeholder="e.g. from-blue-500 to-white"
-                              className="w-full pl-10 border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-                            />
-                         </div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Background Gradient (Tailwind)</label>
+                        <div className="relative">
+                          <Palette className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <input
+                            name="bgGradient"
+                            value={formData.bgGradient}
+                            onChange={handleChange}
+                            placeholder="e.g. from-blue-500 to-white"
+                            className="w-full pl-10 border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          />
+                        </div>
                       </div>
 
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Thumbnail URL (Optional External)</label>
                         <input
-                           name="thumbnail"
-                           value={formData.thumbnail}
-                           onChange={handleChange}
-                           placeholder="https://..."
-                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          name="thumbnail"
+                          value={formData.thumbnail}
+                          onChange={handleChange}
+                          placeholder="https://..."
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
                         />
                       </div>
                     </div>
@@ -343,13 +337,13 @@ export default function CreateEventPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Event Logo / Banner</label>
                     <label className="block border-2 border-dashed border-gray-300 rounded-[10px] cursor-pointer hover:bg-gray-50 transition-colors h-64 md:h-full max-h-[400px] relative group overflow-hidden">
                       <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-                      
+
                       {preview ? (
                         <div className="w-full h-full relative">
-                          <img 
-                            src={preview} 
-                            alt="Preview" 
-                            className="w-full h-full object-cover" 
+                          <img
+                            src={preview}
+                            alt="Preview"
+                            className="w-full h-full object-cover"
                           />
                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <span className="text-white text-sm font-medium flex items-center gap-2">
@@ -398,13 +392,11 @@ export default function CreateEventPage() {
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
-              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <Grid className="w-4 h-4" />
           </AdminButton>
-          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
-              view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <List className="w-4 h-4" />
           </AdminButton>
@@ -414,9 +406,9 @@ export default function CreateEventPage() {
       {/* CONTENT */}
       {loading ? (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-           {[1, 2, 3].map(i => (
-             <div key={i} className="bg-white border border-gray-200 rounded-[10px] h-80 animate-pulse" />
-           ))}
+          {[1, 2, 3].map(i => (
+            <div key={i} className="bg-white border border-gray-200 rounded-[10px] h-80 animate-pulse" />
+          ))}
         </div>
       ) : filteredEvents.length === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-[10px] border border-dashed border-gray-200">
@@ -433,10 +425,10 @@ export default function CreateEventPage() {
                 {/* Image Section - Set to full width and cover */}
                 <div className={`relative h-52 w-full bg-gray-100 overflow-hidden bg-gradient-to-br ${event.bgGradient || "from-gray-100 to-gray-200"}`}>
                   {event.logo ? (
-                    <img 
-                      src={IMAGE_URL + event.logo} 
-                      alt={event.title} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+                    <img
+                      src={IMAGE_URL + event.logo}
+                      alt={event.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
@@ -463,18 +455,18 @@ export default function CreateEventPage() {
 
                     {/* Circular Actions */}
                     <div className="flex gap-3">
-                      <button 
+                      <button
                         onClick={() => handleEdit(event)}
                         className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleDelete(event._id)}
                         disabled={isDeleting}
                         className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
                       >
-                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -487,47 +479,48 @@ export default function CreateEventPage() {
         // LIST VIEW - UPDATED FOR CONSISTENCY
         <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
           {filteredEvents.map((event) => {
-             const isDeleting = removingId === event._id;
-             return (
-            <div key={event._id} className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group">
-              <div className={`w-24 h-16 shrink-0 rounded-[8px] overflow-hidden flex items-center justify-center bg-gradient-to-br ${event.bgGradient || "from-gray-100 to-gray-200"}`}>
-                 {event.logo ? (
+            const isDeleting = removingId === event._id;
+            return (
+              <div key={event._id} className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group">
+                <div className={`w-24 h-16 shrink-0 rounded-[8px] overflow-hidden flex items-center justify-center bg-gradient-to-br ${event.bgGradient || "from-gray-100 to-gray-200"}`}>
+                  {event.logo ? (
                     <img src={IMAGE_URL + event.logo} alt={event.title} className="w-full h-full object-cover" />
-                 ) : (
+                  ) : (
                     <Calendar className="w-6 h-6 text-gray-400" />
-                 )}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                   <h3 className="font-bold text-lg text-gray-900">{event.title}</h3>
-                   <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full border border-gray-200 font-medium">
-                      {event.category}
-                   </span>
+                  )}
                 </div>
-                <p className="text-sm text-gray-500 line-clamp-1 mb-2">{event.subtitle}</p>
-                <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <Users className="w-3 h-3" /> {event.count} Attendees
-                </div>
-              </div>
 
-              <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
-                  onClick={() => handleEdit(event)}
-                  className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button 
-                  onClick={() => handleDelete(event._id)}
-                  disabled={isDeleting}
-                  className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
-                >
-                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-bold text-lg text-gray-900">{event.title}</h3>
+                    <span className="text-xs px-2 py-0.5 bg-gray-100 text-gray-600 rounded-full border border-gray-200 font-medium">
+                      {event.category}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 line-clamp-1 mb-2">{event.subtitle}</p>
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <Users className="w-3 h-3" /> {event.count} Attendees
+                  </div>
+                </div>
+
+                <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleEdit(event)}
+                    className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(event._id)}
+                    disabled={isDeleting}
+                    className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
+                  >
+                    {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
-          )})}
+            )
+          })}
         </div>
       )}
     </div>

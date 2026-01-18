@@ -13,25 +13,25 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) => {
     // 1. OUTER WRAPPER
     // Removed print-specific classes
     <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm">
-      
+
       {/* 2. FLEX ALIGNMENT WRAPPER */}
-      <div className="flex min-h-full items-center justify-center p-4 md:items-start md:pt-[100px]">
+      <div className="flex min-h-full items-center justify-center p-4">
 
         {/* CLICK OUTSIDE LISTENER */}
-        <div 
-          className="fixed inset-0 transition-opacity" 
-          onClick={onClose} 
+        <div
+          className="fixed inset-0 transition-opacity"
+          onClick={onClose}
         />
 
         {/* 3. THE INVOICE CARD */}
         <div className="relative z-10 w-full max-w-3xl bg-white shadow-2xl rounded-[10px]">
-          
+
           {/* --- ACTIONS BAR --- */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50 rounded-t-[10px]">
             <h2 className="font-semibold text-gray-700 text-sm md:text-base">Invoice Preview</h2>
             <div className="flex items-center gap-2">
               {/* Only the Close button remains */}
-              <button 
+              <button
                 onClick={onClose}
                 className="p-1.5 md:p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-[10px] transition-colors"
               >
@@ -42,7 +42,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) => {
 
           {/* --- INVOICE CONTENT --- */}
           <div className="p-4 md:p-10">
-            
+
             {/* Header Section */}
             <div className="flex flex-row justify-between items-start mb-6 md:mb-8 gap-4">
               <div>
@@ -97,7 +97,7 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) => {
             <div className="space-y-3 md:space-y-4 mb-6">
               {order.items.map((item: any, idx: number) => (
                 <div key={idx} className="grid grid-cols-1 md:grid-cols-12 gap-1 md:gap-4 text-sm items-start border-b border-gray-50 md:border-none pb-3 md:pb-0 last:border-0 last:pb-0">
-                  
+
                   {/* Item Name */}
                   <div className="col-span-1 md:col-span-6">
                     <p className="font-semibold text-slate-900 break-words text-xs md:text-sm leading-tight">{item.name}</p>
@@ -106,9 +106,9 @@ const InvoiceModal: React.FC<InvoiceModalProps> = ({ order, onClose }) => {
 
                   {/* Mobile Row for Qty/Price/Total */}
                   <div className="col-span-1 flex justify-between items-center mt-1 md:hidden">
-                     <span className="text-[10px] text-slate-500">Qty: {item.quantity}</span>
-                     <span className="text-[10px] text-slate-500">x {order.currency} {item.price}</span>
-                     <span className="text-xs font-medium text-slate-900">{order.currency} {(item.price * item.quantity).toFixed(2)}</span>
+                    <span className="text-[10px] text-slate-500">Qty: {item.quantity}</span>
+                    <span className="text-[10px] text-slate-500">x {order.currency} {item.price}</span>
+                    <span className="text-xs font-medium text-slate-900">{order.currency} {(item.price * item.quantity).toFixed(2)}</span>
                   </div>
 
                   {/* Desktop Columns */}

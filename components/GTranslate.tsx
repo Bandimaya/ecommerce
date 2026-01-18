@@ -11,7 +11,7 @@ const GTranslateWrapper = memo(() => (
 ));
 GTranslateWrapper.displayName = "GTranslateWrapper";
 
-const GTranslate = () => {
+const GTranslate = ({ inline = false }: { inline?: boolean }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isOpen, setIsOpen] = useState(false);
   const [isRightSide, setIsRightSide] = useState(false);
@@ -54,8 +54,8 @@ const GTranslate = () => {
       // Note: We handle hiding arrows/flags via CSS now to prevent blinking/layout thrashing
 
       // Force pointer events so we can click
-      const wrapper = document.getElementById("gt_float_wrapper");
-      if (wrapper) wrapper.style.pointerEvents = "none";
+      // const wrapper = document.getElementById("gt_float_wrapper");
+      // if (wrapper) wrapper.style.pointerEvents = "none";
 
       const switcher = document.querySelector(".gt_float_switcher");
       if (switcher) (switcher as HTMLElement).style.pointerEvents = "auto";
@@ -70,10 +70,11 @@ const GTranslate = () => {
   return (
     <>
       <motion.div
-        drag
+        drag={!inline}
         dragMomentum={false}
-        animate={{ x: position.x, y: position.y }}
+        animate={inline ? undefined : { x: position.x, y: position.y }}
         onDragEnd={(e, info) => {
+          if (inline) return;
           const newX = position.x + info.offset.x;
           const newY = position.y + info.offset.y;
           setPosition({ x: newX, y: newY });
@@ -84,7 +85,7 @@ const GTranslate = () => {
           }
         }}
         onTap={() => setIsOpen(!isOpen)}
-        className={`gt-drag ${isOpen ? "gt-open" : ""} ${isRightSide ? "gt-right" : ""}`}
+        className={`gt-drag ${isOpen ? "gt-open" : ""} ${isRightSide ? "gt-right" : ""} ${inline ? "gt-inline" : ""}`}
       >
         <GTranslateWrapper />
         {/* FAUX CIRCLE: restores white circle when injected widget forces transparency */}
@@ -303,6 +304,8 @@ const GTranslate = () => {
           font-weight: 500 !important;
           border-bottom: 1px solid rgba(0,0,0,0.05) !important;
           transition: background 0.2s !important;
+          pointer-events: auto !important;
+          cursor: pointer !important;
         }
 
         .gt_float_switcher .gt_options a:hover {
@@ -331,6 +334,23 @@ const GTranslate = () => {
         .gt_float_switcher .gt_options::-webkit-scrollbar-thumb {
           background: #ccc;
           border-radius: 4px;
+        }
+
+        /* INLINE MODE OVERRIDES */
+        .gt-drag.gt-inline {
+          position: relative !important;
+          top: auto !important;
+          left: auto !important;
+          margin: 0 !important;
+          z-index: 50 !important;
+          cursor: pointer !important;
+          transform: none !important;
+        }
+        
+        .gt-drag.gt-inline .gt_float_switcher .gt_options {
+           /* Ensure dropdown appears below */
+           top: 50px !important;
+           left: 0 !important; 
         }
       `}</style>
 

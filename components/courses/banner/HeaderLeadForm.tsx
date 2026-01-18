@@ -7,7 +7,6 @@ import {
   User,
   Phone,
   Mail,
-  Loader2,
   CheckCircle2,
   ArrowRight,
   X,
@@ -15,6 +14,7 @@ import {
   Building2
 } from 'lucide-react';
 import { apiFetch } from '@/lib/axios';
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function HeaderLeadForm() {
   const [loading, setLoading] = useState(false);
@@ -118,7 +118,7 @@ export default function HeaderLeadForm() {
       {isMobileMode && (
         <div className="flex justify-between items-center p-4 border-b border-slate-100">
           <h3 className="font-semibold text-slate-800">Book a Session</h3>
-          <button 
+          <button
             onClick={() => setIsMobileOpen(false)}
             className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500 transition-colors"
           >
@@ -130,7 +130,7 @@ export default function HeaderLeadForm() {
       <AnimatePresence mode="wait">
         {!success ? (
           <div className="flex flex-col">
-            
+
             {/* Header */}
             <div className="px-8 pt-8 pb-6">
               <h2 className="text-2xl font-bold text-slate-900 tracking-tight mb-2">
@@ -198,7 +198,7 @@ export default function HeaderLeadForm() {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <Skeleton className="w-5 h-5 rounded-full" />
                     <span>Processing...</span>
                   </>
                 ) : (
@@ -279,7 +279,7 @@ export default function HeaderLeadForm() {
             >
               {/* Backdrop Click */}
               <div className="absolute inset-0" onClick={() => setIsMobileOpen(false)} />
-              
+
               {/* Card */}
               <motion.div
                 initial={{ scale: 0.95, y: 10 }}
@@ -338,7 +338,7 @@ const InputField = ({
 
     {/* Icon (Optional - Positioned to the right or integrated subtly) */}
     <div className="absolute right-3 top-4 text-slate-400 pointer-events-none peer-focus:text-indigo-500 transition-colors">
-        <Icon size={18} />
+      <Icon size={18} />
     </div>
 
     {/* Error Message */}

@@ -1,23 +1,24 @@
 "use client";
 
 import { useEffect, useState, useMemo, ChangeEvent } from "react";
-import { 
-  PlusCircle, 
-  Pencil, 
-  Trash2, 
-  Search, 
-  Grid, 
-  List, 
-  Loader2, 
-  X, 
-  Save, 
-  ImageIcon, 
-  Upload, 
+import {
+  PlusCircle,
+  Pencil,
+  Trash2,
+  Search,
+  Grid,
+  List,
+
+  X,
+  Save,
+  ImageIcon,
+  Upload,
   Trophy,
   Medal,
   School,
   Target
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
 import { IMAGE_URL } from "@/lib/constants";
@@ -287,7 +288,7 @@ export default function WinnersPage() {
                         />
                       </div>
                     </div>
-                    
+
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
                       <textarea
@@ -305,7 +306,7 @@ export default function WinnersPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Winner Image</label>
                     <label className="block border-2 border-dashed border-gray-300 rounded-[10px] p-4 cursor-pointer hover:bg-gray-50 transition-colors h-64 md:h-full max-h-[350px] relative group">
                       <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-                      
+
                       {preview ? (
                         <div className="w-full h-full flex items-center justify-center relative">
                           <img src={preview} alt="Preview" className="max-h-full max-w-full object-contain rounded-[10px]" />
@@ -352,13 +353,11 @@ export default function WinnersPage() {
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
-              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <Grid className="w-4 h-4" />
           </AdminButton>
-          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
-              view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <List className="w-4 h-4" />
           </AdminButton>
@@ -391,74 +390,75 @@ export default function WinnersPage() {
           {filteredWinners.map((winner) => {
             const isDeleting = removingId === winner._id;
             return (
-            <div
-              key={winner._id}
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
-            >
-              {/* Image Section */}
-              <div className="relative h-56 bg-gray-100 overflow-hidden">
-                {winner.image ? (
-                  <img
-                    src={IMAGE_URL + winner.image}
-                    alt={winner.team}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300">
-                    <ImageIcon className="w-16 h-16 opacity-50" />
-                  </div>
-                )}
-                
-                {/* Position Badge */}
-                <div className="absolute top-3 right-3">
-                  <span className="bg-white/90 backdrop-blur-md text-gray-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-black/5 flex items-center gap-1.5">
-                    <Medal className="w-3.5 h-3.5 text-amber-500" />
-                    {winner.position}
-                  </span>
-                </div>
-              </div>
+              <div
+                key={winner._id}
+                className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
+              >
+                {/* Image Section */}
+                <div className="relative h-56 bg-gray-100 overflow-hidden">
+                  {winner.image ? (
+                    <img
+                      src={IMAGE_URL + winner.image}
+                      alt={winner.team}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300">
+                      <ImageIcon className="w-16 h-16 opacity-50" />
+                    </div>
+                  )}
 
-              {/* Content Section */}
-              <div className="p-6 flex-1 flex flex-col">
-                <div className="mb-2">
-                  <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-[10px] border border-blue-100">
-                    {winner.category}
-                  </span>
+                  {/* Position Badge */}
+                  <div className="absolute top-3 right-3">
+                    <span className="bg-white/90 backdrop-blur-md text-gray-800 px-3 py-1 rounded-full text-xs font-bold shadow-sm border border-black/5 flex items-center gap-1.5">
+                      <Medal className="w-3.5 h-3.5 text-amber-500" />
+                      {winner.position}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="font-bold text-gray-900 text-xl mb-1 line-clamp-1">{winner.team}</h3>
-                <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium mb-3">
-                  <School className="w-3.5 h-3.5" /> {winner.school}
-                </div>
-                <p className="text-sm text-gray-600 line-clamp-2 flex-1 mb-4">
-                  {winner.description}
-                </p>
-                
-                <div className="mt-auto pt-5 border-t border-gray-100 flex items-center justify-between">
-                  <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
+
+                {/* Content Section */}
+                <div className="p-6 flex-1 flex flex-col">
+                  <div className="mb-2">
+                    <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2.5 py-1 rounded-[10px] border border-blue-100">
+                      {winner.category}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-gray-900 text-xl mb-1 line-clamp-1">{winner.team}</h3>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium mb-3">
+                    <School className="w-3.5 h-3.5" /> {winner.school}
+                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-2 flex-1 mb-4">
+                    {winner.description}
+                  </p>
+
+                  <div className="mt-auto pt-5 border-t border-gray-100 flex items-center justify-between">
+                    <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
                       <Target className="w-3.5 h-3.5" />
                       {winner.event}
-                  </span>
-                  
-                  {/* Circular Actions */}
-                  <div className="flex gap-3">
-                    <button 
-                       onClick={() => handleEdit(winner)} 
-                       className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(winner._id)}
-                      disabled={isDeleting}
-                      className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
-                    >
-                      {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                    </button>
+                    </span>
+
+                    {/* Circular Actions */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleEdit(winner)}
+                        className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
+                      >
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(winner._id)}
+                        disabled={isDeleting}
+                        className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
+                      >
+                        {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )})}
+            )
+          })}
         </div>
       ) : (
         // LIST VIEW
@@ -466,57 +466,58 @@ export default function WinnersPage() {
           {filteredWinners.map((winner) => {
             const isDeleting = removingId === winner._id;
             return (
-            <div
-              key={winner._id}
-              className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group"
-            >
-              <div className="w-full md:w-24 h-24 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200">
-                {winner.image ? (
-                  <img
-                    src={IMAGE_URL + winner.image}
-                    alt={winner.team}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ImageIcon className="w-6 h-6 text-gray-300" />
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-1">
-                  <h3 className="font-bold text-lg text-gray-900">{winner.team}</h3>
-                  <span className="text-xs px-2.5 py-0.5 bg-amber-50 text-amber-700 rounded-full border border-amber-100 font-bold flex items-center gap-1">
-                    <Medal className="w-3 h-3" /> {winner.position}
-                  </span>
+              <div
+                key={winner._id}
+                className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group"
+              >
+                <div className="w-full md:w-24 h-24 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200">
+                  {winner.image ? (
+                    <img
+                      src={IMAGE_URL + winner.image}
+                      alt={winner.team}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="w-6 h-6 text-gray-300" />
+                    </div>
+                  )}
                 </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 font-medium mb-2">
-                  <span className="flex items-center gap-1.5"><School className="w-3.5 h-3.5" /> {winner.school}</span>
-                  <span className="text-gray-300">|</span>
-                  <span>{winner.event}</span>
-                </div>
-                <p className="text-sm text-gray-500 line-clamp-1">{winner.description}</p>
-              </div>
 
-              {/* List Actions */}
-              <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <button 
-                   onClick={() => handleEdit(winner)} 
-                   className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDelete(winner._id)}
-                  disabled={isDeleting}
-                  className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
-                >
-                  {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                </button>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-bold text-lg text-gray-900">{winner.team}</h3>
+                    <span className="text-xs px-2.5 py-0.5 bg-amber-50 text-amber-700 rounded-full border border-amber-100 font-bold flex items-center gap-1">
+                      <Medal className="w-3 h-3" /> {winner.position}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 font-medium mb-2">
+                    <span className="flex items-center gap-1.5"><School className="w-3.5 h-3.5" /> {winner.school}</span>
+                    <span className="text-gray-300">|</span>
+                    <span>{winner.event}</span>
+                  </div>
+                  <p className="text-sm text-gray-500 line-clamp-1">{winner.description}</p>
+                </div>
+
+                {/* List Actions */}
+                <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleEdit(winner)}
+                    className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(winner._id)}
+                    disabled={isDeleting}
+                    className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
+                  >
+                    {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
+                  </button>
+                </div>
               </div>
-            </div>
-          )})}
+            )
+          })}
         </div>
       )}
     </div>

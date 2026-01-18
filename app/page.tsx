@@ -77,7 +77,7 @@ const Index = () => {
 
         {/* <BreakingJargon /> */}
 
-        <BentoGrid /> 
+        <BentoGrid />
 
         {/* <TrustBadges getCSSVar={getCSSVar} /> */}
         <RequestCallBanner />
@@ -96,8 +96,6 @@ const Index = () => {
         <StarsOfStempark />
 
         <WhyStempark />
-
-        {/* <MissionVision getCSSVar={getCSSVar} /> */}
 
         <ProgramsSection getCSSVar={getCSSVar} />
 

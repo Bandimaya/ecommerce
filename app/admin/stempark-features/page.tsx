@@ -1,26 +1,24 @@
 "use client";
 
 import { useEffect, useState, useMemo, ChangeEvent } from "react";
-import { 
-  PlusCircle, 
-  Pencil, 
-  Trash2, 
-  Loader2, 
-  X, 
-  Save, 
-  ImageIcon, 
-  Upload,
-  Cpu, 
-  Gamepad2, 
-  Microscope, 
-  Zap, 
-  Rocket, 
-  BookOpen,
-  Search,
-  Grid,
+import {
+  PlusCircle,
+  Pencil,
+  Trash2,
   List,
-  BarChart
+  BarChart,
+  Cpu,
+  Gamepad2,
+  BookOpen,
+  Grid,
+  ImageIcon,
+  Microscope,
+  Rocket,
+  Search,
+  X,
+  Zap
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/axios";
 import { IMAGE_URL } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
@@ -65,7 +63,7 @@ export default function StemparkFeaturesPage() {
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [view, setView] = useState<"grid" | "list">("grid");
   const [search, setSearch] = useState("");
-  
+
   // Form State
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -176,7 +174,7 @@ export default function StemparkFeaturesPage() {
         method: editingId ? "PUT" : "POST",
         data: fd,
       });
-      
+
       toast({ title: `Feature ${editingId ? "updated" : "created"} successfully` });
       fetchFeatures();
       handleCloseForm();
@@ -265,29 +263,28 @@ export default function StemparkFeaturesPage() {
                           required
                         />
                       </div>
-                      
+
                       {/* Visual Icon Selector */}
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-2">Select Icon</label>
                         <div className="flex flex-wrap gap-3">
-                            {ICONS.map((iconKey) => {
-                                const IconComp = ICON_MAP[iconKey];
-                                const isSelected = form.icon === iconKey;
-                                return (
-                                    <button
-                                        type="button"
-                                        key={iconKey}
-                                        onClick={() => handleIconSelect(iconKey)}
-                                        className={`p-3 rounded-[10px] border transition-all ${
-                                            isSelected 
-                                            ? "bg-blue-50 border-blue-500 text-blue-600 shadow-sm" 
-                                            : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
-                                        }`}
-                                    >
-                                        <IconComp className="w-5 h-5" />
-                                    </button>
-                                )
-                            })}
+                          {ICONS.map((iconKey) => {
+                            const IconComp = ICON_MAP[iconKey];
+                            const isSelected = form.icon === iconKey;
+                            return (
+                              <button
+                                type="button"
+                                key={iconKey}
+                                onClick={() => handleIconSelect(iconKey)}
+                                className={`p-3 rounded-[10px] border transition-all ${isSelected
+                                    ? "bg-blue-50 border-blue-500 text-blue-600 shadow-sm"
+                                    : "bg-white border-gray-200 text-gray-500 hover:bg-gray-50"
+                                  }`}
+                              >
+                                <IconComp className="w-5 h-5" />
+                              </button>
+                            )
+                          })}
                         </div>
                       </div>
 
@@ -310,7 +307,7 @@ export default function StemparkFeaturesPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Feature Image</label>
                     <label className="block border-2 border-dashed border-gray-300 rounded-[10px] p-4 cursor-pointer hover:bg-gray-50 transition-colors h-64 md:h-full max-h-[350px] relative group">
                       <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-                      
+
                       {preview ? (
                         <div className="w-full h-full flex items-center justify-center relative">
                           <img src={preview} alt="Preview" className="max-h-full max-w-full object-contain rounded-[10px]" />
@@ -357,13 +354,11 @@ export default function StemparkFeaturesPage() {
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
-              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <Grid className="w-4 h-4" />
           </AdminButton>
-          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
-              view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <List className="w-4 h-4" />
           </AdminButton>
@@ -396,7 +391,7 @@ export default function StemparkFeaturesPage() {
           {filteredFeatures.map((f) => {
             const FeatureIcon = ICON_MAP[f.icon] || Cpu;
             const isDeleting = removingId === f._id;
-            
+
             return (
               <div
                 key={f._id}
@@ -412,7 +407,7 @@ export default function StemparkFeaturesPage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-gray-300">
-                        <ImageIcon className="w-16 h-16 opacity-50" />
+                      <ImageIcon className="w-16 h-16 opacity-50" />
                     </div>
                   )}
                   {/* Icon Badge */}
@@ -424,10 +419,10 @@ export default function StemparkFeaturesPage() {
                 {/* Content Section */}
                 <div className="p-6 flex-1 flex flex-col">
                   <div className="mb-1">
-                     <h3 className="font-bold text-gray-900 text-xl line-clamp-1" title={f.title}>{f.title}</h3>
-                     <p className="text-xs text-blue-600 font-medium">{f.subtitle}</p>
+                    <h3 className="font-bold text-gray-900 text-xl line-clamp-1" title={f.title}>{f.title}</h3>
+                    <p className="text-xs text-blue-600 font-medium">{f.subtitle}</p>
                   </div>
-                  
+
                   <p className="text-sm text-gray-600 mt-3 line-clamp-2 flex-1 mb-4">
                     {f.description}
                   </p>
@@ -437,10 +432,10 @@ export default function StemparkFeaturesPage() {
                       <BarChart className="w-3.5 h-3.5" />
                       {f.stat}
                     </span>
-                    
+
                     {/* Circular Actions */}
                     <div className="flex gap-3">
-                      <button 
+                      <button
                         onClick={() => handleEdit(f)}
                         className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
                       >
@@ -451,7 +446,7 @@ export default function StemparkFeaturesPage() {
                         disabled={isDeleting}
                         className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
                       >
-                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
@@ -463,57 +458,57 @@ export default function StemparkFeaturesPage() {
       ) : (
         // LIST VIEW
         <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
-           {filteredFeatures.map((f) => {
-              const FeatureIcon = ICON_MAP[f.icon] || Cpu;
-              const isDeleting = removingId === f._id;
-              
-              return (
-                <div key={f._id} className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group">
-                    <div className="w-full md:w-24 h-24 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200 relative">
-                        {f.image ? (
-                            <img src={IMAGE_URL + f.image} alt={f.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                                <ImageIcon className="w-6 h-6 text-gray-300" />
-                            </div>
-                        )}
-                        <div className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm">
-                            <FeatureIcon className="w-3 h-3 text-blue-600" />
-                        </div>
-                    </div>
+          {filteredFeatures.map((f) => {
+            const FeatureIcon = ICON_MAP[f.icon] || Cpu;
+            const isDeleting = removingId === f._id;
 
-                    <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-1">
-                             <h3 className="font-bold text-lg text-gray-900">{f.title}</h3>
-                             <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-[10px] border border-blue-100 font-medium">
-                                {f.subtitle}
-                             </span>
-                        </div>
-                        <p className="text-sm text-gray-500 line-clamp-1 mb-2">{f.description}</p>
-                        <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
-                            <BarChart className="w-3.5 h-3.5" /> {f.stat}
-                        </div>
+            return (
+              <div key={f._id} className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group">
+                <div className="w-full md:w-24 h-24 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200 relative">
+                  {f.image ? (
+                    <img src={IMAGE_URL + f.image} alt={f.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="w-6 h-6 text-gray-300" />
                     </div>
-
-                    {/* List Actions */}
-                    <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                           onClick={() => handleEdit(f)} 
-                           className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(f._id)}
-                          disabled={isDeleting}
-                          className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
-                        >
-                          {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                        </button>
-                    </div>
+                  )}
+                  <div className="absolute top-1 right-1 bg-white/90 p-1 rounded-full shadow-sm">
+                    <FeatureIcon className="w-3 h-3 text-blue-600" />
+                  </div>
                 </div>
-              );
-           })}
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h3 className="font-bold text-lg text-gray-900">{f.title}</h3>
+                    <span className="text-xs px-2 py-0.5 bg-blue-50 text-blue-700 rounded-[10px] border border-blue-100 font-medium">
+                      {f.subtitle}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-500 line-clamp-1 mb-2">{f.description}</p>
+                  <div className="flex items-center gap-1.5 text-xs text-gray-500 font-medium">
+                    <BarChart className="w-3.5 h-3.5" /> {f.stat}
+                  </div>
+                </div>
+
+                {/* List Actions */}
+                <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleEdit(f)}
+                    className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(f._id)}
+                    disabled={isDeleting}
+                    className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50"
+                  >
+                    {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

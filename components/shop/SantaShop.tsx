@@ -3,9 +3,10 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   X, ChevronRight, ChevronLeft, Star, ShoppingCart,
-  Package, Brain, Loader2
+  Package, Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from '@/contexts/CartContext';
 import { toast } from '@/hooks/use-toast';
 import {
@@ -393,7 +394,7 @@ const SantaShop = () => {
                                   onClick={(e) => handleAddToCart(e, product, '')}
                                   disabled={cartLoading}
                                 >
-                                  {cartLoading ? <Loader2 className="w-3.5 h-3.5 text-white animate-spin" /> : <ShoppingCart className="w-3.5 h-3.5 text-white" />}
+                                  {cartLoading ? <Skeleton className="w-3.5 h-3.5 rounded-full bg-white/50" /> : <ShoppingCart className="w-3.5 h-3.5 text-white" />}
                                 </Button>
                               </div>
                             </motion.div>

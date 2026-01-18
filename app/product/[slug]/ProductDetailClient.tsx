@@ -1,5 +1,6 @@
 "use client"
-import { ArrowLeft, Star, ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Star, ShoppingCart, Minus, Plus, Truck, Shield, RotateCcw, Check } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
@@ -304,7 +305,7 @@ const ProductDetailClient = ({ product }: any) => {
                                 disabled={displayStock <= 0 || cartLoading}
                                 onClick={handleAddToCart}
                             >
-                                {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5" />} Add to cart
+                                {cartLoading ? <Skeleton className="w-5 h-5 rounded-full" /> : <ShoppingCart className="w-5 h-5" />} Add to cart
                             </Button>
                         </div>
 
@@ -321,7 +322,7 @@ const ProductDetailClient = ({ product }: any) => {
                                 disabled={displayStock <= 0 || cartLoading}
                                 onClick={handleAddToCart}
                             >
-                                {cartLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShoppingCart className="w-5 h-5" />} Buy now
+                                {cartLoading ? <Skeleton className="w-5 h-5 rounded-full" /> : <ShoppingCart className="w-5 h-5" />} Buy now
                             </Button>
                         </div>
 

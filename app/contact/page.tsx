@@ -3,9 +3,10 @@ import { useState } from "react";
 import {
   Mail, Phone, MapPin, Send, Clock, MessageSquare, Sparkles,
   Building2, Users, Zap, Shield, CheckCircle,
-  Loader2, Globe, ChevronRight, ArrowRight
+  Globe, ChevronRight, ArrowRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label";
@@ -103,7 +104,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] relative overflow-hidden selection:bg-[var(--primary)] selection:text-[var(--primary-foreground)]">
-      
+
       {/* Background Decor - Subtle Grid */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[var(--border)] to-transparent" />
@@ -112,7 +113,7 @@ const Contact = () => {
       <div className="relative pt-20 pb-16 lg:pt-28 lg:pb-20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-4xl mx-auto text-center space-y-6">
-            
+
             {/* --- DO NOT REMOVE OR CHANGE THIS ELEMENT BLOCK --- */}
             <motion.div
               initial={{ scaleX: 0 }}
@@ -146,7 +147,7 @@ const Contact = () => {
             </motion.div>
             {/* -------------------------------------------------- */}
 
-            <motion.h1 
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-5xl md:text-6xl font-extrabold tracking-tight"
@@ -157,7 +158,7 @@ const Contact = () => {
               </span>
             </motion.h1>
 
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
@@ -172,9 +173,9 @@ const Contact = () => {
       {/* Main Content Area */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-24 relative z-10">
         <div className="grid lg:grid-cols-12 gap-10 lg:gap-12">
-          
+
           {/* Left Column: Form (Span 7-8) */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -309,7 +310,7 @@ const Contact = () => {
                   >
                     {isSubmitting ? (
                       <span className="flex items-center gap-2">
-                        <Loader2 className="w-5 h-5 animate-spin" /> Processing...
+                        <Skeleton className="w-5 h-5 rounded-full bg-white/50" /> Processing...
                       </span>
                     ) : (
                       <span className="flex items-center gap-2">
@@ -327,9 +328,9 @@ const Contact = () => {
 
           {/* Right Column: Sidebar Info (Span 4-5) */}
           <div className="lg:col-span-5 xl:col-span-4 space-y-8">
-            
+
             {/* Contact Card */}
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
@@ -341,7 +342,7 @@ const Contact = () => {
                 </div>
                 <h3 className="text-lg font-bold">Contact Info</h3>
               </div>
-              
+
               <div className="space-y-6">
                 <a href={`mailto:${contactDetails.email}`} className="flex group items-start gap-4">
                   <div className="mt-1 p-2 rounded-lg bg-[var(--primary)]/5 text-[var(--primary)] group-hover:bg-[var(--primary)] group-hover:text-[var(--primary-foreground)] transition-colors">
@@ -386,18 +387,18 @@ const Contact = () => {
             </motion.div>
 
             {/* Map Preview */}
-            <motion.div 
-               initial={{ opacity: 0, x: 20 }}
-               animate={{ opacity: 1, x: 0 }}
-               transition={{ delay: 0.4 }}
-               className="bg-[var(--card)] rounded-3xl border border-[var(--border)] overflow-hidden shadow-sm group cursor-pointer"
-               onClick={() => window.open("https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30451.667394333985!2d83.30681399216982!3d17.728189197372308!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a39431389e6973f%3A0x92d9d20395498468!2sVisakhapatnam%2C%20Andhra%20Pradesh!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin", "_blank")}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-[var(--card)] rounded-3xl border border-[var(--border)] overflow-hidden shadow-sm group cursor-pointer"
+              onClick={() => window.open("https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30451.667394333985!2d83.30681399216982!3d17.728189197372308!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a39431389e6973f%3A0x92d9d20395498468!2sVisakhapatnam%2C%20Andhra%20Pradesh!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin", "_blank")}
             >
               <div className="relative h-48 w-full bg-[var(--muted)]">
                 <iframe
                   title="Location"
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d30451.667394333985!2d83.30681399216982!3d17.728189197372308!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a39431389e6973f%3A0x92d9d20395498468!2sVisakhapatnam%2C%20Andhra%20Pradesh!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
-                  className="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity grayscale hover:grayscale-0 duration-300" 
+                  className="w-full h-full opacity-80 group-hover:opacity-100 transition-opacity grayscale hover:grayscale-0 duration-300"
                   style={{ border: 0 }}
                   loading="lazy"
                 />

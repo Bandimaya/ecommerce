@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Mail, Loader2, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
+import { Mail, ArrowLeft, AlertCircle, CheckCircle } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/axios";
 
 const ForgotPassword = () => {
@@ -132,7 +133,7 @@ const ForgotPassword = () => {
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Skeleton className="mr-2 h-4 w-4 rounded-full bg-white/50" />
                   Sending Link...
                 </>
               ) : (

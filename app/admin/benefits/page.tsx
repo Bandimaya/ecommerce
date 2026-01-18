@@ -1,19 +1,19 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { 
-  Trash2, 
-  Upload, 
-  Plus, 
-  Loader2, 
-  CheckCircle2, 
-  X, 
-  ImageIcon, 
-  Search, 
-  Grid, 
+import {
+  Trash2,
+  Upload,
+  Plus,
+  CheckCircle2,
+  X,
+  ImageIcon,
+  Search,
+  Grid,
   List,
   Code
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios"; // Switched to apiFetch for consistency
 import { IMAGE_URL } from "@/lib/constants";
@@ -63,8 +63,8 @@ export default function BenefitsPage() {
 
   /* ===== FILTER ===== */
   const filteredBenefits = useMemo(() => {
-    return benefits.filter(b => 
-      b.text.toLowerCase().includes(search.toLowerCase()) || 
+    return benefits.filter(b =>
+      b.text.toLowerCase().includes(search.toLowerCase()) ||
       b.alt.toLowerCase().includes(search.toLowerCase())
     );
   }, [benefits, search]);
@@ -73,14 +73,14 @@ export default function BenefitsPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target;
     if (!input.files || input.files.length === 0) return;
-    
+
     const f = input.files[0];
     if (f.size > 5 * 1024 * 1024) {
       toast({ title: "Image too large (max 5MB)", variant: "destructive" });
       input.value = "";
       return;
     }
-    
+
     setFile(f);
     setPreview(URL.createObjectURL(f));
   };
@@ -147,9 +147,9 @@ export default function BenefitsPage() {
             Manage the key value propositions displayed on the landing page.
           </p>
         </div>
-        <AdminButton 
-          onClick={() => setShowForm(true)} 
-          disabled={showForm} 
+        <AdminButton
+          onClick={() => setShowForm(true)}
+          disabled={showForm}
           className="flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
@@ -185,7 +185,7 @@ export default function BenefitsPage() {
                       <label className="block text-sm font-medium text-gray-700 mb-1.5 flex items-center justify-between">
                         HTML Text Content
                         <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 flex items-center gap-1">
-                            <Code className="w-3 h-3" /> HTML Supported
+                          <Code className="w-3 h-3" /> HTML Supported
                         </span>
                       </label>
                       <textarea
@@ -223,20 +223,20 @@ export default function BenefitsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Icon / Illustration</label>
                     <label className="block border-2 border-dashed border-gray-300 rounded-[10px] h-full min-h-[180px] relative group cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50/50">
                       <input type="file" hidden accept="image/*" onChange={handleFileSelect} />
-                      
+
                       {preview ? (
                         <div className="absolute inset-4 flex items-center justify-center">
-                           <img src={preview} alt="Preview" className="max-w-full max-h-full object-contain" />
-                           <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-[8px]">
-                              <span className="text-white text-sm font-medium flex items-center gap-2">
-                                <ImageIcon className="w-4 h-4" /> Change
-                              </span>
-                           </div>
+                          <img src={preview} alt="Preview" className="max-w-full max-h-full object-contain" />
+                          <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-[8px]">
+                            <span className="text-white text-sm font-medium flex items-center gap-2">
+                              <ImageIcon className="w-4 h-4" /> Change
+                            </span>
+                          </div>
                         </div>
                       ) : (
                         <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
                           <div className="bg-white p-3 rounded-full mb-3 shadow-sm group-hover:scale-110 transition-transform">
-                             <Upload className="w-6 h-6 text-gray-400" />
+                            <Upload className="w-6 h-6 text-gray-400" />
                           </div>
                           <span className="text-sm font-medium text-gray-700">Upload Icon</span>
                           <span className="text-xs text-gray-400 mt-1">PNG/SVG preferred</span>
@@ -263,13 +263,11 @@ export default function BenefitsPage() {
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
-              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <Grid className="w-4 h-4" />
           </AdminButton>
-          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
-              view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <List className="w-4 h-4" />
           </AdminButton>
@@ -281,11 +279,11 @@ export default function BenefitsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[1, 2, 3].map((n) => (
             <div key={n} className="bg-white border border-gray-200 rounded-[10px] h-40 animate-pulse p-4 flex gap-4">
-               <div className="w-20 h-20 bg-gray-100 rounded-[10px]" />
-               <div className="flex-1 space-y-2 pt-2">
-                 <div className="h-4 bg-gray-100 rounded w-full" />
-                 <div className="h-4 bg-gray-100 rounded w-2/3" />
-               </div>
+              <div className="w-20 h-20 bg-gray-100 rounded-[10px]" />
+              <div className="flex-1 space-y-2 pt-2">
+                <div className="h-4 bg-gray-100 rounded w-full" />
+                <div className="h-4 bg-gray-100 rounded w-2/3" />
+              </div>
             </div>
           ))}
         </div>
@@ -299,71 +297,73 @@ export default function BenefitsPage() {
         // GRID VIEW
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredBenefits.map((b) => {
-             const isDeleting = removingId === b._id;
-             return (
-            <div 
-              key={b._id} 
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all p-6 relative"
-            >
-              <div className="flex items-start gap-4">
+            const isDeleting = removingId === b._id;
+            return (
+              <div
+                key={b._id}
+                className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all p-6 relative"
+              >
+                <div className="flex items-start gap-4">
                   <div className="w-16 h-16 shrink-0 bg-gray-50 rounded-[10px] p-2 flex items-center justify-center border border-gray-100">
-                    <img 
-                        src={IMAGE_URL + b.image} 
-                        alt={b.alt} 
-                        className="max-w-full max-h-full object-contain" 
+                    <img
+                      src={IMAGE_URL + b.image}
+                      alt={b.alt}
+                      className="max-w-full max-h-full object-contain"
                     />
                   </div>
-                  
-                  <div 
+
+                  <div
                     className="text-sm text-gray-700 leading-relaxed font-medium pt-1"
                     dangerouslySetInnerHTML={{ __html: b.text }}
                   />
-              </div>
+                </div>
 
-              <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
-                     onClick={() => removeBenefit(b._id)}
-                     disabled={isDeleting}
-                     className="w-8 h-8 rounded-full border border-red-100 text-red-500 bg-white hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 disabled:opacity-50"
-                     title="Remove Benefit"
+                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => removeBenefit(b._id)}
+                    disabled={isDeleting}
+                    className="w-8 h-8 rounded-full border border-red-100 text-red-500 bg-white hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-sm hover:scale-110 disabled:opacity-50"
+                    title="Remove Benefit"
                   >
-                     {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    {isDeleting ? <Skeleton className="w-3.5 h-3.5 rounded-full" /> : <Trash2 className="w-3.5 h-3.5" />}
                   </button>
+                </div>
               </div>
-            </div>
-          )})}
+            )
+          })}
         </div>
       ) : (
         // LIST VIEW
         <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
-           {filteredBenefits.map((b) => {
-              const isDeleting = removingId === b._id;
-              return (
-             <div key={b._id} className="p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors group">
+          {filteredBenefits.map((b) => {
+            const isDeleting = removingId === b._id;
+            return (
+              <div key={b._id} className="p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors group">
                 <div className="w-12 h-12 shrink-0 bg-gray-50 rounded-[8px] border border-gray-200 p-1.5 flex items-center justify-center">
-                    <img src={IMAGE_URL + b.image} alt={b.alt} className="max-w-full max-h-full object-contain" />
+                  <img src={IMAGE_URL + b.image} alt={b.alt} className="max-w-full max-h-full object-contain" />
                 </div>
-                
+
                 <div className="flex-1 min-w-0">
-                    <div 
-                        className="text-sm text-gray-900 line-clamp-1"
-                        dangerouslySetInnerHTML={{ __html: b.text }}
-                    />
-                    <p className="text-xs text-gray-400 mt-0.5">Alt: {b.alt}</p>
+                  <div
+                    className="text-sm text-gray-900 line-clamp-1"
+                    dangerouslySetInnerHTML={{ __html: b.text }}
+                  />
+                  <p className="text-xs text-gray-400 mt-0.5">Alt: {b.alt}</p>
                 </div>
 
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                        onClick={() => removeBenefit(b._id)}
-                        disabled={isDeleting}
-                        className="w-8 h-8 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm disabled:opacity-50"
-                        title="Remove Benefit"
-                    >
-                         {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
-                    </button>
+                  <button
+                    onClick={() => removeBenefit(b._id)}
+                    disabled={isDeleting}
+                    className="w-8 h-8 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm disabled:opacity-50"
+                    title="Remove Benefit"
+                  >
+                    {isDeleting ? <Skeleton className="w-3.5 h-3.5 rounded-full" /> : <Trash2 className="w-3.5 h-3.5" />}
+                  </button>
                 </div>
-             </div>
-           )})}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

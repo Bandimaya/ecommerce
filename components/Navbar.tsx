@@ -30,6 +30,7 @@ import { useUser } from "@/contexts/UserContext";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSettings } from "@/contexts/SettingsContext";
+import GTranslate from "./GTranslate";
 
 interface NavbarProps {
   onLanguageToggle?: (language: string) => void;
@@ -128,37 +129,15 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
   return (
     <>
-      <div id="google_translate_element" style={{ display: "none" }}></div>
-
-      <Script id="google-translate-init" strategy="afterInteractive">
-        {`
-          function googleTranslateElementInit() {
-            new google.translate.TranslateElement(
-              {
-                pageLanguage: 'en',
-                includedLanguages: 'en,ar',
-                autoDisplay: false
-              },
-              'google_translate_element'
-            );
-          }
-        `}
-      </Script>
-
-      <Script
-        src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"
-        strategy="afterInteractive"
-      />
-
       <nav
         ref={navRef}
         className={`fixed top-0 left-0 right-0 w-full overflow-visible z-[9999] transition-all duration-300 ${scrolled
-            ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
-            : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
+          ? "bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg shadow-black/20"
+          : "bg-white border-b border-gray-100 shadow-md shadow-black/10"
           }`}
       >
         <div className="container mx-auto px-4">
-          <div className="flex h-16 md:h-20 md:px-1 items-gap-20 items-center justify-between">
+          <div className="flex h-16 md:h-20 md:px-1 gap-4 items-center justify-between">
             {/* Logo Section - Left Side */}
             <div
               className="flex items-center gap-1 group relative z-[70]"
@@ -173,22 +152,22 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     className="w-full h-full object-contain"
                   />
                 </div> */}
-                <span className="text-[20px] md:text-[22px] font-bold hidden md:inline-block max-w-[160px] truncate leading-none site-brand" style={{ color: 'var(--primary)' }}>
+                <span className="text-[18px] md:text-[22px] font-bold inline-block max-w-[160px] truncate leading-none site-brand" style={{ color: 'var(--primary)' }}>
                   <span>STEM</span><span className="text-accent">PARK</span>
                 </span>
               </div>
             </div>
 
             {/* Centered Desktop Navigation */}
-            <div className="hidden md:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2">
+            <div className="hidden lg:flex items-center justify-center absolute left-1/2 transform -translate-x-1/2">
               <div className="flex items-center gap-1 bg-white/50 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-200/50">
                 {navLinks.map((link) => (
                   <Link
                     key={link.path}
                     href={link.path}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${isActive(link.path)
-                        ? "bg-primary text-white shadow-sm"
-                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                      ? "bg-primary text-white shadow-sm"
+                      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                       }`}
                   >
                     {link.label}
@@ -197,10 +176,12 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               </div>
             </div>
 
+
             {/* Right Actions */}
             <div className="flex items-center gap-2 relative z-[70]">
+              <GTranslate inline />
               {/* Desktop Search */}
-              <div className="hidden md:block relative">
+              <div className="hidden lg:block relative">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -236,6 +217,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               </div>
 
               {/* Cart Button */}
+
               <Link href="/cart">
                 <Button
                   variant="ghost"
@@ -296,7 +278,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Link href="/login" className="hidden md:block">
+                  <Link href="/login" className="hidden lg:block">
                     <Button
                       size="sm"
                       className="rounded-full px-6 font-medium bg-primary text-white"
@@ -311,7 +293,7 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="md:hidden text-gray-600 hover:text-gray-900 ml-1 rtl:mr-1 rtl:ml-0"
+                className="lg:hidden text-gray-600 hover:text-gray-900 ml-1 rtl:mr-1 rtl:ml-0"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-expanded={isOpen}
               >
@@ -333,9 +315,9 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
 
       {/* Mobile Navigation Overlay */}
       <div
-        className={`md:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
-            ? "translate-x-0 opacity-100 visible"
-            : "ltr:translate-x-full rtl:-translate-x-full opacity-0 invisible"
+        className={`lg:hidden fixed inset-0 top-16 bg-white z-50 transition-all duration-300 ease-in-out transform ${isOpen
+          ? "translate-x-0 opacity-100 visible"
+          : "ltr:translate-x-full rtl:-translate-x-full opacity-0 invisible"
           }`}
         style={{ height: "calc(100vh - 64px)" }}
       >
@@ -359,8 +341,8 @@ const Navbar = ({ onLanguageToggle }: NavbarProps) => {
                 href={link.path}
                 onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-4 px-4 py-4 rounded-xl font-medium transition-all ${isActive(link.path)
-                    ? "bg-primary text-white shadow-md"
-                    : "text-gray-700 hover:bg-gray-50"
+                  ? "bg-primary text-white shadow-md"
+                  : "text-gray-700 hover:bg-gray-50"
                   }`}
               >
                 {link.icon}

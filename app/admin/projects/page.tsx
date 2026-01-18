@@ -1,21 +1,21 @@
 "use client";
 
 import { useEffect, useState, useMemo, ChangeEvent } from "react";
-import { 
-  PlusCircle, 
-  Trash2, 
-  Search, 
-  Grid, 
-  List, 
-  Loader2, 
-  X, 
-  Save, 
-  ImageIcon, 
-  Upload, 
-  Eye,
+import {
+  PlusCircle,
+  Trash2,
+  Search,
+  Grid,
+  List,
   User,
-  Layout
+  Layout,
+  X,
+  Save,
+  ImageIcon,
+  Upload,
+  Eye
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { IMAGE_URL } from "@/lib/constants";
 import { toast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -50,7 +50,7 @@ export default function ProjectsPage() {
   const [form, setForm] = useState(emptyForm);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
-  const [url, setUrl] = useState(""); 
+  const [url, setUrl] = useState("");
 
   /* ---------------- FETCH ---------------- */
   const fetchProjects = async () => {
@@ -73,8 +73,8 @@ export default function ProjectsPage() {
 
   /* ---------------- FILTER ---------------- */
   const filteredProjects = useMemo(() => {
-    return projects.filter(p => 
-      p.title.toLowerCase().includes(search.toLowerCase()) || 
+    return projects.filter(p =>
+      p.title.toLowerCase().includes(search.toLowerCase()) ||
       p.student.toLowerCase().includes(search.toLowerCase())
     );
   }, [projects, search]);
@@ -87,14 +87,14 @@ export default function ProjectsPage() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const input = e.target;
     if (!input.files || input.files.length === 0) return;
-    
+
     const f = input.files[0];
     if (f.size > 5 * 1024 * 1024) {
       toast({ title: "Image too large (max 5MB)", variant: "destructive" });
       input.value = "";
       return;
     }
-    
+
     setFile(f);
     setPreview(URL.createObjectURL(f));
   };
@@ -168,9 +168,9 @@ export default function ProjectsPage() {
             Showcase innovative projects built by students.
           </p>
         </div>
-        <AdminButton 
-          onClick={() => setShowForm(true)} 
-          disabled={showForm} 
+        <AdminButton
+          onClick={() => setShowForm(true)}
+          disabled={showForm}
           className="flex items-center gap-2"
         >
           <PlusCircle className="w-4 h-4" />
@@ -203,39 +203,39 @@ export default function ProjectsPage() {
                   {/* Left: Inputs */}
                   <div className="md:col-span-2 space-y-5">
                     <div className="grid md:grid-cols-2 gap-5">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Project Title</label>
-                            <input
-                                name="title"
-                                value={form.title}
-                                onChange={handleChange}
-                                placeholder="e.g. Smart Irrigation System"
-                                className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">Student Name</label>
-                            <input
-                                name="student"
-                                value={form.student}
-                                onChange={handleChange}
-                                placeholder="e.g. Alex Johnson"
-                                className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-                                required
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1.5">View Count</label>
-                            <input
-                                name="views"
-                                value={form.views}
-                                onChange={handleChange}
-                                placeholder="e.g. 1.2k"
-                                className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-                                required
-                            />
-                        </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Project Title</label>
+                        <input
+                          name="title"
+                          value={form.title}
+                          onChange={handleChange}
+                          placeholder="e.g. Smart Irrigation System"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Student Name</label>
+                        <input
+                          name="student"
+                          value={form.student}
+                          onChange={handleChange}
+                          placeholder="e.g. Alex Johnson"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">View Count</label>
+                        <input
+                          name="views"
+                          value={form.views}
+                          onChange={handleChange}
+                          placeholder="e.g. 1.2k"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          required
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -244,7 +244,7 @@ export default function ProjectsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Project Thumbnail</label>
                     <label className="block border-2 border-dashed border-gray-300 rounded-[10px] p-4 cursor-pointer hover:bg-gray-50 transition-colors h-48 md:h-full relative group bg-gray-50/50">
                       <input type="file" hidden accept="image/*" onChange={handleFileSelect} />
-                      
+
                       {preview ? (
                         <div className="w-full h-full flex items-center justify-center relative">
                           <img src={preview} alt="Preview" className="max-h-full max-w-full object-cover rounded-[10px]" />
@@ -291,13 +291,11 @@ export default function ProjectsPage() {
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
-              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <Grid className="w-4 h-4" />
           </AdminButton>
-          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
-              view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <List className="w-4 h-4" />
           </AdminButton>
@@ -309,11 +307,11 @@ export default function ProjectsPage() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[1, 2, 3, 4].map(i => (
             <div key={i} className="bg-white border border-gray-200 rounded-[10px] h-60 animate-pulse">
-               <div className="h-40 bg-gray-100 rounded-t-[10px]" />
-               <div className="p-3 space-y-2">
-                 <div className="h-4 bg-gray-100 rounded w-3/4" />
-                 <div className="h-3 bg-gray-100 rounded w-1/2" />
-               </div>
+              <div className="h-40 bg-gray-100 rounded-t-[10px]" />
+              <div className="p-3 space-y-2">
+                <div className="h-4 bg-gray-100 rounded w-3/4" />
+                <div className="h-3 bg-gray-100 rounded w-1/2" />
+              </div>
             </div>
           ))}
         </div>
@@ -331,14 +329,14 @@ export default function ProjectsPage() {
               <div key={p._id} className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden">
                 <div className="relative h-40 bg-gray-100 overflow-hidden">
                   <img src={IMAGE_URL + p.image} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  
+
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button
-                        onClick={() => removeProject(p._id)}
-                        disabled={isDeleting}
-                        className="w-8 h-8 rounded-full bg-white text-red-500 flex items-center justify-center shadow-sm hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
+                      onClick={() => removeProject(p._id)}
+                      disabled={isDeleting}
+                      className="w-8 h-8 rounded-full bg-white text-red-500 flex items-center justify-center shadow-sm hover:bg-red-500 hover:text-white transition-all disabled:opacity-50"
                     >
-                        {isDeleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                      {isDeleting ? <Skeleton className="w-3.5 h-3.5 rounded-full" /> : <Trash2 className="w-3.5 h-3.5" />}
                     </button>
                   </div>
                 </div>
@@ -346,8 +344,8 @@ export default function ProjectsPage() {
                 <div className="p-4 flex-1">
                   <h3 className="font-bold text-gray-900 line-clamp-1 mb-1">{p.title}</h3>
                   <div className="flex justify-between items-center text-xs text-gray-500 mt-2">
-                     <span className="flex items-center gap-1"><User className="w-3 h-3" /> {p.student}</span>
-                     <span className="flex items-center gap-1 bg-gray-100 px-1.5 py-0.5 rounded"><Eye className="w-3 h-3" /> {p.views}</span>
+                    <span className="flex items-center gap-1"><User className="w-3 h-3" /> {p.student}</span>
+                    <span className="flex items-center gap-1 bg-gray-100 px-1.5 py-0.5 rounded"><Eye className="w-3 h-3" /> {p.views}</span>
                   </div>
                 </div>
               </div>
@@ -357,31 +355,31 @@ export default function ProjectsPage() {
       ) : (
         // LIST VIEW
         <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
-           {filteredProjects.map((p) => {
-              const isDeleting = removingId === p._id;
-              return (
-                <div key={p._id} className="p-3 flex items-center gap-4 hover:bg-gray-50 transition-colors group">
-                    <div className="w-16 h-12 shrink-0 bg-gray-100 rounded-[6px] overflow-hidden border border-gray-200">
-                        <img src={IMAGE_URL + p.image} alt={p.title} className="w-full h-full object-cover" />
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                        <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{p.title}</h3>
-                        <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
-                            <span>By {p.student}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {p.views}</span>
-                        </div>
-                    </div>
-
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => removeProject(p._id)} disabled={isDeleting} className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors">
-                            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                        </button>
-                    </div>
+          {filteredProjects.map((p) => {
+            const isDeleting = removingId === p._id;
+            return (
+              <div key={p._id} className="p-3 flex items-center gap-4 hover:bg-gray-50 transition-colors group">
+                <div className="w-16 h-12 shrink-0 bg-gray-100 rounded-[6px] overflow-hidden border border-gray-200">
+                  <img src={IMAGE_URL + p.image} alt={p.title} className="w-full h-full object-cover" />
                 </div>
-              );
-           })}
+
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-bold text-gray-900 text-sm line-clamp-1">{p.title}</h3>
+                  <div className="flex items-center gap-3 text-xs text-gray-500 mt-0.5">
+                    <span>By {p.student}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1"><Eye className="w-3 h-3" /> {p.views}</span>
+                  </div>
+                </div>
+
+                <div className="opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => removeProject(p._id)} disabled={isDeleting} className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors">
+                    {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

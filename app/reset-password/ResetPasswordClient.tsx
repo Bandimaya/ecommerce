@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { Loader2, CheckCircle, AlertCircle, ArrowLeft, Lock } from "lucide-react";
+import { CheckCircle, AlertCircle, ArrowLeft, Lock } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const ResetPasswordClient = () => {
   const router = useRouter();
@@ -176,7 +177,7 @@ const ResetPasswordClient = () => {
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Skeleton className="mr-2 h-4 w-4 rounded-full bg-white/50" />
                   Resetting...
                 </>
               ) : (

@@ -6,12 +6,12 @@ import {
   Pencil,
   Trash2,
   Search,
-  Loader2,
   X,
   HelpCircle,
   AlignLeft,
   Type,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -269,7 +269,7 @@ export default function FAQsPage() {
                       className="icon-btn text-red-500 border-red-500"
                     >
                       {isDeleting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <Skeleton className="w-4 h-4 rounded-full" />
                       ) : (
                         <Trash2 className="w-4 h-4" />
                       )}

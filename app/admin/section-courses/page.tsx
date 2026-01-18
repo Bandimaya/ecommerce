@@ -1,24 +1,24 @@
 "use client";
 
 import { useEffect, useState, useMemo, ChangeEvent } from "react";
-import { 
-  PlusCircle, 
-  Pencil, 
-  Trash2, 
-  Search, 
-  Grid, 
-  List, 
-  Loader2, 
-  X, 
-  Save, 
-  ImageIcon, 
-  Upload, 
-  Clock, 
-  Users, 
+import {
+  PlusCircle,
+  Pencil,
+  Trash2,
+  Search,
+  Grid,
+  List,
+  CheckCircle2,
+  X,
+  Save,
+  ImageIcon,
+  Upload,
+  Clock,
+  Users,
   BarChart,
-  Star,
-  CheckCircle2
+  Star
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { apiFetch } from "@/lib/axios";
 import { toast } from "@/hooks/use-toast";
 import { IMAGE_URL } from "@/lib/constants";
@@ -131,11 +131,11 @@ export default function SectionCoursesPage({
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    
+
     if (type === "number") {
-      setForm((prev) => ({ 
-        ...prev, 
-        [name]: value === "" ? "" : Number(value) 
+      setForm((prev) => ({
+        ...prev,
+        [name]: value === "" ? "" : Number(value)
       }));
     } else {
       setForm((prev) => ({ ...prev, [name]: value }));
@@ -218,18 +218,18 @@ export default function SectionCoursesPage({
   /* ---------------- SUBMIT ---------------- */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!form.title.trim()) return toast({ title: "Title is required", variant: "destructive" });
     if (!form._id && !imageFile) return toast({ title: "Image is required", variant: "destructive" });
     if (!form.sectionId) return toast({ title: "Section is required", variant: "destructive" });
-    
+
     if (form.rating === "" || form.rating < 0 || form.rating > 5) {
       return toast({ title: "Rating must be a number between 0 and 5", variant: "destructive" });
     }
 
     setIsSubmitting(true);
     const data = new FormData();
-    
+
     Object.entries(form).forEach(([key, value]) => {
       if (key === 'skills') {
         data.append(key, JSON.stringify(value));
@@ -315,7 +315,7 @@ export default function SectionCoursesPage({
                           autoFocus
                         />
                       </div>
-                      
+
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
                         <textarea
@@ -346,10 +346,10 @@ export default function SectionCoursesPage({
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Level</label>
                         <select
-                           name="level"
-                           value={form.level}
-                           onChange={handleChange}
-                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                          name="level"
+                          value={form.level}
+                          onChange={handleChange}
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 bg-white focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
                         >
                           <option value="">Select Level</option>
                           <option value="Beginner">Beginner</option>
@@ -394,17 +394,17 @@ export default function SectionCoursesPage({
                       </div>
 
                       <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1.5">Rating (0-5)</label>
-                          <input
-                            type="number"
-                            name="rating"
-                            value={form.rating}
-                            onChange={handleChange}
-                            min="0"
-                            max="5"
-                            step="0.1"
-                            className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
-                          />
+                        <label className="block text-sm font-medium text-gray-700 mb-1.5">Rating (0-5)</label>
+                        <input
+                          type="number"
+                          name="rating"
+                          value={form.rating}
+                          onChange={handleChange}
+                          min="0"
+                          max="5"
+                          step="0.1"
+                          className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
+                        />
                       </div>
 
                       <div className="md:col-span-2">
@@ -417,7 +417,7 @@ export default function SectionCoursesPage({
                           className="w-full border border-gray-300 rounded-[10px] px-3 py-2.5 focus:ring-2 focus:ring-blue-500 outline-none shadow-sm"
                         />
                       </div>
-                      
+
                       <div className="md:col-span-2">
                         <label className="block text-sm font-medium text-gray-700 mb-1.5">Image Alt Text</label>
                         <input
@@ -436,7 +436,7 @@ export default function SectionCoursesPage({
                     <label className="block text-sm font-medium text-gray-700 mb-1.5">Course Image</label>
                     <label className="block border-2 border-dashed border-gray-300 rounded-[10px] p-4 cursor-pointer hover:bg-gray-50 transition-colors h-64 md:h-full max-h-[400px] relative group">
                       <input type="file" hidden accept="image/*" onChange={handleImageChange} />
-                      
+
                       {preview ? (
                         <div className="w-full h-full flex items-center justify-center relative">
                           <img src={preview} alt="Preview" className="max-h-full max-w-full object-contain rounded-[10px]" />
@@ -483,13 +483,11 @@ export default function SectionCoursesPage({
           />
         </div>
         <div className="flex bg-gray-100 p-1 rounded-[10px] border border-gray-200">
-          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${
-              view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("grid")} className={`p-2 rounded-[10px] transition-all ${view === "grid" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <Grid className="w-4 h-4" />
           </AdminButton>
-          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${
-              view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
+          <AdminButton variant="ghost" onClick={() => setView("list")} className={`p-2 rounded-[10px] transition-all ${view === "list" ? "bg-white text-blue-600 shadow-sm" : "text-gray-500 hover:text-gray-700"
             }`}>
             <List className="w-4 h-4" />
           </AdminButton>
@@ -522,138 +520,140 @@ export default function SectionCoursesPage({
           {filteredCourses.map(course => {
             const isDeleting = removingId === course._id;
             return (
-            <div
-              key={course._id}
-              className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
-            >
-              {/* Image Area */}
-              <div className="relative h-56 bg-gray-100 overflow-hidden">
-                {course.image ? (
-                  <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
-                    <ImageIcon className="w-16 h-16 opacity-50" />
+              <div
+                key={course._id}
+                className="group bg-white rounded-[10px] border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden"
+              >
+                {/* Image Area */}
+                <div className="relative h-56 bg-gray-100 overflow-hidden">
+                  {course.image ? (
+                    <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-300 bg-gray-50">
+                      <ImageIcon className="w-16 h-16 opacity-50" />
+                    </div>
+                  )}
+
+                  {/* Level Tag Overlay */}
+                  <div className="absolute top-3 right-3">
+                    <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm text-gray-700 border border-black/5 flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3 h-3 text-blue-500" />
+                      {course.level}
+                    </span>
                   </div>
-                )}
-                
-                {/* Level Tag Overlay */}
-                <div className="absolute top-3 right-3">
-                   <span className="bg-white/95 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-sm text-gray-700 border border-black/5 flex items-center gap-1.5">
-                     <CheckCircle2 className="w-3 h-3 text-blue-500" />
-                     {course.level}
-                   </span>
                 </div>
-              </div>
-              
-              {/* Content Area */}
-              <div className="p-6 flex-1 flex flex-col">
-                 <h3 className="font-bold text-xl text-gray-900 mb-2 line-clamp-1" title={course.title}>
-                   {course.title}
-                 </h3>
-                 <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
-                   {course.description}
-                 </p>
-                 
-                 {/* Meta Tags */}
-                 <div className="flex flex-wrap gap-2 mb-6">
+
+                {/* Content Area */}
+                <div className="p-6 flex-1 flex flex-col">
+                  <h3 className="font-bold text-xl text-gray-900 mb-2 line-clamp-1" title={course.title}>
+                    {course.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 line-clamp-2 mb-4 flex-1">
+                    {course.description}
+                  </p>
+
+                  {/* Meta Tags */}
+                  <div className="flex flex-wrap gap-2 mb-6">
                     {course.ageRange && (
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded-[10px] border border-gray-100">
-                            <Users className="w-3.5 h-3.5" /> {course.ageRange}
-                        </div>
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded-[10px] border border-gray-100">
+                        <Users className="w-3.5 h-3.5" /> {course.ageRange}
+                      </div>
                     )}
                     {course.duration && (
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded-[10px] border border-gray-100">
-                            <Clock className="w-3.5 h-3.5" /> {course.duration}
-                        </div>
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-gray-50 px-2.5 py-1.5 rounded-[10px] border border-gray-100">
+                        <Clock className="w-3.5 h-3.5" /> {course.duration}
+                      </div>
                     )}
                     {course.rating > 0 && (
-                        <div className="flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-[10px] border border-amber-100">
-                            <Star className="w-3.5 h-3.5 fill-amber-600" /> {course.rating}
-                        </div>
+                      <div className="flex items-center gap-1.5 text-xs font-medium text-amber-600 bg-amber-50 px-2.5 py-1.5 rounded-[10px] border border-amber-100">
+                        <Star className="w-3.5 h-3.5 fill-amber-600" /> {course.rating}
+                      </div>
                     )}
-                 </div>
+                  </div>
 
-                 <div className="flex items-center justify-between pt-5 border-t border-gray-100 mt-auto">
+                  <div className="flex items-center justify-between pt-5 border-t border-gray-100 mt-auto">
                     <span className="text-xs text-gray-400 font-medium flex items-center gap-1.5">
-                        <BarChart className="w-4 h-4" />
-                        {course.enrolled || "0"} Students
+                      <BarChart className="w-4 h-4" />
+                      {course.enrolled || "0"} Students
                     </span>
-                    
+
                     {/* Circular Action Buttons */}
                     <div className="flex gap-3">
-                      <button 
-                        onClick={() => handleEdit(course._id)} 
+                      <button
+                        onClick={() => handleEdit(course._id)}
                         className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
                         title="Edit Course"
                       >
                         <Pencil className="w-4 h-4" />
                       </button>
-                      
-                      <button 
+
+                      <button
                         onClick={() => handleDelete(course._id)}
                         disabled={isDeleting}
                         className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
                         title="Delete Course"
                       >
-                        {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                        {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
                       </button>
                     </div>
-                 </div>
+                  </div>
+                </div>
               </div>
-            </div>
-          )})}
+            )
+          })}
         </div>
       ) : (
         // LIST VIEW
         <div className="bg-white rounded-[10px] border border-gray-200 shadow-sm divide-y divide-gray-100">
           {filteredCourses.map(course => {
-             const isDeleting = removingId === course._id;
-             return (
-            <div key={course._id} className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group">
-              {/* List Image */}
-              <div className="w-full md:w-28 h-28 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200">
-                {course.image ? (
-                  <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <ImageIcon className="w-8 h-8 text-gray-300" />
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-3 mb-2">
+            const isDeleting = removingId === course._id;
+            return (
+              <div key={course._id} className="p-4 flex flex-col md:flex-row md:items-center gap-6 hover:bg-gray-50 transition-colors group">
+                {/* List Image */}
+                <div className="w-full md:w-28 h-28 shrink-0 bg-gray-100 rounded-[10px] overflow-hidden border border-gray-200">
+                  {course.image ? (
+                    <img src={IMAGE_URL + course.image} alt={course.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="w-8 h-8 text-gray-300" />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3 mb-2">
                     <h3 className="font-bold text-lg text-gray-900">{course.title}</h3>
                     <span className="text-xs px-2.5 py-0.5 bg-blue-50 text-blue-700 rounded-full border border-blue-100 font-medium">
-                        {course.level}
+                      {course.level}
                     </span>
-                </div>
-                <p className="text-sm text-gray-500 line-clamp-1 mb-3">{course.description}</p>
-                <div className="flex flex-wrap gap-4 text-xs text-gray-400 font-medium">
+                  </div>
+                  <p className="text-sm text-gray-500 line-clamp-1 mb-3">{course.description}</p>
+                  <div className="flex flex-wrap gap-4 text-xs text-gray-400 font-medium">
                     {course.ageRange && <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> {course.ageRange}</span>}
                     {course.duration && <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {course.duration}</span>}
                     {course.enrolled && <span className="flex items-center gap-1.5"><BarChart className="w-3.5 h-3.5" /> {course.enrolled}</span>}
+                  </div>
                 </div>
-              </div>
-              
-              {/* List Actions */}
-              <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
-                    onClick={() => handleEdit(course._id)} 
+
+                {/* List Actions */}
+                <div className="flex gap-2 self-start md:self-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    onClick={() => handleEdit(course._id)}
                     className="w-10 h-10 rounded-full border border-blue-100 text-blue-600 bg-white hover:bg-blue-500 hover:text-white hover:border-blue-500 flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110"
                   >
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDelete(course._id)}
                     disabled={isDeleting}
                     className="w-10 h-10 rounded-full border border-red-500 text-red-500 bg-transparent hover:bg-red-500 hover:text-white flex items-center justify-center transition-all duration-300 shadow-sm hover:scale-110 disabled:opacity-50 disabled:hover:scale-100"
                   >
-                    {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                    {isDeleting ? <Skeleton className="w-4 h-4 rounded-full" /> : <Trash2 className="w-4 h-4" />}
                   </button>
+                </div>
               </div>
-            </div>
-          )})}
+            )
+          })}
         </div>
       )}
     </div>

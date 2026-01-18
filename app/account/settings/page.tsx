@@ -7,9 +7,9 @@ import { useTheme } from "@/contexts/ThemeContext";
 import SettingsSkeleton from "@/components/ui/SettingsSkeleton";
 import { useToast } from "@/hooks/use-toast";
 import { apiFetch } from "@/lib/axios";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Save,
-  Loader2,
   Image as ImageIcon,
   MapPin,
   Lock,
@@ -466,7 +466,7 @@ export default function AccountSettings() {
             {profileError && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {profileError}</p>}
             <div className="pt-2">
               <button onClick={handleProfileSave} disabled={savingProfile} className={primaryBtnStyle}>
-                {savingProfile ? <> <Loader2 className="w-4 h-4 animate-spin" /> Saving... </> : <> <Save className="w-4 h-4" /> Save Changes </>}
+                {savingProfile ? <> <Skeleton className="w-4 h-4 rounded-full" /> Saving... </> : <> <Save className="w-4 h-4" /> Save Changes </>}
               </button>
             </div>
           </div>
@@ -617,7 +617,7 @@ export default function AccountSettings() {
             }
             <div className="mt-8 flex justify-end border-t border-border pt-4">
               <button onClick={handleSaveAddresses} disabled={savingAddress} className="px-6 py-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors flex items-center gap-2 shadow-lg">
-                {savingAddress ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />} Save Address
+                {savingAddress ? <Skeleton className="w-4 h-4 rounded-full" /> : <Save className="w-4 h-4" />} Save Address
               </button>
             </div>
           </div>
@@ -640,7 +640,7 @@ export default function AccountSettings() {
                   <input type="password" value={oldPassword} onChange={(e) => setOldPassword(e.target.value)} disabled={isOldPasswordVerified} className={inputStyle} placeholder="Enter current password" />
                   {!isOldPasswordVerified && (
                     <button onClick={verifyOldPassword} disabled={verifyingPassword || !oldPassword} className="px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-lg text-sm font-medium transition-colors">
-                      {verifyingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : "Verify"}
+                      {verifyingPassword ? <Skeleton className="w-4 h-4 rounded-full" /> : "Verify"}
                     </button>
                   )}
                   {isOldPasswordVerified && <div className="px-3 py-2 text-green-600 flex items-center gap-1 font-medium"><CheckCircle className="w-5 h-5" /> Verified</div>}
@@ -660,7 +660,7 @@ export default function AccountSettings() {
                     {passwordErrors.confirm && <p className="text-xs text-destructive mt-1">{passwordErrors.confirm}</p>}
                   </div>
                   <button onClick={handleChangePassword} disabled={changingPassword || !newPassword || !confirmPassword} className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-md mt-2">
-                    {changingPassword ? <span className="flex items-center justify-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Updating...</span> : "Confirm Change Password"}
+                    {changingPassword ? <span className="flex items-center justify-center gap-2"><Skeleton className="w-4 h-4 rounded-full" /> Updating...</span> : "Confirm Change Password"}
                   </button>
                 </div>
               )}

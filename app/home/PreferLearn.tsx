@@ -3,10 +3,11 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
     Search, X, ChevronRight, ChevronLeft,
-    PackageSearch, ShoppingCart, Loader2,
+    PackageSearch, ShoppingCart,
     Package, Brain, Star, ArrowRight,
     Filter
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { cn, getDisplayPrice } from "@/lib/utils";
 import {
@@ -50,19 +51,19 @@ const chunkArray = (array: any[], size: number) => {
 // HELPER: Components
 // ----------------------------------------------------------------------
 
-const DescriptionWithReadMore = ({ 
-    text, 
+const DescriptionWithReadMore = ({
+    text,
     limit = 200, // Higher limit for modal view
-    className 
-}: { 
-    text: string, 
-    limit?: number, 
-    className?: string 
+    className
+}: {
+    text: string,
+    limit?: number,
+    className?: string
 }) => {
     const [isExpanded, setIsExpanded] = useState(false);
-    
+
     if (!text) return <p className={cn("text-slate-400 italic", className)}>No description available.</p>;
-    
+
     const isLong = text.length > limit;
     const displayText = isExpanded || !isLong ? text : text.slice(0, limit).trim() + "...";
 
@@ -247,7 +248,7 @@ const ShopSkeleton = () => {
                         <div className="h-8 w-48 md:w-64 bg-slate-200/60 rounded animate-pulse" />
                         <div className="hidden md:block h-8 w-24 bg-slate-100 rounded-lg animate-pulse" />
                     </div>
-                    
+
                     <div className="flex gap-4 md:gap-6 overflow-hidden pb-8 pt-4 -mx-4 px-4 md:-mx-12 md:px-12 opacity-80">
                         {[1, 2, 3, 4, 5].map((cardIndex) => (
                             <ProductCardSkeleton key={cardIndex} />
@@ -545,7 +546,7 @@ const Shop = () => {
                                                                                 <div className="pt-3 md:pt-4 border-t border-slate-100 flex justify-between items-center mt-2">
                                                                                     <span className="text-xs font-bold text-slate-400 flex items-center">Details <ChevronRight className="ml-1 w-3 h-3" /></span>
                                                                                     <Button size="icon" className="h-8 w-8 rounded-[10px] bg-blue-600 hover:bg-slate-900 shadow-md" onClick={(e) => handleAddToCart(e, product, countryCodeValue)} disabled={cartLoading}>
-                                                                                        {cartLoading ? <Loader2 className="w-3 h-3 text-white animate-spin" /> : <ShoppingCart className="w-3 h-3 text-white" />}
+                                                                                        {cartLoading ? <Skeleton className="w-3 h-3 rounded-full bg-white/20" /> : <ShoppingCart className="w-3 h-3 text-white" />}
                                                                                     </Button>
                                                                                 </div>
                                                                             </motion.div>
@@ -731,9 +732,9 @@ const Shop = () => {
                                                         </div>
 
                                                         {/* UPDATED: Dynamic Description with Read More */}
-                                                        <DescriptionWithReadMore 
-                                                            text={selectedProduct.description} 
-                                                            className="text-slate-600 text-sm leading-relaxed" 
+                                                        <DescriptionWithReadMore
+                                                            text={selectedProduct.description}
+                                                            className="text-slate-600 text-sm leading-relaxed"
                                                         />
                                                     </div>
                                                 </motion.div>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Loader2 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   loading?: boolean;
@@ -29,12 +29,11 @@ export default function AdminButton({
     <button
       {...props}
       disabled={isDisabled}
-      className={`${base} ${variants[variant] || variants.primary} ${className} ${
-        isDisabled ? "opacity-60 cursor-not-allowed" : ""
-      }`}
+      className={`${base} ${variants[variant] || variants.primary} ${className} ${isDisabled ? "opacity-60 cursor-not-allowed" : ""
+        }`}
     >
       <span className="flex items-center gap-2">
-        {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+        {loading && <Skeleton className="w-4 h-4 rounded-full bg-current opacity-50" />}
         {children}
       </span>
     </button>
