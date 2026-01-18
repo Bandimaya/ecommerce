@@ -10,20 +10,21 @@ import { Input } from "@/components/ui/input"
 import { useUser } from "@/contexts/UserContext"
 import { apiFetch } from "@/lib/axios"
 import Link from "next/link"
-import { apiUrl, IMAGE_URL } from "@/lib/constants"
+import { apiUrl, CURRENCY_OPTIONS, IMAGE_URL } from "@/lib/constants"
 import { motion, AnimatePresence, Variants, useReducedMotion } from "framer-motion"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
+import { getDisplayPrice } from "@/lib/utils"
 
 const Cart = () => {
     const { cartItems, updateQuantity, removeFromCart, total, clearCart } = useCart()
     const [loading, setLoading] = useState(false)
-    const { isIndia } = useSettings()
+    const { isIndia, countryCode } = useSettings()
     const { user }: any = useUser()
     const [isCheckingOut, setIsCheckingOut] = useState(false)
     const [shippingMethod, setShippingMethod] = useState("standard")
 
-    const currencySymbol = isIndia ? "₹" : ""
+    const { currency }: any = getDisplayPrice([], countryCode)
     const shippingCost = total >= 50 ? 0 : 5.99
     const grandTotal = total + shippingCost
     const [addresses, setAddresses] = useState<any>([])
@@ -42,8 +43,6 @@ const Cart = () => {
     })
 
     const prefersReducedMotion = useReducedMotion()
-
-    const { countryCode } = useSettings();
 
     const handleCheckout = async () => {
         setLoading(true)
@@ -400,14 +399,14 @@ const Cart = () => {
                                                                 animate={{ scale: item.quantity > 1 ? 1.05 : 1 }}
                                                                 transition={{ type: "spring" }}
                                                             >
-                                                                {currencySymbol}
+                                                                {currency}
                                                                 {(item.livePrice * item.quantity).toLocaleString(isIndia ? "en-IN" : "en-US", {
                                                                     minimumFractionDigits: 2,
                                                                 })}
                                                             </motion.p>
                                                             <p className="text-xs text-[var(--unit-price)] font-medium"
                                                                 style={{ '--unit-price': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
-                                                                {currencySymbol}{item.livePrice.toFixed(2)} each
+                                                                {currency}{item.livePrice.toFixed(2)} each
                                                             </p>
                                                         </div>
                                                     </div>
@@ -538,7 +537,7 @@ const Cart = () => {
                                                                     <span className="font-medium">Standard Shipping</span>
                                                                     <p className="text-sm text-[var(--text-muted)]">5-7 business days</p>
                                                                 </div>
-                                                                <span className="font-bold">{currencySymbol}5.99</span>
+                                                                <span className="font-bold">{currency}5.99</span>
                                                             </div>
                                                         </Label>
                                                     </div>
@@ -555,7 +554,7 @@ const Cart = () => {
                                                                     <span className="font-medium">Express Shipping</span>
                                                                     <p className="text-sm text-[var(--text-muted)]">2-3 business days</p>
                                                                 </div>
-                                                                <span className="font-bold">{currencySymbol}14.99</span>
+                                                                <span className="font-bold">{currency}14.99</span>
                                                             </div>
                                                         </Label>
                                                     </div>
@@ -602,14 +601,14 @@ const Cart = () => {
                                         style={{ '--text-muted': 'hsl(var(--muted-foreground))' } as React.CSSProperties}>
                                         Subtotal ({cartItems.length} items)
                                     </span>
-                                    <span className="font-medium">{currencySymbol}{total.toFixed(2)}</span>
+                                    <span className="font-medium">{currency}{total.toFixed(2)}</span>
                                 </div>
 
                                 <div className="flex justify-between text-sm">
                                     <span className="text-[var(--text-muted)]">Shipping</span>
                                     <span className={`font-medium ${shippingCost === 0 ? 'text-[var(--success)]' : ''}`}
                                         style={{ '--success': 'hsl(var(--success))' } as React.CSSProperties}>
-                                        {shippingCost === 0 ? "FREE" : `${currencySymbol}${shippingCost.toFixed(2)}`}
+                                        {shippingCost === 0 ? "FREE" : `${currency}${shippingCost.toFixed(2)}`}
                                     </span>
                                 </div>
 
@@ -628,7 +627,7 @@ const Cart = () => {
                                         <p className="text-sm text-[var(--warning-text)] font-medium text-center"
                                             style={{ '--warning-text': 'hsl(var(--primary))' } as React.CSSProperties}>
                                             <Sparkles className="w-3 h-3 inline mr-2" />
-                                            Add {currencySymbol}{(50 - total).toFixed(2)} more for free shipping!
+                                            Add {currency}{(50 - total).toFixed(2)} more for free shipping!
                                         </p>
                                     </motion.div>
                                 )}
@@ -646,7 +645,7 @@ const Cart = () => {
                                             className="text-2xl text-[var(--total-amount)]"
                                             style={{ '--total-amount': 'hsl(var(--primary))' } as React.CSSProperties}
                                         >
-                                            {currencySymbol}{grandTotal.toFixed(2)}
+                                            {currency}{grandTotal.toFixed(2)}
                                         </motion.span>
                                     </div>
                                     <p className="text-xs text-[var(--tax-text)] mt-2"
@@ -688,7 +687,7 @@ const Cart = () => {
 
                                 <div className="flex items-center justify-center gap-2 text-xs text-[var(--text-muted)]">
                                     <Truck className="w-3 h-3" />
-                                    <span>Free shipping over {currencySymbol}50</span>
+                                    <span>Free shipping over {currency}50</span>
                                 </div>
                             </div>
                         </motion.div>

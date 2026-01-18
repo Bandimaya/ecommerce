@@ -12,6 +12,8 @@ import {
 import { useSearchParams, useRouter } from "next/navigation"
 import { apiFetch } from "@/lib/axios"
 import { CURRENCY_OPTIONS } from "@/lib/constants"
+import { useSettings } from "@/contexts/SettingsContext"
+import { getDisplayPrice } from "@/lib/utils"
 
 /* ===== CONFIGURATION ===== */
 const TRACE_COUNT = 50
@@ -25,6 +27,7 @@ const PaymentSuccess: React.FC = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const orderId = searchParams.get("orderId")
+  const { countryCode } = useSettings();
 
   const [order, setOrder] = useState<any>(null)
   const [loading, setLoading] = useState(true)
@@ -66,10 +69,11 @@ const PaymentSuccess: React.FC = () => {
 
   const handleShare = async () => {
     if (!order) return
+    const { currency }: any = getDisplayPrice([], countryCode)
 
     const text = `Payment ${order.order.paymentStatus}
 Transaction: ${order.payment.transactionNumber}
-Amount: ${CURRENCY_OPTIONS.find(c => c.code === order.currency)?.symbol}${order.payment.amount}`
+Amount: ${currency}${order.payment.amount}`
 
     if (navigator.share) {
       await navigator.share({

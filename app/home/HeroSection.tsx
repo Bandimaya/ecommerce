@@ -424,7 +424,7 @@ const HeroSection = ({ getCSSVar, handleWatchVideo }: HeroSectionProps) => {
             className={`progress-item ${idx === currentIndex ? 'active' : ''}`}
             aria-label={`Go to slide ${idx + 1}`}
           >
-            <span className="progress-number">0{idx + 1}</span>
+            <span className="progress-number">{idx + 1}</span>
             <span className="progress-bar">
               <span className="progress-fill" />
             </span>
