@@ -168,7 +168,7 @@ export default function LeagueResults() {
         <div className="flex flex-col justify-center items-center gap-3 mb-10 sm:mb-16">
           <div className="flex items-center gap-3">
             <motion.div initial={{ width: 0 }} whileInView={{ width: '40px' }} className="h-[2px] bg-primary" />
-            <span className="text-xs font-bold uppercase tracking-widest text-primary">League Results</span>
+            <span className="text-xs font-bold uppercase tracking-widest text-primary" style={{fontSize: 'xx-large'}}>League Results</span>
             <motion.div initial={{ width: 0 }} whileInView={{ width: '40px' }} className="h-[2px] bg-primary" />
           </div>
           <h2 className="text-2xl md:text-4xl font-extrabold text-center text-slate-900 mt-2 max-w-2xl leading-tight">

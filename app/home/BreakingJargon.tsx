@@ -236,7 +236,7 @@ const BreakingJargon = ({ getCSSVar }: BreakingJargonProps) => {
               style={{ backgroundColor: `var(--accent, #3b82f6)` }}
             />
             <span
-              className="text-xs font-bold uppercase tracking-widest"
+              className="text-l font-bold uppercase tracking-widest"
               style={{ color: `var(--accent, #3b82f6)` }}
             >
               Interactive Jargon Buster

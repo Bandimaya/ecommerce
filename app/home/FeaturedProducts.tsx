@@ -326,7 +326,7 @@ const FeaturedProducts = ({ getCSSVar, isMobile: isMobileProp = false }: Feature
       <div className="w-full max-w-[2000px] mx-auto relative z-10">
         <div className="flex justify-center items-center gap-3 mb-10 sm:mb-12">
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-emerald-600" />
-          <span className="text-xs font-bold uppercase tracking-widest text-emerald-700">Premium STEM Collection</span>
+          <span className="font-bold uppercase tracking-widest text-emerald-700" style={{fontSize: 'xx-large'}}>Premium STEM Collection</span>
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-emerald-600" />
         </div>
 

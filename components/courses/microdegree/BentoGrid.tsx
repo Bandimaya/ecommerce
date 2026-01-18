@@ -659,7 +659,7 @@ const CourseShowcase = () => {
           >
              <div className="flex items-center gap-3 mb-4">
                 <span className="h-px w-8 bg-blue-600"></span>
-                <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">
+                <span className="font-bold text-blue-600 uppercase tracking-widest" style={{fontSize: 'xx-large'}}>
                   {pathname === '/' ? 'Interactive Jargon Buster' : 'World-Class Curriculum'}
                 </span>
                 <span className="h-px w-8 bg-blue-600"></span>

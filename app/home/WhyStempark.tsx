@@ -93,7 +93,7 @@ export default function WhyStempark() {
         {/* --- Header Section --- */}
         <div className="flex justify-center items-center gap-3 mb-8 md:mb-16">
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">Why Choose us?</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-primary" style={{fontSize: 'xx-large'}}>Why Choose us?</span>
           <motion.div initial={{ width: 0 }} whileInView={{ width: '48px' }} className="h-[2px] bg-primary" />
         </div>
 

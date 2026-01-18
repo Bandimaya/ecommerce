@@ -28,7 +28,7 @@ const RequestCallBanner = () => {
                     className="h-[2px] bg-[var(--primary)]"
                 />
 
-                <span className="text-xs font-bold uppercase tracking-widest text-[var(--primary)] whitespace-nowrap">
+                <span className="font-bold uppercase tracking-widest text-[var(--primary)] whitespace-nowrap" style={{fontSize: 'xx-large'}}>
                     Expert Support
                 </span>
 

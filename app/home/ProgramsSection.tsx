@@ -245,7 +245,7 @@ const ProgramsSection = ({ getCSSVar }: ProgramsSectionProps) => {
             />
             <span
               className={`${getResponsiveText.small} font-bold uppercase tracking-[0.2em]`}
-              style={{ color: `var(--accent)` }}
+              style={{ color: `var(--accent)`, fontSize: 'xx-large' }}
             >
               {/* Our Programs */}
               Testimonials

@@ -237,7 +237,7 @@ const TutorRegistrationForm = () => {
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <User className="w-8 h-8" /> Join As Tutor
           </h1>
-          <p className="opacity-90 mt-2">Empower students through STEM excellence.</p>
+          {/* <p className="opacity-90 mt-2">Empower students through STEM excellence.</p> */}
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-12">

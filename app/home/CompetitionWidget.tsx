@@ -251,7 +251,7 @@ const CompetitionWidget = () => {
                 />
                 <span
                     className="text-xs font-bold uppercase tracking-widest"
-                    style={{ color: `var(--accent)` }}
+                    style={{ color: `var(--accent)`, fontSize: 'xx-large' }}
                 >
                     Live Events
                 </span>

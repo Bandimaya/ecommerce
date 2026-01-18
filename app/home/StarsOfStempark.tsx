@@ -236,7 +236,7 @@ export default function Stars() {
                             transition={{ duration: 0.6 }}
                             className="h-[3px] bg-primary rounded-full"
                         />
-                        <span className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] text-primary">
+                        <span className="text-xs md:text-sm font-bold uppercase tracking-[0.2em] text-primary" style={{fontSize: 'xx-large'}}>
                             stars of stempark
                         </span>
                         <motion.div
