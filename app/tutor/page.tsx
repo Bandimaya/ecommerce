@@ -346,10 +346,17 @@ const TutorRegistrationForm = () => {
                       className="p-2.5 border rounded-lg"
                     >
                       <option value="">Course</option>
-                      <option value="Artificial Intelligence">Artificial Intelligence</option>
-                      <option value="Programming">Programming</option>
-                      <option value="Web Development">Web Development</option>
-                      <option value="Data Science">Data Science</option>
+                      <option value="Robotics">Robotics</option>
+                      <option value="Coding">Coding</option>
+                      <option value="Internet of Things">Internet of Things (IoT)</option>
+                      <option value="Data Analysis">Data Analysis</option>
+                      <option value="Machine Learning">Machine Learning (ML)</option>
+                      <option value="Artificial Intelligence">Artificial Intelligence (AI)</option>
+                      <option value="Digital Design">Digital Design</option>
+                      <option value="Cyber Security">Cyber Security</option>
+                      <option value="Basics of Mechatronics">Basics of Mechatronics</option>
+                      <option value="Mobile App Development">Mobile App Development</option>
+
                     </select>
 
                     {/* Level */}
@@ -424,10 +431,10 @@ const TutorRegistrationForm = () => {
                     className="p-2.5 border rounded-lg"
                   >
                     <option value="">Subject</option>
-                    <option value="Biology">Biology</option>
-                    <option value="Chemistry">Chemistry</option>
+                    <option value="Mathematics">Mathematics</option>
                     <option value="Physics">Physics</option>
-                    <option value="Social Studies">Social Studies</option>
+                    <option value="Chemistry">Chemistry</option>
+                    <option value="Biology">Biology</option>
                   </select>
 
                   {/* Grade */}
